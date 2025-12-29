@@ -170,30 +170,39 @@
 
         edificios.forEach(edificio => {
             const color = edificio.ambito === 'PUBLICO' ? '#FF8200' : '#3B82F6';
-            const card = document.createElement('div');
-            card.className = 'bg-white rounded-lg p-3 shadow hover:shadow-lg transition cursor-pointer border-l-4';
-            card.style.borderColor = color;
             
-            card.innerHTML = `
-                <h4 class="font-semibold text-black mb-1">${edificio.localidad}</h4>
-                <p class="text-xs text-gray-600 mb-2">${edificio.calle} ${edificio.numero_puerta || 'S/N'}</p>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs px-2 py-1 rounded-full" style="background-color: ${color}20; color: ${color};">
-                        ${edificio.ambito}
-                    </span>
-                    <span class="text-xs text-gray-500">${edificio.establecimientos.length} est.</span>
-                </div>
-            `;
+            // Crear una card por cada establecimiento
+            edificio.establecimientos.forEach(est => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-lg p-3 shadow hover:shadow-lg transition cursor-pointer border-l-4 mb-2';
+                card.style.borderColor = color;
+                
+                card.innerHTML = `
+                    <h4 class="font-bold text-black mb-1 text-sm leading-tight">${est.nombre}</h4>
+                    <p class="text-xs text-gray-500 mb-2">CUE: ${est.cue}</p>
+                    <p class="text-xs text-gray-600 mb-1">
+                        <span class="font-medium">📍</span> ${edificio.calle} ${edificio.numero_puerta || 'S/N'}
+                    </p>
+                    <p class="text-xs text-gray-600 mb-2">
+                        <span class="font-medium">📌</span> ${edificio.zona_departamento || edificio.localidad}
+                    </p>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-xs px-2 py-1 rounded-full font-medium" style="background-color: ${color}20; color: ${color};">
+                            ${edificio.ambito}
+                        </span>
+                    </div>
+                `;
             
-            card.onclick = () => {
-                map.setView([edificio.latitud, edificio.longitud], 16);
-                const marker = markers.find(m => m.edificioData.cui === edificio.cui);
-                if (marker) {
-                    marker.openPopup();
-                }
-            };
-            
-            container.appendChild(card);
+                card.onclick = () => {
+                    map.setView([edificio.latitud, edificio.longitud], 16);
+                    const marker = markers.find(m => m.edificioData.cui === edificio.cui);
+                    if (marker) {
+                        marker.openPopup();
+                    }
+                };
+                
+                container.appendChild(card);
+            });
         });
     }
 
