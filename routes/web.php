@@ -10,7 +10,7 @@ use App\Http\Controllers\SetupController;
 /**
  * Public Routes
  */
-Route::view('/', 'welcome')->name('home');
+Route::redirect('/', '/mapa')->name('home');
 Route::get('/setup', [SetupController::class, 'index'])->name('setup.index');
 Route::post('/setup', [SetupController::class, 'store'])->name('setup.store');
 
