@@ -3,118 +3,147 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Laravel Boilerplate Starter Kit</title>
+        <title>Establecimientos - M.E. San Juan</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
 
-        <!-- Styles -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <style>
+            :root {
+                --primary-orange: #FF8200;
+            }
+            
+            .glass {
+                background: rgba(255, 255, 255, 0.7);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 130, 0, 0.1);
+            }
+        </style>
     </head>
-    <body class="antialiased font-sans">
-        <div class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+    <body class="antialiased font-sans bg-white">
+        <div class="min-h-screen">
             <!-- Navigation -->
             @if (Route::has('login'))
-                <nav class="absolute top-0 right-0 p-6 text-right z-10">
-                    @auth
-                        <a href="{{ url('/dashboard') }}" class="px-6 py-2 rounded-lg bg-white text-gray-900 hover:bg-gray-100 transition font-semibold shadow-lg">
-                            Dashboard
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" class="mr-4 px-6 py-2 rounded-lg bg-transparent text-white border-2 border-white hover:bg-white hover:text-gray-900 transition font-semibold">
-                            Login
-                        </a>
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="px-6 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transition font-semibold shadow-lg">
-                                Registrarse
-                            </a>
-                        @endif
-                    @endauth
+                <nav class="glass fixed w-full top-0 z-50 border-b-2" style="border-color: var(--primary-orange);">
+                    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+                        <div class="flex items-center">
+                            <span class="text-2xl font-bold" style="color: var(--primary-orange);">Establecimientos</span>
+                            <span class="ml-2 text-sm text-gray-600">M.E. San Juan</span>
+                        </div>
+                        <div class="flex space-x-4">
+                            @auth
+                                <a href="{{ url('/dashboard') }}" 
+                                   class="px-6 py-2 rounded-lg text-white font-medium transition"
+                                   style="background-color: var(--primary-orange);">
+                                    Dashboard
+                                </a>
+                            @else
+                                <a href="{{ route('mapa.publico') }}" 
+                                   class="px-6 py-2 rounded-lg text-black hover:bg-orange-50 transition font-medium">
+                                    🗺️ Ver Mapa
+                                </a>
+                                <a href="{{ route('login') }}" 
+                                   class="px-6 py-2 rounded-lg text-white font-medium transition"
+                                   style="background-color: var(--primary-orange);">
+                                    Iniciar Sesión
+                                </a>
+                            @endauth
+                        </div>
+                    </div>
                 </nav>
             @endif
 
             <!-- Hero Section -->
-            <div class="relative min-h-screen flex flex-col items-center justify-center selection:bg-pink-500 selection:text-white">
-                <div class="max-w-5xl mx-auto px-6 text-center">
-                    <!-- Logo/Icon -->
+            <div class="relative min-h-screen flex flex-col items-center justify-center pt-16">
+                <div class="max-w-6xl mx-auto px-6 text-center">
+                    <!-- Icon -->
                     <div class="mb-8 flex justify-center">
-                        <div class="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl">
+                        <div class="w-24 h-24 rounded-2xl flex items-center justify-center shadow-2xl"
+                             style="background-color: var(--primary-orange);">
                             <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                             </svg>
                         </div>
                     </div>
 
-                    <!-- Main Title -->
-                    <h1 class="text-6xl md:text-7xl font-bold text-white mb-6">
-                        Laravel Boilerplate
-                        <span class="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                            Starter Kit
-                        </span>
-                        <span class="block text-white text-sm">
-                            by Grupo Xamanen
+                    <!-- Title -->
+                    <h1 class="text-6xl md:text-7xl font-bold text-black mb-6">
+                        Sistema de Gestión
+                        <span class="block" style="color: var(--primary-orange);">
+                            Establecimientos Educativos
                         </span>
                     </h1>
 
                     <!-- Description -->
-                    <p class="text-xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
-                        Un punto de partida robusto para tus proyectos Laravel con <strong class="text-white">Livewire 3</strong>, 
-                        <strong class="text-white">Tailwind CSS</strong> y un sistema de roles completo.
+                    <p class="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+                        Plataforma integral para la gestión, auditoría y visualización de 
+                        <strong class="text-black">1,162 modalidades educativas</strong> en 
+                        <strong class="text-black">1,137 establecimientos</strong> de San Juan.
                     </p>
 
                     <!-- Feature Cards -->
                     <div class="grid md:grid-cols-3 gap-6 mb-12">
                         <!-- Feature 1 -->
-                        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:bg-white/20 transition">
-                            <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        <div class="glass rounded-2xl p-8 hover:shadow-lg transition">
+                            <div class="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4"
+                                 style="background-color: rgba(255, 130, 0, 0.1);">
+                                <svg class="w-8 h-8" style="color: var(--primary-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
                             </div>
-                            <h3 class="text-lg font-semibold text-white mb-2">Autenticación Completa</h3>
-                            <p class="text-gray-400 text-sm">Laravel Breeze con Livewire integrado</p>
+                            <h3 class="text-xl font-semibold text-black mb-2">Gestión Completa</h3>
+                            <p class="text-gray-600">Administra modalidades, establecimientos y edificios educativos</p>
                         </div>
 
                         <!-- Feature 2 -->
-                        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:bg-white/20 transition">
-                            <div class="w-12 h-12 bg-pink-500 rounded-lg flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        <div class="glass rounded-2xl p-8 hover:shadow-lg transition">
+                            <div class="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4"
+                                 style="background-color: rgba(255, 130, 0, 0.1);">
+                                <svg class="w-8 h-8" style="color: var(--primary-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
                                 </svg>
                             </div>
-                            <h3 class="text-lg font-semibold text-white mb-2">Sistema de Roles</h3>
-                            <p class="text-gray-400 text-sm">Admin, Mid y User con middleware</p>
+                            <h3 class="text-xl font-semibold text-black mb-2">Mapa Interactivo</h3>
+                            <p class="text-gray-600">Visualiza la ubicación de todos los establecimientos en tiempo real</p>
                         </div>
 
                         <!-- Feature 3 -->
-                        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:bg-white/20 transition">
-                            <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        <div class="glass rounded-2xl p-8 hover:shadow-lg transition">
+                            <div class="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4"
+                                 style="background-color: rgba(255, 130, 0, 0.1);">
+                                <svg class="w-8 h-8" style="color: var(--primary-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                                 </svg>
                             </div>
-                            <h3 class="text-lg font-semibold text-white mb-2">Testing Incluido</h3>
-                            <p class="text-gray-400 text-sm">Suite completa de tests con PHPUnit</p>
+                            <h3 class="text-xl font-semibold text-black mb-2">Auditoría EDÚGE</h3>
+                            <p class="text-gray-600">Comparación y validación de datos con la plataforma EDÚGE</p>
                         </div>
                     </div>
 
                     <!-- CTA Buttons -->
                     @guest
                         <div class="flex gap-4 justify-center">
-                            <a href="{{ route('login') }}" class="px-8 py-4 rounded-lg bg-white text-gray-900 hover:bg-gray-100 transition font-semibold shadow-lg text-lg">
-                                Empezar Ahora
+                            <a href="{{ route('mapa.publico') }}" 
+                               class="px-8 py-4 rounded-lg glass text-black hover:shadow-lg transition font-semibold text-lg border-2"
+                               style="border-color: var(--primary-orange);">
+                                🗺️ Ver Mapa Público
                             </a>
-                            <a href="{{ route('register') }}" class="px-8 py-4 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transition font-semibold shadow-lg text-lg">
-                                Crear Cuenta
+                            <a href="{{ route('login') }}" 
+                               class="px-8 py-4 rounded-lg text-white hover:opacity-90 transition font-semibold shadow-lg text-lg"
+                               style="background-color: var(--primary-orange);">
+                                Iniciar Sesión
                             </a>
                         </div>
                     @endguest
                 </div>
 
                 <!-- Footer -->
-                <div class="absolute bottom-8 text-center text-gray-400 text-sm">
-                    Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})
+                <div class="absolute bottom-8 text-center text-gray-500 text-sm">
+                    Ministerio de Educación - San Juan | Laravel v{{ Illuminate\Foundation\Application::VERSION }}
                 </div>
             </div>
         </div>

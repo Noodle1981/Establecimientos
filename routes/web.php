@@ -26,10 +26,19 @@ require __DIR__.'/auth.php';
 Route::middleware(['auth', 'verified'])->group(function () {
     
     /**
-     * Dashboard de Usuario (Accesible por todos los roles autenticados)
-     * Los usuarios con rol 'user', 'mid' y 'admin' pueden acceder
+     * Dashboard - Redirige según rol
      */
-    Route::get('/dashboard', UserDashboard::class)->name('dashboard');
+    Route::get('/dashboard', function () {
+        $user = auth()->user();
+        
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        } elseif ($user->isAdministrativo()) {
+            return redirect()->route('administrativos.dashboard');
+        }
+        
+        return redirect()->route('mapa.publico');
+    })->name('dashboard');
     
     /**
      * Ruta de Perfil (Accesible por todos los autenticados)
@@ -56,6 +65,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
      * Rutas Administrativos (Accesible por 'admin' y 'administrativos')
      */
     Route::middleware(['role:admin,administrativos'])->group(function () {
+        Route::get('/administrativos', \App\Livewire\Administrativos\AdministrativosDashboard::class)->name('administrativos.dashboard');
         Route::get('/administrativos/modalidades', \App\Livewire\Admin\ModalidadesTable::class)->name('administrativos.modalidades');
     });
 });
+
+/**
+ * Rutas Públicas del Mapa
+ */
+Route::get('/mapa', \App\Livewire\Publico\MapaPublico::class)->name('mapa.publico');
+
+/**
+ * API Routes
+ */
+Route::get('/api/edificios-mapa', [\App\Http\Controllers\Api\EdificiosMapaController::class, 'index']);
