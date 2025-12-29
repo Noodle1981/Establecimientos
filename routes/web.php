@@ -49,5 +49,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['role:admin'])->group(function () {
         Route::get('/admin', AdminDashboard::class)->name('admin.dashboard');
         Route::get('/admin/users', UserManagement::class)->name('admin.users');
+        Route::get('/admin/modalidades', \App\Livewire\Admin\ModalidadesTable::class)->name('admin.modalidades');
+    });
+    
+    /**
+     * Rutas Administrativos (Accesible por 'admin' y 'administrativos')
+     */
+    Route::middleware(['role:admin,administrativos'])->group(function () {
+        Route::get('/administrativos/modalidades', \App\Livewire\Admin\ModalidadesTable::class)->name('administrativos.modalidades');
     });
 });

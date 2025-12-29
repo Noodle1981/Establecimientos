@@ -64,6 +64,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is administrativo.
+     */
+    public function isAdministrativo(): bool
+    {
+        return $this->role === 'administrativos';
+    }
+
+    /**
      * Check if user is a regular user.
      */
     public function isUser(): bool
