@@ -1,0 +1,2 @@
+CUI codigo unico de infraestuctura, se trata del edificio, un edificio puede tener varios Establecimientos
+CUE codigo unico de establecimiento, se trata del establecimiento, un CUE PUEDE TENER VARIOS modalidades (pero tambien lo identificamos como establecimientos)me o

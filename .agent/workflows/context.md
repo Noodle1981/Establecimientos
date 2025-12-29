@@ -1,63 +1,207 @@
 # Contexto del Proyecto - Establecimientos (M.E. San Juan)
 
-Este archivo proporciona el contexto estratégico y técnico del proyecto para asistentes de IA.
-
 ## 📋 Descripción del Proyecto
 
-**Establecimientos** es una plataforma diseñada para el Ministerio de Educación de la Provincia de San Juan. Su propósito es consolidar, auditar y visualizar la información de todos los establecimientos educativos (Estatales y Privados) de la provincia.
+**Establecimientos** es una plataforma integral para el Ministerio de Educación de San Juan que gestiona, audita y visualiza información de 1167+ establecimientos educativos estatales y privados.
 
 ## 🎯 Objetivos Estratégicos
 
-1.  **Auditoría de Datos:** Limpieza y validación de la base de datos de escuelas.
-2.  **Control EDÚGE:** Sincronización y validación con la plataforma externa EDÚGE para asegurar que no falten ni sobren establecimientos en el sistema oficial.
-3.  **Infraestructura Pública:** Mapa interactivo para que oficinas gubernamentales y ciudadanos localicen establecimientos.
+1. **Auditoría de Datos:** Validación y limpieza de la base de datos de establecimientos educativos.
+2. **Control EDÚGE:** Comparación con la plataforma externa EDÚGE para verificar consistencia (ej: si hay 1000 escuelas en BD, debe haber 1000 en EDÚGE).
+3. **Visualización Pública:** Mapa interactivo para que oficinas del Ministerio y ciudadanos consulten ubicaciones y datos.
 
-## 👥 Roles y Permisos
+## 👥 Sistema de Roles
 
-| Rol | Prefijo de Ruta | Responsabilidad |
-|-----|--------|-------------|
-| `admin` | `/admin` | Configuración global, gestión de usuarios de alto nivel y auditoría. |
-| `administrativos` | `/administrativos` | Carga masiva (Excel), validación de registros y corrección de datos. |
-| `público` | `/publicos` | Acceso a mapas y búsqueda de escuelas sin autenticación. |
+| Rol | Ruta | Permisos |
+|-----|------|----------|
+| `admin` | `/admin` | Gestión total: usuarios, configuración, auditoría completa |
+| `administrativos` | `/administrativos` | Carga Excel, validación, corrección de datos |
+| `publico` | `/publicos` | Consulta de mapa y datos (sin autenticación) |
+
+## 📊 Estructura de Datos del Excel
+
+### Archivo: `Establecimientos_Publicos.xlsx`
+- **Total registros:** 1167 establecimientos
+- **Columnas:** 26 campos + 1 vacía
+
+### Campos y Tipos de Datos
+
+| # | Campo | Tipo | Ejemplo | Notas |
+|---|-------|------|---------|-------|
+| 1 | `Direc. De Área` | string | "ADULTOS", "PRIMARIO", "TÉCNICA" | Nivel administrativo |
+| 2 | `nivel_educativo` | string | "UEPA", "PRIMARIO", "TEC. CAP. LABORAL" | Tipo de educación |
+| 3 | `nombre` | string | "NOCTURNA JUAN E. SERU" | Nombre del establecimiento |
+| 4 | `sector` | integer | 204, 484, 497 | Código de sector |
+| 5 | `cue` | bigint | 700038000 | **CUE del establecimiento** (único) |
+| 6 | `CUE Edificio Principal` | bigint | 700038100 | CUE del edificio donde funciona |
+| 7 | `establecimiento_cabecera` | string | "VILLICUM" | Establecimiento principal |
+| 8 | `cui` | bigint | 7000001 | **CUI del edificio** (único por edificio) |
+| 9 | `calle` | string | "MAESTRA ACIAR Y MAESTRO ANEA" | Dirección |
+| 10 | `numero_puerta` | string | "S/N", "123" | Número o S/N |
+| 11 | `orientacion` | string | "S/N" | Orientación del edificio |
+| 12 | `codigo_postal` | integer | 5419 | CP |
+| 13 | `localidad` | string | "CAMPO AFUERA" | Localidad |
+| 14 | `latitud` | string | "-31,4223061" | Coordenada (formato con coma) |
+| 15 | `longitud` | string | "-68,5461207" | Coordenada (formato con coma) |
+| 16 | `categoria` | string | "PRIMERA", "TERCERA" | Categoría del establecimiento |
+| 17 | `Inst. Legal Categoría` | string/null | null, "COMPLETAR" | Instrumento legal |
+| 18 | `Radio` | float | 3.0 | Radio de cobertura |
+| 19 | `Inst. Legal Radio` | string | "1943-ME-2005" | Instrumento legal del radio |
+| 20 | `Inst. Legal Categoría` (bis) | string | "COMPLETAR" | Duplicado (revisar) |
+| 21 | `Inst. Legal Creación` | string | "COMPLETAR" | Instrumento de creación |
+| 22 | `letra_zona` | string | "S" | Zona alfabética |
+| 23 | `zona o departamento` | string | "ALBARDON" | Departamento |
+| 24 | `TE VoIP` | float | 4307748.0 | Teléfono VoIP |
+| 25 | `Ámbito` | string | "PUBLICO" | Público/Privado |
+| 26 | `VALIDADO` | string | "VALIDADO" | Estado de validación |
+
+### Relaciones Clave
+
+> [!IMPORTANT]
+> **Jerarquía de 3 Niveles:**
+
+**Nivel 1: Edificio (CUI)**
+- **CUI (Código Único de Inmueble):** Identifica cada edificio físico.
+- Un edificio puede albergar múltiples establecimientos.
+
+**Nivel 2: Establecimiento (CUE)**
+- **CUE (Código Único de Establecimiento):** Identifica cada institución educativa.
+- Un establecimiento puede tener múltiples modalidades (niveles educativos).
+
+**Nivel 3: Modalidad (cada fila del Excel)**
+- Cada fila del Excel representa una **modalidad** específica de un establecimiento.
+- Una modalidad se define por: `direccion_area` + `nivel_educativo` (ej: "PRIMARIO", "SECUNDARIO", "INICIAL", "ADULTOS").
+
+**Ejemplo Real del Excel:**
+
+```
+Edificio: CUI 7000001 (Calle "MAESTRA ACIAR Y MAESTRO ANEA")
+  └── Establecimiento: CUE 700060500 ("ESCUELA NORMAL SUPERIOR GRAL. SAN MARTIN")
+        ├── Modalidad 1: PRIMARIO
+        ├── Modalidad 2: SECUNDARIO
+        ├── Modalidad 3: INICIAL
+        └── Modalidad 4: ADULTOS
+```
+
+**Estadísticas del Excel:**
+- **1,167 modalidades** (filas totales)
+- **~1,150 establecimientos únicos** (CUEs únicos)
+- **~100 edificios únicos** (CUIs únicos)
+- **14 CUEs con modalidades múltiples** (ej: CUE 700060500 tiene 4 modalidades)
+
+## 🏗️ Arquitectura de Base de Datos
+
+### Tablas Principales
+
+#### `edificios`
+```sql
+- id (PK)
+- cui (unique, bigint)
+- calle
+- numero_puerta
+- orientacion
+- codigo_postal
+- localidad
+- latitud (decimal)
+- longitud (decimal)
+- letra_zona
+- zona_departamento
+- te_voip
+- timestamps
+```
+
+#### `establecimientos`
+```sql
+- id (PK)
+- edificio_id (FK -> edificios)
+- cue (unique, bigint)
+- cue_edificio_principal (bigint)
+- direccion_area
+- nivel_educativo
+- nombre
+- sector
+- establecimiento_cabecera
+- categoria
+- inst_legal_categoria
+- radio
+- inst_legal_radio
+- inst_legal_categoria_bis
+- inst_legal_creacion
+- ambito (ENUM: 'PUBLICO', 'PRIVADO')
+- validado (boolean)
+- timestamps
+```
 
 ## 🛠️ Stack Tecnológico
 
-### Backend & Logic
-- **Laravel 12.x** (Framework principal)
-- **Livewire 3.x** (Lógica reactiva para tablas, mapas e importación)
-- **SQLite** (Motor de base de datos local y portable)
+- **Backend:** Laravel 12.x
+- **Frontend:** Livewire 3.x + Tailwind CSS
+- **Base de Datos:** SQLite
+- **Layout:** Sidebar Top
+- **Importación:** PhpSpreadsheet / Laravel Excel
+- **Mapas:** Leaflet / MapLibre GL JS
 
-### Frontend
-- **Tailwind CSS** (Diseño moderno, premium, glassmorphism)
-- **Sidebar Top** (Layout de navegación superior/lateral)
-- **Alpine.js** (Interactividad ligera)
+## 📝 Reglas de Negocio
 
-## 📊 Estructura de Datos (Excel)
+### Importación de Excel
+1. Validar que CUE sea único por establecimiento
+2. Validar que CUI sea único por edificio
+3. Convertir coordenadas de formato "," a "." (decimal)
+4. Crear edificio si no existe (basado en CUI)
+5. Asociar establecimiento al edificio correspondiente
+6. Marcar registros con datos faltantes como "PENDIENTE DE VALIDACIÓN"
 
-El sistema debe manejar un archivo Excel con 26 columnas específicas:
-`Direc. De Area`, `nivel_educativo`, `nombre`, `sector`, `cue`, `CUE Edificio Principal`, `establecimiento_cabecera`, `cui`, `calle`, `numero_puerta`, `orientacion`, `codigo_postal`, `localidad`, `latitud`, `longitud`, `categoria`, `Inst. Legal Categoría`, `Radio`, `Inst. Legal Radio`, `Inst. Legal Categoría` (bis), `Inst. Legal Creación`, `letra_zona`, `zona o departamento`, `TE VoIP`, `Ámbito`, `VALIDADO`.
+### Validación de Datos
+- **Coordenadas:** Deben estar en rango válido para San Juan
+- **CUE/CUI:** No pueden ser nulos
+- **Ámbito:** Solo "PUBLICO" o "PRIVADO"
+- **Campos "COMPLETAR":** Marcar para auditoría
 
-## 📁 Estructura de Carpetas
+## 🎨 Convenciones de Desarrollo
 
+### Naming
+- **Modelos:** `Establecimiento`, `Edificio` (español, singular)
+- **Controladores:** `EstablecimientoController` (inglés + español)
+- **Vistas:** `establecimientos/index.blade.php` (español, plural)
+- **Rutas:** `/admin/establecimientos`, `/publicos/mapa`
+
+### Diseño UI
+- **Premium y Moderno:** Glassmorphism, gradientes, micro-animaciones
+- **Responsive:** Mobile-first
+- **Accesibilidad:** Contraste adecuado, labels descriptivos
+
+### Git
+```bash
+feat: Nueva funcionalidad
+fix: Corrección de bug
+docs: Documentación
+refactor: Refactorización
+test: Tests
 ```
-app/
-├── Http/Controllers/SetupController.php # Configuración dinámica UI
-├── Models/ProjectSetting.php            # Almacenamiento de temas/colores
-├── Services/ThemeService.php            # Lógica de aplicación de estilo
-database/
-├── migrations/*_create_project_settings_table.php
-resources/views/
-├── setup/                               # Vistas de configuración
-└── layouts/app.blade.php                # Layout principal Sidebar Top
+
+## 🚀 Comandos Clave
+
+```bash
+# Desarrollo
+php artisan serve
+npm run dev
+
+# Migraciones
+php artisan migrate:fresh --seed
+
+# Importar Excel
+php artisan import:establecimientos Establecimientos_Publicos.xlsx
+
+# Tests
+php artisan test
 ```
 
-## 📝 Convenciones de Guía IA
+## 📚 Documentación de Referencia
 
-1. **Naming**: Usar español para conceptos de dominio (Establecimientos, Edificios, Auditoria) pero inglés para estructura técnica (Controller, Models).
-2. **Estilo**: Siempre priorizar diseños "Premium" y modernos con Tailwind. No usar placeholders; generar imágenes reales si es necesario.
-3. **Seguridad**: Rutas protegidas estrictamente por el middleware de roles.
-4. **Git**: Commits descriptivos con prefijos (`feat:`, `fix:`, `docs:`).
+- [contextodelproyecto.md](../doc/contextodelproyecto.md) - Objetivos originales
+- [tipos_de_columnas.md](../doc/tipos_de_columnas.md) - Especificación de columnas
+- [ROADMAP.md](../ROADMAP.md) - Plan de desarrollo
 
 ---
 **Última actualización:** 29 de diciembre de 2025  
-**Contexto:** Rediseño inicial y configuración de objetivos del Ministerio.
+**Datos:** 1167 establecimientos educativos de San Juan
