@@ -96,10 +96,13 @@ new class extends Component
                                     👤 Mi Perfil
                                 </a>
                                 <hr class="my-2 border-gray-200">
-                                <button wire:click="logout" 
-                                        class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition">
-                                    🚪 Cerrar Sesión
-                                </button>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit"
+                                            class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition">
+                                        🚪 Cerrar Sesión
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -178,10 +181,13 @@ new class extends Component
                     👤 Mi Perfil
                 </a>
                 
-                <button wire:click="logout" 
-                        class="w-full text-left px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 transition">
-                    🚪 Cerrar Sesión
-                </button>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit"
+                            class="w-full text-left px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 transition">
+                        🚪 Cerrar Sesión
+                    </button>
+                </form>
                 @else
                 <a href="{{ route('login') }}" 
                    wire:navigate
