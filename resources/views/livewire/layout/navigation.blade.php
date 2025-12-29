@@ -26,6 +26,7 @@ new class extends Component
 
                     <!-- Navigation Links (Desktop) -->
                     <div class="hidden md:flex md:space-x-2">
+                        @auth
                         @if(auth()->user()->isAdmin())
                             <!-- Admin Links -->
                             <a href="{{ route('admin.dashboard') }}" 
@@ -51,6 +52,7 @@ new class extends Component
                                 📋 Modalidades
                             </a>
                         @endif
+                        @endauth
                         
                         <!-- Mapa (todos) -->
                         <a href="{{ route('mapa.publico') }}" 
@@ -121,6 +123,7 @@ new class extends Component
              class="md:hidden border-t-2"
              style="border-color: var(--primary-orange);">
             <div class="px-4 py-4 space-y-2">
+                @auth
                 @if(auth()->user()->isAdmin())
                     <a href="{{ route('admin.dashboard') }}" 
                        wire:navigate
@@ -149,6 +152,7 @@ new class extends Component
                         📋 Modalidades
                     </a>
                 @endif
+                @endauth
                 
                 <a href="{{ route('mapa.publico') }}" 
                    wire:navigate

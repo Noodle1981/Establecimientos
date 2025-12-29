@@ -90,7 +90,7 @@
 <script>
     let map;
     let markers = [];
-    let establishments = [];
+    let establishments = @json($edificios);
 
     document.addEventListener('DOMContentLoaded', function() {
         // Inicializar mapa centrado en San Juan
@@ -104,14 +104,14 @@
             maxZoom: 19
         }).addTo(map);
         
-        // Cargar edificios con modalidades
-        fetch('/api/edificios-mapa')
-            .then(response => response.json())
-            .then(edificios => {
-                establishments = edificios;
-                renderEstablishments(edificios);
-                addMarkersToMap(edificios);
-            });
+        // Cargar edificios directamente desde Livewire
+        if (establishments && establishments.length > 0) {
+            renderEstablishments(establishments);
+            addMarkersToMap(establishments);
+        } else {
+            document.getElementById('establishments-list').innerHTML = 
+                '<p class="text-center text-gray-400 py-8">No hay establecimientos con coordenadas disponibles</p>';
+        }
     });
 
     function addMarkersToMap(edificios) {
@@ -202,13 +202,6 @@
     }
 
     // Búsqueda en tiempo real
-    document.addEventListener('alpine:init', () => {
-        Alpine.effect(() => {
-            const query = Alpine.store('searchQuery');
-        });
-    });
-
-    // Escuchar cambios en el input de búsqueda
     document.addEventListener('input', (e) => {
         if (e.target.matches('input[x-model="searchQuery"]')) {
             const query = e.target.value.toLowerCase();
