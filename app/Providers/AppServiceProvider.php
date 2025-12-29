@@ -19,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Inject theme CSS variables into all views
+        view()->composer('*', function ($view) {
+            $themeStyles = \App\Services\ThemeService::getCssVariables();
+            $view->with('themeStyles', $themeStyles);
+        });
     }
 }

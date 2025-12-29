@@ -5,11 +5,14 @@ use App\Livewire\Admin\AdminDashboard;
 use App\Livewire\Admin\UserManagement;
 use App\Livewire\Mid\MidDashboard;
 use App\Livewire\User\UserDashboard;
+use App\Http\Controllers\SetupController;
 
 /**
  * Public Routes
  */
 Route::view('/', 'welcome')->name('home');
+Route::get('/setup', [SetupController::class, 'index'])->name('setup.index');
+Route::post('/setup', [SetupController::class, 'store'])->name('setup.store');
 
 /**
  * Authentication Routes
