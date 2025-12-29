@@ -1,71 +1,130 @@
 <?php
 
-use App\Livewire\Forms\LoginForm;
-use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
 new #[Layout('layouts.guest')] class extends Component
 {
-    public LoginForm $form;
+    public string $email = '';
+    public string $password = '';
+    public bool $remember = false;
 
-    /**
-     * Handle an incoming authentication request.
-     */
     public function login(): void
     {
-        $this->validate();
+        $this->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
 
-        $this->form->authenticate();
+        if (! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+            $this->addError('email', trans('auth.failed'));
+            return;
+        }
 
         Session::regenerate();
-
         $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
     }
 }; ?>
 
-<div>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
-
-    <form wire:submit="login">
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="form.email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('form.email')" class="mt-2" />
+<div class="min-h-screen flex items-center justify-center bg-white px-4">
+    <div class="w-full max-w-md">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
+                 style="background-color: var(--primary-orange);">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+            </div>
+            <h2 class="text-3xl font-bold text-black">Iniciar Sesión</h2>
+            <p class="text-gray-600 mt-2">Establecimientos - M.E. San Juan</p>
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        <!-- Form Card -->
+        <div class="glass-strong rounded-2xl p-8">
+            <form wire:submit="login" class="space-y-6">
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-black mb-2">
+                        Correo Electrónico
+                    </label>
+                    <input wire:model="email" 
+                           id="email" 
+                           type="email" 
+                           required 
+                           autofocus 
+                           autocomplete="username"
+                           class="input-primary"
+                           placeholder="admin@example.com">
+                    @error('email')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
 
-            <x-text-input wire:model="form.password" id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+                <!-- Password -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-black mb-2">
+                        Contraseña
+                    </label>
+                    <input wire:model="password" 
+                           id="password" 
+                           type="password" 
+                           required 
+                           autocomplete="current-password"
+                           class="input-primary"
+                           placeholder="••••••••">
+                    @error('password')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
 
-            <x-input-error :messages="$errors->get('form.password')" class="mt-2" />
+                <!-- Remember Me -->
+                <div class="flex items-center">
+                    <input wire:model="remember" 
+                           id="remember" 
+                           type="checkbox"
+                           class="w-4 h-4 rounded border-gray-300 focus:ring-2 focus:ring-orange-200"
+                           style="color: var(--primary-orange);">
+                    <label for="remember" class="ml-2 text-sm text-gray-700">
+                        Recordarme
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-primary w-full">
+                    Iniciar Sesión
+                </button>
+
+                <!-- Links -->
+                <div class="text-center space-y-2">
+                    @if (Route::has('password.request'))
+                        <a href="{{ route('password.request') }}" 
+                           class="link-primary text-sm block" 
+                           wire:navigate>
+                            ¿Olvidaste tu contraseña?
+                        </a>
+                    @endif
+                    
+                    @if (Route::has('register'))
+                        <p class="text-sm text-gray-600">
+                            ¿No tienes cuenta? 
+                            <a href="{{ route('register') }}" 
+                               class="link-primary font-medium" 
+                               wire:navigate>
+                                Regístrate
+                            </a>
+                        </p>
+                    @endif
+                </div>
+            </form>
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember" class="inline-flex items-center">
-                <input wire:model="form.remember" id="remember" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
-            </label>
+        <!-- Back to Home -->
+        <div class="text-center mt-6">
+            <a href="{{ route('home') }}" 
+               class="text-sm text-gray-600 hover:text-black transition">
+                ← Volver al inicio
+            </a>
         </div>
-
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}" wire:navigate>
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
+    </div>
 </div>
