@@ -1,277 +1,63 @@
-# Contexto del Proyecto - Laravel Boilerplate Starter Kit
+# Contexto del Proyecto - Establecimientos (M.E. San Juan)
 
-Este archivo proporciona contexto completo del proyecto para asistentes de IA.
+Este archivo proporciona el contexto estratégico y técnico del proyecto para asistentes de IA.
 
 ## 📋 Descripción del Proyecto
 
-**Laravel Boilerplate Starter Kit** es un proyecto base para aplicaciones Laravel que incluye:
+**Establecimientos** es una plataforma diseñada para el Ministerio de Educación de la Provincia de San Juan. Su propósito es consolidar, auditar y visualizar la información de todos los establecimientos educativos (Estatales y Privados) de la provincia.
 
-- Sistema de autenticación completo con Laravel Breeze + Livewire
-- Sistema de roles simple (admin, mid, user)
-- Middleware de autorización por roles
-- Dashboards personalizados por rol
-- Suite de testing completa
-- Diseño moderno con Tailwind CSS
+## 🎯 Objetivos Estratégicos
 
-## 🎯 Objetivo
+1.  **Auditoría de Datos:** Limpieza y validación de la base de datos de escuelas.
+2.  **Control EDÚGE:** Sincronización y validación con la plataforma externa EDÚGE para asegurar que no falten ni sobren establecimientos en el sistema oficial.
+3.  **Infraestructura Pública:** Mapa interactivo para que oficinas gubernamentales y ciudadanos localicen establecimientos.
 
-Proporcionar un punto de partida robusto y bien estructurado para nuevos proyectos Laravel, evitando reinventar la rueda en cada proyecto.
+## 👥 Roles y Permisos
+
+| Rol | Prefijo de Ruta | Responsabilidad |
+|-----|--------|-------------|
+| `admin` | `/admin` | Configuración global, gestión de usuarios de alto nivel y auditoría. |
+| `administrativos` | `/administrativos` | Carga masiva (Excel), validación de registros y corrección de datos. |
+| `público` | `/publicos` | Acceso a mapas y búsqueda de escuelas sin autenticación. |
 
 ## 🛠️ Stack Tecnológico
 
-### Backend
--  **Laravel 12.44.0**
-- **PHP 8.2+**
-- **Middleware personalizado**: CheckRole
+### Backend & Logic
+- **Laravel 12.x** (Framework principal)
+- **Livewire 3.x** (Lógica reactiva para tablas, mapas e importación)
+- **SQLite** (Motor de base de datos local y portable)
 
 ### Frontend
-- **Livewire 3.7.3** - Framework reactivo
-- **Tailwind CSS 3.x** - Utility-first CSS
-- **Alpine.js** - JavaScript framework (incluido con Livewire)
+- **Tailwind CSS** (Diseño moderno, premium, glassmorphism)
+- **Sidebar Top** (Layout de navegación superior/lateral)
+- **Alpine.js** (Interactividad ligera)
 
-### Testing
-- **PHPUnit 11.x**
+## 📊 Estructura de Datos (Excel)
 
-### Base de Datos
-- MySQL / PostgreSQL / SQLite (configurable)
+El sistema debe manejar un archivo Excel con 26 columnas específicas:
+`Direc. De Area`, `nivel_educativo`, `nombre`, `sector`, `cue`, `CUE Edificio Principal`, `establecimiento_cabecera`, `cui`, `calle`, `numero_puerta`, `orientacion`, `codigo_postal`, `localidad`, `latitud`, `longitud`, `categoria`, `Inst. Legal Categoría`, `Radio`, `Inst. Legal Radio`, `Inst. Legal Categoría` (bis), `Inst. Legal Creación`, `letra_zona`, `zona o departamento`, `TE VoIP`, `Ámbito`, `VALIDADO`.
 
-## 📁 Estructura de Carpetas Clave
+## 📁 Estructura de Carpetas
 
 ```
 app/
-├── Http/Middleware/CheckRole.php       # Middleware de roles
-├── Livewire/                           # Componentes Livewire
-│   ├── Admin/AdminDashboard.php
-│   ├── Mid/MidDashboard.php
-│   └── User/UserDashboard.php
-└── Models/User.php                     # Modelo con helpers de roles
-
+├── Http/Controllers/SetupController.php # Configuración dinámica UI
+├── Models/ProjectSetting.php            # Almacenamiento de temas/colores
+├── Services/ThemeService.php            # Lógica de aplicación de estilo
 database/
-├── migrations/*_add_role_to_users_table.php
-└── seeders/RoleUsersSeeder.php
-
-routes/
-└── web.php                             # Rutas con middleware de roles
-
-tests/
-└── Feature/RoleAuthorizationTest.php   # 11 tests de autorización
-
+├── migrations/*_create_project_settings_table.php
 resources/views/
-├── welcome.blade.php                   # Landing page
-└── livewire/                           # Vistas de componentes Livewire
-    ├── admin/admin-dashboard.blade.php
-    ├── mid/mid-dashboard.blade.php
-    └── user/user-dashboard.blade.php
+├── setup/                               # Vistas de configuración
+└── layouts/app.blade.php                # Layout principal Sidebar Top
 ```
 
-## 🔒 Sistema de Roles
+## 📝 Convenciones de Guía IA
 
-### Roles Definidos
-
-| Rol | Acceso | Descripción |
-|-----|--------|-------------|
-| `admin` | /admin, /mid, /dashboard | Acceso total al sistema |
-| `mid` | /mid, /dashboard | Nivel intermedio |
-| `user` | /dashboard | Usuario estándar |
-
-### Implementación
-
-- Campo `role` en tabla `users` (ENUM)
-- Middleware `CheckRole` para proteger rutas
-- Helpers en modelo User: `isAdmin()`, `isMid()`, `isUser()`, `hasRole()`
-
-### Ejemplo de Uso
-
-```php
-// En rutas
-Route::middleware(['role:admin'])->group(function () {
-    Route::get('/admin', AdminDashboard::class);
-});
-
-// En código
-if (auth()->user()->isAdmin()) {
-    // Lógica para admin
-}
-```
-
-## 🧪 Testing
-
-### Usuarios de Prueba
-
-Ejecutar `php artisan db:seed` crea:
-
-```
-admin@example.com / password (rol: admin)
-mid@example.com / password (rol: mid)
-user@example.com / password (rol: user)
-```
-
-### Suite de Tests
-
-- **RoleAuthorizationTest.php**: 11 tests que verifican:
-  - Usuarios no autenticados no pueden acceder
-  - Cada rol solo accede a sus rutas permitidas
-  - Métodos helper funcionan correctamente
-
-**Ejecutar tests:**
-```bash
-php artisan test --filter=RoleAuthorizationTest
-```
-
-## 🎨 Diseño y UI
-
-### Tailwind CSS
-
-- Dark mode incluido
-- Diseño responsive
-- Utility classes
-- Componentes glassmorphism
-
-### Dashboards
-
-Cada rol tiene un dashboard único con:
-
-- **Admin**: Estadísticas de usuarios, acciones administrativas
-- **Mid**: Proyectos, tareas, actividad
-- **User**: Perfil personal, información de cuenta
-
-## 📝 Convenciones
-
-### Naming
-
-- **Componentes Livewire**: PascalCase (AdminDashboard.php)
-- **Vistas Blade**: kebab-case (admin-dashboard.blade.php)
-- **Rutas**: nombres descriptivos con prefijos de rol
-- **Middleware**: CamelCase (CheckRole)
-
-### Código
-
-- PSR-12 para PHP
-- DocBlocks en todos los métodos públicos
-- Comentarios descriptivos en español
-
-### Git
-
-```bash
-# Estructura de commits
-feat: Añadir nueva funcionalidad
-fix: Corregir bug
-docs: Actualizar documentación
-test: Añadir o modificar tests
-style: Cambios de formato/estilo
-refactor: Refactorización de código
-```
-
-## 🚀 Comandos Más Usados
-
-### Desarrollo
-
-```bash
-# Servidor de desarrollo
-php artisan serve
-
-# Compilar assets (modo watch)
-npm run dev
-
-# Ejecutar tests
-php artisan test
-
-# Ver rutas
-php artisan route:list
-```
-
-### Base de Datos
-
-```bash
-# Migrar
-php artisan migrate
-
-# Resetear con seeders
-php artisan migrate:fresh --seed
-
-# Crear seeder
-php artisan make:seeder NombreSeeder
-```
-
-### Livewire
-
-```bash
-# Crear componente
-php artisan make:livewire NombreComponente
-
-# Crear componente en subdirectorio
-php artisan make:livewire Admin/NuevoComponente
-```
-
-## 📚 Documentación Adicional
-
-- [setup.md](../doc/setup.md) - Guía de instalación
-- [architecture.md](../doc/architecture.md) - Arquitectura detallada
-- [roles-system.md](../doc/roles-system.md) - Sistema de roles
-- [testing-guide.md](../doc/testing-guide.md) - Guía de testing
-
-## 🔧 Resolución de Problemas Comunes
-
-### Error: "No application encryption key"
-```bash
-php artisan key:generate
-```
-
-### Assets no cargan
-```bash
-npm run build
-```
-
-### Tests fallan
-- Verificar configuración de DB en `phpunit.xml`
-- Asegurarse de que las migraciones se ejecuten
-
-### Error 403 en rutas
-- Verificar que el usuario tenga el rol correcto
-- Revisar la definición del middleware en la ruta
-
-## 💡 Próximas Mejoras Sugeridas
-
-### Funcionalidades
-
-- [ ] CRUD de usuarios para admin
-- [ ] Panel de gestión de roles
-- [ ] Sistema de permisos granulares (Spatie Permission)
-- [ ] API con Laravel Sanctum
-- [ ] Logs de actividad (Activity Log)
-
-### UI/UX
-
-- [ ] Notificaciones con Livewire
-- [ ] Modales reutilizables
-- [ ] Componentes de formularios
-- [ ] Paginación estilizada
-
-### Testing
-
-- [ ] Tests de componentes Livewire
-- [ ] Tests de API (si se implementa)
-- [ ] Test coverage al 80%+
-
-## 🤝 Contribución
-
-Al trabajar en este proyecto:
-
-1. Mantener la estructura de carpetas
-2. Seguir las convenciones de naming
-3. Agregar tests para nuevas funcionalidades
-4. Actualizar documentación relevante
-5. Usar Tailwind para estilos (evitar CSS personalizado)
-
-## 📞 Soporte
-
-Para cualquier duda sobre la arquitectura o implementación:
-- Revisar primero la documentación en `/doc`
-- Verificar tests en `/tests/Feature`
-- Consultar rutas en `routes/web.php`
+1. **Naming**: Usar español para conceptos de dominio (Establecimientos, Edificios, Auditoria) pero inglés para estructura técnica (Controller, Models).
+2. **Estilo**: Siempre priorizar diseños "Premium" y modernos con Tailwind. No usar placeholders; generar imágenes reales si es necesario.
+3. **Seguridad**: Rutas protegidas estrictamente por el middleware de roles.
+4. **Git**: Commits descriptivos con prefijos (`feat:`, `fix:`, `docs:`).
 
 ---
-
-**Última actualización:** 26 de diciembre de 2025  
-**Versión de Laravel:** 12.44.0  
-**Versión de Livewire:** 3.7.3
+**Última actualización:** 29 de diciembre de 2025  
+**Contexto:** Rediseño inicial y configuración de objetivos del Ministerio.
