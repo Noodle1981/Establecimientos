@@ -144,23 +144,108 @@
 
     <!-- Modal Ver -->
     @if($showViewModal && $selectedModalidad)
-        <div class="fixed inset-0 z-50 overflow-y-auto" x-data="{ show: @entangle('showViewModal') }">
+        <div class="fixed inset-0 z-50 overflow-y-auto">
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div class="fixed inset-0 bg-black opacity-50" wire:click="closeModals"></div>
-                <div class="glass-strong rounded-2xl p-8 max-w-2xl w-full relative z-10">
-                    <h3 class="text-2xl font-bold text-black mb-6">Ver Modalidad</h3>
-                    <div class="space-y-4">
-                        <div><strong>Establecimiento:</strong> {{ $selectedModalidad->establecimiento->nombre }}</div>
-                        <div><strong>CUE:</strong> {{ $selectedModalidad->establecimiento->cue }}</div>
-                        <div><strong>Nivel Educativo:</strong> {{ $selectedModalidad->nivel_educativo }}</div>
-                        <div><strong>Dirección de Área:</strong> {{ $selectedModalidad->direccion_area }}</div>
-                        <div><strong>Sector:</strong> {{ $selectedModalidad->sector }}</div>
-                        <div><strong>Categoría:</strong> {{ $selectedModalidad->categoria }}</div>
-                        <div><strong>Ámbito:</strong> {{ $selectedModalidad->ambito }}</div>
-                        <div><strong>Localidad:</strong> {{ $selectedModalidad->establecimiento->edificio->localidad }}</div>
-                        <div><strong>Validado:</strong> {{ $selectedModalidad->validado ? 'Sí' : 'No' }}</div>
+                <div class="glass-strong rounded-2xl p-8 max-w-4xl w-full relative z-10 max-h-[90vh] overflow-y-auto">
+                    <h3 class="text-2xl font-bold text-black mb-6">Ver Establecimiento - Modalidad</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Información del Establecimiento -->
+                        <div class="md:col-span-2 border-b pb-4">
+                            <h4 class="font-semibold text-lg mb-3" style="color: var(--primary-orange);">Datos del Establecimiento</h4>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Nombre del Establecimiento</label>
+                            <p class="text-black font-semibold">{{ $selectedModalidad->establecimiento->nombre }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">CUE</label>
+                            <p class="text-black font-semibold">{{ $selectedModalidad->establecimiento->cue }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">CUI</label>
+                            <p class="text-black font-semibold">{{ $selectedModalidad->establecimiento->edificio->cui }}</p>
+                        </div>
+
+                        @if($selectedModalidad->establecimiento->establecimiento_cabecera)
+                            <div class="md:col-span-2">
+                                <label class="text-sm font-medium text-gray-600">Establecimiento Cabecera</label>
+                                <p class="text-blue-600 font-semibold">📍 {{ $selectedModalidad->establecimiento->establecimiento_cabecera }}</p>
+                            </div>
+                        @endif
+
+                        <!-- Información de la Modalidad -->
+                        <div class="md:col-span-2 border-b pb-4 mt-4">
+                            <h4 class="font-semibold text-lg mb-3" style="color: var(--primary-orange);">Datos de la Modalidad</h4>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Nivel Educativo</label>
+                            <p class="text-black font-semibold">{{ $selectedModalidad->nivel_educativo }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Dirección de Área</label>
+                            <p class="text-black font-semibold">{{ $selectedModalidad->direccion_area }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Ámbito</label>
+                            <p>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $selectedModalidad->ambito === 'PUBLICO' ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800' }}">
+                                    {{ $selectedModalidad->ambito }}
+                                </span>
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Sector</label>
+                            <p class="text-black font-semibold">{{ $selectedModalidad->sector ?? 'N/A' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Categoría</label>
+                            <p class="text-black font-semibold">{{ $selectedModalidad->categoria ?? 'N/A' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Validado</label>
+                            <p>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $selectedModalidad->validado ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                                    {{ $selectedModalidad->validado ? '✓ Sí' : '✗ No' }}
+                                </span>
+                            </p>
+                        </div>
+
+                        <!-- Información de Ubicación -->
+                        <div class="md:col-span-2 border-b pb-4 mt-4">
+                            <h4 class="font-semibold text-lg mb-3" style="color: var(--primary-orange);">Ubicación</h4>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Departamento/Zona</label>
+                            <p class="text-black font-semibold">{{ $selectedModalidad->establecimiento->edificio->zona_departamento }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Localidad</label>
+                            <p class="text-black font-semibold">{{ $selectedModalidad->establecimiento->edificio->localidad }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Calle</label>
+                            <p class="text-black font-semibold">{{ $selectedModalidad->establecimiento->edificio->calle ?? 'N/A' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium text-gray-600">Número</label>
+                            <p class="text-black font-semibold">{{ $selectedModalidad->establecimiento->edificio->numero_puerta ?? 'S/N' }}</p>
+                        </div>
                     </div>
-                    <div class="mt-6 flex justify-end">
+                    <div class="mt-6 flex justify-end border-t pt-4">
                         <button wire:click="closeModals" class="btn-secondary">Cerrar</button>
                     </div>
                 </div>
@@ -173,37 +258,114 @@
         <div class="fixed inset-0 z-50 overflow-y-auto">
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div class="fixed inset-0 bg-black opacity-50" wire:click="closeModals"></div>
-                <div class="glass-strong rounded-2xl p-8 max-w-2xl w-full relative z-10">
-                    <h3 class="text-2xl font-bold text-black mb-6">Editar Modalidad</h3>
+                <div class="glass-strong rounded-2xl p-8 max-w-4xl w-full relative z-10 max-h-[90vh] overflow-y-auto">
+                    <h3 class="text-2xl font-bold text-black mb-6">Editar Establecimiento - Modalidad</h3>
                     <form wire:submit="updateModalidad" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Dirección de Área</label>
-                            <input type="text" wire:model="editForm.direccion_area" class="input-primary">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Nombre Establecimiento -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium mb-2">Nombre del Establecimiento *</label>
+                                <input type="text" wire:model="editForm.nombre_establecimiento" class="input-primary">
+                            </div>
+
+                            <!-- CUE (solo lectura) -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">CUE</label>
+                                <input type="text" wire:model="editForm.cue" class="input-primary bg-gray-100" readonly>
+                            </div>
+
+                            <!-- CUI (solo lectura) -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">CUI</label>
+                                <input type="text" wire:model="editForm.cui" class="input-primary bg-gray-100" readonly>
+                            </div>
+
+                            <!-- Establecimiento Cabecera -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium mb-2">Establecimiento Cabecera</label>
+                                <input type="text" wire:model="editForm.establecimiento_cabecera" class="input-primary">
+                            </div>
+
+                            <!-- Nivel Educativo -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Nivel Educativo *</label>
+                                <select wire:model="editForm.nivel_educativo" class="input-primary">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="INICIAL">INICIAL</option>
+                                    <option value="PRIMARIO">PRIMARIO</option>
+                                    <option value="SECUNDARIO">SECUNDARIO</option>
+                                    <option value="ADULTOS">ADULTOS</option>
+                                    <option value="ESPECIAL">ESPECIAL</option>
+                                    <option value="SUPERIOR">SUPERIOR</option>
+                                </select>
+                            </div>
+
+                            <!-- Dirección de Área -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Dirección de Área</label>
+                                <input type="text" wire:model="editForm.direccion_area" class="input-primary">
+                            </div>
+
+                            <!-- Ámbito -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Ámbito *</label>
+                                <select wire:model="editForm.ambito" class="input-primary">
+                                    <option value="PUBLICO">PÚBLICO</option>
+                                    <option value="PRIVADO">PRIVADO</option>
+                                </select>
+                            </div>
+
+                            <!-- Departamento/Zona -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Departamento/Zona *</label>
+                                <select wire:model="editForm.zona_departamento" class="input-primary">
+                                    <option value="">Seleccionar...</option>
+                                    @foreach($zonas as $zona)
+                                        <option value="{{ $zona }}">{{ $zona }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Localidad -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Localidad</label>
+                                <input type="text" wire:model="editForm.localidad" class="input-primary">
+                            </div>
+
+                            <!-- Calle -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Calle</label>
+                                <input type="text" wire:model="editForm.calle" class="input-primary">
+                            </div>
+
+                            <!-- Número Puerta -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Número</label>
+                                <input type="text" wire:model="editForm.numero_puerta" class="input-primary">
+                            </div>
+
+                            <!-- Sector -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Sector</label>
+                                <input type="number" wire:model="editForm.sector" class="input-primary">
+                            </div>
+
+                            <!-- Categoría -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Categoría</label>
+                                <input type="text" wire:model="editForm.categoria" class="input-primary">
+                            </div>
+
+                            <!-- Validado -->
+                            <div class="md:col-span-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" wire:model="editForm.validado" class="mr-2">
+                                    <span class="text-sm font-medium">Marcar como validado</span>
+                                </label>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Nivel Educativo</label>
-                            <input type="text" wire:model="editForm.nivel_educativo" class="input-primary">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Sector</label>
-                            <input type="number" wire:model="editForm.sector" class="input-primary">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Categoría</label>
-                            <input type="text" wire:model="editForm.categoria" class="input-primary">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Ámbito</label>
-                            <select wire:model="editForm.ambito" class="input-primary">
-                                <option value="PUBLICO">Público</option>
-                                <option value="PRIVADO">Privado</option>
-                            </select>
-                        </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" wire:model="editForm.validado" class="mr-2">
-                            <label>Validado</label>
-                        </div>
-                        <div class="flex justify-end gap-3 mt-6">
+
+                        <div class="flex justify-end gap-3 mt-6 pt-4 border-t">
                             <button type="button" wire:click="closeModals" class="btn-secondary">Cancelar</button>
                             <button type="submit" class="btn-primary">Guardar Cambios</button>
                         </div>

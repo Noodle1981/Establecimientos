@@ -52,8 +52,19 @@ class ModalidadesTable extends Component
         'validado' => false,
     ];
 
-    // Datos del formulario de edición
+    // Datos del formulario de edición (TODOS LOS CAMPOS)
     public $editForm = [
+        // Establecimiento
+        'nombre_establecimiento' => '',
+        'cue' => '',
+        'establecimiento_cabecera' => '',
+        // Edificio
+        'cui' => '',
+        'calle' => '',
+        'numero_puerta' => '',
+        'localidad' => '',
+        'zona_departamento' => '',
+        // Modalidad
         'direccion_area' => '',
         'nivel_educativo' => '',
         'sector' => '',
@@ -181,8 +192,21 @@ class ModalidadesTable extends Component
 
     public function editModalidad($id)
     {
-        $this->selectedModalidad = Modalidad::findOrFail($id);
+        $this->selectedModalidad = Modalidad::with(['establecimiento.edificio'])->findOrFail($id);
+        
+        // Cargar TODOS los datos en el formulario
         $this->editForm = [
+            // Establecimiento
+            'nombre_establecimiento' => $this->selectedModalidad->establecimiento->nombre,
+            'cue' => $this->selectedModalidad->establecimiento->cue,
+            'establecimiento_cabecera' => $this->selectedModalidad->establecimiento->establecimiento_cabecera ?? '',
+            // Edificio
+            'cui' => $this->selectedModalidad->establecimiento->edificio->cui,
+            'calle' => $this->selectedModalidad->establecimiento->edificio->calle ?? '',
+            'numero_puerta' => $this->selectedModalidad->establecimiento->edificio->numero_puerta ?? 'S/N',
+            'localidad' => $this->selectedModalidad->establecimiento->edificio->localidad ?? '',
+            'zona_departamento' => $this->selectedModalidad->establecimiento->edificio->zona_departamento,
+            // Modalidad
             'direccion_area' => $this->selectedModalidad->direccion_area,
             'nivel_educativo' => $this->selectedModalidad->nivel_educativo,
             'sector' => $this->selectedModalidad->sector,
@@ -190,13 +214,44 @@ class ModalidadesTable extends Component
             'ambito' => $this->selectedModalidad->ambito,
             'validado' => $this->selectedModalidad->validado,
         ];
+        
         $this->showEditModal = true;
     }
 
     public function updateModalidad()
     {
         $this->authorize('update', $this->selectedModalidad);
-        $this->selectedModalidad->update($this->editForm);
+
+        // Convertir a mayúsculas
+        $this->editForm['nombre_establecimiento'] = strtoupper($this->editForm['nombre_establecimiento']);
+        $this->editForm['establecimiento_cabecera'] = strtoupper($this->editForm['establecimiento_cabecera']);
+        $this->editForm['categoria'] = strtoupper($this->editForm['categoria']);
+        $this->editForm['calle'] = strtoupper($this->editForm['calle']);
+        $this->editForm['localidad'] = strtoupper($this->editForm['localidad']);
+
+        // Actualizar Edificio
+        $this->selectedModalidad->establecimiento->edificio->update([
+            'calle' => $this->editForm['calle'],
+            'numero_puerta' => $this->editForm['numero_puerta'],
+            'localidad' => $this->editForm['localidad'],
+            'zona_departamento' => $this->editForm['zona_departamento'],
+        ]);
+
+        // Actualizar Establecimiento
+        $this->selectedModalidad->establecimiento->update([
+            'nombre' => $this->editForm['nombre_establecimiento'],
+            'establecimiento_cabecera' => $this->editForm['establecimiento_cabecera'],
+        ]);
+
+        // Actualizar Modalidad
+        $this->selectedModalidad->update([
+            'direccion_area' => $this->editForm['direccion_area'],
+            'nivel_educativo' => $this->editForm['nivel_educativo'],
+            'sector' => $this->editForm['sector'],
+            'categoria' => $this->editForm['categoria'],
+            'ambito' => $this->editForm['ambito'],
+            'validado' => $this->editForm['validado'],
+        ]);
         
         $this->showEditModal = false;
         $this->selectedModalidad = null;
