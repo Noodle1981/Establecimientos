@@ -64,6 +64,7 @@ new class extends Component
 
                 <!-- Right Side: User Menu -->
                 <div class="hidden md:flex md:items-center md:space-x-4">
+                    @auth
                     <!-- User Info -->
                     <div class="flex items-center space-x-3">
                         <div class="text-right">
@@ -102,6 +103,14 @@ new class extends Component
                             </div>
                         </div>
                     </div>
+                    @else
+                    <!-- Login/Register para usuarios no autenticados -->
+                    <div class="flex items-center space-x-2">
+                        <a href="{{ route('login') }}" class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
+                            🔐 Iniciar Sesión
+                        </a>
+                    </div>
+                    @endauth
                 </div>
 
                 <!-- Mobile Menu Button -->
@@ -162,6 +171,7 @@ new class extends Component
 
                 <hr class="my-2 border-gray-200">
                 
+                @auth
                 <a href="{{ route('profile') }}" 
                    wire:navigate
                    class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
@@ -172,6 +182,13 @@ new class extends Component
                         class="w-full text-left px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 transition">
                     🚪 Cerrar Sesión
                 </button>
+                @else
+                <a href="{{ route('login') }}" 
+                   wire:navigate
+                   class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
+                    🔐 Iniciar Sesión
+                </a>
+                @endauth
             </div>
         </div>
     </nav>
