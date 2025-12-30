@@ -90,4 +90,12 @@ class User extends Authenticatable
 
         return in_array($this->role, $roles);
     }
+
+    /**
+     * Get the audits performed by the user.
+     */
+    public function auditorias()
+    {
+        return $this->hasMany(AuditoriaEduge::class);
+    }
 }

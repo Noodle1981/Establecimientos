@@ -66,18 +66,28 @@
                                 </a>
 
                                 @if(auth()->user()->hasRole(['admin', 'administrativos']))
+                                    <!-- Dashboard Admin -->
+                                    <a href="{{ route('admin.dashboard') }}" 
+                                       class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
+                                        📊 Dashboard Admin
+                                    </a>
+
+                                    <!-- Usuarios -->
+                                    <a href="{{ route('admin.users') }}" 
+                                       class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
+                                        👥 Usuarios
+                                    </a>
+
                                     <!-- Modalidades -->
-                                    <a href="{{ auth()->user()->isAdmin() ? route('admin.modalidades') : route('administrativos.modalidades') }}" 
+                                    <a href="{{ route('admin.modalidades') }}" 
                                        class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
                                         📋 Modalidades
                                     </a>
-                                @endif
 
-                                @if(auth()->user()->isAdmin())
-                                    <!-- Admin Dashboard -->
-                                    <a href="{{ route('admin.dashboard') }}" 
+                                    <!-- Auditorías EDUGE -->
+                                    <a href="{{ route('admin.auditorias') }}" 
                                        class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
-                                        ⚙️ Admin
+                                        🔍 Auditorías
                                     </a>
                                 @endif
 

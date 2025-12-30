@@ -60,12 +60,14 @@
                                             <option value="mid">Mid</option>
                                             <option value="user">User</option>
                                         </select>
-                                        <button wire:click="updateRole" class="text-green-600 hover:text-green-800">
-                                            ✓
-                                        </button>
-                                        <button wire:click="cancelEdit" class="text-gray-600 hover:text-gray-800">
-                                            ✗
-                                        </button>
+                                        @can('update', $user)
+                                            <button wire:click="updateRole" class="text-green-600 hover:text-green-800">
+                                                ✓
+                                            </button>
+                                            <button wire:click="cancelEdit" class="text-gray-600 hover:text-gray-800">
+                                                ✗
+                                            </button>
+                                        @endcan
                                     </div>
                                 @else
                                     <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full
@@ -84,15 +86,20 @@
                             <td class="px-6 py-4">
                                 @if(!$selectedUser || $selectedUser->id !== $user->id)
                                     <div class="flex gap-2">
-                                        <button wire:click="editRole({{ $user->id }})" 
-                                                class="px-3 py-1 bg-blue-500 text-white text-xs rounded-lg hover:bg-blue-600">
-                                            ✏️ Editar Rol
-                                        </button>
-                                        @if($user->id !== auth()->id())
-                                            <button wire:click="confirmDelete({{ $user->id }})" 
-                                                    class="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700">
-                                                🗑️ Eliminar
+                                        @can('update', $user)
+                                            <button wire:click="editRole({{ $user->id }})" 
+                                                    class="px-3 py-1 bg-blue-500 text-white text-xs rounded-lg hover:bg-blue-600">
+                                                ✏️ Editar Rol
                                             </button>
+                                        @endcan
+                                        
+                                        @if($user->id !== auth()->id())
+                                            @can('delete', $user)
+                                                <button wire:click="confirmDelete({{ $user->id }})" 
+                                                        class="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700">
+                                                    🗑️ Eliminar
+                                                </button>
+                                            @endcan
                                         @endif
                                     </div>
                                 @endif

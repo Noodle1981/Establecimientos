@@ -34,6 +34,11 @@ class Establecimiento extends Model
         return $this->hasMany(Modalidad::class);
     }
 
+    public function auditorias(): HasMany
+    {
+        return $this->hasMany(AuditoriaEduge::class);
+    }
+
     // Scope para búsqueda
     public function scopePorNombre($query, $nombre)
     {

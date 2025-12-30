@@ -12,6 +12,7 @@
 - ✅ Dashboards personalizados por rol
 - ✅ Sistema de navegación responsive con glassmorphism
 - ✅ Diseño consistente (blanco, negro, naranja #FF8200)
+- ✅ Migración a Tailwind CSS v4 (Configuración simplificada en CSS)
 
 #### Gestión de Datos
 - ✅ Modelo de datos 3 niveles: Edificio → Establecimiento → Modalidad

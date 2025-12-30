@@ -1,4 +1,4 @@
-<div class="relative h-screen w-screen overflow-hidden" x-data="{ sidebarOpen: true, searchQuery: '', selectedEstablishment: null }">
+<div class="relative h-[calc(100vh-64px)] w-screen overflow-hidden" x-data="{ sidebarOpen: true, searchQuery: '', selectedEstablishment: null }">
     <!-- Mapa (pantalla completa) -->
     <div id="map" class="absolute inset-0 z-0"></div>
 

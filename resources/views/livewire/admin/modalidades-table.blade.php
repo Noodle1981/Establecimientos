@@ -6,10 +6,12 @@
         </div>
         
         <div class="flex gap-3">
-            <button wire:click="openCreateModal" 
-                    class="px-6 py-3 rounded-lg bg-green-600 text-white font-medium transition hover:bg-green-700">
-                ➕ Crear Establecimiento
-            </button>
+            @can('create', App\Models\Modalidad::class)
+                <button wire:click="openCreateModal" 
+                        class="px-6 py-3 rounded-lg bg-green-600 text-white font-medium transition hover:bg-green-700">
+                    ➕ Crear Establecimiento
+                </button>
+            @endcan
             <button wire:click="$toggle('showDeleted')" 
                     class="px-6 py-3 rounded-lg text-white font-medium transition hover:opacity-90"
                     style="background-color: var(--primary-orange);">

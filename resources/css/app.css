@@ -1,8 +1,17 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* Variables Globales del Proyecto */
+@theme {
+    --color-primary-orange: #FF8200;
+    --color-primary-orange-dark: #E67300;
+    --color-primary-orange-light: #FFA040;
+    --color-bg-white: #FFFFFF;
+    --color-text-black: #000000;
+    --color-text-gray: #6B7280;
+
+    --font-sans: "Figtree", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* Variables Globales del Proyecto (Mantener para compatibilidad con estilos manuales) */
 :root {
     --primary-orange: #FF8200;
     --primary-orange-dark: #E67300;
@@ -14,7 +23,9 @@
 
 /* Estilos Base */
 body {
-    @apply bg-white text-black;
+    background-color: var(--color-bg-white);
+    color: var(--color-text-black);
+    font-family: var(--font-sans);
 }
 
 /* Glassmorphism Components */
@@ -44,17 +55,25 @@ body {
 
 /* Botones Primarios */
 .btn-primary {
-    @apply px-6 py-3 rounded-lg text-white font-medium transition hover:opacity-90;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    color: white;
+    font-weight: 500;
+    transition: all 0.2s;
     background-color: var(--primary-orange);
 }
 
 .btn-primary:hover {
+    opacity: 0.9;
     background-color: var(--primary-orange-dark);
 }
 
 .btn-secondary {
-    @apply px-6 py-3 rounded-lg border-2 font-medium transition;
-    border-color: var(--primary-orange);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: 2px solid var(--primary-orange);
+    font-weight: 500;
+    transition: all 0.2s;
     color: var(--primary-orange);
 }
 
@@ -64,36 +83,61 @@ body {
 
 /* Inputs */
 .input-primary {
-    @apply w-full px-4 py-3 border-2 border-gray-200 rounded-lg transition;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #E5E7EB;
+    /* border-gray-200 */
+    border-radius: 0.5rem;
+    transition: all 0.2s;
 }
 
 .input-primary:focus {
-    @apply outline-none ring-2 ring-orange-200;
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-primary-orange-light);
     border-color: var(--primary-orange);
 }
 
 /* Cards */
 .card-glass {
-    @apply glass rounded-2xl p-6 hover:shadow-lg transition;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: all 0.2s;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 130, 0, 0.1);
+}
+
+.card-glass:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 /* Links */
 .link-primary {
     color: var(--primary-orange);
-    @apply hover:underline transition;
+    transition: all 0.2s;
+}
+
+.link-primary:hover {
+    text-decoration: underline;
 }
 
 /* Badges */
 .badge-orange {
-    @apply px-3 py-1 rounded-full text-xs font-semibold;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
     background-color: rgba(255, 130, 0, 0.1);
     color: var(--primary-orange-dark);
 }
 
 /* Alerts */
 .alert-success {
-    @apply glass rounded-lg p-4 border-l-4;
-    border-color: var(--primary-orange);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border-left: 4px solid var(--primary-orange);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
 }
 
 /* Tablas */
@@ -107,8 +151,15 @@ body {
 
 /* Animaciones */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .animate-fade-in {

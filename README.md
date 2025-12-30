@@ -1,94 +1,55 @@
-# 🏥 Establecimientos (Ministerio de Educación - San Juan)
+# Sistema de Gestión de Establecimientos M.E.
 
-Plataforma integral para la gestión, auditoría y visualización de establecimientos educativos (Estatales y Privados) de la Provincia de San Juan.
+Plataforma integral para la gestión, geolocalización y auditoría de establecimientos educativos del Ministerio de Educación.
 
-![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel)
-![Livewire](https://img.shields.io/badge/Livewire-3.x-4E56A6?style=for-the-badge&logo=livewire)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC?style=for-the-badge&logo=tailwind-css)
-![SQLite](https://img.shields.io/badge/SQLite-blue?logo=sqlite)
+## 🚀 Características Principales
 
-## 🎯 Objetivos del Proyecto
+- **Mapa Interactivo**: Visualización geolocalizada de edificios y establecimientos educativos con filtros avanzados.
+- **Gestión Administrativa**: Control total sobre Edificios, Establecimientos, Usuarios y Modalidades.
+- **Módulo de Auditoría EDUGE**: Herramienta avanzada para la reconciliación de datos entre la plataforma local y el sistema oficial EDUGE.
+- **Reportes PDF**: Generación automática de informes de auditoría individuales y globales/trimestrales.
+- **Roles y Permisos**: Sistema granular de accesos para Admin, Administrativos, Técnicos y Público general.
+- **Interfaz Premium**: Diseño moderno basado en Tailwind CSS, Alpine.js y Livewire con estética Glassmorphism.
 
-1.  **Auditoría de Datos:** Verificación exhaustiva de la integridad y veracidad de la información de los establecimientos.
-2.  **Control de Plataforma (EDÚGE):** Comparación y validación de los datos locales vs la plataforma externa EDÚGE para asegurar la consistencia (ej: verificar que el conteo de escuelas coincida).
-3.  **Visualización Pública:** Estructura interactiva con mapas para que distintas áreas y oficinas del Ministerio puedan consultar la ubicación y datos de los establecimientos.
+## 🛠️ Stack Tecnológico
 
-## 👥 Sistema de Roles y Accesos
+- **Backend**: Laravel 11.x
+- **Frontend**: Livewire 3.x, Alpine.js, Tailwind CSS
+- **Base de Datos**: MySQL / SQLite
+- **Reportes**: Barryvdh/laravel-dompdf
+- **Geocodificación**: Integración con Leaflet.js
 
-| Rol | Acceso / Prefijo | Permisos |
-| :--- | :--- | :--- |
-| **Admin** | `/admin` | Gestión total, usuarios, configuración de sistema y auditoría. |
-| **Administrativos** | `/administrativos` | Carga de datos, validación y gestión operativa. |
-| **Público** | `/publicos` | Consulta de mapa y datos generales mediante interfaz pública. |
+## 📦 Instalación
 
-## 🛠️ Tecnologías Core
+1. Clonar el repositorio:
+   ```bash
+   git clone <repo-url>
+   ```
+2. Instalar dependencias:
+   ```bash
+   composer install
+   ```
+3. Configurar el archivo `.env`:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+4. Ejecutar migraciones y seeders:
+   ```bash
+   php artisan migrate --seed
+   ```
+5. Iniciar el servidor:
+   ```bash
+   php artisan serve
+   ```
 
--   **Backend:** Laravel 12.x
--   **Frontend:** Livewire 3 (Componentes reactivos)
--   **Estilo:** Tailwind CSS (Diseño moderno)
--   **Base de Datos:** SQLite (Ligero y portátil)
--   **Layout:** Sidebar Top (Navegación optimizada)
--   **Autenticación:** Sistema integrado de Login y Registro.
+## 📋 Auditoría EDUGE
 
-## 📊 Especificación de Datos (Excel)
-
-El sistema procesa archivos Excel con la siguiente estructura de columnas (26 campos):
-
-1. `Direc. De Área`
-2. `nivel_educativo`
-3. `nombre`
-4. `sector` (Estatal / Privado)
-5. `cue`
-6. `CUE Edificio Principal`
-7. `establecimiento_cabecera`
-8. `cui`
-9. `calle`
-10. `numero_puerta`
-11. `orientacion`
-12. `codigo_postal`
-13. `localidad`
-14. `latitud`
-15. `longitud`
-16. `categoria`
-17. `Inst. Legal Categoría`
-18. `Radio`
-19. `Inst. Legal Radio`
-20. `Inst. Legal Categoría` (Bis)
-21. `Inst. Legal Creación`
-22. `letra_zona`
-23. `zona o departamento`
-24. `TE VoIP`
-25. `Ámbito`
-26. `VALIDADO`
-
-## 🚀 Instalación Rápida
-
-```bash
-# 1. Instalar dependencias
-composer install
-npm install
-
-# 2. Configurar entorno
-cp .env.example .env
-php artisan key:generate
-
-# 3. Migrar y sembrar (SQLite)
-touch database/database.sqlite
-php artisan migrate --seed
-
-# 4. Compilar assets
-npm run dev
-```
-
-## 📅 Roadmap de Desarrollo
-
-Consultar el archivo [ROADMAP.md](ROADMAP.md) para ver el progreso de:
-- [x] Rediseño de UI/UX
-- [x] Estructura inicial de roles
-- [/] Importador de Excel
-- [ ] Mapa Interactivo Público
-- [ ] Módulo de Auditoría vs EDÚGE
-- [ ] Testing de Seguridad y Carga
+El sistema permite realizar un cotejo de datos sistemático:
+1. Selección de establecimiento o reporte de faltante.
+2. Identificación de discrepancias (Campo, Valor Sistema, Valor EDUGE).
+3. Generación inmediata de comprobante PDF.
+4. Historial completo con filtros por auditor y fecha.
 
 ---
-*Este proyecto es parte de la modernización tecnológica del Ministerio de Educación de la Provincia de San Juan.*
+© 2025 Ministerio de Educación - San Juan.

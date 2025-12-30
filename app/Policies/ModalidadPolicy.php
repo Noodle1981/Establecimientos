@@ -39,12 +39,9 @@ class ModalidadPolicy
         return $user->hasRole(['admin', 'administrativos']);
     }
 
-    /**
-     * Determine whether the user can delete the model (soft delete).
-     */
     public function delete(User $user, Modalidad $modalidad): bool
     {
-        // Soft delete: admin y administrativos
+        // Soft delete: admin y administrativos para control
         return $user->hasRole(['admin', 'administrativos']);
     }
 

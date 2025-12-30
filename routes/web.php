@@ -53,20 +53,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     
     /**
-     * Rutas Admin (Solo accesible por rol 'admin')
+     * Rutas de Gestión (Admin y Administrativos)
      */
-    Route::middleware(['role:admin'])->group(function () {
+    Route::middleware(['role:admin,administrativos'])->group(function () {
         Route::get('/admin', AdminDashboard::class)->name('admin.dashboard');
         Route::get('/admin/users', UserManagement::class)->name('admin.users');
         Route::get('/admin/modalidades', \App\Livewire\Admin\ModalidadesTable::class)->name('admin.modalidades');
-    });
-    
-    /**
-     * Rutas Administrativos (Accesible por 'admin' y 'administrativos')
-     */
-    Route::middleware(['role:admin,administrativos'])->group(function () {
-        Route::get('/administrativos', \App\Livewire\Administrativos\AdministrativosDashboard::class)->name('administrativos.dashboard');
-        Route::get('/administrativos/modalidades', \App\Livewire\Admin\ModalidadesTable::class)->name('administrativos.modalidades');
+        
+        // Auditorías EDUGE
+        Route::get('/auditorias', \App\Livewire\Admin\AuditoriaEdugeTable::class)->name('admin.auditorias');
+        Route::get('/auditorias/nueva', \App\Livewire\Admin\AuditoriaEdugeForm::class)->name('admin.auditorias.create');
+        
+        // Reportes PDF
+        Route::get('/auditorias/{id}/pdf', [\App\Http\Controllers\Admin\PDFController::class, 'downloadIndividual'])->name('admin.auditorias.pdf');
+        Route::get('/auditorias/reporte/general', [\App\Http\Controllers\Admin\PDFController::class, 'downloadGeneral'])->name('admin.auditorias.reporte-general');
+        
+        // Redirección para retrocompatibilidad
+        Route::get('/administrativos', function() { return redirect()->route('admin.dashboard'); })->name('administrativos.dashboard');
+        Route::get('/administrativos/modalidades', function() { return redirect()->route('admin.modalidades'); })->name('administrativos.modalidades');
     });
 });
 
