@@ -65,7 +65,7 @@
                                     🗺️ Mapa
                                 </a>
 
-                                @if(auth()->user()->hasRole(['admin', 'administrativos']))
+                                @if(auth()->user()->isAdmin())
                                     <!-- Dashboard Admin -->
                                     <a href="{{ route('admin.dashboard') }}" 
                                        class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
@@ -86,6 +86,26 @@
 
                                     <!-- Auditorías EDUGE -->
                                     <a href="{{ route('admin.auditorias') }}" 
+                                       class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
+                                        🔍 Auditorías
+                                    </a>
+                                @endif
+
+                                @if(auth()->user()->isAdministrativo())
+                                    <!-- Dashboard Administrativo -->
+                                    <a href="{{ route('administrativos.dashboard') }}" 
+                                       class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
+                                        📊 Panel Administrativo
+                                    </a>
+
+                                    <!-- Modalidades -->
+                                    <a href="{{ route('administrativos.modalidades') }}" 
+                                       class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
+                                        📋 Modalidades
+                                    </a>
+
+                                    <!-- Auditorías EDUGE -->
+                                    <a href="{{ route('administrativos.auditorias') }}" 
                                        class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
                                         🔍 Auditorías
                                     </a>

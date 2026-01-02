@@ -27,25 +27,41 @@ new class extends Component
                     <!-- Navigation Links (Desktop) -->
                     <div class="hidden md:flex md:space-x-2">
                         @auth
-                        @if(auth()->user()->hasRole(['admin', 'administrativos']))
-                            <!-- Admin & Administrativos Links -->
-                            <a href="{{ route('admin.dashboard') }}" 
-                               class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.dashboard') ? 'bg-orange-50 font-semibold' : '' }}">
-                                📊 Dashboard Admin
-                            </a>
-                            <a href="{{ route('admin.users') }}" 
-                               class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.users') ? 'bg-orange-50 font-semibold' : '' }}">
-                                👥 Usuarios
-                            </a>
-                            <a href="{{ route('admin.modalidades') }}" 
-                               class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.modalidades') ? 'bg-orange-50 font-semibold' : '' }}">
-                                📋 Modalidades
-                            </a>
-                            <a href="{{ route('admin.auditorias') }}" 
-                               class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.auditorias*') ? 'bg-orange-50 font-semibold' : '' }}">
-                                🔍 Auditorías
-                            </a>
-                        @endif
+                            @if(auth()->user()->isAdmin())
+                                <!-- Admin Links -->
+                                <a href="{{ route('admin.dashboard') }}" 
+                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.dashboard') ? 'bg-orange-50 font-semibold' : '' }}">
+                                    📊 Dashboard Admin
+                                </a>
+                                <a href="{{ route('admin.users') }}" 
+                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.users') ? 'bg-orange-50 font-semibold' : '' }}">
+                                    👥 Usuarios
+                                </a>
+                                <a href="{{ route('admin.modalidades') }}" 
+                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.modalidades') ? 'bg-orange-50 font-semibold' : '' }}">
+                                    📋 Modalidades
+                                </a>
+                                <a href="{{ route('admin.auditorias') }}" 
+                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.auditorias*') ? 'bg-orange-50 font-semibold' : '' }}">
+                                    🔍 Auditorías
+                                </a>
+                            @endif
+
+                            @if(auth()->user()->isAdministrativo())
+                                <!-- Administrativos Links -->
+                                <a href="{{ route('administrativos.dashboard') }}" 
+                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.dashboard') ? 'bg-orange-50 font-semibold' : '' }}">
+                                    📊 Panel Administrativo
+                                </a>
+                                <a href="{{ route('administrativos.modalidades') }}" 
+                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.modalidades') ? 'bg-orange-50 font-semibold' : '' }}">
+                                    📋 Modalidades
+                                </a>
+                                <a href="{{ route('administrativos.auditorias') }}" 
+                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.auditorias*') ? 'bg-orange-50 font-semibold' : '' }}">
+                                    🔍 Auditorías
+                                </a>
+                            @endif
                         @endauth
                         
                         <!-- Mapa (todos) -->
@@ -130,7 +146,7 @@ new class extends Component
              style="border-color: var(--primary-orange);">
             <div class="px-4 py-4 space-y-2">
                 @auth
-                @if(auth()->user()->hasRole(['admin', 'administrativos']))
+                @if(auth()->user()->isAdmin())
                     <a href="{{ route('admin.dashboard') }}" 
                        wire:navigate
                        class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.dashboard') ? 'bg-orange-50 font-semibold' : '' }}">
@@ -149,6 +165,24 @@ new class extends Component
                     <a href="{{ route('admin.auditorias') }}" 
                        wire:navigate
                        class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.auditorias*') ? 'bg-orange-50 font-semibold' : '' }}">
+                        🔍 Auditorías
+                    </a>
+                @endif
+
+                @if(auth()->user()->isAdministrativo())
+                    <a href="{{ route('administrativos.dashboard') }}" 
+                       wire:navigate
+                       class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.dashboard') ? 'bg-orange-50 font-semibold' : '' }}">
+                        📊 Panel Administrativo
+                    </a>
+                    <a href="{{ route('administrativos.modalidades') }}" 
+                       wire:navigate
+                       class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.modalidades') ? 'bg-orange-50 font-semibold' : '' }}">
+                        📋 Modalidades
+                    </a>
+                    <a href="{{ route('administrativos.auditorias') }}" 
+                       wire:navigate
+                       class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.auditorias*') ? 'bg-orange-50 font-semibold' : '' }}">
                         🔍 Auditorías
                     </a>
                 @endif

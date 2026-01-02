@@ -5,14 +5,10 @@ use App\Livewire\Admin\AdminDashboard;
 use App\Livewire\Admin\UserManagement;
 use App\Livewire\Mid\MidDashboard;
 use App\Livewire\User\UserDashboard;
-use App\Http\Controllers\SetupController;
-
 /**
  * Public Routes
  */
 Route::redirect('/', '/mapa')->name('home');
-Route::get('/setup', [SetupController::class, 'index'])->name('setup.index');
-Route::post('/setup', [SetupController::class, 'store'])->name('setup.store');
 
 /**
  * Authentication Routes
@@ -46,31 +42,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('profile', 'profile')->name('profile');
     
     /**
-     * Rutas Mid (Accesible por roles 'mid' y 'admin')
+     * Rutas de Administración (Solo Admin)
      */
-    Route::middleware(['role:mid,admin'])->group(function () {
-        Route::get('/mid', MidDashboard::class)->name('mid.dashboard');
-    });
-    
-    /**
-     * Rutas de Gestión (Admin y Administrativos)
-     */
-    Route::middleware(['role:admin,administrativos'])->group(function () {
-        Route::get('/admin', AdminDashboard::class)->name('admin.dashboard');
-        Route::get('/admin/users', UserManagement::class)->name('admin.users');
-        Route::get('/admin/modalidades', \App\Livewire\Admin\ModalidadesTable::class)->name('admin.modalidades');
+    Route::middleware(['role:admin'])->prefix('admin')->group(function () {
+        Route::get('/', AdminDashboard::class)->name('admin.dashboard');
+        Route::get('/users', UserManagement::class)->name('admin.users');
         
-        // Auditorías EDUGE
+        // Gestión Compartida bajo prefijo admin
+        Route::get('/modalidades', \App\Livewire\Admin\ModalidadesTable::class)->name('admin.modalidades');
         Route::get('/auditorias', \App\Livewire\Admin\AuditoriaEdugeTable::class)->name('admin.auditorias');
         Route::get('/auditorias/nueva', \App\Livewire\Admin\AuditoriaEdugeForm::class)->name('admin.auditorias.create');
         
         // Reportes PDF
         Route::get('/auditorias/{id}/pdf', [\App\Http\Controllers\Admin\PDFController::class, 'downloadIndividual'])->name('admin.auditorias.pdf');
         Route::get('/auditorias/reporte/general', [\App\Http\Controllers\Admin\PDFController::class, 'downloadGeneral'])->name('admin.auditorias.reporte-general');
+    });
+
+    /**
+     * Rutas Administrativas (Solo Administrativos)
+     */
+    Route::middleware(['role:administrativos'])->prefix('administrativos')->group(function () {
+        Route::get('/Panel', \App\Livewire\Administrativos\AdministrativosDashboard::class)->name('administrativos.dashboard');
         
-        // Redirección para retrocompatibilidad
-        Route::get('/administrativos', function() { return redirect()->route('admin.dashboard'); })->name('administrativos.dashboard');
-        Route::get('/administrativos/modalidades', function() { return redirect()->route('admin.modalidades'); })->name('administrativos.modalidades');
+        // Gestión Compartida bajo prefijo administrativos con nombres propios
+        Route::get('/modalidades', \App\Livewire\Admin\ModalidadesTable::class)->name('administrativos.modalidades');
+        Route::get('/auditorias', \App\Livewire\Admin\AuditoriaEdugeTable::class)->name('administrativos.auditorias');
+        Route::get('/auditorias/nueva', \App\Livewire\Admin\AuditoriaEdugeForm::class)->name('administrativos.auditorias.create');
+        
+        // Reportes PDF
+        Route::get('/auditorias/{id}/pdf', [\App\Http\Controllers\Admin\PDFController::class, 'downloadIndividual'])->name('administrativos.auditorias.pdf');
+        Route::get('/auditorias/reporte/general', [\App\Http\Controllers\Admin\PDFController::class, 'downloadGeneral'])->name('administrativos.auditorias.reporte-general');
     });
 });
 

@@ -73,7 +73,9 @@ class AuditoriaEdugeForm extends Component
         ]);
 
         session()->flash('success', 'Auditoría registrada correctamente.');
-        return redirect()->route('admin.auditorias');
+        
+        $route = Auth::user()->isAdmin() ? 'admin.auditorias' : 'administrativos.auditorias';
+        return redirect()->route($route);
     }
 
     public function render()
