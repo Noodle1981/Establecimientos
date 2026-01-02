@@ -2,7 +2,17 @@
     <div class="mb-6 flex justify-between items-center">
         <div>
             <h2 class="text-3xl font-bold text-black">Gestión de Modalidades</h2>
-            <p class="text-gray-600 mt-1">{{ $modalidades->total() }} modalidades encontradas</p>
+            <div class="flex items-center gap-2 mt-1">
+                <p class="text-gray-600">
+                    <span class="font-semibold text-orange-600">{{ $modalidades->total() }}</span> 
+                    {{ $modalidades->total() === 1 ? 'modalidad encontrada' : 'modalidades encontradas' }}
+                </p>
+                @if($this->activeFiltersCount > 0)
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800">
+                        🔍 Filtrado
+                    </span>
+                @endif
+            </div>
         </div>
         
         <div class="flex gap-3">
@@ -26,33 +36,106 @@
         </div>
     @endif
 
-    <!-- Filtros -->
-    <div class="mb-6 glass rounded-xl p-6">
-        <h3 class="font-semibold text-black mb-4">Filtros</h3>
-        <div class="flex flex-wrap gap-4 items-end">
-            <div class="flex-1 min-w-[200px]">
-                <label class="block text-sm font-medium text-gray-700 mb-2">🔍 Buscar Establecimiento</label>
-                <input type="text" wire:model="search" placeholder="Nombre del establecimiento..." class="input-primary">
+    <!-- Filtros Expandidos -->
+    <div class="mb-6 glass rounded-xl p-6" x-data="{ filtersOpen: true }">
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center gap-3">
+                <h3 class="font-semibold text-black">🔍 Filtros Avanzados</h3>
+                @if($this->activeFiltersCount > 0)
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800">
+                        {{ $this->activeFiltersCount }} activo{{ $this->activeFiltersCount > 1 ? 's' : '' }}
+                    </span>
+                @endif
             </div>
-            <div class="flex-1 min-w-[200px]">
-                <label class="block text-sm font-medium text-gray-700 mb-2">📚 Nivel Educativo</label>
-                <select wire:model="nivelFilter" class="input-primary">
-                    <option value="">Todos los niveles</option>
-                    @foreach($niveles as $nivel)
-                        <option value="{{ $nivel }}">{{ $nivel }}</option>
-                    @endforeach
-                </select>
+            <div class="flex gap-2">
+                @if($this->activeFiltersCount > 0)
+                    <button wire:click="clearFilters" class="px-4 py-2 text-sm rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition">
+                        🗑️ Limpiar Filtros
+                    </button>
+                @endif
+                <button @click="filtersOpen = !filtersOpen" class="px-4 py-2 text-sm rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
+                    <span x-text="filtersOpen ? '▼ Ocultar' : '▶ Mostrar'"></span>
+                </button>
             </div>
-            <div class="flex-1 min-w-[200px]">
-                <label class="block text-sm font-medium text-gray-700 mb-2">🏛️ Ámbito</label>
-                <select wire:model="ambitoFilter" class="input-primary">
-                    <option value="">Todos</option>
-                    <option value="PUBLICO">Público</option>
-                    <option value="PRIVADO">Privado</option>
-                </select>
+        </div>
+
+        <div x-show="filtersOpen" x-transition class="space-y-4">
+            <!-- Fila 1: Búsqueda y Nivel -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">🔍 Buscar Establecimiento</label>
+                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Nombre del establecimiento..." class="input-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">📚 Nivel Educativo</label>
+                    <select wire:model.live="nivelFilter" class="input-primary">
+                        <option value="">Todos los niveles</option>
+                        @foreach($niveles as $nivel)
+                            <option value="{{ $nivel }}">{{ $nivel }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
-            <div>
-                <button wire:click="$refresh" class="btn-primary">🔍 Filtrar</button>
+
+            <!-- Fila 2: Ámbito, Zona, Radio -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">🏛️ Ámbito</label>
+                    <select wire:model.live="ambitoFilter" class="input-primary">
+                        <option value="">Todos</option>
+                        <option value="PUBLICO">Público</option>
+                        <option value="PRIVADO">Privado</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">📍 Departamento/Zona</label>
+                    <select wire:model.live="zonaFilter" class="input-primary">
+                        <option value="">Todas las zonas</option>
+                        @foreach($zonas as $zona)
+                            <option value="{{ $zona }}">{{ $zona }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">📡 Radio</label>
+                    <select wire:model.live="radioFilter" class="input-primary">
+                        <option value="">Todos los radios</option>
+                        @foreach($radios as $radio)
+                            <option value="{{ $radio }}">{{ $radio }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <!-- Fila 3: Categoría, Sector, Dirección de Área -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">🏷️ Categoría</label>
+                    <select wire:model.live="categoriaFilter" class="input-primary">
+                        <option value="">Todas las categorías</option>
+                        @foreach($categorias as $categoria)
+                            <option value="{{ $categoria }}">{{ $categoria }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">🔢 Sector</label>
+                    <select wire:model.live="sectorFilter" class="input-primary">
+                        <option value="">Todos los sectores</option>
+                        @foreach($sectores as $sector)
+                            <option value="{{ $sector }}">{{ $sector }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">🎓 Dirección de Área</label>
+                    <select wire:model.live="direccionAreaFilter" class="input-primary">
+                        <option value="">Todas las direcciones</option>
+                        @foreach($direccionesArea as $direccion)
+                            <option value="{{ $direccion }}">{{ $direccion }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
         </div>
     </div>

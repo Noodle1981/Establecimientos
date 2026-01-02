@@ -15,6 +15,11 @@ class ModalidadesTable extends Component
     public $search = '';
     public $nivelFilter = '';
     public $ambitoFilter = '';
+    public $radioFilter = '';
+    public $categoriaFilter = '';
+    public $zonaFilter = '';
+    public $sectorFilter = '';
+    public $direccionAreaFilter = '';
     public $showDeleted = false;
 
     // Modales
@@ -73,7 +78,17 @@ class ModalidadesTable extends Component
         'validado' => false,
     ];
 
-    protected $queryString = ['search', 'nivelFilter', 'ambitoFilter'];
+    protected $queryString = [
+        'search',
+        'nivelFilter',
+        'ambitoFilter',
+        'radioFilter',
+        'categoriaFilter',
+        'zonaFilter',
+        'sectorFilter',
+        'direccionAreaFilter',
+        'showDeleted'
+    ];
 
     public function updatingSearch()
     {
@@ -106,6 +121,28 @@ class ModalidadesTable extends Component
             $query->where('ambito', $this->ambitoFilter);
         }
 
+        if ($this->radioFilter) {
+            $query->where('radio', $this->radioFilter);
+        }
+
+        if ($this->categoriaFilter) {
+            $query->where('categoria', 'like', '%' . $this->categoriaFilter . '%');
+        }
+
+        if ($this->sectorFilter) {
+            $query->where('sector', $this->sectorFilter);
+        }
+
+        if ($this->direccionAreaFilter) {
+            $query->where('direccion_area', $this->direccionAreaFilter);
+        }
+
+        if ($this->zonaFilter) {
+            $query->whereHas('establecimiento.edificio', function ($q) {
+                $q->where('zona_departamento', $this->zonaFilter);
+            });
+        }
+
         if ($this->showDeleted) {
             $query->onlyTrashed();
         }
@@ -114,6 +151,10 @@ class ModalidadesTable extends Component
             'modalidades' => $query->paginate(20),
             'niveles' => Modalidad::select('nivel_educativo')->distinct()->pluck('nivel_educativo'),
             'zonas' => Edificio::select('zona_departamento')->distinct()->orderBy('zona_departamento')->pluck('zona_departamento'),
+            'radios' => Modalidad::select('radio')->distinct()->whereNotNull('radio')->orderBy('radio')->pluck('radio'),
+            'categorias' => Modalidad::select('categoria')->distinct()->whereNotNull('categoria')->orderBy('categoria')->pluck('categoria'),
+            'sectores' => Modalidad::select('sector')->distinct()->whereNotNull('sector')->orderBy('sector')->pluck('sector'),
+            'direccionesArea' => Modalidad::select('direccion_area')->distinct()->whereNotNull('direccion_area')->orderBy('direccion_area')->pluck('direccion_area'),
         ]);
     }
 
@@ -292,6 +333,41 @@ class ModalidadesTable extends Component
         $modalidad->restore();
 
         session()->flash('success', 'Modalidad restaurada correctamente.');
+    }
+
+    /**
+     * Clear all active filters
+     */
+    public function clearFilters()
+    {
+        $this->reset([
+            'search',
+            'nivelFilter',
+            'ambitoFilter',
+            'radioFilter',
+            'categoriaFilter',
+            'zonaFilter',
+            'sectorFilter',
+            'direccionAreaFilter',
+        ]);
+        $this->resetPage();
+    }
+
+    /**
+     * Get count of active filters
+     */
+    public function getActiveFiltersCountProperty()
+    {
+        $count = 0;
+        if ($this->search) $count++;
+        if ($this->nivelFilter) $count++;
+        if ($this->ambitoFilter) $count++;
+        if ($this->radioFilter) $count++;
+        if ($this->categoriaFilter) $count++;
+        if ($this->zonaFilter) $count++;
+        if ($this->sectorFilter) $count++;
+        if ($this->direccionAreaFilter) $count++;
+        return $count;
     }
 
     public function closeModals()

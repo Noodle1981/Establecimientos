@@ -29,7 +29,6 @@ class Modalidad extends Model
 
     protected $casts = [
         'sector' => 'integer',
-        'radio' => 'decimal:2',
         'validado' => 'boolean',
     ];
 
