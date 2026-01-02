@@ -105,9 +105,9 @@
                                     </a>
 
                                     <!-- Auditorías EDUGE -->
-                                    <a href="{{ route('administrativos.auditorias') }}" 
+                                    <a href="{{ route('administrativos.validacion') }}" 
                                        class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
-                                        🔍 Auditorías
+                                        ✅ Validación
                                     </a>
                                 @endif
 

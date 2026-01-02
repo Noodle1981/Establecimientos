@@ -71,10 +71,12 @@ class AuditoriaEdugeForm extends Component
             'observaciones' => $this->observaciones,
             'tipo_cotejo' => $this->tipo_cotejo,
         ]);
+        $this->auditoria->save();
 
-        session()->flash('success', 'Auditoría registrada correctamente.');
-        
-        $route = Auth::user()->isAdmin() ? 'admin.auditorias' : 'administrativos.auditorias';
+        session()->flash('message', 'Auditoría guardada correctamente.');
+
+        // Redirect dinámico basado en el rol del usuario
+        $route = Auth::user()->isAdmin() ? 'admin.validacion' : 'administrativos.validacion';
         return redirect()->route($route);
     }
 
