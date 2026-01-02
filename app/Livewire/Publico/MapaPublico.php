@@ -10,7 +10,7 @@ class MapaPublico extends Component
     public function render()
     {
         // Cargar edificios con sus establecimientos y modalidades
-        $edificios = Edificio::with(['establecimientos'])
+        $edificios = Edificio::with(['establecimientos.modalidades'])
             ->whereNotNull('latitud')
             ->whereNotNull('longitud')
             ->get()
@@ -28,9 +28,16 @@ class MapaPublico extends Component
                     'zona_departamento' => $edificio->zona_departamento ?? '',
                     'ambito' => $ambito,
                     'establecimientos' => $edificio->establecimientos->map(function ($est) {
+                        // Obtener la primera modalidad para mostrar info adicional
+                        $modalidad = $est->modalidades->first();
+                        
                         return [
                             'nombre' => $est->nombre,
                             'cue' => $est->cue,
+                            'radio' => $modalidad?->radio ?? 'N/A',
+                            'categoria' => $modalidad?->categoria ?? 'N/A',
+                            'nivel_educativo' => $modalidad?->nivel_educativo ?? 'N/A',
+                            'direccion_area' => $modalidad?->direccion_area ?? 'N/A',
                         ];
                     })->toArray(),
                 ];

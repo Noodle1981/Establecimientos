@@ -5,7 +5,7 @@
     <!-- Panel Lateral (Sidebar) -->
     <div class="absolute top-0 left-0 h-full z-10 transition-transform duration-300"
          :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
-        <div class="h-full w-80 md:w-96 glass-strong shadow-2xl flex flex-col">
+        <div class="h-full w-72 glass-strong shadow-2xl flex flex-col">
             <!-- Header del Panel -->
             <div class="p-4 border-b border-gray-200">
                 <h2 class="text-2xl font-bold text-black mb-2">🏫 Establecimientos</h2>
@@ -49,7 +49,7 @@
     <!-- Botón Toggle Sidebar -->
     <button @click="sidebarOpen = !sidebarOpen"
             class="absolute top-4 z-20 transition-all duration-300 glass-strong rounded-full p-3 shadow-lg hover:scale-110"
-            :class="sidebarOpen ? 'left-80 md:left-96' : 'left-4'">
+            :class="sidebarOpen ? 'left-72' : 'left-4'">
         <svg class="w-6 h-6 transition-transform duration-300" 
              :class="sidebarOpen ? 'rotate-0' : 'rotate-180'"
              fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,30 +127,57 @@
                 fillOpacity: 0.9
             }).addTo(map);
             
-            // Popup con información
+            // Popup con información expandida
             let popupContent = `
-                <div class="p-3 min-w-[250px]">
-                    <h3 class="font-bold text-black mb-2 text-lg">${edificio.localidad}</h3>
-                    <p class="text-sm text-gray-600 mb-3">
+                <div class="p-3 min-w-[320px] max-w-[400px]">
+                    <h3 class="font-bold text-black mb-1.5 text-base">${edificio.localidad}</h3>
+                    <p class="text-xs text-gray-600 mb-2">
                         <strong>📍</strong> ${edificio.calle} ${edificio.numero_puerta || 'S/N'}
                     </p>
                     <div class="border-t pt-2">
-                        <p class="text-xs font-semibold mb-2" style="color: #FF8200;">Establecimientos (${edificio.establecimientos.length}):</p>
+                        <p class="text-[10px] font-semibold mb-2" style="color: #FF8200;">Establecimientos (${edificio.establecimientos.length}):</p>
+                        <div class="space-y-2 max-h-[400px] overflow-y-auto pr-2">
             `;
             
             edificio.establecimientos.forEach(est => {
                 popupContent += `
-                    <div class="mb-2 p-2 bg-gray-50 rounded">
-                        <p class="text-sm font-medium">${est.nombre}</p>
-                        <p class="text-xs text-gray-500">CUE: ${est.cue}</p>
+                    <div class="p-2 bg-gray-50 rounded-lg border border-gray-200">
+                        <p class="text-xs font-bold text-black mb-1.5">${est.nombre}</p>
+                        <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px]">
+                            <div>
+                                <p class="text-gray-500">CUE:</p>
+                                <p class="font-medium text-gray-700">${est.cue}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Radio:</p>
+                                <p class="font-medium text-gray-700">${est.radio}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Nivel:</p>
+                                <p class="font-medium text-gray-700">${est.nivel_educativo}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Categoría:</p>
+                                <p class="font-medium text-gray-700">${est.categoria}</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="text-gray-500">Dirección de Área:</p>
+                                <p class="font-medium text-gray-700">${est.direccion_area}</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="text-gray-500">Departamento/Zona:</p>
+                                <p class="font-medium text-gray-700">${edificio.zona_departamento || 'N/A'}</p>
+                            </div>
+                        </div>
                     </div>
                 `;
             });
             
-            popupContent += `</div></div>`;
+            popupContent += `</div></div></div>`;
             
             marker.bindPopup(popupContent, {
-                maxWidth: 300,
+                maxWidth: 450,
+                minWidth: 320,
                 className: 'custom-popup'
             });
 
