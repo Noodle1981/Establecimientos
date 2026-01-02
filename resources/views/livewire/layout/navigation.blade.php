@@ -41,9 +41,9 @@ new class extends Component
                                    class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.modalidades') ? 'bg-orange-50 font-semibold' : '' }}">
                                     📋 Modalidades
                                 </a>
-                                <a href="{{ route('admin.auditorias') }}" 
-                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.auditorias*') ? 'bg-orange-50 font-semibold' : '' }}">
-                                    🔍 Auditorías
+                                <a href="{{ route('admin.validacion') }}" 
+                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.validacion*') ? 'bg-orange-50 font-semibold' : '' }}">
+                                    ✅ Validación
                                 </a>
                             @endif
 
@@ -57,9 +57,9 @@ new class extends Component
                                    class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.modalidades') ? 'bg-orange-50 font-semibold' : '' }}">
                                     📋 Modalidades
                                 </a>
-                                <a href="{{ route('administrativos.auditorias') }}" 
-                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.auditorias*') ? 'bg-orange-50 font-semibold' : '' }}">
-                                    🔍 Auditorías
+                                <a href="{{ route('administrativos.validacion') }}" 
+                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.validacion*') ? 'bg-orange-50 font-semibold' : '' }}">
+                                    ✅ Validación
                                 </a>
                             @endif
                         @endauth

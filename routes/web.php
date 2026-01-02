@@ -50,12 +50,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         // Gestión Compartida bajo prefijo admin
         Route::get('/modalidades', \App\Livewire\Admin\ModalidadesTable::class)->name('admin.modalidades');
-        Route::get('/auditorias', \App\Livewire\Admin\AuditoriaEdugeTable::class)->name('admin.auditorias');
-        Route::get('/auditorias/nueva', \App\Livewire\Admin\AuditoriaEdugeForm::class)->name('admin.auditorias.create');
+        Route::get('/validacion', \App\Livewire\Admin\ValidacionModalidadesTable::class)->name('admin.validacion');
         
-        // Reportes PDF
-        Route::get('/auditorias/{id}/pdf', [\App\Http\Controllers\Admin\PDFController::class, 'downloadIndividual'])->name('admin.auditorias.pdf');
-        Route::get('/auditorias/reporte/general', [\App\Http\Controllers\Admin\PDFController::class, 'downloadGeneral'])->name('admin.auditorias.reporte-general');
+        // Backward compatibility (redirect old routes)
+        Route::get('/auditorias', function() { return redirect()->route('admin.validacion'); });
+        Route::get('/auditorias/nueva', function() { return redirect()->route('admin.validacion'); });
     });
 
     /**
@@ -66,12 +65,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         // Gestión Compartida bajo prefijo administrativos con nombres propios
         Route::get('/modalidades', \App\Livewire\Admin\ModalidadesTable::class)->name('administrativos.modalidades');
-        Route::get('/auditorias', \App\Livewire\Admin\AuditoriaEdugeTable::class)->name('administrativos.auditorias');
-        Route::get('/auditorias/nueva', \App\Livewire\Admin\AuditoriaEdugeForm::class)->name('administrativos.auditorias.create');
+        Route::get('/validacion', \App\Livewire\Admin\ValidacionModalidadesTable::class)->name('administrativos.validacion');
         
-        // Reportes PDF
-        Route::get('/auditorias/{id}/pdf', [\App\Http\Controllers\Admin\PDFController::class, 'downloadIndividual'])->name('administrativos.auditorias.pdf');
-        Route::get('/auditorias/reporte/general', [\App\Http\Controllers\Admin\PDFController::class, 'downloadGeneral'])->name('administrativos.auditorias.reporte-general');
+        // Backward compatibility (redirect old routes)
+        Route::get('/auditorias', function() { return redirect()->route('administrativos.validacion'); });
+        Route::get('/auditorias/nueva', function() { return redirect()->route('administrativos.validacion'); });
     });
 });
 
