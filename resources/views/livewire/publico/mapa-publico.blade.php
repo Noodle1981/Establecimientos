@@ -143,28 +143,28 @@
                 popupContent += `
                     <div class="p-2 bg-gray-50 rounded-lg border border-gray-200">
                         <p class="text-xs font-bold text-black mb-1.5">${est.nombre}</p>
-                        <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px]">
-                            <div>
+                        <div class="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px]">
+                            <div class="flex gap-1">
                                 <p class="text-gray-500">CUE:</p>
                                 <p class="font-medium text-gray-700">${est.cue}</p>
                             </div>
-                            <div>
+                            <div class="flex gap-1">
                                 <p class="text-gray-500">Radio:</p>
                                 <p class="font-medium text-gray-700">${est.radio}</p>
                             </div>
-                            <div>
+                            <div class="flex gap-1">
                                 <p class="text-gray-500">Nivel:</p>
                                 <p class="font-medium text-gray-700">${est.nivel_educativo}</p>
                             </div>
-                            <div>
+                            <div class="flex gap-1">
                                 <p class="text-gray-500">Categoría:</p>
                                 <p class="font-medium text-gray-700">${est.categoria}</p>
                             </div>
-                            <div class="col-span-2">
+                            <div class="col-span-2 flex gap-1">
                                 <p class="text-gray-500">Dirección de Área:</p>
                                 <p class="font-medium text-gray-700">${est.direccion_area}</p>
                             </div>
-                            <div class="col-span-2">
+                            <div class="col-span-2 flex gap-1">
                                 <p class="text-gray-500">Departamento/Zona:</p>
                                 <p class="font-medium text-gray-700">${edificio.zona_departamento || 'N/A'}</p>
                             </div>
