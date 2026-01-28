@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'password_changed_at',
     ];
 
     /**
@@ -44,6 +45,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'password_changed_at' => 'datetime',
         ];
     }
 
@@ -55,13 +57,7 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
-    /**
-     * Check if user is mid level.
-     */
-    public function isMid(): bool
-    {
-        return $this->role === 'mid';
-    }
+
 
     /**
      * Check if user is administrativo.

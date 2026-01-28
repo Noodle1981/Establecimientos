@@ -1,100 +1,75 @@
-<div class="min-h-screen bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <!-- Header -->
+<div class="min-h-screen pb-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        
+        <!-- HEADER ESTRATÉGICO -->
+        <div class="mb-10">
+            <nav class="flex items-center gap-2 text-xs font-bold text-orange-600 uppercase tracking-widest mb-2">
+                <span class="opacity-60">Ministerio de Educación</span>
+                <span>•</span>
+                <span>Panel de Control Administrativo</span>
+            </nav>
+            <h1 class="text-4xl font-black text-slate-900 tracking-tight">Panel Administrativo</h1>
+            <p class="text-slate-500 mt-2 font-medium">Gestión integral de establecimientos educativos de la provincia</p>
+        </div>
+
+        <!-- TARJETAS DE ESTADO (KPIs) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="glass rounded-2xl p-6 border-l-4 border-orange-500 shadow-sm hover:shadow-md transition-all">
+                <p class="text-slate-500 text-sm font-medium mb-1">Total Establecimientos</p>
+                <h3 class="text-4xl font-black text-slate-900">{{ \App\Models\Establecimiento::count() }}</h3>
+                <p class="text-xs text-slate-400 mt-2">Unidades educativas registradas</p>
+            </div>
+
+            <div class="glass rounded-2xl p-6 border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-all">
+                <p class="text-slate-500 text-sm font-medium mb-1">Modalidades Activas</p>
+                <h3 class="text-4xl font-black text-slate-900">{{ \App\Models\Modalidad::count() }}</h3>
+                <p class="text-xs text-slate-400 mt-2">Niveles y modalidades educativas</p>
+            </div>
+
+            <div class="glass rounded-2xl p-6 border-l-4 border-yellow-500 shadow-sm hover:shadow-md transition-all">
+                <p class="text-slate-500 text-sm font-medium mb-1">Pendientes Validación</p>
+                <h3 class="text-4xl font-black text-slate-900">{{ \App\Models\Modalidad::where('validado', false)->count() }}</h3>
+                <p class="text-xs text-slate-400 mt-2">Requieren revisión y aprobación</p>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE GRÁFICOS -->
         <div class="mb-8">
-            <h1 class="text-4xl font-bold text-black mb-2">Panel Administrativo</h1>
-            <p class="text-gray-600">Gestión de modalidades educativas</p>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="glass rounded-2xl p-6">
-                <h3 class="text-3xl font-bold text-black mb-1">{{ \App\Models\Establecimiento::count() }}</h3>
-                <p class="text-gray-600 text-sm">Establecimientos</p>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="p-2 bg-orange-100 rounded-lg text-orange-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                </div>
+                <h2 class="text-2xl font-black text-slate-900">Análisis Estadístico</h2>
             </div>
-
-            <div class="glass rounded-2xl p-6">
-                <h3 class="text-3xl font-bold text-black mb-1">{{ \App\Models\Modalidad::count() }}</h3>
-                <p class="text-gray-600 text-sm">Modalidades</p>
-            </div>
-
-            <div class="glass rounded-2xl p-6">
-                <h3 class="text-3xl font-bold text-black mb-1">{{ \App\Models\Modalidad::where('validado', false)->count() }}</h3>
-                <p class="text-gray-600 text-sm">Pendientes de Validar</p>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="glass rounded-2xl p-8">
-            <h2 class="text-2xl font-bold text-black mb-6">Acciones Rápidas</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a href="{{ route('administrativos.modalidades') }}" 
-                   class="glass rounded-xl p-6 hover:shadow-lg transition group">
-                    <div class="flex items-center space-x-4">
-                        <div class="p-3 rounded-lg group-hover:scale-110 transition" 
-                             style="background-color: var(--primary-orange);">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-black">Gestionar Modalidades</h3>
-                            <p class="text-sm text-gray-600">Ver, editar y validar modalidades</p>
-                        </div>
-                    </div>
-                </a>
-
-                <a href="{{ route('mapa.publico') }}" 
-                   class="glass rounded-xl p-6 hover:shadow-lg transition group">
-                    <div class="flex items-center space-x-4">
-                        <div class="p-3 rounded-lg group-hover:scale-110 transition" 
-                             style="background-color: var(--primary-orange);">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-black">Ver Mapa</h3>
-                            <p class="text-sm text-gray-600">Visualizar establecimientos en el mapa</p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <!-- Charts Section -->
-        <div class="mt-8">
-            <h2 class="text-2xl font-bold text-black mb-6">📊 Análisis Estadístico</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Chart 1: Modalidades -->
-                <div class="glass rounded-2xl p-6">
-                    <h3 class="text-lg font-semibold text-black mb-4">Modalidades Educativas</h3>
+                <div class="glass rounded-2xl p-6 shadow-sm border border-white/50">
+                    <h3 class="text-sm font-black text-slate-700 mb-4 uppercase tracking-wider">Modalidades Educativas</h3>
                     <canvas id="chartModalidades"></canvas>
                 </div>
 
                 <!-- Chart 2: Categorías -->
-                <div class="glass rounded-2xl p-6">
-                    <h3 class="text-lg font-semibold text-black mb-4">Top 10 Categorías</h3>
+                <div class="glass rounded-2xl p-6 shadow-sm border border-white/50">
+                    <h3 class="text-sm font-black text-slate-700 mb-4 uppercase tracking-wider">Top 10 Categorías</h3>
                     <canvas id="chartCategorias"></canvas>
                 </div>
 
                 <!-- Chart 3: Departamentos/Zonas -->
-                <div class="glass rounded-2xl p-6">
-                    <h3 class="text-lg font-semibold text-black mb-4">Departamentos/Zonas</h3>
+                <div class="glass rounded-2xl p-6 shadow-sm border border-white/50">
+                    <h3 class="text-sm font-black text-slate-700 mb-4 uppercase tracking-wider">Departamentos/Zonas</h3>
                     <canvas id="chartZonas"></canvas>
                 </div>
 
                 <!-- Chart 4: Radio -->
-                <div class="glass rounded-2xl p-6">
-                    <h3 class="text-lg font-semibold text-black mb-4">Distribución por Radio</h3>
+                <div class="glass rounded-2xl p-6 shadow-sm border border-white/50">
+                    <h3 class="text-sm font-black text-slate-700 mb-4 uppercase tracking-wider">Distribución por Radio</h3>
                     <canvas id="chartRadios"></canvas>
                 </div>
 
                 <!-- Chart 5: Público vs Privado -->
-                <div class="glass rounded-2xl p-6">
-                    <h3 class="text-lg font-semibold text-black mb-4">Público vs Privado</h3>
+                <div class="glass rounded-2xl p-6 shadow-sm border border-white/50">
+                    <h3 class="text-sm font-black text-slate-700 mb-4 uppercase tracking-wider">Público vs Privado</h3>
                     <canvas id="chartAmbito"></canvas>
                 </div>
             </div>

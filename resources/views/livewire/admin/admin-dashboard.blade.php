@@ -1,121 +1,122 @@
 <div class="min-h-screen bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <!-- Header -->
-        <div class="mb-8">
+        <div class="mb-10">
             <h1 class="text-4xl font-bold text-black mb-2">Panel de Administración</h1>
-            <p class="text-gray-600">Gestión completa del sistema de establecimientos educativos</p>
+            <p class="text-gray-600">Visión general del sistema y gestión</p>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <!-- Edificios -->
-            <div class="glass rounded-2xl p-6 hover:shadow-lg transition">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-3 rounded-xl" style="background-color: rgba(255, 130, 0, 0.1);">
-                        <svg class="w-6 h-6" style="color: var(--primary-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                        </svg>
-                    </div>
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            <!-- Total Users -->
+            <div class="glass rounded-2xl p-6 relative overflow-hidden">
+                <div class="relative z-10">
+                    <p class="text-sm font-medium text-gray-500 mb-1">Total Usuarios</p>
+                    <h3 class="text-3xl font-bold text-black">{{ $stats['users_total'] }}</h3>
+                    <p class="text-xs text-green-600 mt-2 font-medium">
+                        +{{ $stats['users_recent'] }} en los últimos 7 días
+                    </p>
                 </div>
-                <h3 class="text-3xl font-bold text-black mb-1">{{ \App\Models\Edificio::count() }}</h3>
-                <p class="text-gray-600 text-sm">Edificios</p>
+                <div class="absolute right-[-10px] top-[-10px] opacity-5">
+                    <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path></svg>
+                </div>
             </div>
 
-            <!-- Establecimientos -->
-            <div class="glass rounded-2xl p-6 hover:shadow-lg transition">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-3 rounded-xl" style="background-color: rgba(255, 130, 0, 0.1);">
-                        <svg class="w-6 h-6" style="color: var(--primary-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                        </svg>
-                    </div>
+            <!-- Admins -->
+            <div class="glass rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-sm font-medium text-gray-500">Administradores</p>
+                    <span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full font-bold">Privilegiado</span>
                 </div>
-                <h3 class="text-3xl font-bold text-black mb-1">{{ \App\Models\Establecimiento::count() }}</h3>
-                <p class="text-gray-600 text-sm">Establecimientos</p>
+                <h3 class="text-2xl font-bold text-black">{{ $stats['users_admin'] }}</h3>
             </div>
 
-            <!-- Modalidades -->
-            <div class="glass rounded-2xl p-6 hover:shadow-lg transition">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-3 rounded-xl" style="background-color: rgba(255, 130, 0, 0.1);">
-                        <svg class="w-6 h-6" style="color: var(--primary-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
+            <!-- Administrativos -->
+            <div class="glass rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-sm font-medium text-gray-500">Administrativos</p>
+                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-bold">Gestión</span>
                 </div>
-                <h3 class="text-3xl font-bold text-black mb-1">{{ \App\Models\Modalidad::count() }}</h3>
-                <p class="text-gray-600 text-sm">Modalidades</p>
+                <h3 class="text-2xl font-bold text-black">{{ $stats['users_administrativos'] }}</h3>
             </div>
 
-            <!-- Usuarios -->
-            <div class="glass rounded-2xl p-6 hover:shadow-lg transition">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-3 rounded-xl" style="background-color: rgba(255, 130, 0, 0.1);">
-                        <svg class="w-6 h-6" style="color: var(--primary-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                        </svg>
-                    </div>
+            <!-- Standard Users -->
+            <div class="glass rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-sm font-medium text-gray-500">Usuarios</p>
+                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full font-bold">Estándar</span>
                 </div>
-                <h3 class="text-3xl font-bold text-black mb-1">{{ \App\Models\User::count() }}</h3>
-                <p class="text-gray-600 text-sm">Usuarios</p>
+                <h3 class="text-2xl font-bold text-black">{{ $stats['users_user'] }}</h3>
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="glass rounded-2xl p-8">
-            <h2 class="text-2xl font-bold text-black mb-6">Acciones Rápidas</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Gestionar Modalidades -->
-                <a href="{{ route('admin.modalidades') }}" 
-                   class="glass rounded-xl p-6 hover:shadow-lg transition group">
-                    <div class="flex items-center space-x-4">
-                        <div class="p-3 rounded-lg group-hover:scale-110 transition" 
-                             style="background-color: var(--primary-orange);">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Actions -->
+            <div class="lg:col-span-2 space-y-6">
+                <h2 class="text-xl font-bold text-black">Acciones Rápidas</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <a href="{{ route('admin.users') }}" class="glass p-6 rounded-2xl hover:shadow-lg transition group border border-gray-100">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h3 class="font-bold text-lg mb-1 group-hover:text-orange-600 transition">Gestionar Usuarios</h3>
+                                <p class="text-sm text-gray-500">Crear, editar y eliminar usuarios del sistema.</p>
+                            </div>
+                            <div class="p-3 bg-orange-50 text-orange-600 rounded-xl group-hover:bg-orange-100 transition">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="font-semibold text-black">Gestionar Modalidades</h3>
-                            <p class="text-sm text-gray-600">Ver, editar y eliminar modalidades</p>
-                        </div>
-                    </div>
-                </a>
+                    </a>
 
-                <!-- Ver Mapa -->
-                <a href="{{ route('mapa.publico') }}" 
-                   class="glass rounded-xl p-6 hover:shadow-lg transition group">
-                    <div class="flex items-center space-x-4">
-                        <div class="p-3 rounded-lg group-hover:scale-110 transition" 
-                             style="background-color: var(--primary-orange);">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-                            </svg>
+                    <a href="{{ route('admin.activity-log') }}" class="glass p-6 rounded-2xl hover:shadow-lg transition group border border-gray-100">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h3 class="font-bold text-lg mb-1 group-hover:text-blue-600 transition">Registro de Actividad</h3>
+                                <p class="text-sm text-gray-500">Auditar cambios y acciones en el sistema.</p>
+                            </div>
+                            <div class="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-100 transition">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="font-semibold text-black">Ver Mapa</h3>
-                            <p class="text-sm text-gray-600">Visualizar establecimientos en el mapa</p>
-                        </div>
-                    </div>
-                </a>
+                    </a>
+                </div>
+            </div>
 
-                <!-- Gestionar Usuarios -->
-                <a href="{{ route('admin.users') }}" 
-                   class="glass rounded-xl p-6 hover:shadow-lg transition group">
-                    <div class="flex items-center space-x-4">
-                        <div class="p-3 rounded-lg group-hover:scale-110 transition" 
-                             style="background-color: var(--primary-orange);">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                            </svg>
+            <!-- Recent Activity Widget -->
+            <div class="glass rounded-2xl p-6 h-full">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-black">Actividad Reciente</h2>
+                    <a href="{{ route('admin.activity-log') }}" class="text-sm text-orange-600 hover:text-orange-700 font-medium">Ver todo</a>
+                </div>
+
+                <div class="space-y-6">
+                    @forelse($recentActivity as $log)
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
+                                    @if($log->action === 'create') bg-green-100 text-green-700
+                                    @elseif($log->action === 'update') bg-blue-100 text-blue-700
+                                    @elseif($log->action === 'delete') bg-red-100 text-red-700
+                                    @else bg-gray-100 text-gray-700
+                                    @endif">
+                                    {{ strtoupper(substr($log->action, 0, 1)) }}
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm text-black font-medium">{{ $log->description }}</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-xs text-gray-500">{{ $log->user->name ?? 'Usuario Sistema' }}</span>
+                                    <span class="text-xs text-gray-300">•</span>
+                                    <span class="text-xs text-gray-400">{{ $log->created_at->diffForHumans() }}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="font-semibold text-black">Gestionar Usuarios</h3>
-                            <p class="text-sm text-gray-600">Administrar usuarios del sistema</p>
+                    @empty
+                        <div class="text-center py-10 text-gray-400">
+                            <p class="text-sm">No hay actividad reciente</p>
                         </div>
-                    </div>
-                </a>
+                    @endforelse
+                </div>
             </div>
         </div>
     </div>

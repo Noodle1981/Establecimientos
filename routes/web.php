@@ -47,12 +47,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
         Route::get('/', AdminDashboard::class)->name('admin.dashboard');
         Route::get('/users', UserManagement::class)->name('admin.users');
+        Route::get('/activity-log', \App\Livewire\Admin\ActivityLogTable::class)->name('admin.activity-log');
         
         // Gestión Compartida bajo prefijo admin
-        Route::get('/modalidades', \App\Livewire\Admin\ModalidadesTable::class)->name('admin.modalidades');
-        Route::get('/validacion', \App\Livewire\Admin\ValidacionModalidadesTable::class)->name('admin.validacion');
+        Route::get('/establecimientos', \App\Livewire\Administrativos\ModalidadesTable::class)->name('admin.establecimientos');
+        Route::get('/validacion', \App\Livewire\Administrativos\ValidacionModalidadesTable::class)->name('admin.validacion');
         
         // Backward compatibility (redirect old routes)
+        Route::get('/modalidades', function() { return redirect()->route('admin.establecimientos'); });
         Route::get('/auditorias', function() { return redirect()->route('admin.validacion'); });
         Route::get('/auditorias/nueva', function() { return redirect()->route('admin.validacion'); });
     });
@@ -64,8 +66,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/Panel', \App\Livewire\Administrativos\AdministrativosDashboard::class)->name('administrativos.dashboard');
         
         // Gestión Compartida bajo prefijo administrativos con nombres propios
-        Route::get('/modalidades', \App\Livewire\Admin\ModalidadesTable::class)->name('administrativos.modalidades');
-        Route::get('/validacion', \App\Livewire\Admin\ValidacionModalidadesTable::class)->name('administrativos.validacion');
+        Route::get('/establecimientos', \App\Livewire\Administrativos\ModalidadesTable::class)->name('administrativos.establecimientos');
+        Route::get('/validacion', \App\Livewire\Administrativos\ValidacionModalidadesTable::class)->name('administrativos.validacion');
         
         // Backward compatibility (redirect old routes)
         Route::get('/auditorias', function() { return redirect()->route('administrativos.validacion'); });

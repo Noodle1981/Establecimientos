@@ -105,16 +105,7 @@ new #[Layout('layouts.guest')] class extends Component
                         </a>
                     @endif
                     
-                    @if (Route::has('register'))
-                        <p class="text-sm text-gray-600">
-                            ¿No tienes cuenta? 
-                            <a href="{{ route('register') }}" 
-                               class="link-primary font-medium" 
-                               wire:navigate>
-                                Regístrate
-                            </a>
-                        </p>
-                    @endif
+
                 </div>
             </form>
         </div>

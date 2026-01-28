@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Administrativos;
 
 use App\Models\Modalidad;
 use Livewire\Component;
@@ -135,9 +135,19 @@ class ValidacionModalidadesTable extends Component
             'ELIMINADO' => Modalidad::where('estado_validacion', 'ELIMINADO')->count(),
         ];
 
-        return view('livewire.admin.validacion-modalidades-table', [
+        // Clases de badges por estado
+        $badgeClasses = [
+            'PENDIENTE' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
+            'CORRECTO' => 'bg-green-100 text-green-800 border-green-200',
+            'CORREGIDO' => 'bg-blue-100 text-blue-800 border-blue-200',
+            'BAJA' => 'bg-orange-100 text-orange-800 border-orange-200',
+            'ELIMINADO' => 'bg-red-100 text-red-800 border-red-200',
+        ];
+
+        return view('livewire.administrativos.validacion-modalidades-table', [
             'modalidades' => $modalidades,
             'contadores' => $contadores,
+            'badgeClasses' => $badgeClasses,
         ])->layout('layouts.app');
     }
 }

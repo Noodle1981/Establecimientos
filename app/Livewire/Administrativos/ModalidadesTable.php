@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Administrativos;
 
 use App\Models\Modalidad;
 use App\Models\Establecimiento;
@@ -147,7 +147,7 @@ class ModalidadesTable extends Component
             $query->onlyTrashed();
         }
 
-        return view('livewire.admin.modalidades-table', [
+        return view('livewire.administrativos.modalidades-table', [
             'modalidades' => $query->paginate(20),
             'niveles' => Modalidad::select('nivel_educativo')->distinct()->pluck('nivel_educativo'),
             'zonas' => Edificio::select('zona_departamento')->distinct()->orderBy('zona_departamento')->pluck('zona_departamento'),

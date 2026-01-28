@@ -17,119 +17,96 @@ new class extends Component
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <!-- Left Side: Logo & Navigation Links -->
-                <div class="flex items-center space-x-8">
+                <div class="flex items-center space-x-6">
                     <!-- Logo -->
-                    <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center">
-                        <span class="text-2xl font-bold" style="color: var(--primary-orange);">Establecimientos</span>
-                        <span class="ml-2 text-sm text-gray-600">M.E.</span>
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
+                        <img src="{{ asset('images/logo.jpg') }}" alt="Logo M.E." class="h-10 w-auto object-contain">
+                        <div class="flex flex-col">
+                            <span class="text-lg font-bold leading-tight" style="color: var(--primary-orange);">Establecimientos</span>
+                            <span class="text-xs text-gray-600 font-medium">Ministerio de Educación</span>
+                        </div>
                     </a>
 
                     <!-- Navigation Links (Desktop) -->
-                    <div class="hidden md:flex md:space-x-2">
+                    <div class="hidden md:flex md:space-x-1">
                         @auth
                             @if(auth()->user()->isAdmin())
                                 <!-- Admin Links -->
-                                <a href="{{ route('admin.dashboard') }}" 
-                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.dashboard') ? 'bg-orange-50 font-semibold' : '' }}">
-                                    📊 Dashboard Admin
-                                </a>
-                                <a href="{{ route('admin.users') }}" 
-                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.users') ? 'bg-orange-50 font-semibold' : '' }}">
-                                    👥 Usuarios
-                                </a>
-                                <a href="{{ route('admin.modalidades') }}" 
-                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.modalidades') ? 'bg-orange-50 font-semibold' : '' }}">
-                                    📋 Modalidades
-                                </a>
-                                <a href="{{ route('admin.validacion') }}" 
-                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.validacion*') ? 'bg-orange-50 font-semibold' : '' }}">
-                                    ✅ Validación
-                                </a>
+                                <x-nav-link-custom href="{{ route('admin.dashboard') }}" icon="📊" :active="request()->routeIs('admin.dashboard')">
+                                    Dashboard
+                                </x-nav-link-custom>
+                                <x-nav-link-custom href="{{ route('admin.users') }}" icon="👥" :active="request()->routeIs('admin.users')">
+                                    Usuarios
+                                </x-nav-link-custom>
+                                <x-nav-link-custom href="{{ route('admin.activity-log') }}" icon="📜" :active="request()->routeIs('admin.activity-log')">
+                                    Actividad
+                                </x-nav-link-custom>
                             @endif
 
                             @if(auth()->user()->isAdministrativo())
                                 <!-- Administrativos Links -->
-                                <a href="{{ route('administrativos.dashboard') }}" 
-                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.dashboard') ? 'bg-orange-50 font-semibold' : '' }}">
-                                    📊 Panel Administrativo
-                                </a>
-                                <a href="{{ route('administrativos.modalidades') }}" 
-                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.modalidades') ? 'bg-orange-50 font-semibold' : '' }}">
-                                    📋 Modalidades
-                                </a>
-                                <a href="{{ route('administrativos.validacion') }}" 
-                                   class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.validacion*') ? 'bg-orange-50 font-semibold' : '' }}">
-                                    ✅ Validación
-                                </a>
+                                <x-nav-link-custom href="{{ route('administrativos.dashboard') }}" icon="📊" :active="request()->routeIs('administrativos.dashboard')">
+                                    Panel
+                                </x-nav-link-custom>
+                                <x-nav-link-custom href="{{ route('administrativos.establecimientos') }}" icon="🏫" :active="request()->routeIs('administrativos.establecimientos')">
+                                    Establecimientos
+                                </x-nav-link-custom>
+                                <x-nav-link-custom href="{{ route('administrativos.validacion') }}" icon="✅" :active="request()->routeIs('administrativos.validacion*')">
+                                    Validación
+                                </x-nav-link-custom>
                             @endif
                         @endauth
                         
                         <!-- Mapa (todos) -->
-                        <a href="{{ route('mapa.publico') }}" 
-                           class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('mapa.publico') ? 'bg-orange-50 font-semibold' : '' }}">
-                            🗺️ Mapa
-                        </a>
+                        <x-nav-link-custom href="{{ route('mapa.publico') }}" icon="🗺️" :active="request()->routeIs('mapa.publico')">
+                            Mapa
+                        </x-nav-link-custom>
                     </div>
                 </div>
 
                 <!-- Right Side: User Menu -->
-                <div class="hidden md:flex md:items-center md:space-x-4">
+                <div class="hidden md:flex md:items-center">
                     @auth
-                    <!-- User Info -->
-                    <div class="flex items-center space-x-3">
-                        <div class="text-right">
-                            <p class="text-sm font-medium text-black">{{ auth()->user()->name }}</p>
-                            <p class="text-xs text-gray-500">{{ ucfirst(auth()->user()->role) }}</p>
-                        </div>
-                        
-                        <!-- Dropdown Menu -->
-                        <div x-data="{ dropdownOpen: false }" class="relative">
-                            <button @click="dropdownOpen = !dropdownOpen" 
-                                    class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-orange-50 transition">
-                                <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold"
-                                     style="background-color: var(--primary-orange);">
+                        <div x-data="{ userOpen: false }" class="relative">
+                            <button @click="userOpen = !userOpen" class="flex items-center space-x-3 p-1 rounded-xl hover:bg-orange-50 transition">
+                                <div class="flex flex-col text-right">
+                                    <span class="text-xs font-bold text-slate-800 leading-none">{{ auth()->user()->name }}</span>
+                                    <span class="text-[10px] text-orange-600 font-bold uppercase tracking-tighter">{{ auth()->user()->role }}</span>
+                                </div>
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white shadow-lg font-bold">
                                     {{ substr(auth()->user()->name, 0, 1) }}
                                 </div>
-                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
                             </button>
-
-                            <!-- Dropdown Content -->
-                            <div x-show="dropdownOpen" 
-                                 @click.away="dropdownOpen = false"
+                            
+                            <!-- Dropdown -->
+                            <div x-show="userOpen" 
+                                 @click.away="userOpen = false"
                                  x-transition
-                                 class="absolute right-0 mt-2 w-48 glass-strong rounded-xl shadow-lg py-2">
-                                <a href="{{ route('profile') }}" 
-                                   wire:navigate
-                                   class="block px-4 py-2 text-sm text-black hover:bg-orange-50 transition">
+                                 class="absolute right-0 mt-2 w-56 glass-strong rounded-2xl shadow-xl py-2 overflow-hidden border border-orange-100">
+                                <div class="px-4 py-2 border-b border-orange-50 bg-orange-50/50">
+                                    <p class="text-[10px] font-bold text-orange-600 uppercase">Cuenta del Sistema</p>
+                                </div>
+                                <a href="{{ route('profile') }}" class="block px-4 py-3 text-sm text-slate-700 hover:bg-orange-50 transition">
                                     👤 Mi Perfil
                                 </a>
-                                <hr class="my-2 border-gray-200">
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit"
-                                            class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition">
+                                    <button type="submit" class="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition font-bold">
                                         🚪 Cerrar Sesión
                                     </button>
                                 </form>
                             </div>
                         </div>
-                    </div>
                     @else
-                    <!-- Login/Register para usuarios no autenticados -->
-                    <div class="flex items-center space-x-2">
                         <a href="{{ route('login') }}" class="px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
                             🔐 Iniciar Sesión
                         </a>
-                    </div>
                     @endauth
                 </div>
 
                 <!-- Mobile Menu Button -->
                 <div class="flex items-center md:hidden">
-                    <button @click="open = !open" 
-                            class="p-2 rounded-lg text-black hover:bg-orange-50 transition">
+                    <button @click="open = !open" class="p-2 rounded-lg text-black hover:bg-orange-50 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path x-show="!open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                             <path x-show="open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -144,78 +121,54 @@ new class extends Component
              x-transition
              class="md:hidden border-t-2"
              style="border-color: var(--primary-orange);">
-            <div class="px-4 py-4 space-y-2">
+            <div class="px-4 py-4 space-y-2 glass">
                 @auth
-                @if(auth()->user()->isAdmin())
-                    <a href="{{ route('admin.dashboard') }}" 
-                       wire:navigate
-                       class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.dashboard') ? 'bg-orange-50 font-semibold' : '' }}">
-                        📊 Dashboard Admin
-                    </a>
-                    <a href="{{ route('admin.users') }}" 
-                       wire:navigate
-                       class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.users') ? 'bg-orange-50 font-semibold' : '' }}">
-                        👥 Usuarios
-                    </a>
-                    <a href="{{ route('admin.modalidades') }}" 
-                       wire:navigate
-                       class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.modalidades') ? 'bg-orange-50 font-semibold' : '' }}">
-                        📋 Modalidades
-                    </a>
-                    <a href="{{ route('admin.auditorias') }}" 
-                       wire:navigate
-                       class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.auditorias*') ? 'bg-orange-50 font-semibold' : '' }}">
-                        🔍 Auditorías
-                    </a>
-                @endif
+                    @if(auth()->user()->isAdmin())
+                        <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.dashboard') ? 'bg-orange-50 font-semibold' : '' }}">
+                            📊 Dashboard Admin
+                        </a>
+                        <a href="{{ route('admin.users') }}" class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.users') ? 'bg-orange-50 font-semibold' : '' }}">
+                            👥 Usuarios
+                        </a>
+                        <a href="{{ route('admin.activity-log') }}" class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('admin.activity-log') ? 'bg-orange-50 font-semibold' : '' }}">
+                            📜 Actividad
+                        </a>
+                    @endif
 
-                @if(auth()->user()->isAdministrativo())
-                    <a href="{{ route('administrativos.dashboard') }}" 
-                       wire:navigate
-                       class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.dashboard') ? 'bg-orange-50 font-semibold' : '' }}">
-                        📊 Panel Administrativo
-                    </a>
-                    <a href="{{ route('administrativos.modalidades') }}" 
-                       wire:navigate
-                       class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.modalidades') ? 'bg-orange-50 font-semibold' : '' }}">
-                        📋 Modalidades
-                    </a>
-                    <a href="{{ route('administrativos.validacion') }}" 
-                       wire:navigate
-                       class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.validacion*') ? 'bg-orange-50 font-semibold' : '' }}">
-                        ✅ Validación
-                    </a>
-                @endif
+                    @if(auth()->user()->isAdministrativo())
+                        <a href="{{ route('administrativos.dashboard') }}" class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.dashboard') ? 'bg-orange-50 font-semibold' : '' }}">
+                            📊 Panel Administrativo
+                        </a>
+                        <a href="{{ route('administrativos.establecimientos') }}" class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.establecimientos') ? 'bg-orange-50 font-semibold' : '' }}">
+                            🏫 Establecimientos
+                        </a>
+                        <a href="{{ route('administrativos.validacion') }}" class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('administrativos.validacion*') ? 'bg-orange-50 font-semibold' : '' }}">
+                            ✅ Validación
+                        </a>
+                    @endif
                 @endauth
                 
-                <a href="{{ route('mapa.publico') }}" 
-                   wire:navigate
-                   class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('mapa.publico') ? 'bg-orange-50 font-semibold' : '' }}">
+                <a href="{{ route('mapa.publico') }}" class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition {{ request()->routeIs('mapa.publico') ? 'bg-orange-50 font-semibold' : '' }}">
                     🗺️ Mapa
                 </a>
 
                 <hr class="my-2 border-gray-200">
                 
                 @auth
-                <a href="{{ route('profile') }}" 
-                   wire:navigate
-                   class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
-                    👤 Mi Perfil
-                </a>
-                
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit"
-                            class="w-full text-left px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 transition">
-                        🚪 Cerrar Sesión
-                    </button>
-                </form>
+                    <a href="{{ route('profile') }}" class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
+                        👤 Mi Perfil
+                    </a>
+                    
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full text-left px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 transition">
+                            🚪 Cerrar Sesión
+                        </button>
+                    </form>
                 @else
-                <a href="{{ route('login') }}" 
-                   wire:navigate
-                   class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
-                    🔐 Iniciar Sesión
-                </a>
+                    <a href="{{ route('login') }}" class="block px-4 py-2 rounded-lg text-black hover:bg-orange-50 transition">
+                        🔐 Iniciar Sesión
+                    </a>
                 @endauth
             </div>
         </div>

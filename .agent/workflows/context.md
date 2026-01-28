@@ -1,4 +1,8 @@
-# Contexto del Proyecto - Establecimientos (M.E. San Juan)
+---
+description: # Contexto del Proyecto - Establecimientos (M.E. San Juan)
+---
+
+
 
 ## 📋 Descripción del Proyecto
 

@@ -11,17 +11,77 @@ class UserManagement extends Component
 {
     use WithPagination;
 
+
     public $search = '';
     public $selectedUser = null;
     public $newRole = '';
     public $showDeleteModal = false;
     public $userToDelete = null;
 
+    // Create user properties
+    public $showCreateModal = false;
+    public $newUserName = '';
+    public $newUserEmail = '';
+    public $newUserPassword = '';
+    public $newUserPasswordConfirmation = '';
+    public $newUserRole = 'administrativos';
+
     protected $queryString = ['search'];
 
     public function updatedSearch()
     {
         $this->resetPage();
+    }
+
+    // Modal Create
+    public function openCreateModal()
+    {
+        $this->resetCreateForm();
+        $this->showCreateModal = true;
+    }
+
+    public function closeCreateModal()
+    {
+        $this->showCreateModal = false;
+        $this->resetCreateForm();
+    }
+
+    public function resetCreateForm()
+    {
+        $this->newUserName = '';
+        $this->newUserEmail = '';
+        $this->newUserPassword = '';
+        $this->newUserPasswordConfirmation = '';
+        $this->newUserRole = 'administrativos';
+        $this->resetErrorBag();
+    }
+
+    public function createUser()
+    {
+        $this->validate([
+            'newUserName' => 'required|string|min:3',
+            'newUserEmail' => 'required|email|unique:users,email',
+            'newUserPassword' => 'required|string|min:8|confirmed:newUserPassword',
+            'newUserRole' => 'required|in:admin,administrativos',
+        ], [
+            'newUserPassword.confirmed' => 'Las contraseñas no coinciden.',
+            'newUserPassword.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'newUserRole.in' => 'El rol seleccionado no es válido.'
+        ]);
+
+        $user = User::create([
+            'name' => $this->newUserName,
+            'email' => $this->newUserEmail,
+            'password' => Hash::make($this->newUserPassword),
+            'role' => $this->newUserRole,
+            'password_changed_at' => null, // Force password change on first login
+        ]);
+
+        // Log the creation
+        app(\App\Services\ActivityLogService::class)->logCreate($user, "Creó un nuevo usuario: {$user->name} con rol {$user->role}");
+
+        $this->dispatch('notify', type: 'success', message: 'Usuario creado correctamente.');
+        $this->closeCreateModal();
     }
 
     public function editRole($userId)
@@ -40,7 +100,7 @@ class UserManagement extends Component
     public function updateRole()
     {
         $this->validate([
-            'newRole' => 'required|in:admin,mid,user',
+            'newRole' => 'required|in:admin,administrativos',
         ]);
 
         if (!$this->selectedUser) {
@@ -55,7 +115,15 @@ class UserManagement extends Component
             return;
         }
 
+        $oldRole = $this->selectedUser->role;
         $this->selectedUser->update(['role' => $this->newRole]);
+
+        // Log the update
+        app(\App\Services\ActivityLogService::class)->logUpdate(
+            $this->selectedUser, 
+            "Actualizó el rol del usuario {$this->selectedUser->name}",
+            ['role' => ['before' => $oldRole, 'after' => $this->newRole]]
+        );
 
         $this->dispatch('notify', type: 'success', message: 'Rol actualizado correctamente.');
         $this->cancelEdit();
@@ -91,6 +159,9 @@ class UserManagement extends Component
         if (!$this->userToDelete) {
             return;
         }
+
+        // Log the deletion
+        app(\App\Services\ActivityLogService::class)->logDelete($this->userToDelete, "Eliminó al usuario: {$this->userToDelete->name}");
 
         $this->userToDelete->delete();
 

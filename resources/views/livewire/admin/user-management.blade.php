@@ -4,6 +4,9 @@
             <h2 class="text-3xl font-bold text-black">Gestión de Usuarios</h2>
             <p class="text-gray-600 mt-1">{{ $users->total() }} usuarios registrados</p>
         </div>
+        <button wire:click="openCreateModal" class="btn-primary flex items-center gap-2">
+            <span>+</span> Nuevo Usuario
+        </button>
     </div>
 
     @if (session()->has('success'))
@@ -57,24 +60,19 @@
                                         <select wire:model="newRole" class="input-primary text-sm">
                                             <option value="admin">Admin</option>
                                             <option value="administrativos">Administrativos</option>
-                                            <option value="mid">Mid</option>
-                                            <option value="user">User</option>
                                         </select>
-                                        @can('update', $user)
-                                            <button wire:click="updateRole" class="text-green-600 hover:text-green-800">
-                                                ✓
-                                            </button>
-                                            <button wire:click="cancelEdit" class="text-gray-600 hover:text-gray-800">
-                                                ✗
-                                            </button>
-                                        @endcan
+                                        <button wire:click="updateRole" class="text-green-600 hover:text-green-800">
+                                            ✓
+                                        </button>
+                                        <button wire:click="cancelEdit" class="text-gray-600 hover:text-gray-800">
+                                            ✗
+                                        </button>
                                     </div>
                                 @else
                                     <span class="px-3 py-1 inline-flex text-xs font-semibold rounded-full
-                                        @if($user->role === 'admin') bg-purple-100 text-purple-800
-                                        @elseif($user->role === 'administrativos') bg-orange-100 text-orange-800
-                                        @elseif($user->role === 'mid') bg-blue-100 text-blue-800
-                                        @else bg-green-100 text-green-800
+                                        @if($user->role === 'admin') bg-orange-100 text-orange-800
+                                        @elseif($user->role === 'administrativos') bg-blue-100 text-blue-800
+                                        @else bg-gray-100 text-gray-800
                                         @endif">
                                         {{ ucfirst($user->role) }}
                                     </span>
@@ -86,20 +84,16 @@
                             <td class="px-6 py-4">
                                 @if(!$selectedUser || $selectedUser->id !== $user->id)
                                     <div class="flex gap-2">
-                                        @can('update', $user)
-                                            <button wire:click="editRole({{ $user->id }})" 
-                                                    class="px-3 py-1 bg-blue-500 text-white text-xs rounded-lg hover:bg-blue-600">
-                                                ✏️ Editar Rol
-                                            </button>
-                                        @endcan
+                                        <button wire:click="editRole({{ $user->id }})" 
+                                                class="px-3 py-1 bg-blue-500 text-white text-xs rounded-lg hover:bg-blue-600">
+                                            ✏️ Editar Rol
+                                        </button>
                                         
                                         @if($user->id !== auth()->id())
-                                            @can('delete', $user)
-                                                <button wire:click="confirmDelete({{ $user->id }})" 
-                                                        class="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700">
-                                                    🗑️ Eliminar
-                                                </button>
-                                            @endcan
+                                            <button wire:click="confirmDelete({{ $user->id }})" 
+                                                    class="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700">
+                                                🗑️ Eliminar
+                                            </button>
                                         @endif
                                     </div>
                                 @endif
@@ -119,6 +113,57 @@
 
     <!-- Paginación -->
     <div class="mt-6">{{ $users->links() }}</div>
+
+    <!-- Modal Crear Usuario -->
+    @if($showCreateModal)
+        <div class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex items-center justify-center min-h-screen px-4">
+                <div class="fixed inset-0 bg-black opacity-50" wire:click="closeCreateModal"></div>
+                <div class="glass-strong rounded-2xl p-8 max-w-md w-full relative z-10">
+                    <h3 class="text-2xl font-bold text-black mb-6">Crear Nuevo Usuario</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                            <input type="text" wire:model="newUserName" class="input-primary w-full" placeholder="Nombre completo">
+                            @error('newUserName') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" wire:model="newUserEmail" class="input-primary w-full" placeholder="correo@ejemplo.com">
+                            @error('newUserEmail') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                            <input type="password" wire:model="newUserPassword" class="input-primary w-full" placeholder="Mínimo 8 caracteres">
+                            @error('newUserPassword') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
+                            <input type="password" wire:model="newUserPasswordConfirmation" class="input-primary w-full" placeholder="Repetir contraseña">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                            <select wire:model="newUserRole" class="input-primary w-full">
+                                <option value="administrativos">Administrativo</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                            @error('newUserRole') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-3 mt-8">
+                        <button wire:click="closeCreateModal" class="btn-secondary">Cancelar</button>
+                        <button wire:click="createUser" class="btn-primary">Crear Usuario</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <!-- Modal Eliminar -->
     @if($showDeleteModal && $userToDelete)
