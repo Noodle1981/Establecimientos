@@ -57,28 +57,22 @@
         </svg>
     </button>
 
-    <!-- Botón Centrar Mapa -->
-    <button onclick="centerMap()"
-            class="absolute bottom-24 right-4 z-20 glass-strong rounded-full p-3 shadow-lg hover:scale-110 transition-transform">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-        </svg>
+    <!-- Botón Reportar Error -->
+    <button onclick="window.open('mailto:soporte@educacion.gob.ar?subject=Reporte de Error en Mapa', '_blank')"
+            class="absolute bottom-4 right-16 z-20 glass-strong rounded-full px-4 py-2 shadow-lg hover:scale-105 transition-transform flex items-center gap-2 group">
+        <i class="fas fa-bug text-red-500 group-hover:animate-pulse"></i>
+        <span class="text-sm font-bold text-gray-800">Reportar Error</span>
     </button>
 
     <!-- Zoom Controls -->
     <div class="absolute bottom-4 right-4 z-20 flex flex-col gap-2">
         <button onclick="map.zoomIn()"
-                class="glass-strong rounded-lg p-2 shadow-lg hover:scale-110 transition-transform">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
+                class="glass-strong rounded-lg p-2 shadow-lg hover:scale-110 transition-transform text-gray-700 hover:text-orange-500">
+            <i class="fas fa-plus fa-lg"></i>
         </button>
         <button onclick="map.zoomOut()"
-                class="glass-strong rounded-lg p-2 shadow-lg hover:scale-110 transition-transform">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-            </svg>
+                class="glass-strong rounded-lg p-2 shadow-lg hover:scale-110 transition-transform text-gray-700 hover:text-orange-500">
+            <i class="fas fa-minus fa-lg"></i>
         </button>
     </div>
 </div>

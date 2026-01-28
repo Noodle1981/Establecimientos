@@ -45,6 +45,6 @@ class MapaPublico extends Component
 
         return view('livewire.publico.mapa-publico', [
             'edificios' => $edificios,
-        ])->layout('layouts.app');
+        ])->layout('layouts.app', ['containerClass' => 'w-full p-0']);
     }
 }
