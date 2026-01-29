@@ -55,6 +55,8 @@ class ModalidadesTable extends Component
         'calle' => '',
         'numero_puerta' => 'S/N',
         'validado' => false,
+        'latitud' => '',
+        'longitud' => '',
     ];
 
     // Datos del formulario de edición (TODOS LOS CAMPOS)
@@ -76,6 +78,8 @@ class ModalidadesTable extends Component
         'categoria' => '',
         'ambito' => '',
         'validado' => false,
+        'latitud' => '',
+        'longitud' => '',
     ];
 
     protected $queryString = [
@@ -121,15 +125,15 @@ class ModalidadesTable extends Component
             $query->where('ambito', $this->ambitoFilter);
         }
 
-        if ($this->radioFilter) {
+        if (strlen($this->radioFilter) > 0) {
             $query->where('radio', $this->radioFilter);
         }
 
-        if ($this->categoriaFilter) {
+        if (strlen($this->categoriaFilter) > 0) {
             $query->where('categoria', 'like', '%' . $this->categoriaFilter . '%');
         }
 
-        if ($this->sectorFilter) {
+        if (strlen($this->sectorFilter) > 0) {
             $query->where('sector', $this->sectorFilter);
         }
 
@@ -195,7 +199,10 @@ class ModalidadesTable extends Component
                 'calle' => $this->createForm['calle'],
                 'numero_puerta' => $this->createForm['numero_puerta'],
                 'localidad' => $this->createForm['localidad'],
+                'localidad' => $this->createForm['localidad'],
                 'zona_departamento' => $this->createForm['zona_departamento'],
+                'latitud' => $this->createForm['latitud'],
+                'longitud' => $this->createForm['longitud'],
             ]
         );
 
@@ -233,8 +240,13 @@ class ModalidadesTable extends Component
 
     public function editModalidad($id)
     {
-        $this->selectedModalidad = Modalidad::with(['establecimiento.edificio'])->findOrFail($id);
+        $this->reset('editForm');
         
+        $this->selectedModalidad = Modalidad::findOrFail($id);
+        $this->selectedModalidad->load(['establecimiento.edificio']);
+        
+        \Illuminate\Support\Facades\Log::info("EDITANDO MODALIDAD: {$id} - CARGANDO: {$this->selectedModalidad->establecimiento->nombre}");
+
         // Cargar TODOS los datos en el formulario
         $this->editForm = [
             // Establecimiento
@@ -254,6 +266,8 @@ class ModalidadesTable extends Component
             'categoria' => $this->selectedModalidad->categoria,
             'ambito' => $this->selectedModalidad->ambito,
             'validado' => $this->selectedModalidad->validado,
+            'latitud' => $this->selectedModalidad->establecimiento->edificio->latitud,
+            'longitud' => $this->selectedModalidad->establecimiento->edificio->longitud,
         ];
         
         $this->showEditModal = true;
@@ -275,7 +289,10 @@ class ModalidadesTable extends Component
             'calle' => $this->editForm['calle'],
             'numero_puerta' => $this->editForm['numero_puerta'],
             'localidad' => $this->editForm['localidad'],
+            'localidad' => $this->editForm['localidad'],
             'zona_departamento' => $this->editForm['zona_departamento'],
+            'latitud' => $this->editForm['latitud'],
+            'longitud' => $this->editForm['longitud'],
         ]);
 
         // Actualizar Establecimiento

@@ -10,21 +10,21 @@
             <!-- Update Profile Information -->
             <div class="glass-strong rounded-2xl p-8">
                 <div class="max-w-xl">
-                    @include('profile.partials.update-profile-information-form')
+                    <livewire:profile.update-profile-information-form />
                 </div>
             </div>
 
             <!-- Update Password -->
             <div class="glass-strong rounded-2xl p-8">
                 <div class="max-w-xl">
-                    @include('profile.partials.update-password-form')
+                    <livewire:profile.update-password-form />
                 </div>
             </div>
 
             <!-- Delete Account -->
             <div class="glass-strong rounded-2xl p-8">
                 <div class="max-w-xl">
-                    @include('profile.partials.delete-user-form')
+                    <livewire:profile.delete-user-form />
                 </div>
             </div>
         </div>

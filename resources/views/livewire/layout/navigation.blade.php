@@ -29,6 +29,11 @@ new class extends Component
 
                     <!-- Navigation Links (Desktop) -->
                     <div class="hidden md:flex md:space-x-1">
+                        <!-- Mapa (todos) -->
+                        <x-nav-link-custom href="{{ route('mapa.publico') }}" icon="fas fa-map-marked-alt" :active="request()->routeIs('mapa.publico')">
+                            Mapa
+                        </x-nav-link-custom>
+
                         @auth
                             @if(auth()->user()->isAdmin())
                                 <!-- Admin Links -->
@@ -57,10 +62,7 @@ new class extends Component
                             @endif
                         @endauth
                         
-                        <!-- Mapa (todos) -->
-                        <x-nav-link-custom href="{{ route('mapa.publico') }}" icon="fas fa-map-marked-alt" :active="request()->routeIs('mapa.publico')">
-                            Mapa
-                        </x-nav-link-custom>
+
                     </div>
                 </div>
 
@@ -124,6 +126,10 @@ new class extends Component
              class="md:hidden border-t"
              style="border-color: #FE8204; background-color: #FFFFFF;">
             <div class="px-4 py-4 space-y-2">
+                <a href="{{ route('mapa.publico') }}" class="block px-4 py-2 rounded-lg transition {{ request()->routeIs('mapa.publico') ? 'font-bold' : '' }}" style="{{ request()->routeIs('mapa.publico') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                    <i class="fas fa-map-marked-alt mr-2" style="color: #FE8204;"></i> Mapa
+                </a>
+
                 @auth
                     @if(auth()->user()->isAdmin())
                         <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 rounded-lg transition {{ request()->routeIs('admin.dashboard') ? 'font-bold' : '' }}" style="{{ request()->routeIs('admin.dashboard') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
@@ -150,9 +156,7 @@ new class extends Component
                     @endif
                 @endauth
                 
-                <a href="{{ route('mapa.publico') }}" class="block px-4 py-2 rounded-lg transition {{ request()->routeIs('mapa.publico') ? 'font-bold' : '' }}" style="{{ request()->routeIs('mapa.publico') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
-                    <i class="fas fa-map-marked-alt mr-2" style="color: #FE8204;"></i> Mapa
-                </a>
+
 
                 <hr class="my-2" style="border-top: 1px solid rgba(254, 130, 4, 0.2);">
                 

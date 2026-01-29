@@ -16,7 +16,16 @@ class MapaPublico extends Component
             ->get()
             ->map(function ($edificio) {
                 // Determinar el ámbito predominante
-                $ambito = 'PUBLICO'; // Por defecto
+                // Determinar el ámbito predominante (si al menos uno es privado, lo marcamos como privado o mixto)
+                // Buscamos si hay alguna modalidad privada
+                $esPrivado = $edificio->establecimientos->flatMap(function ($est) {
+                    return $est->modalidades;
+                })->contains(function ($mod) {
+                    // Verificamos por campo 'sector' (1 = estatal, 2 = privado) o 'ambito' textualmente
+                    return stripos($mod->ambito, 'privado') !== false || $mod->sector == 2;
+                });
+
+                $ambito = $esPrivado ? 'PRIVADO' : 'PUBLICO';
                 
                 return [
                     'cui' => $edificio->cui,

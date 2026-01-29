@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('establecimiento_id')->constrained()->onDelete('cascade');
             $table->string('direccion_area')->comment('ADULTOS, PRIMARIO, TÉCNICA, etc.');
             $table->string('nivel_educativo')->comment('UEPA, PRIMARIO, SECUNDARIO, etc.');
-            $table->integer('sector')->nullable();
+            $table->string('sector')->nullable();
             $table->string('categoria')->nullable()->comment('PRIMERA, SEGUNDA, TERCERA');
             $table->text('inst_legal_categoria')->nullable();
             $table->decimal('radio', 8, 2)->nullable();

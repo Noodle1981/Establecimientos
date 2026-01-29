@@ -19,7 +19,7 @@ require __DIR__.'/auth.php';
 /**
  * Protected Routes (Require Authentication)
  */
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'password.change'])->group(function () {
     
     /**
      * Dashboard - Redirige según rol

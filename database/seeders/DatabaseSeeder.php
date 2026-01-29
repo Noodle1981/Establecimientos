@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         // Crear usuarios con roles específicos
         $this->call(RoleUsersSeeder::class);
+        $this->call(EstablecimientosSeeder::class);
         
         // Opcional: Crear usuarios adicionales de prueba
         // User::factory(10)->create();

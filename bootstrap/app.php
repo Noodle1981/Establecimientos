@@ -13,12 +13,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
+            'password.change' => \App\Http\Middleware\RequirePasswordChange::class,
         ]);
         
         // Require password change on first login
-        $middleware->web(append: [
-            \App\Http\Middleware\RequirePasswordChange::class,
-        ]);
+        // $middleware->web(append: [
+        //     \App\Http\Middleware\RequirePasswordChange::class,
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
