@@ -28,6 +28,7 @@ class MapaPublico extends Component
                 $ambito = $esPrivado ? 'PRIVADO' : 'PUBLICO';
                 
                 return [
+                    'id' => $edificio->id,
                     'cui' => $edificio->cui,
                     'latitud' => (float) $edificio->latitud,
                     'longitud' => (float) $edificio->longitud,

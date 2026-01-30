@@ -1,4 +1,8 @@
-<div class="relative h-[calc(100vh-64px)] w-screen overflow-hidden" x-data="{ sidebarOpen: true, searchQuery: '', selectedEstablishment: null }">
+<div class="relative h-[calc(100vh-64px)] w-screen overflow-hidden" 
+     x-data="{ sidebarOpen: true, searchQuery: '', selectedEstablishment: null, showPublic: true, showPrivate: true }"
+     x-init="$watch('searchQuery', value => filterContent(value, showPublic, showPrivate));
+             $watch('showPublic', value => filterContent(searchQuery, value, showPrivate));
+             $watch('showPrivate', value => filterContent(searchQuery, showPublic, value));">
     <!-- Mapa (pantalla completa) -->
     <div id="map" class="absolute inset-0 z-0"></div>
 
@@ -33,14 +37,18 @@
             <!-- Leyenda -->
             <div class="p-4 border-t border-gray-200 bg-white bg-opacity-50">
                 <div class="flex items-center justify-around text-xs">
-                    <div class="flex items-center gap-2">
+                    <button @click="showPublic = !showPublic" 
+                            class="flex items-center gap-2 transition-opacity duration-200"
+                            :class="showPublic ? 'opacity-100' : 'opacity-40 grayscale'">
                         <div class="w-3 h-3 rounded-full" style="background-color: #FF8200;"></div>
                         <span class="font-medium">Público</span>
-                    </div>
-                    <div class="flex items-center gap-2">
+                    </button>
+                    <button @click="showPrivate = !showPrivate"
+                            class="flex items-center gap-2 transition-opacity duration-200"
+                            :class="showPrivate ? 'opacity-100' : 'opacity-40 grayscale'">
                         <div class="w-3 h-3 rounded-full bg-blue-500"></div>
                         <span class="font-medium">Privado</span>
-                    </div>
+                    </button>
                 </div>
             </div>
         </div>
@@ -216,7 +224,7 @@
             
                 card.onclick = () => {
                     map.setView([edificio.latitud, edificio.longitud], 16);
-                    const marker = markers.find(m => m.edificioData.cui === edificio.cui);
+                    const marker = markers.find(m => m.edificioData.id === edificio.id);
                     if (marker) {
                         marker.openPopup();
                     }
@@ -232,17 +240,46 @@
     }
 
     // Búsqueda en tiempo real
-    document.addEventListener('input', (e) => {
-        if (e.target.matches('input[x-model="searchQuery"]')) {
-            const query = e.target.value.toLowerCase();
-            const filtered = establishments.filter(edificio => 
-                edificio.localidad.toLowerCase().includes(query) ||
-                edificio.calle.toLowerCase().includes(query) ||
-                edificio.establecimientos.some(est => est.nombre.toLowerCase().includes(query))
-            );
-            renderEstablishments(filtered);
-        }
-    });
+    function filterContent(query, showPublic, showPrivate) {
+        query = query.toLowerCase();
+        
+        // Filtrar lista y marcadores
+        const filtered = establishments.filter(edificio => {
+            // Filtro por tipo (Publico/Privado)
+            if (edificio.ambito === 'PUBLICO' && !showPublic) return false;
+            if (edificio.ambito === 'PRIVADO' && !showPrivate) return false;
+
+            // Filtro por texto
+            if (!query) return true;
+            
+            return edificio.localidad.toLowerCase().includes(query) ||
+                   edificio.calle.toLowerCase().includes(query) ||
+                   edificio.establecimientos.some(est => est.nombre.toLowerCase().includes(query));
+        });
+
+        renderEstablishments(filtered);
+        filterMarkers(filtered);
+    }
+
+    function filterMarkers(filteredEdificios) {
+        // Obtenemos los IDs de los edificios visibles
+        const visibleIds = new Set(filteredEdificios.map(e => e.id));
+
+        markers.forEach(marker => {
+            if (visibleIds.has(marker.edificioData.id)) {
+                if (!map.hasLayer(marker)) {
+                    map.addLayer(marker);
+                }
+            } else {
+                if (map.hasLayer(marker)) {
+                    map.removeLayer(marker);
+                }
+            }
+        });
+    }
+
+    // Eliminamos el listener manual ya que usamos watchers de Alpine
+    // document.addEventListener('input', ...);
 </script>
 
 <style>

@@ -23,7 +23,6 @@ class Edificio extends Model
     ];
 
     protected $casts = [
-        'cui' => 'integer',
         'codigo_postal' => 'integer',
         'latitud' => 'decimal:7',
         'longitud' => 'decimal:7',
