@@ -39,33 +39,7 @@
         </div>
     </div>
 
-    <!-- TARJETAS DE ESTADO (KPIs) -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-white p-5 rounded-lg shadow-sm" style="border: 2px solid #FE8204; box-shadow: 0 4px 12px rgba(254, 130, 4, 0.15);">
-            <div class="flex flex-col">
-                <span class="text-sm font-medium" style="color: #000000;">Total Unidades</span>
-                <h4 class="text-2xl font-bold" style="color: #FE8204;">{{ $modalidades->total() }}</h4>
-            </div>
-        </div>
-        <div class="bg-white p-5 rounded-lg shadow-sm" style="border: 2px solid #FE8204; box-shadow: 0 4px 12px rgba(254, 130, 4, 0.15);">
-            <div class="flex flex-col">
-                <span class="text-sm font-medium" style="color: #000000;">Ámbito Público</span>
-                <h4 class="text-2xl font-bold" style="color: #FE8204;">{{ $modalidades->where('ambito', 'PUBLICO')->count() }}</h4>
-            </div>
-        </div>
-        <div class="bg-white p-5 rounded-lg shadow-sm" style="border: 2px solid #FADC3C; box-shadow: 0 4px 12px rgba(250, 220, 60, 0.15);">
-            <div class="flex flex-col">
-                <span class="text-sm font-medium" style="color: #000000;">Pendientes Validación</span>
-                <h4 class="text-2xl font-bold" style="color: #FADC3C;">12</h4>
-            </div>
-        </div>
-        <div class="bg-white p-5 rounded-lg shadow-sm" style="border: 2px solid #E43C2F; box-shadow: 0 4px 12px rgba(228, 60, 47, 0.15);">
-            <div class="flex flex-col">
-                <span class="text-sm font-medium" style="color: #000000;">Discrepancias</span>
-                <h4 class="text-2xl font-bold" style="color: #E43C2F;">4</h4>
-            </div>
-        </div>
-    </div>
+
 
     <!-- FILTROS AVANZADOS -->
     <div class="mb-8 bg-white rounded-lg overflow-hidden" style="border: 1px solid #FE8204; box-shadow: 0 4px 12px rgba(254, 130, 4, 0.15);" x-data="{ filtersOpen: true }">

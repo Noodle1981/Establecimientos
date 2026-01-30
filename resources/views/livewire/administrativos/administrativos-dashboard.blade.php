@@ -70,46 +70,7 @@
                 </button>
             </div>
 
-            <!-- KPIs Stats (Sidebar) -->
-            <div class="mt-8 space-y-4">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Resumen</h3>
-                
-                <!-- Est Grid -->
-                <div class="bg-white bg-opacity-60 p-3 rounded-xl border border-gray-200 flex items-center justify-between">
-                    <div>
-                        <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Establecimientos</p>
-                        <p class="text-2xl font-black text-gray-800 leading-none">{{ $chartData['stats']['total_establecimientos'] }}</p>
-                        <span class="text-[10px] text-green-600 font-medium">Activos</span>
-                    </div>
-                    <div class="bg-orange-100 text-orange-600 w-10 h-10 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-building text-lg"></i>
-                    </div>
-                </div>
 
-                <!-- Mod Grid -->
-                <div class="bg-white bg-opacity-60 p-3 rounded-xl border border-gray-200 flex items-center justify-between">
-                    <div>
-                        <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Modalidades</p>
-                        <p class="text-2xl font-black text-gray-800 leading-none">{{ $chartData['stats']['total_modalidades'] }}</p>
-                        <span class="text-[10px] text-yellow-600 font-medium">Ofertas</span>
-                    </div>
-                    <div class="bg-yellow-100 text-yellow-600 w-10 h-10 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-graduation-cap text-lg"></i>
-                    </div>
-                </div>
-
-                <!-- Infra Grid -->
-                <div class="bg-white bg-opacity-60 p-3 rounded-xl border border-gray-200 flex items-center justify-between">
-                    <div>
-                        <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Infraestructura</p>
-                        <p class="text-2xl font-black text-gray-800 leading-none">{{ $chartData['stats']['total_edificios'] }}</p>
-                        <span class="text-[10px] text-blue-600 font-medium">Edificios</span>
-                    </div>
-                    <div class="bg-red-100 text-red-500 w-10 h-10 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-school text-lg"></i>
-                    </div>
-                </div>
-            </div>
 
 
         </div>
@@ -135,41 +96,41 @@
     <div class="absolute inset-0 z-0 overflow-y-auto scroll-smooth transition-all duration-300"
          :class="sidebarOpen ? 'pl-72' : 'pl-0'">
         
-        <div class="p-8 max-w-7xl mx-auto">
+        <div class="pt-4 px-6 pb-6 max-w-7xl mx-auto">
 
 
 
 
             <!-- Gráficos Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <!-- Modalidades -->
                 <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300">
-                    <h3 class="font-bold text-gray-800 text-sm uppercase mb-4">Modalidades Educativas</h3>
-                    <div class="h-60 relative w-full">
+                    <h3 class="font-bold text-gray-800 text-xs uppercase mb-2">Modalidades Educativas</h3>
+                    <div class="h-48 relative w-full">
                         <canvas id="chartModalidades"></canvas>
                     </div>
                 </div>
 
                 <!-- Categorías -->
                 <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300">
-                    <h3 class="font-bold text-gray-800 text-sm uppercase mb-4">Categorías</h3>
-                    <div class="h-60 relative w-full">
+                    <h3 class="font-bold text-gray-800 text-xs uppercase mb-2">Categorías</h3>
+                    <div class="h-48 relative w-full">
                         <canvas id="chartCategorias"></canvas>
                     </div>
                 </div>
 
                 <!-- Zonas -->
                 <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300 {{ $ambito !== 'TODOS' ? 'lg:row-span-2' : '' }}">
-                    <h3 class="font-bold text-gray-800 text-sm uppercase mb-4">Por Departamento</h3>
-                    <div class="relative w-full {{ $ambito !== 'TODOS' ? 'h-[34rem]' : 'h-60' }}">
+                    <h3 class="font-bold text-gray-800 text-xs uppercase mb-2">Por Departamento</h3>
+                    <div class="relative w-full {{ $ambito !== 'TODOS' ? 'h-[28rem]' : 'h-48' }}">
                         <canvas id="chartZonas"></canvas>
                     </div>
                 </div>
 
                 <!-- Radios (Bar) -->
                 <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300 lg:col-span-2">
-                    <h3 class="font-bold text-gray-800 text-sm uppercase mb-4">Distribución por Radio</h3>
-                    <div class="h-60 relative w-full">
+                    <h3 class="font-bold text-gray-800 text-xs uppercase mb-2">Distribución por Radio</h3>
+                    <div class="h-48 relative w-full">
                         <canvas id="chartRadios"></canvas>
                     </div>
                 </div>
@@ -177,12 +138,51 @@
                 <!-- Ámbito -->
                 @if($ambito === 'TODOS')
                 <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300">
-                    <h3 class="font-bold text-gray-800 text-sm uppercase mb-4">Público vs Privado</h3>
-                    <div class="h-60 relative w-full">
+                    <h3 class="font-bold text-gray-800 text-xs uppercase mb-2">Público vs Privado</h3>
+                    <div class="h-48 relative w-full">
                         <canvas id="chartAmbito"></canvas>
                     </div>
                 </div>
                 @endif
+            </div>
+
+            <!-- KPIs Summary List (Horizontal) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <!-- Establecimientos -->
+                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-gray-500 text-[10px] uppercase mb-1">Establecimientos</h3>
+                        <p class="text-3xl font-black text-gray-800">{{ $chartData['stats']['total_establecimientos'] }}</p>
+                        <p class="text-xs font-bold text-green-500 mt-0.5">Activos</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-500 shadow-sm">
+                        <i class="fas fa-building text-2xl"></i>
+                    </div>
+                </div>
+
+                <!-- Modalidades -->
+                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-gray-500 text-[10px] uppercase mb-1">Modalidades</h3>
+                        <p class="text-3xl font-black text-gray-800">{{ $chartData['stats']['total_modalidades'] }}</p>
+                        <p class="text-xs font-bold text-blue-500 mt-0.5">Ofertas</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 shadow-sm">
+                        <i class="fas fa-graduation-cap text-2xl"></i>
+                    </div>
+                </div>
+
+                <!-- Infraestructura -->
+                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-gray-500 text-[10px] uppercase mb-1">Infraestructura</h3>
+                        <p class="text-3xl font-black text-gray-800">{{ $chartData['stats']['total_edificios'] }}</p>
+                        <p class="text-xs font-bold text-gray-500 mt-0.5">Edificios</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-500 shadow-sm">
+                        <i class="fas fa-school text-2xl"></i>
+                    </div>
+                </div>
             </div>
             
             <div class="h-12"></div> <!-- Spacer footer -->
