@@ -59,6 +59,9 @@ new class extends Component
                                 <x-nav-link-custom href="{{ route('administrativos.validacion') }}" icon="fas fa-clipboard-check" :active="request()->routeIs('administrativos.validacion*')">
                                     Validación
                                 </x-nav-link-custom>
+                                <x-nav-link-custom href="{{ route('administrativos.instrumentos-legales') }}" icon="fas fa-gavel" :active="request()->routeIs('administrativos.instrumentos-legales')">
+                                    Instrumentos Legales
+                                </x-nav-link-custom>
                             @endif
                         @endauth
                         

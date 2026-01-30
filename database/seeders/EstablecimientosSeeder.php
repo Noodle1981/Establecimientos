@@ -81,9 +81,9 @@ class EstablecimientosSeeder extends Seeder
                 $instLegalCategoria = $row[16] ?? null;
                 $radio = $row[17] ?? null;
                 $instLegalRadio = $row[18] ?? null;
-                $instLegalCategoriaBis = $row[19] ?? null;
-                $instLegalCreacion = $row[20] ?? null;
-                $letraZona = $row[20] ?? null;
+                // $instLegalCategoriaBis = $row[19] ?? null; // Removed as it seems to be Creacion or redundant
+                $instLegalCreacion = $row[19] ?? null; // Adjusted from 20 to 19 based on header
+                $letraZona = $row[20] ?? null; // Adjusted from 20 to 20 (Wait, header 20 is letra_zona? No header 20 is letra_zona, header 19 is creacion)
                 $zonaDepartamento = $row[21] ?? null;
                 $teVoip = $row[22] ?? null;
                 $ambito = $row[23] ?? null;
@@ -137,7 +137,7 @@ class EstablecimientosSeeder extends Seeder
                     'inst_legal_categoria' => $instLegalCategoria,
                     'radio' => $radio,
                     'inst_legal_radio' => $instLegalRadio,
-                    'inst_legal_categoria_bis' => $instLegalCategoriaBis,
+                    // 'inst_legal_categoria_bis' => $instLegalCategoriaBis,
                     'inst_legal_creacion' => $instLegalCreacion,
                     'ambito' => $ambito,
                     'validado' => $validado === 'SI' || $validado === 'si' || $validado === true,

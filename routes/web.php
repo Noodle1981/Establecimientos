@@ -67,6 +67,7 @@ Route::middleware(['auth', 'verified', 'password.change'])->group(function () {
         
         // Gestión Compartida bajo prefijo administrativos con nombres propios
         Route::get('/establecimientos', \App\Livewire\Administrativos\ModalidadesTable::class)->name('administrativos.establecimientos');
+        Route::get('/instrumentos-legales', \App\Livewire\Administrativos\InstrumentosLegalesTable::class)->name('administrativos.instrumentos-legales');
         Route::get('/validacion', \App\Livewire\Administrativos\ValidacionModalidadesTable::class)->name('administrativos.validacion');
         
         // Backward compatibility (redirect old routes)
