@@ -140,6 +140,13 @@
                         <option value="PENDIENTE">Pendiente</option>
                     </select>
                 </div>
+                 <div>
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Zona (Letra)</label>
+                    <select wire:model.live="zonaLetraFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
+                        <option value="">Todas</option>
+                        @foreach($zonasLetras as $z) <option value="{{ $z }}">{{ $z }}</option> @endforeach
+                    </select>
+                </div>
             </div>
             @if($this->activeFiltersCount > 0)
                 <div class="flex justify-end border-t pt-4" style="border-color: #FADC3C;">
@@ -393,6 +400,10 @@
                                     <input type="text" wire:model="createForm.radio" class="w-full rounded-md border-gray-300 shadow-sm uppercase">
                                 </div>
                                 <div>
+                                    <label class="block text-xs font-bold uppercase mb-1">Zona (R/G/F)</label>
+                                    <input type="text" wire:model="createForm.zona" maxlength="1" class="w-full rounded-md border-gray-300 shadow-sm uppercase text-center" placeholder="X">
+                                </div>
+                                <div>
                                     <label class="block text-xs font-bold uppercase mb-1">Categoría</label>
                                     <select wire:model="createForm.categoria" class="w-full rounded-md border-gray-300 shadow-sm">
                                         <option value="">Seleccione...</option>
@@ -542,6 +553,10 @@
                                     <input type="text" wire:model="editForm.radio" class="w-full rounded-md border-gray-300 shadow-sm uppercase">
                                 </div>
                                 <div>
+                                    <label class="block text-xs font-bold uppercase mb-1">Zona (R/G/F)</label>
+                                    <input type="text" wire:model="editForm.zona" maxlength="1" class="w-full rounded-md border-gray-300 shadow-sm uppercase text-center" placeholder="X">
+                                </div>
+                                <div>
                                     <label class="block text-xs font-bold uppercase mb-1">Categoría</label>
                                     <select wire:model="editForm.categoria" class="w-full rounded-md border-gray-300 shadow-sm">
                                         <option value="">Seleccione...</option>
@@ -632,6 +647,10 @@
                                 <div>
                                     <span class="block text-[10px] text-gray-400 uppercase">Radio</span>
                                     <span class="block font-medium text-xs">{{ $selectedModalidad->radio ?? '-' }}</span>
+                                </div>
+                                <div>
+                                    <span class="block text-[10px] text-gray-400 uppercase">Zona</span>
+                                    <span class="block font-medium text-xs">{{ $selectedModalidad->zona ?? '-' }}</span>
                                 </div>
                             </div>
                         </div>

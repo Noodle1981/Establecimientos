@@ -21,6 +21,7 @@ class ModalidadesTable extends Component
     public $sectorFilter = '';
     public $direccionAreaFilter = '';
     public $estadoFilter = '';
+    public $zonaLetraFilter = '';
     public $showDeleted = false;
 
     // Modales
@@ -50,6 +51,7 @@ class ModalidadesTable extends Component
         'direccion_area' => '',
         'sector' => '',
         'radio' => '',
+        'zona' => '',
         'categoria' => '',
         'ambito' => 'PUBLICO',
         'zona_departamento' => '',
@@ -78,6 +80,7 @@ class ModalidadesTable extends Component
         'nivel_educativo' => '',
         'sector' => '',
         'radio' => '',
+        'zona' => '',
         'categoria' => '',
         'ambito' => '',
         'validado' => false,
@@ -95,6 +98,7 @@ class ModalidadesTable extends Component
         'sectorFilter',
         'direccionAreaFilter',
         'estadoFilter',
+        'zonaLetraFilter',
         'showDeleted'
     ];
 
@@ -157,6 +161,10 @@ class ModalidadesTable extends Component
             }
         }
 
+        if ($this->zonaLetraFilter) {
+            $query->where('zona', $this->zonaLetraFilter);
+        }
+
         if ($this->zonaFilter) {
             $query->whereHas('establecimiento.edificio', function ($q) {
                 $q->where('zona_departamento', $this->zonaFilter);
@@ -172,6 +180,7 @@ class ModalidadesTable extends Component
             'niveles' => Modalidad::select('nivel_educativo')->distinct()->pluck('nivel_educativo'),
             'zonas' => Edificio::select('zona_departamento')->distinct()->orderBy('zona_departamento')->pluck('zona_departamento'),
             'radios' => Modalidad::select('radio')->distinct()->whereNotNull('radio')->orderBy('radio')->pluck('radio'),
+            'zonasLetras' => Modalidad::select('zona')->distinct()->whereNotNull('zona')->where('zona', '!=', '')->orderBy('zona')->pluck('zona'),
             'categorias' => Modalidad::select('categoria')->distinct()->whereNotNull('categoria')->orderBy('categoria')->pluck('categoria'),
             'sectores' => Modalidad::select('sector')->distinct()->whereNotNull('sector')->orderBy('sector')->pluck('sector'),
             'direccionesArea' => Modalidad::select('direccion_area')->distinct()->whereNotNull('direccion_area')->orderBy('direccion_area')->pluck('direccion_area'),
@@ -183,6 +192,7 @@ class ModalidadesTable extends Component
         $this->reset('createForm');
         $this->createForm['ambito'] = 'PUBLICO';
         $this->createForm['radio'] = '';
+        $this->createForm['zona'] = '';
         $this->createForm['numero_puerta'] = 'S/N';
         $this->showCreateModal = true;
     }
@@ -197,6 +207,7 @@ class ModalidadesTable extends Component
             'createForm.nivel_educativo' => 'required',
             'createForm.ambito' => 'required',
             'createForm.zona_departamento' => 'required',
+            'createForm.zona' => 'nullable|string|max:1',
         ], [
             'createForm.cue.regex' => 'El CUE debe tener 9 dígitos o ser "PROV"',
             'createForm.cui.regex' => 'El CUI debe tener 7 dígitos o ser "PROV"',
@@ -240,6 +251,7 @@ class ModalidadesTable extends Component
             'nivel_educativo' => $this->createForm['nivel_educativo'],
             'sector' => $this->createForm['sector'],
             'radio' => $this->createForm['radio'],
+            'zona' => strtoupper($this->createForm['zona'] ?? ''),
             'categoria' => $this->createForm['categoria'],
             'ambito' => $this->createForm['ambito'],
             'validado' => $this->createForm['validado'],
@@ -282,6 +294,7 @@ class ModalidadesTable extends Component
             'nivel_educativo' => $this->selectedModalidad->nivel_educativo,
             'sector' => $this->selectedModalidad->sector,
             'radio' => $this->selectedModalidad->radio,
+            'zona' => $this->selectedModalidad->zona,
             'categoria' => $this->selectedModalidad->categoria,
             'ambito' => $this->selectedModalidad->ambito,
             'validado' => $this->selectedModalidad->validado,
@@ -326,6 +339,7 @@ class ModalidadesTable extends Component
             'nivel_educativo' => $this->editForm['nivel_educativo'],
             'sector' => $this->editForm['sector'],
             'radio' => $this->editForm['radio'],
+            'zona' => strtoupper($this->editForm['zona'] ?? ''),
             'categoria' => $this->editForm['categoria'],
             'ambito' => $this->editForm['ambito'],
             'validado' => $this->editForm['validado'],
@@ -387,6 +401,7 @@ class ModalidadesTable extends Component
             'sectorFilter',
             'direccionAreaFilter',
             'estadoFilter',
+            'zonaLetraFilter',
         ]);
         $this->resetPage();
     }
@@ -406,6 +421,7 @@ class ModalidadesTable extends Component
         if ($this->sectorFilter) $count++;
         if ($this->direccionAreaFilter) $count++;
         if ($this->estadoFilter) $count++;
+        if ($this->zonaLetraFilter) $count++;
         return $count;
     }
 

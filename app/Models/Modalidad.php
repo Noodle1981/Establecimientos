@@ -17,6 +17,7 @@ class Modalidad extends Model
         'direccion_area',
         'nivel_educativo',
         'sector',
+        'zona',
         'categoria',
         'inst_legal_categoria',
         'radio',
