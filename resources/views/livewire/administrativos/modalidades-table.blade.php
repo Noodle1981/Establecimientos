@@ -400,7 +400,7 @@
                                     <input type="text" wire:model="createForm.radio" class="w-full rounded-md border-gray-300 shadow-sm uppercase">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold uppercase mb-1">Zona (R/G/F)</label>
+                                    <label class="block text-xs font-bold uppercase mb-1">Zona</label>
                                     <input type="text" wire:model="createForm.zona" maxlength="1" class="w-full rounded-md border-gray-300 shadow-sm uppercase text-center" placeholder="X">
                                 </div>
                                 <div>
@@ -553,7 +553,7 @@
                                     <input type="text" wire:model="editForm.radio" class="w-full rounded-md border-gray-300 shadow-sm uppercase">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold uppercase mb-1">Zona (R/G/F)</label>
+                                    <label class="block text-xs font-bold uppercase mb-1">Zona</label>
                                     <input type="text" wire:model="editForm.zona" maxlength="1" class="w-full rounded-md border-gray-300 shadow-sm uppercase text-center" placeholder="X">
                                 </div>
                                 <div>

@@ -128,6 +128,7 @@ class AdministrativosDashboard extends Component
         $query = Edificio::select('zona_departamento', DB::raw('count(DISTINCT establecimientos.id) as total'))
             ->join('establecimientos', 'edificios.id', '=', 'establecimientos.edificio_id')
             ->join('modalidades', 'establecimientos.id', '=', 'modalidades.establecimiento_id')
+            ->whereNull('modalidades.deleted_at')
             ->whereNotNull('zona_departamento')->where('zona_departamento', '!=', '');
 
         $this->applyFilters($query, 'join_edificio');

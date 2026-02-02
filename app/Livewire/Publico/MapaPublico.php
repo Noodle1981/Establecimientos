@@ -13,6 +13,7 @@ class MapaPublico extends Component
         $edificios = Edificio::with(['establecimientos.modalidades'])
             ->whereNotNull('latitud')
             ->whereNotNull('longitud')
+            ->whereHas('establecimientos.modalidades')
             ->get()
             ->map(function ($edificio) {
                 // Determinar el ámbito predominante
