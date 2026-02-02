@@ -173,9 +173,9 @@
             </thead>
             <tbody class="bg-white divide-y" style="border-color: #FADC3C;">
                 @forelse($modalidades as $modalidad)
-                    <tr wire:key="row-{{ $modalidad->id }}" class="group transition-all cursor-default" 
-                        onmouseover="this.style.backgroundColor='rgba(254, 130, 4, 0.05)'"
-                        onmouseout="this.style.backgroundColor='#FFFFFF'">
+                    <tr wire:key="row-{{ $modalidad->id }}" class="group transition-all cursor-default {{ $modalidad->trashed() ? 'opacity-60 grayscale bg-gray-50' : '' }}" 
+                        onmouseover="this.style.backgroundColor='{{ $modalidad->trashed() ? '#F9FAFB' : 'rgba(254, 130, 4, 0.05)' }}'"
+                        onmouseout="this.style.backgroundColor='{{ $modalidad->trashed() ? '#F9FAFB' : '#FFFFFF' }}'">
                         <td class="px-6 py-5">
                             <div class="flex items-center gap-3">
                                 <div class="w-1.5 h-12 rounded-full" style="background-color: {{ $modalidad->validado ? '#22c55e' : '#FE8204' }};"></div>
@@ -195,6 +195,13 @@
                                             <span class="text-xs px-2 py-0.5 rounded-md border font-mono" style="background-color: #f3f4f6; color: #374151; border-color: #d1d5db;">CAT {{ $modalidad->categoria }}</span>
                                         @endif
                                     </div>
+                                    @if($modalidad->observaciones)
+                                    <div class="mt-1">
+                                        <span class="text-[10px] px-2 py-0.5 rounded-md font-bold flex items-center gap-1 w-max" style="background-color: #FFF9C4; color: #F57F17; border: 1px solid #FBC02D;">
+                                            <i class="fas fa-comment-dots"></i> CON OBSERVACIONES
+                                        </span>
+                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         </td>
@@ -233,14 +240,25 @@
                                 </button>
                                 @endcan
                                 @can('delete', $modalidad)
-                                <button wire:click="confirmDelete({{ $modalidad->id }})" 
-                                        class="p-2 rounded-lg transition" 
-                                        style="background-color: #FFFFFF; color: #E43C2F; border: 1px solid #E43C2F;"
-                                        onmouseover="this.style.backgroundColor='rgba(228, 60, 47, 0.1)'"
-                                        onmouseout="this.style.backgroundColor='#FFFFFF'"
-                                        title="Eliminar">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
+                                    @if(!$modalidad->trashed())
+                                    <button wire:click="confirmDelete({{ $modalidad->id }})" 
+                                            class="p-2 rounded-lg transition" 
+                                            style="background-color: #FFFFFF; color: #E43C2F; border: 1px solid #E43C2F;"
+                                            onmouseover="this.style.backgroundColor='rgba(228, 60, 47, 0.1)'"
+                                            onmouseout="this.style.backgroundColor='#FFFFFF'"
+                                            title="Eliminar">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                    @else
+                                    <button wire:click="restore({{ $modalidad->id }})" 
+                                            class="p-2 rounded-lg transition" 
+                                            style="background-color: #FFFFFF; color: #22c55e; border: 1px solid #22c55e;"
+                                            onmouseover="this.style.backgroundColor='rgba(34, 197, 94, 0.1)'"
+                                            onmouseout="this.style.backgroundColor='#FFFFFF'"
+                                            title="Restaurar">
+                                        <i class="fas fa-trash-restore"></i>
+                                    </button>
+                                    @endif
                                 @endcan
                             </div>
                         </td>
@@ -566,6 +584,11 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Observaciones (Full Width Card) -->
+                    <div class="md:col-span-3 bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">
+                        <label class="block text-xs font-bold uppercase mb-1">Observaciones</label>
+                        <textarea wire:model="editForm.observaciones" class="w-full rounded-md border-gray-300 shadow-sm h-20 uppercase" placeholder="Ingrese observaciones de validación..."></textarea>
+                    </div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t">
                     <button wire:click="updateModalidad" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-600 text-base font-bold text-white hover:bg-orange-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
@@ -684,6 +707,15 @@
                                 </div>
                             </div>
                         </div>
+                        </div>
+
+                        <!-- Observaciones -->
+                        @if($selectedModalidad->observaciones)
+                        <div class="md:col-span-3 bg-yellow-50 p-3 rounded border border-yellow-200">
+                            <span class="block text-xs font-bold text-yellow-800 uppercase mb-1">Observaciones / Notas de Validación</span>
+                            <p class="text-sm text-gray-800 whitespace-pre-wrap">{{ $selectedModalidad->observaciones }}</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">

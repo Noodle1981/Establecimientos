@@ -52,6 +52,7 @@ class ModalidadesTable extends Component
         'sector' => '',
         'radio' => '',
         'zona' => '',
+        'observaciones' => '',
         'categoria' => '',
         'ambito' => 'PUBLICO',
         'zona_departamento' => '',
@@ -81,6 +82,7 @@ class ModalidadesTable extends Component
         'sector' => '',
         'radio' => '',
         'zona' => '',
+        'observaciones' => '',
         'categoria' => '',
         'ambito' => '',
         'validado' => false,
@@ -264,7 +266,7 @@ class ModalidadesTable extends Component
 
     public function viewModalidad($id)
     {
-        $this->selectedModalidad = Modalidad::with(['establecimiento.edificio'])->findOrFail($id);
+        $this->selectedModalidad = Modalidad::withTrashed()->with(['establecimiento.edificio'])->findOrFail($id);
         $this->showViewModal = true;
     }
 
@@ -295,6 +297,7 @@ class ModalidadesTable extends Component
             'sector' => $this->selectedModalidad->sector,
             'radio' => $this->selectedModalidad->radio,
             'zona' => $this->selectedModalidad->zona,
+            'observaciones' => $this->selectedModalidad->observaciones,
             'categoria' => $this->selectedModalidad->categoria,
             'ambito' => $this->selectedModalidad->ambito,
             'validado' => $this->selectedModalidad->validado,
@@ -340,6 +343,7 @@ class ModalidadesTable extends Component
             'sector' => $this->editForm['sector'],
             'radio' => $this->editForm['radio'],
             'zona' => strtoupper($this->editForm['zona'] ?? ''),
+            'observaciones' => $this->editForm['observaciones'] ?? null,
             'categoria' => $this->editForm['categoria'],
             'ambito' => $this->editForm['ambito'],
             'validado' => $this->editForm['validado'],
@@ -359,7 +363,7 @@ class ModalidadesTable extends Component
 
     public function softDelete()
     {
-        $this->authorize('delete', Modalidad::class);
+        $this->authorize('delete', $this->selectedModalidad);
         $this->selectedModalidad->delete();
         
         $this->showDeleteModal = false;
