@@ -58,7 +58,6 @@ body {
     padding: 0.75rem 1.5rem;
     border-radius: 0.5rem;
     color: white;
-    font-weight: 500;
     transition: all 0.2s;
     background-color: var(--primary-orange);
 }
@@ -72,7 +71,6 @@ body {
     padding: 0.75rem 1.5rem;
     border-radius: 0.5rem;
     border: 2px solid var(--primary-orange);
-    font-weight: 500;
     transition: all 0.2s;
     color: var(--primary-orange);
 }
@@ -126,7 +124,6 @@ body {
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.75rem;
-    font-weight: 600;
     background-color: rgba(255, 130, 0, 0.1);
     color: var(--primary-orange-dark);
 }

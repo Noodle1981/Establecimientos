@@ -132,6 +132,14 @@
                         @foreach($radios as $radio) <option value="{{ $radio }}">{{ $radio }}</option> @endforeach
                     </select>
                 </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Estado</label>
+                    <select wire:model.live="estadoFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
+                        <option value="">Todos</option>
+                        <option value="VALIDADO">Validado</option>
+                        <option value="PENDIENTE">Pendiente</option>
+                    </select>
+                </div>
             </div>
             @if($this->activeFiltersCount > 0)
                 <div class="flex justify-end border-t pt-4" style="border-color: #FADC3C;">
@@ -169,15 +177,15 @@
                                         {{ $modalidad->establecimiento->nombre }}
                                     </div>
                                     <div class="flex gap-2 mt-1.5">
-                                        <span class="text-[10px] px-2 py-0.5 rounded-md border font-mono" style="background-color: #FFFFFF; color: #000000; border-color: #FE8204;">CUE {{ $modalidad->establecimiento->cue }}</span>
-                                        <span class="text-[10px] px-2 py-0.5 rounded-md border font-mono" style="background-color: #FFFFFF; color: #000000; border-color: #FE8204;">CUI {{ $modalidad->establecimiento->edificio->cui }}</span>
+                                        <span class="text-xs px-2 py-0.5 rounded-md border font-mono" style="background-color: #FFFFFF; color: #000000; border-color: #FE8204;">CUE {{ $modalidad->establecimiento->cue }}</span>
+                                        <span class="text-xs px-2 py-0.5 rounded-md border font-mono" style="background-color: #FFFFFF; color: #000000; border-color: #FE8204;">CUI {{ $modalidad->establecimiento->edificio->cui }}</span>
                                     </div>
                                     <div class="flex gap-2 mt-1">
                                         @if($modalidad->radio)
-                                            <span class="text-[10px] px-2 py-0.5 rounded-md border font-mono" style="background-color: #f3f4f6; color: #374151; border-color: #d1d5db;">RAD {{ $modalidad->radio }}</span>
+                                            <span class="text-xs px-2 py-0.5 rounded-md border font-mono" style="background-color: #f3f4f6; color: #374151; border-color: #d1d5db;">RAD {{ $modalidad->radio }}</span>
                                         @endif
                                         @if($modalidad->categoria)
-                                            <span class="text-[10px] px-2 py-0.5 rounded-md border font-mono" style="background-color: #f3f4f6; color: #374151; border-color: #d1d5db;">CAT {{ $modalidad->categoria }}</span>
+                                            <span class="text-xs px-2 py-0.5 rounded-md border font-mono" style="background-color: #f3f4f6; color: #374151; border-color: #d1d5db;">CAT {{ $modalidad->categoria }}</span>
                                         @endif
                                     </div>
                                 </div>
@@ -331,7 +339,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold uppercase mb-1">Departamento</label>
+                                    <label class="block text-xs font-bold uppercase mb-1">Zona / Departamento</label>
                                     <select wire:model="createForm.zona_departamento" class="w-full rounded-md border-gray-300 shadow-sm">
                                         <option value="">Seleccione...</option>
                                         @foreach($zonas as $zona) <option value="{{ $zona }}">{{ $zona }}</option> @endforeach
@@ -379,6 +387,10 @@
                                 <div>
                                     <label class="block text-xs font-bold uppercase mb-1">Sector</label>
                                     <input type="text" wire:model="createForm.sector" class="w-full rounded-md border-gray-300 shadow-sm uppercase">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase mb-1">Radio</label>
+                                    <input type="text" wire:model="createForm.radio" class="w-full rounded-md border-gray-300 shadow-sm uppercase">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase mb-1">Categoría</label>
@@ -477,7 +489,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold uppercase mb-1">Departamento</label>
+                                    <label class="block text-xs font-bold uppercase mb-1">Zona / Departamento</label>
                                     <select wire:model="editForm.zona_departamento" class="w-full rounded-md border-gray-300 shadow-sm">
                                          @foreach($zonas as $zona) <option value="{{ $zona }}">{{ $zona }}</option> @endforeach
                                     </select>
@@ -526,6 +538,10 @@
                                     <input type="text" wire:model="editForm.sector" class="w-full rounded-md border-gray-300 shadow-sm uppercase">
                                 </div>
                                 <div>
+                                    <label class="block text-xs font-bold uppercase mb-1">Radio</label>
+                                    <input type="text" wire:model="editForm.radio" class="w-full rounded-md border-gray-300 shadow-sm uppercase">
+                                </div>
+                                <div>
                                     <label class="block text-xs font-bold uppercase mb-1">Categoría</label>
                                     <select wire:model="editForm.categoria" class="w-full rounded-md border-gray-300 shadow-sm">
                                         <option value="">Seleccione...</option>
@@ -568,7 +584,8 @@
                         </span>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <!-- Identificación -->
                         <div class="bg-gray-50 p-3 rounded">
                             <span class="block text-xs font-bold text-gray-500 uppercase">CUE</span>
                             <span class="block font-medium">{{ $selectedModalidad->establecimiento->cue }}</span>
@@ -577,18 +594,76 @@
                             <span class="block text-xs font-bold text-gray-500 uppercase">CUI</span>
                             <span class="block font-medium">{{ $selectedModalidad->establecimiento->edificio->cui }}</span>
                         </div>
-                        <div class="col-span-2 bg-gray-50 p-3 rounded">
-                            <span class="block text-xs font-bold text-gray-500 uppercase">Dirección de Área</span>
-                            <span class="block font-medium">{{ $selectedModalidad->direccion_area }}</span>
-                        </div>
                         <div class="bg-gray-50 p-3 rounded">
-                            <span class="block text-xs font-bold text-gray-500 uppercase">Ubicación</span>
-                            <span class="block font-medium">{{ $selectedModalidad->establecimiento->edificio->calle }} {{ $selectedModalidad->establecimiento->edificio->numero_puerta }}</span>
-                            <span class="block text-xs text-gray-600">{{ $selectedModalidad->establecimiento->edificio->localidad }} - {{ $selectedModalidad->establecimiento->edificio->zona_departamento }}</span>
+                            <span class="block text-xs font-bold text-gray-500 uppercase">Estado</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $selectedModalidad->validado ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                {{ $selectedModalidad->validado ? 'VALIDADO' : 'PENDIENTE' }}
+                            </span>
                         </div>
-                        <div class="bg-gray-50 p-3 rounded">
-                            <span class="block text-xs font-bold text-gray-500 uppercase">Nivel</span>
-                            <span class="block font-medium">{{ $selectedModalidad->nivel_educativo }}</span>
+
+                        <!-- Cabecera (Full width if present) -->
+                        @if($selectedModalidad->establecimiento->establecimiento_cabecera)
+                        <div class="md:col-span-3 bg-gray-50 p-3 rounded">
+                            <span class="block text-xs font-bold text-gray-500 uppercase">Establecimiento Cabecera</span>
+                            <span class="block font-medium">{{ $selectedModalidad->establecimiento->establecimiento_cabecera }}</span>
+                        </div>
+                        @endif
+
+                        <!-- Datos Académicos -->
+                        <div class="md:col-span-3 bg-gray-50 p-3 rounded">
+                            <span class="block text-xs font-bold text-gray-500 uppercase mb-2">Datos Académicos</span>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div>
+                                    <span class="block text-[10px] text-gray-400 uppercase">Nivel</span>
+                                    <span class="block font-medium text-xs">{{ $selectedModalidad->nivel_educativo }}</span>
+                                </div>
+                                <div class="col-span-2">
+                                    <span class="block text-[10px] text-gray-400 uppercase">Dirección de Área</span>
+                                    <span class="block font-medium text-xs">{{ $selectedModalidad->direccion_area }}</span>
+                                </div>
+                                <div>
+                                    <span class="block text-[10px] text-gray-400 uppercase">Sector</span>
+                                    <span class="block font-medium text-xs">{{ $selectedModalidad->sector ?? '-' }}</span>
+                                </div>
+                                <div>
+                                    <span class="block text-[10px] text-gray-400 uppercase">Categoría</span>
+                                    <span class="block font-medium text-xs">{{ $selectedModalidad->categoria ?? '-' }}</span>
+                                </div>
+                                <div>
+                                    <span class="block text-[10px] text-gray-400 uppercase">Radio</span>
+                                    <span class="block font-medium text-xs">{{ $selectedModalidad->radio ?? '-' }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ubicación -->
+                        <div class="md:col-span-3 bg-gray-50 p-3 rounded">
+                            <span class="block text-xs font-bold text-gray-500 uppercase mb-2">Ubicación Geográfica</span>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <span class="block text-[10px] text-gray-400 uppercase">Dirección</span>
+                                    <span class="block font-medium">{{ $selectedModalidad->establecimiento->edificio->calle }} {{ $selectedModalidad->establecimiento->edificio->numero_puerta }}</span>
+                                    <span class="block text-xs text-gray-600">{{ $selectedModalidad->establecimiento->edificio->localidad }} - {{ $selectedModalidad->establecimiento->edificio->zona_departamento }}</span>
+                                </div>
+                                <div>
+                                    <span class="block text-[10px] text-gray-400 uppercase">Coordenadas</span>
+                                    @if($selectedModalidad->establecimiento->edificio->latitud && $selectedModalidad->establecimiento->edificio->longitud)
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-mono text-xs bg-gray-200 px-2 py-1 rounded">
+                                                {{ $selectedModalidad->establecimiento->edificio->latitud }}, {{ $selectedModalidad->establecimiento->edificio->longitud }}
+                                            </span>
+                                            <a href="https://www.google.com/maps/search/?api=1&query={{ $selectedModalidad->establecimiento->edificio->latitud }},{{ $selectedModalidad->establecimiento->edificio->longitud }}" 
+                                               target="_blank" 
+                                               class="text-orange-500 hover:text-orange-600"
+                                               title="Ver en Google Maps">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </a>
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-gray-400 italic">No registradas</span>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -20,6 +20,7 @@ class ModalidadesTable extends Component
     public $zonaFilter = '';
     public $sectorFilter = '';
     public $direccionAreaFilter = '';
+    public $estadoFilter = '';
     public $showDeleted = false;
 
     // Modales
@@ -48,6 +49,7 @@ class ModalidadesTable extends Component
         'nivel_educativo' => '',
         'direccion_area' => '',
         'sector' => '',
+        'radio' => '',
         'categoria' => '',
         'ambito' => 'PUBLICO',
         'zona_departamento' => '',
@@ -75,6 +77,7 @@ class ModalidadesTable extends Component
         'direccion_area' => '',
         'nivel_educativo' => '',
         'sector' => '',
+        'radio' => '',
         'categoria' => '',
         'ambito' => '',
         'validado' => false,
@@ -91,6 +94,7 @@ class ModalidadesTable extends Component
         'zonaFilter',
         'sectorFilter',
         'direccionAreaFilter',
+        'estadoFilter',
         'showDeleted'
     ];
 
@@ -113,7 +117,11 @@ class ModalidadesTable extends Component
 
         if ($this->search) {
             $query->whereHas('establecimiento', function ($q) {
-                $q->where('nombre', 'like', '%' . $this->search . '%');
+                $q->where('nombre', 'like', '%' . $this->search . '%')
+                  ->orWhere('cue', 'like', '%' . $this->search . '%')
+                  ->orWhereHas('edificio', function ($qEdificio) {
+                      $qEdificio->where('cui', 'like', '%' . $this->search . '%');
+                  });
             });
         }
 
@@ -141,6 +149,14 @@ class ModalidadesTable extends Component
             $query->where('direccion_area', $this->direccionAreaFilter);
         }
 
+        if ($this->estadoFilter) {
+            if ($this->estadoFilter === 'VALIDADO') {
+                $query->where('validado', true);
+            } elseif ($this->estadoFilter === 'PENDIENTE') {
+                $query->where('validado', false);
+            }
+        }
+
         if ($this->zonaFilter) {
             $query->whereHas('establecimiento.edificio', function ($q) {
                 $q->where('zona_departamento', $this->zonaFilter);
@@ -166,6 +182,7 @@ class ModalidadesTable extends Component
     {
         $this->reset('createForm');
         $this->createForm['ambito'] = 'PUBLICO';
+        $this->createForm['radio'] = '';
         $this->createForm['numero_puerta'] = 'S/N';
         $this->showCreateModal = true;
     }
@@ -222,6 +239,7 @@ class ModalidadesTable extends Component
             'direccion_area' => $this->createForm['direccion_area'],
             'nivel_educativo' => $this->createForm['nivel_educativo'],
             'sector' => $this->createForm['sector'],
+            'radio' => $this->createForm['radio'],
             'categoria' => $this->createForm['categoria'],
             'ambito' => $this->createForm['ambito'],
             'validado' => $this->createForm['validado'],
@@ -263,6 +281,7 @@ class ModalidadesTable extends Component
             'direccion_area' => $this->selectedModalidad->direccion_area,
             'nivel_educativo' => $this->selectedModalidad->nivel_educativo,
             'sector' => $this->selectedModalidad->sector,
+            'radio' => $this->selectedModalidad->radio,
             'categoria' => $this->selectedModalidad->categoria,
             'ambito' => $this->selectedModalidad->ambito,
             'validado' => $this->selectedModalidad->validado,
@@ -306,6 +325,7 @@ class ModalidadesTable extends Component
             'direccion_area' => $this->editForm['direccion_area'],
             'nivel_educativo' => $this->editForm['nivel_educativo'],
             'sector' => $this->editForm['sector'],
+            'radio' => $this->editForm['radio'],
             'categoria' => $this->editForm['categoria'],
             'ambito' => $this->editForm['ambito'],
             'validado' => $this->editForm['validado'],
@@ -366,6 +386,7 @@ class ModalidadesTable extends Component
             'zonaFilter',
             'sectorFilter',
             'direccionAreaFilter',
+            'estadoFilter',
         ]);
         $this->resetPage();
     }
@@ -384,6 +405,7 @@ class ModalidadesTable extends Component
         if ($this->zonaFilter) $count++;
         if ($this->sectorFilter) $count++;
         if ($this->direccionAreaFilter) $count++;
+        if ($this->estadoFilter) $count++;
         return $count;
     }
 

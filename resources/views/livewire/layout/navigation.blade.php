@@ -22,8 +22,8 @@ new class extends Component
                     <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
                         <img src="{{ asset('images/logo.jpg') }}" alt="Logo M.E." class="h-10 w-auto object-contain">
                         <div class="flex flex-col">
-                            <span class="text-lg font-bold leading-tight" style="color: #FE8204;">Establecimientos</span>
-                            <span class="text-xs font-medium" style="color: #000000;">Ministerio de Educación</span>
+                            <span class="text-lg leading-tight" style="color: #FE8204;">Establecimientos</span>
+                            <span class="text-xs" style="color: #000000;">Ministerio de Educación</span>
                         </div>
                     </a>
 
@@ -75,10 +75,10 @@ new class extends Component
                         <div x-data="{ userOpen: false }" class="relative">
                             <button @click="userOpen = !userOpen" class="flex items-center space-x-3 p-1 rounded-xl hover:bg-orange-50 transition">
                                 <div class="flex flex-col text-right">
-                                    <span class="text-xs font-bold leading-none" style="color: #000000;">{{ auth()->user()->name }}</span>
-                                    <span class="text-[10px] font-bold uppercase tracking-tighter" style="color: #E57303;">{{ auth()->user()->role }}</span>
+                                    <span class="text-xs leading-none" style="color: #000000;">{{ auth()->user()->name }}</span>
+                                    <span class="text-[10px] uppercase tracking-tighter" style="color: #E57303;">{{ auth()->user()->role }}</span>
                                 </div>
-                                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md font-bold" 
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md" 
                                      style="background-color: #FE8204;">
                                     {{ substr(auth()->user()->name, 0, 1) }}
                                 </div>
@@ -91,21 +91,21 @@ new class extends Component
                                  class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl py-2 overflow-hidden border"
                                  style="border-color: #FE8204; box-shadow: 0 4px 12px rgba(254, 130, 4, 0.15);">
                                 <div class="px-4 py-2 border-b" style="border-color: #FADC3C; background-color: rgba(254, 130, 4, 0.05);">
-                                    <p class="text-[10px] font-bold uppercase" style="color: #FE8204;">Cuenta del Sistema</p>
+                                    <p class="text-[10px] uppercase" style="color: #FE8204;">Cuenta del Sistema</p>
                                 </div>
                                 <a href="{{ route('profile') }}" class="block px-4 py-3 text-sm hover:bg-orange-50 transition" style="color: #000000;">
                                     <i class="fas fa-user-circle mr-2" style="color: #FE8204;"></i> Mi Perfil
                                 </a>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit" class="w-full text-left px-4 py-3 text-sm hover:bg-red-50 transition font-bold" style="color: #E43C2F;">
+                                    <button type="submit" class="w-full text-left px-4 py-3 text-sm hover:bg-red-50 transition" style="color: #E43C2F;">
                                         <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
                                     </button>
                                 </form>
                             </div>
                         </div>
                     @else
-                        <a href="{{ route('login') }}" class="px-4 py-2 rounded-lg transition font-bold flex items-center gap-2" style="color: #000000; border: 1px solid #FE8204;" onmouseover="this.style.backgroundColor='rgba(254, 130, 4, 0.1)'" onmouseout="this.style.backgroundColor='transparent'">
+                        <a href="{{ route('login') }}" class="px-4 py-2 rounded-lg transition flex items-center gap-2" style="color: #000000; border: 1px solid #FE8204;" onmouseover="this.style.backgroundColor='rgba(254, 130, 4, 0.1)'" onmouseout="this.style.backgroundColor='transparent'">
                             <i class="fas fa-key" style="color: #FE8204;"></i> Iniciar Sesión
                         </a>
                     @endauth
@@ -129,31 +129,31 @@ new class extends Component
              class="md:hidden border-t"
              style="border-color: #FE8204; background-color: #FFFFFF;">
             <div class="px-4 py-4 space-y-2">
-                <a href="{{ route('mapa.publico') }}" class="block px-4 py-2 rounded-lg transition {{ request()->routeIs('mapa.publico') ? 'font-bold' : '' }}" style="{{ request()->routeIs('mapa.publico') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                <a href="{{ route('mapa.publico') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('mapa.publico') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
                     <i class="fas fa-map-marked-alt mr-2" style="color: #FE8204;"></i> Mapa
                 </a>
 
                 @auth
                     @if(auth()->user()->isAdmin())
-                        <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 rounded-lg transition {{ request()->routeIs('admin.dashboard') ? 'font-bold' : '' }}" style="{{ request()->routeIs('admin.dashboard') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('admin.dashboard') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
                             <i class="fas fa-chart-line mr-2" style="color: #FE8204;"></i> Dashboard Admin
                         </a>
-                        <a href="{{ route('admin.users') }}" class="block px-4 py-2 rounded-lg transition {{ request()->routeIs('admin.users') ? 'font-bold' : '' }}" style="{{ request()->routeIs('admin.users') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('admin.users') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('admin.users') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
                             <i class="fas fa-users mr-2" style="color: #FE8204;"></i> Usuarios
                         </a>
-                        <a href="{{ route('admin.activity-log') }}" class="block px-4 py-2 rounded-lg transition {{ request()->routeIs('admin.activity-log') ? 'font-bold' : '' }}" style="{{ request()->routeIs('admin.activity-log') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('admin.activity-log') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('admin.activity-log') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
                             <i class="fas fa-clipboard-list mr-2" style="color: #FE8204;"></i> Actividad
                         </a>
                     @endif
 
                     @if(auth()->user()->isAdministrativo())
-                        <a href="{{ route('administrativos.dashboard') }}" class="block px-4 py-2 rounded-lg transition {{ request()->routeIs('administrativos.dashboard') ? 'font-bold' : '' }}" style="{{ request()->routeIs('administrativos.dashboard') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('administrativos.dashboard') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('administrativos.dashboard') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
                             <i class="fas fa-tachometer-alt mr-2" style="color: #FE8204;"></i> Panel Administrativo
                         </a>
-                        <a href="{{ route('administrativos.establecimientos') }}" class="block px-4 py-2 rounded-lg transition {{ request()->routeIs('administrativos.establecimientos') ? 'font-bold' : '' }}" style="{{ request()->routeIs('administrativos.establecimientos') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('administrativos.establecimientos') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('administrativos.establecimientos') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
                             <i class="fas fa-school mr-2" style="color: #FE8204;"></i> Establecimientos
                         </a>
-                        <a href="{{ route('administrativos.validacion') }}" class="block px-4 py-2 rounded-lg transition {{ request()->routeIs('administrativos.validacion*') ? 'font-bold' : '' }}" style="{{ request()->routeIs('administrativos.validacion*') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('administrativos.validacion') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('administrativos.validacion*') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
                             <i class="fas fa-clipboard-check mr-2" style="color: #FE8204;"></i> Validación
                         </a>
                     @endif
@@ -170,12 +170,12 @@ new class extends Component
                     
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="w-full text-left px-4 py-2 rounded-lg transition font-bold" style="color: #E43C2F;">
+                        <button type="submit" class="w-full text-left px-4 py-2 rounded-lg transition" style="color: #E43C2F;">
                             <i class="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
                         </button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}" class="block px-4 py-2 rounded-lg transition font-bold" style="color: #000000;">
+                    <a href="{{ route('login') }}" class="block px-4 py-2 rounded-lg transition" style="color: #000000;">
                         <i class="fas fa-key mr-2" style="color: #FE8204;"></i> Iniciar Sesión
                     </a>
                 @endauth
