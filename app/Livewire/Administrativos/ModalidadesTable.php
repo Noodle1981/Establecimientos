@@ -7,6 +7,12 @@ use App\Models\Establecimiento;
 use App\Models\Edificio;
 use Livewire\Component;
 use Livewire\WithPagination;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+
 
 class ModalidadesTable extends Component
 {
@@ -109,6 +115,24 @@ class ModalidadesTable extends Component
         $this->resetPage();
     }
 
+    public function updated($propertyName)
+    {
+        if (in_array($propertyName, [
+            'nivelFilter', 
+            'ambitoFilter', 
+            'radioFilter', 
+            'categoriaFilter', 
+            'zonaFilter', 
+            'sectorFilter', 
+            'direccionAreaFilter', 
+            'estadoFilter', 
+            'zonaLetraFilter',
+            'showDeleted'
+        ])) {
+            $this->resetPage();
+        }
+    }
+
     public function updatedCreateFormNivelEducativo($value)
     {
         // Auto-asignar dirección de área según nivel
@@ -117,7 +141,7 @@ class ModalidadesTable extends Component
         }
     }
 
-    public function render()
+    public function getFilteredQuery()
     {
         $query = Modalidad::with(['establecimiento.edificio']);
 
@@ -163,13 +187,15 @@ class ModalidadesTable extends Component
             }
         }
 
+        // Clean potentially dirty input for Chimbas/Capital (trailing spaces)
         if ($this->zonaLetraFilter) {
-            $query->where('zona', $this->zonaLetraFilter);
+            $query->where('zona', trim($this->zonaLetraFilter));
         }
 
         if ($this->zonaFilter) {
             $query->whereHas('establecimiento.edificio', function ($q) {
-                $q->where('zona_departamento', $this->zonaFilter);
+                // IMPORTANT: TRIM input to prevent mismatch with DB data
+                $q->where('zona_departamento', trim($this->zonaFilter));
             });
         }
 
@@ -177,8 +203,13 @@ class ModalidadesTable extends Component
             $query->onlyTrashed();
         }
 
+        return $query;
+    }
+
+    public function render()
+    {
         return view('livewire.administrativos.modalidades-table', [
-            'modalidades' => $query->paginate(20),
+            'modalidades' => $this->getFilteredQuery()->paginate(20),
             'niveles' => Modalidad::select('nivel_educativo')->distinct()->pluck('nivel_educativo'),
             'zonas' => Edificio::select('zona_departamento')->distinct()->orderBy('zona_departamento')->pluck('zona_departamento'),
             'radios' => Modalidad::select('radio')->distinct()->whereNotNull('radio')->orderBy('radio')->pluck('radio'),
@@ -188,6 +219,96 @@ class ModalidadesTable extends Component
             'direccionesArea' => Modalidad::select('direccion_area')->distinct()->whereNotNull('direccion_area')->orderBy('direccion_area')->pluck('direccion_area'),
         ]);
     }
+
+    public function exportExcel()
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // --- 1. SET HEADERS ---
+        $headers = [
+            'A1' => 'CUE',
+            'B1' => 'CUI',
+            'C1' => 'NOMBRE ESTABLECIMIENTO',
+            'D1' => 'NIVEL',
+            'E1' => 'DIRECCIÓN DE ÁREA',
+            'F1' => 'SECTOR',
+            'G1' => 'ÁMBITO',
+            'H1' => 'ZONA EDUC.',
+            'I1' => 'RADIO',
+            'J1' => 'CATEGORÍA',
+            'K1' => 'DEPARTAMENTO',
+            'L1' => 'LOCALIDAD',
+            'M1' => 'CALLE',
+            'N1' => 'N°',
+            'O1' => 'ESTADO',
+            'P1' => 'OBSERVACIONES',
+        ];
+
+        foreach ($headers as $cell => $value) {
+            $sheet->setCellValue($cell, $value);
+        }
+
+        // Style Headers
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'FE8204'] // Orange app color
+            ],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+        ];
+        $sheet->getStyle('A1:P1')->applyFromArray($headerStyle);
+        $sheet->getRowDimension(1)->setRowHeight(20);
+
+        // --- 2. POPULATE DATA ---
+        // Get strict query (no pagination needed, but check memory for large sets)
+        // Ideally chunk, but for <3000 rows, get() is fine.
+        $rows = $this->getFilteredQuery()->get(); 
+        
+        $row = 2;
+        foreach ($rows as $item) {
+            $sheet->setCellValue('A' . $row, $item->establecimiento->cue);
+            $sheet->setCellValue('B' . $row, $item->establecimiento->edificio->cui);
+            $sheet->setCellValue('C' . $row, $item->establecimiento->nombre);
+            $sheet->setCellValue('D' . $row, $item->nivel_educativo);
+            $sheet->setCellValue('E' . $row, $item->direccion_area);
+            $sheet->setCellValue('F' . $row, $item->sector);
+            $sheet->setCellValue('G' . $row, $item->ambito);
+            $sheet->setCellValue('H' . $row, $item->zona);
+            $sheet->setCellValue('I' . $row, $item->radio);
+            $sheet->setCellValue('J' . $row, $item->categoria);
+            $sheet->setCellValue('K' . $row, $item->establecimiento->edificio->zona_departamento);
+            $sheet->setCellValue('L' . $row, $item->establecimiento->edificio->localidad);
+            $sheet->setCellValue('M' . $row, $item->establecimiento->edificio->calle);
+            $sheet->setCellValue('N' . $row, $item->establecimiento->edificio->numero_puerta);
+            $sheet->setCellValue('O' . $row, $item->validado ? 'VALIDADO' : 'PENDIENTE');
+            $sheet->setCellValue('P' . $row, $item->observaciones);
+            
+            // Conditional formatting for status
+            if ($item->validado) {
+                $sheet->getStyle('O' . $row)->getFont()->getColor()->setARGB('008000'); // Green
+            } else {
+                $sheet->getStyle('O' . $row)->getFont()->getColor()->setARGB('FF0000'); // Red
+            }
+
+            $row++;
+        }
+
+        // --- 3. AUTO SIZE COLUMNS ---
+        foreach (range('A', 'P') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // --- 4. OUTPUT ---
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'establecimientos_' . date('Y-m-d_His') . '.xlsx';
+        
+        return response()->streamDownload(function() use ($writer) {
+            $writer->save('php://output');
+        }, $fileName);
+    }
+
 
     public function openCreateModal()
     {

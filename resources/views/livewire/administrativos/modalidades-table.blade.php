@@ -28,6 +28,16 @@
                     Nuevo Establecimiento
                 </button>
             @endcan
+            <button wire:click="exportExcel" wire:loading.attr="disabled"
+                    class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition bg-white"
+                    style="border: 1px solid #1D6F42; color: #1D6F42;"
+                    onmouseover="this.style.backgroundColor='rgba(29, 111, 66, 0.1)'"
+                    onmouseout="this.style.backgroundColor='#FFFFFF'">
+                <i class="fas fa-file-excel" wire:loading.remove wire:target="exportExcel"></i>
+                <i class="fas fa-spinner fa-spin" wire:loading wire:target="exportExcel"></i>
+                <span wire:loading.remove wire:target="exportExcel">Exportar Excel</span>
+                <span wire:loading wire:target="exportExcel">Generando...</span>
+            </button>
             <button wire:click="$toggle('showDeleted')" 
                     class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white font-semibold transition"
                     style="border: 1px solid #FE8204; color: #000000;"
