@@ -132,6 +132,11 @@
                         <option value="">Todos</option>
                         @foreach($zonas as $zona) <option value="{{ $zona }}">{{ $zona }}</option> @endforeach
                     </select>
+                    <div class="mt-1 text-right">
+                        <span class="text-3xl font-bold" style="color: #FE8204;">
+                            <i class="fas fa-list-ol mr-1"></i> Total: {{ $modalidades->total() }}
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Fila 3 (Opcional si hay más) -->
