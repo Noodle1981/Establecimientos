@@ -62,6 +62,9 @@ new class extends Component
                                 <x-nav-link-custom href="{{ route('administrativos.instrumentos-legales') }}" icon="fas fa-gavel" :active="request()->routeIs('administrativos.instrumentos-legales')">
                                     Instrumentos Legales
                                 </x-nav-link-custom>
+                                <x-nav-link-custom href="{{ route('administrativos.bitacora') }}" icon="fas fa-history" :active="request()->routeIs('administrativos.bitacora')">
+                                    Bitácora
+                                </x-nav-link-custom>
                             @endif
                         @endauth
                         
@@ -155,6 +158,9 @@ new class extends Component
                         </a>
                         <a href="{{ route('administrativos.validacion') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('administrativos.validacion*') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
                             <i class="fas fa-clipboard-check mr-2" style="color: #FE8204;"></i> Validación
+                        </a>
+                        <a href="{{ route('administrativos.bitacora') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('administrativos.bitacora') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                            <i class="fas fa-history mr-2" style="color: #FE8204;"></i> Bitácora
                         </a>
                     @endif
                 @endauth

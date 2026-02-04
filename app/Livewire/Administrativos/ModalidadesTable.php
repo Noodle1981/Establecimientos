@@ -429,7 +429,7 @@ class ModalidadesTable extends Component
         $this->showEditModal = true;
     }
 
-    public function updateModalidad()
+    public function updateModalidad(\App\Services\ActivityLogService $activityLogger)
     {
         $this->authorize('update', $this->selectedModalidad);
 
@@ -441,24 +441,41 @@ class ModalidadesTable extends Component
         $this->editForm['localidad'] = strtoupper($this->editForm['localidad']);
 
         // Actualizar Edificio
-        $this->selectedModalidad->establecimiento->edificio->update([
+        $edificio = $this->selectedModalidad->establecimiento->edificio;
+        $edificio->fill([
             'calle' => $this->editForm['calle'],
             'numero_puerta' => $this->editForm['numero_puerta'],
-            'localidad' => $this->editForm['localidad'],
             'localidad' => $this->editForm['localidad'],
             'zona_departamento' => $this->editForm['zona_departamento'],
             'latitud' => $this->editForm['latitud'],
             'longitud' => $this->editForm['longitud'],
         ]);
 
+        if ($edificio->isDirty()) {
+            $activityLogger->logUpdate($edificio, "Actualización de Edificio desde Modalidades", [
+                'before' => array_intersect_key($edificio->getOriginal(), $edificio->getDirty()),
+                'after' => $edificio->getDirty(),
+            ]);
+            $edificio->save();
+        }
+
         // Actualizar Establecimiento
-        $this->selectedModalidad->establecimiento->update([
+        $establecimiento = $this->selectedModalidad->establecimiento;
+        $establecimiento->fill([
             'nombre' => $this->editForm['nombre_establecimiento'],
             'establecimiento_cabecera' => $this->editForm['establecimiento_cabecera'],
         ]);
 
+        if ($establecimiento->isDirty()) {
+            $activityLogger->logUpdate($establecimiento, "Actualización de Establecimiento desde Modalidades", [
+                'before' => array_intersect_key($establecimiento->getOriginal(), $establecimiento->getDirty()),
+                'after' => $establecimiento->getDirty(),
+            ]);
+            $establecimiento->save();
+        }
+
         // Actualizar Modalidad
-        $this->selectedModalidad->update([
+        $this->selectedModalidad->fill([
             'direccion_area' => $this->editForm['direccion_area'],
             'nivel_educativo' => $this->editForm['nivel_educativo'],
             'sector' => $this->editForm['sector'],
@@ -469,6 +486,14 @@ class ModalidadesTable extends Component
             'ambito' => $this->editForm['ambito'],
             'validado' => $this->editForm['validado'],
         ]);
+
+        if ($this->selectedModalidad->isDirty()) {
+            $activityLogger->logUpdate($this->selectedModalidad, "Actualización de Modalidad", [
+                'before' => array_intersect_key($this->selectedModalidad->getOriginal(), $this->selectedModalidad->getDirty()),
+                'after' => $this->selectedModalidad->getDirty(),
+            ]);
+            $this->selectedModalidad->save();
+        }
         
         $this->showEditModal = false;
         $this->selectedModalidad = null;

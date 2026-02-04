@@ -69,6 +69,7 @@ Route::middleware(['auth', 'verified', 'password.change'])->group(function () {
         Route::get('/establecimientos', \App\Livewire\Administrativos\ModalidadesTable::class)->name('administrativos.establecimientos');
         Route::get('/instrumentos-legales', \App\Livewire\Administrativos\InstrumentosLegalesTable::class)->name('administrativos.instrumentos-legales');
         Route::get('/validacion', \App\Livewire\Administrativos\ValidacionModalidadesTable::class)->name('administrativos.validacion');
+        Route::get('/bitacora', \App\Livewire\Admin\ActivityLogTable::class)->name('administrativos.bitacora');
         
         // Backward compatibility (redirect old routes)
         Route::get('/auditorias', function() { return redirect()->route('administrativos.validacion'); });

@@ -46,7 +46,11 @@ class ActivityLogTable extends Component
             });
         }
 
-        if ($this->userFilter) {
+        // Restricción por rol
+        if (auth()->user()->isAdministrativo()) {
+            $query->where('user_id', auth()->id());
+        } elseif ($this->userFilter) {
+            // Solo admin puede filtrar por otros usuarios
             $query->where('user_id', $this->userFilter);
         }
 
