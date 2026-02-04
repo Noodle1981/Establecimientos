@@ -488,10 +488,25 @@ class ModalidadesTable extends Component
         ]);
 
         if ($this->selectedModalidad->isDirty()) {
-            $activityLogger->logUpdate($this->selectedModalidad, "Actualización de Modalidad", [
-                'before' => array_intersect_key($this->selectedModalidad->getOriginal(), $this->selectedModalidad->getDirty()),
-                'after' => $this->selectedModalidad->getDirty(),
-            ]);
+            $dirty = $this->selectedModalidad->getDirty();
+            
+            // Si validado u observaciones cambiaron, los quitamos de la lista de cosas para loguear
+            if (array_key_exists('validado', $dirty)) unset($dirty['validado']);
+            if (array_key_exists('observaciones', $dirty)) unset($dirty['observaciones']);
+            
+            // Si queda algo más aparte de validado, entonces logueamos
+            if (!empty($dirty)) {
+                $original = $this->selectedModalidad->getOriginal();
+                // Necesitamos el before correcto, excluyendo validado
+                $before = array_intersect_key($original, $dirty);
+
+                $activityLogger->logUpdate($this->selectedModalidad, "Actualización de Modalidad", [
+                    'before' => $before,
+                    'after' => $dirty,
+                ]);
+            }
+
+            // Guardamos SIEMPRE, haya log o no
             $this->selectedModalidad->save();
         }
         

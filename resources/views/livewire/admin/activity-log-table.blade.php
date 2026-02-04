@@ -108,10 +108,7 @@
                             onmouseout="this.style.backgroundColor='#FFFFFF'">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-bold text-black">
-                                    {{ $log->created_at->format('d/m/Y H:i') }}
-                                </div>
-                                <div class="text-xs text-gray-500">
-                                    {{ $log->created_at->diffForHumans() }}
+                                    {{ $log->created_at->format('d/m/Y') }}
                                 </div>
                             </td>
                             @if(!auth()->user()->isAdministrativo())
