@@ -330,7 +330,17 @@
                                 @foreach($selectedEdificio->establecimientos as $est)
                                     <div class="bg-white p-2 rounded border border-gray-200">
                                         <div class="font-medium text-sm">{{ $est->nombre }}</div>
-                                        <div class="text-xs text-gray-500">CUE: {{ $est->cue }}</div>
+                                        <div class="flex justify-between items-center mt-1">
+                                            <div class="text-xs text-gray-500">CUE: {{ $est->cue }}</div>
+                                            @php
+                                                $radios = $est->modalidades->pluck('radio')->filter()->unique()->implode(', ');
+                                            @endphp
+                                            @if($radios)
+                                                <div class="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded">
+                                                    Radio: {{ $radios }}
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
                                 @endforeach
                             </div>
@@ -442,6 +452,7 @@
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t">

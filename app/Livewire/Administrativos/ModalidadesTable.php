@@ -364,6 +364,7 @@ class ModalidadesTable extends Component
                 'edificio_id' => $edificio->id,
                 'nombre' => $this->createForm['nombre_establecimiento'],
                 'establecimiento_cabecera' => $this->createForm['establecimiento_cabecera'],
+                'cue_edificio_principal' => $this->createForm['cue'],
             ]
         );
 
@@ -431,89 +432,94 @@ class ModalidadesTable extends Component
 
     public function updateModalidad(\App\Services\ActivityLogService $activityLogger)
     {
-        $this->authorize('update', $this->selectedModalidad);
+        try {
+            $this->authorize('update', $this->selectedModalidad);
 
-        // Convertir a mayúsculas
-        $this->editForm['nombre_establecimiento'] = strtoupper($this->editForm['nombre_establecimiento']);
-        $this->editForm['establecimiento_cabecera'] = strtoupper($this->editForm['establecimiento_cabecera']);
-        $this->editForm['categoria'] = strtoupper($this->editForm['categoria']);
-        $this->editForm['calle'] = strtoupper($this->editForm['calle']);
-        $this->editForm['localidad'] = strtoupper($this->editForm['localidad']);
+            // Convertir a mayúsculas
+            $this->editForm['nombre_establecimiento'] = strtoupper($this->editForm['nombre_establecimiento']);
+            $this->editForm['establecimiento_cabecera'] = strtoupper($this->editForm['establecimiento_cabecera']);
+            $this->editForm['categoria'] = strtoupper($this->editForm['categoria']);
+            $this->editForm['calle'] = strtoupper($this->editForm['calle']);
+            $this->editForm['localidad'] = strtoupper($this->editForm['localidad']);
 
-        // Actualizar Edificio
-        $edificio = $this->selectedModalidad->establecimiento->edificio;
-        $edificio->fill([
-            'calle' => $this->editForm['calle'],
-            'numero_puerta' => $this->editForm['numero_puerta'],
-            'localidad' => $this->editForm['localidad'],
-            'zona_departamento' => $this->editForm['zona_departamento'],
-            'latitud' => $this->editForm['latitud'],
-            'longitud' => $this->editForm['longitud'],
-        ]);
-
-        if ($edificio->isDirty()) {
-            $activityLogger->logUpdate($edificio, "Actualización de Edificio desde Modalidades", [
-                'before' => array_intersect_key($edificio->getOriginal(), $edificio->getDirty()),
-                'after' => $edificio->getDirty(),
+            // Actualizar Edificio
+            $edificio = $this->selectedModalidad->establecimiento->edificio;
+            $edificio->fill([
+                'calle' => $this->editForm['calle'],
+                'numero_puerta' => $this->editForm['numero_puerta'],
+                'localidad' => $this->editForm['localidad'],
+                'zona_departamento' => $this->editForm['zona_departamento'],
+                'latitud' => $this->editForm['latitud'],
+                'longitud' => $this->editForm['longitud'],
             ]);
-            $edificio->save();
-        }
 
-        // Actualizar Establecimiento
-        $establecimiento = $this->selectedModalidad->establecimiento;
-        $establecimiento->fill([
-            'nombre' => $this->editForm['nombre_establecimiento'],
-            'establecimiento_cabecera' => $this->editForm['establecimiento_cabecera'],
-        ]);
-
-        if ($establecimiento->isDirty()) {
-            $activityLogger->logUpdate($establecimiento, "Actualización de Establecimiento desde Modalidades", [
-                'before' => array_intersect_key($establecimiento->getOriginal(), $establecimiento->getDirty()),
-                'after' => $establecimiento->getDirty(),
-            ]);
-            $establecimiento->save();
-        }
-
-        // Actualizar Modalidad
-        $this->selectedModalidad->fill([
-            'direccion_area' => $this->editForm['direccion_area'],
-            'nivel_educativo' => $this->editForm['nivel_educativo'],
-            'sector' => $this->editForm['sector'],
-            'radio' => $this->editForm['radio'],
-            'zona' => strtoupper($this->editForm['zona'] ?? ''),
-            'observaciones' => $this->editForm['observaciones'] ?? null,
-            'categoria' => $this->editForm['categoria'],
-            'ambito' => $this->editForm['ambito'],
-            'validado' => $this->editForm['validado'],
-        ]);
-
-        if ($this->selectedModalidad->isDirty()) {
-            $dirty = $this->selectedModalidad->getDirty();
-            
-            // Si validado u observaciones cambiaron, los quitamos de la lista de cosas para loguear
-            if (array_key_exists('validado', $dirty)) unset($dirty['validado']);
-            if (array_key_exists('observaciones', $dirty)) unset($dirty['observaciones']);
-            
-            // Si queda algo más aparte de validado, entonces logueamos
-            if (!empty($dirty)) {
-                $original = $this->selectedModalidad->getOriginal();
-                // Necesitamos el before correcto, excluyendo validado
-                $before = array_intersect_key($original, $dirty);
-
-                $activityLogger->logUpdate($this->selectedModalidad, "Actualización de Modalidad", [
-                    'before' => $before,
-                    'after' => $dirty,
+            if ($edificio->isDirty()) {
+                $activityLogger->logUpdate($edificio, "Actualización de Edificio desde Modalidades", [
+                    'before' => array_intersect_key($edificio->getOriginal(), $edificio->getDirty()),
+                    'after' => $edificio->getDirty(),
                 ]);
+                $edificio->save();
             }
 
-            // Guardamos SIEMPRE, haya log o no
-            $this->selectedModalidad->save();
+            // Actualizar Establecimiento
+            $establecimiento = $this->selectedModalidad->establecimiento;
+            $establecimiento->fill([
+                'nombre' => $this->editForm['nombre_establecimiento'],
+                'establecimiento_cabecera' => $this->editForm['establecimiento_cabecera'],
+            ]);
+
+            if ($establecimiento->isDirty()) {
+                $activityLogger->logUpdate($establecimiento, "Actualización de Establecimiento desde Modalidades", [
+                    'before' => array_intersect_key($establecimiento->getOriginal(), $establecimiento->getDirty()),
+                    'after' => $establecimiento->getDirty(),
+                ]);
+                $establecimiento->save();
+            }
+
+            // Actualizar Modalidad
+            $this->selectedModalidad->fill([
+                'direccion_area' => $this->editForm['direccion_area'],
+                'nivel_educativo' => $this->editForm['nivel_educativo'],
+                'sector' => $this->editForm['sector'],
+                'radio' => $this->editForm['radio'],
+                'zona' => strtoupper($this->editForm['zona'] ?? ''),
+                'observaciones' => $this->editForm['observaciones'] ?? null,
+                'categoria' => $this->editForm['categoria'],
+                'ambito' => $this->editForm['ambito'],
+                'validado' => $this->editForm['validado'],
+            ]);
+
+            if ($this->selectedModalidad->isDirty()) {
+                $dirty = $this->selectedModalidad->getDirty();
+                
+                // Si validado u observaciones cambiaron, los quitamos de la lista de cosas para loguear
+                if (array_key_exists('validado', $dirty)) unset($dirty['validado']);
+                if (array_key_exists('observaciones', $dirty)) unset($dirty['observaciones']);
+                
+                // Si queda algo más aparte de validado, entonces logueamos
+                if (!empty($dirty)) {
+                    $original = $this->selectedModalidad->getOriginal();
+                    // Necesitamos el before correcto, excluyendo validado
+                    $before = array_intersect_key($original, $dirty);
+
+                    $activityLogger->logUpdate($this->selectedModalidad, "Actualización de Modalidad", [
+                        'before' => $before,
+                        'after' => $dirty,
+                    ]);
+                }
+
+                // Guardamos SIEMPRE, haya log o no
+                $this->selectedModalidad->save();
+            }
+            
+            $this->showEditModal = false;
+            $this->selectedModalidad = null;
+            
+            session()->flash('success', 'Modalidad actualizada correctamente.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Error actualizando modalidad: " . $e->getMessage());
+            session()->flash('error', 'Error al guardar: ' . $e->getMessage());
         }
-        
-        $this->showEditModal = false;
-        $this->selectedModalidad = null;
-        
-        session()->flash('success', 'Modalidad actualizada correctamente.');
     }
 
     public function confirmDelete($id)

@@ -51,6 +51,21 @@
 
 
 
+    <!-- FLASH MESSAGES -->
+    <div class="mb-4">
+        @if (session()->has('success'))
+            <div class="p-4 mb-4 text-sm text-orange-800 rounded-lg bg-orange-50 dark:bg-gray-800 dark:text-orange-400 border border-orange-200" role="alert">
+                <span class="font-medium"><i class="fas fa-check-circle mr-2"></i>¡Éxito!</span> {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session()->has('error'))
+            <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 border border-red-200" role="alert">
+                <span class="font-medium"><i class="fas fa-exclamation-circle mr-2"></i>¡Error!</span> {{ session('error') }}
+            </div>
+        @endif
+    </div>
+
     <!-- FILTROS AVANZADOS -->
     <div class="mb-8 bg-white rounded-lg overflow-hidden" style="border: 1px solid #FE8204; box-shadow: 0 4px 12px rgba(254, 130, 4, 0.15);" x-data="{ filtersOpen: true }">
         <div class="px-6 py-4 flex justify-between items-center" style="background-color: #FE8204; border-bottom: 1px solid #FADC3C;">

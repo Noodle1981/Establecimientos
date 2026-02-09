@@ -72,6 +72,7 @@ class EdificiosTable extends Component
             $establecimiento = Establecimiento::where('cue', $cue)->first();
             if ($establecimiento) {
                 $this->nombreEstablecimientoPrincipal = $establecimiento->nombre;
+                $this->editForm['establecimiento_cabecera'] = $establecimiento->nombre ?? '';
             } else {
                 $this->nombreEstablecimientoPrincipal = 'No se encontró un establecimiento con este CUE';
             }
@@ -199,7 +200,7 @@ class EdificiosTable extends Component
 
     public function viewEdificio($id)
     {
-        $this->selectedEdificio = Edificio::with(['establecimientos'])->findOrFail($id);
+        $this->selectedEdificio = Edificio::with(['establecimientos.modalidades'])->findOrFail($id);
         $this->showViewModal = true;
     }
 
@@ -261,23 +262,43 @@ class EdificiosTable extends Component
             $this->selectedEdificio->save();
         }
 
-        // Actualizar establecimiento cabecera si cambió
-        $establecimientoCabecera = $this->selectedEdificio->establecimientos
-            ->first(fn($e) => $e->cue_edificio_principal) 
-            ?? $this->selectedEdificio->establecimientos->first();
+        // Actualizar establecimiento cabecera
+        $nuevoCue = $this->editForm['cue_edificio_principal'];
+        
+        if ($nuevoCue) {
+            $nuevoEstCabecera = Establecimiento::where('cue', $nuevoCue)->first();
+            
+            if ($nuevoEstCabecera) {
+                // 1. Si pertenece a otro edificio, traerlo a este
+                if ($nuevoEstCabecera->edificio_id !== $this->selectedEdificio->id) {
+                    $nuevoEstCabecera->edificio_id = $this->selectedEdificio->id;
+                    $activityLogger->logUpdate($nuevoEstCabecera, "Reasignación de Edificio (desde UI Edificios)", [
+                        'before' => ['edificio_id' => $nuevoEstCabecera->getOriginal('edificio_id')],
+                        'after' => ['edificio_id' => $this->selectedEdificio->id],
+                    ]);
+                    $nuevoEstCabecera->save();
+                }
 
-        if ($establecimientoCabecera) {
-            $establecimientoCabecera->fill([
-                'cue_edificio_principal' => $this->editForm['cue_edificio_principal'],
-                'establecimiento_cabecera' => $this->editForm['establecimiento_cabecera'],
-            ]);
-
-            if ($establecimientoCabecera->isDirty()) {
-                $activityLogger->logUpdate($establecimientoCabecera, "Actualización de Establecimiento Cabecera desde Edificios", [
-                    'before' => array_intersect_key($establecimientoCabecera->getOriginal(), $establecimientoCabecera->getDirty()),
-                    'after' => $establecimientoCabecera->getDirty(),
+                // 2. Actualizar datos de cabecera en el establecimiento principal
+                $nuevoEstCabecera->fill([
+                    'cue_edificio_principal' => $nuevoCue,
+                    'establecimiento_cabecera' => $this->editForm['establecimiento_cabecera'] ?: $nuevoEstCabecera->nombre,
                 ]);
-                $establecimientoCabecera->save();
+                
+                if ($nuevoEstCabecera->isDirty()) {
+                   $nuevoEstCabecera->save();
+                }
+
+                // 3. (Opcional) Actualizar TODOS los establecimientos del edificio para que apunten a esta nueva cabecera
+                // Esto mantiene la consistencia de que todos en el edificio comparten la misma cabecera
+                foreach ($this->selectedEdificio->refresh()->establecimientos as $est) {
+                    if ($est->id !== $nuevoEstCabecera->id) {
+                        $est->update([
+                            'cue_edificio_principal' => $nuevoCue,
+                            'establecimiento_cabecera' => $this->editForm['establecimiento_cabecera'] ?: $nuevoEstCabecera->nombre,
+                        ]);
+                    }
+                }
             }
         }
         
