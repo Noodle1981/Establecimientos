@@ -67,6 +67,7 @@ Route::middleware(['auth', 'verified', 'password.change'])->group(function () {
         
         // Gestión Compartida bajo prefijo administrativos con nombres propios
         Route::get('/establecimientos', \App\Livewire\Administrativos\ModalidadesTable::class)->name('administrativos.establecimientos');
+        Route::get('/edificios', \App\Livewire\Administrativos\EdificiosTable::class)->name('administrativos.edificios');
         Route::get('/instrumentos-legales', \App\Livewire\Administrativos\InstrumentosLegalesTable::class)->name('administrativos.instrumentos-legales');
         Route::get('/validacion', \App\Livewire\Administrativos\ValidacionModalidadesTable::class)->name('administrativos.validacion');
         Route::get('/bitacora', \App\Livewire\Admin\ActivityLogTable::class)->name('administrativos.bitacora');

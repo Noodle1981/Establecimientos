@@ -56,6 +56,9 @@ new class extends Component
                                 <x-nav-link-custom href="{{ route('administrativos.establecimientos') }}" icon="fas fa-school" :active="request()->routeIs('administrativos.establecimientos')">
                                     Establecimientos
                                 </x-nav-link-custom>
+                                <x-nav-link-custom href="{{ route('administrativos.edificios') }}" icon="fas fa-building" :active="request()->routeIs('administrativos.edificios')">
+                                    Edificios
+                                </x-nav-link-custom>
                                 <x-nav-link-custom href="{{ route('administrativos.validacion') }}" icon="fas fa-clipboard-check" :active="request()->routeIs('administrativos.validacion*')">
                                     Validación
                                 </x-nav-link-custom>
@@ -155,6 +158,9 @@ new class extends Component
                         </a>
                         <a href="{{ route('administrativos.establecimientos') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('administrativos.establecimientos') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
                             <i class="fas fa-school mr-2" style="color: #FE8204;"></i> Establecimientos
+                        </a>
+                        <a href="{{ route('administrativos.edificios') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('administrativos.edificios') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                            <i class="fas fa-building mr-2" style="color: #FE8204;"></i> Edificios
                         </a>
                         <a href="{{ route('administrativos.validacion') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('administrativos.validacion*') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
                             <i class="fas fa-clipboard-check mr-2" style="color: #FE8204;"></i> Validación
