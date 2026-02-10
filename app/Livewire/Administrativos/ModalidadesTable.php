@@ -433,7 +433,52 @@ class ModalidadesTable extends Component
     public function updateModalidad(\App\Services\ActivityLogService $activityLogger)
     {
         try {
+            \Illuminate\Support\Facades\Log::info("updateModalidad iniciado for ID: " . ($this->selectedModalidad->id ?? 'null'));
+            
             $this->authorize('update', $this->selectedModalidad);
+
+            // Validar CUE y CUI solo si se modifican o si no, permitir valor actual (aunque sea incorrecto, para permitir editar otros campos)
+            /* 
+               NOTA: Si el usuario NO tocó el CUE/CUI, pero el valor en BD es inválido (ej: 7 dígitos),
+               la validación fallará y no dejará guardar cambios en otros campos (como validado).
+               Debemos permitir guardar si el CUE/CUI no se cambió, O forzar la corrección.
+               El usuario dice "no tengo forma de corregirlo", lo que implica que quiere corregirlo,
+               pero también dice "ahora no puedo editar cambios como validado".
+               
+               Si el usuario NO cambia el CUE, el valor que llega es el que tenía.
+               Si ese valor es inválido, valida falla.
+               Vamos a usar una regla 'sometimes' o verificar si cambió.
+            */ 
+            
+            $rules = [];
+            // Si el CUE cambió, o si el usuario intenta guardar (validamos formato siempre para asegurar integridad futura?)
+            // Mejor: Validamos formato SIEMPRE para obligar a corregir datos incorrectos al editar.
+            // PERO, si el usuario solo quiere cambiar 'validado' y no sabe el CUE correcto, se bloquea.
+            // Voy a permitir el valor actual si no se cambió.
+            
+            $cueRule = ['required', 'regex:/^(\d{9}|PROV)$/'];
+            $cuiRule = ['required', 'regex:/^(\d{7}|PROV)$/'];
+
+            // Si el valor enviado es igual al original, no validamos regex estricto (asumimos legacy data allow)
+            // O mejor: si es igual al original, lo dejamos pasar.
+            if ($this->editForm['cue'] !== $this->selectedModalidad->establecimiento->cue) {
+                 $rules['editForm.cue'] = $cueRule;
+            } else {
+                 $rules['editForm.cue'] = ['required']; // Solo requerido
+            }
+
+            if ($this->editForm['cui'] !== $this->selectedModalidad->establecimiento->edificio->cui) {
+                 $rules['editForm.cui'] = $cuiRule;
+            } else {
+                 $rules['editForm.cui'] = ['required'];
+            }
+
+            $validatedData = $this->validate($rules, [
+                'editForm.cue.regex' => 'El CUE debe tener 9 dígitos o ser "PROV"',
+                'editForm.cui.regex' => 'El CUI debe tener 7 dígitos o ser "PROV"',
+            ]);
+
+            \Illuminate\Support\Facades\Log::info("Validación exitosa", $validatedData);
 
             // Convertir a mayúsculas
             $this->editForm['nombre_establecimiento'] = strtoupper($this->editForm['nombre_establecimiento']);
@@ -444,7 +489,24 @@ class ModalidadesTable extends Component
 
             // Actualizar Edificio
             $edificio = $this->selectedModalidad->establecimiento->edificio;
+
+             // Verificar si cambiado CUI y si ya existe otro con ese CUI
+            if ($edificio->cui !== $this->editForm['cui']) {
+                 $existingEdificio = Edificio::where('cui', $this->editForm['cui'])->first();
+                 if ($existingEdificio) {
+                     // Si ya existe, cambiamos el edificio_id del establecimiento a este nuevo
+                     // NOTA: Esto es complejo porque el establecimiento actual apunta a $edificio.
+                     // Si cambiamos el CUI de $edificio, afectamos a todos los establecimientos en ese edificio.
+                     // Asumimos que el usuario quiere CORREGIR el dato del edificio actual.
+                     // Si quisiera mover el establecimiento a OTRO edificio, debería ser otra acción.
+                     // Por ahora, permitimos corregir el CUI del edificio actual si no existe otro igual.
+                     \Illuminate\Support\Facades\Log::warning("Intento de duplicar CUI: {$this->editForm['cui']}");
+                     throw new \Exception("Ya existe otro edificio con el CUI {$this->editForm['cui']}. No se puede duplicar.");
+                 }
+            }
+
             $edificio->fill([
+                'cui' => $this->editForm['cui'], // Permitir editar CUI
                 'calle' => $this->editForm['calle'],
                 'numero_puerta' => $this->editForm['numero_puerta'],
                 'localidad' => $this->editForm['localidad'],
@@ -463,7 +525,18 @@ class ModalidadesTable extends Component
 
             // Actualizar Establecimiento
             $establecimiento = $this->selectedModalidad->establecimiento;
+
+             // Verificar si cambiado CUE y si ya existe
+            if ($establecimiento->cue !== $this->editForm['cue']) {
+                 $existingEstablecimiento = Establecimiento::where('cue', $this->editForm['cue'])->first();
+                 if ($existingEstablecimiento) {
+                     \Illuminate\Support\Facades\Log::warning("Intento de duplicar CUE: {$this->editForm['cue']}");
+                     throw new \Exception("Ya existe otro establecimiento con el CUE {$this->editForm['cue']}.");
+                 }
+            }
+
             $establecimiento->fill([
+                'cue' => $this->editForm['cue'], // Permitir editar CUE
                 'nombre' => $this->editForm['nombre_establecimiento'],
                 'establecimiento_cabecera' => $this->editForm['establecimiento_cabecera'],
             ]);
@@ -518,6 +591,7 @@ class ModalidadesTable extends Component
             session()->flash('success', 'Modalidad actualizada correctamente.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Error actualizando modalidad: " . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
             session()->flash('error', 'Error al guardar: ' . $e->getMessage());
         }
     }

@@ -506,12 +506,14 @@
                                     <input type="text" wire:model="editForm.nombre_establecimiento" class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 uppercase">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold uppercase mb-1">CUE (Solo Lectura)</label>
-                                    <input type="text" value="{{ $editForm['cue'] }}" disabled class="w-full rounded-md border-gray-200 bg-gray-100 shadow-sm cursor-not-allowed">
+                                    <label class="block text-xs font-bold uppercase mb-1">CUE (9 dígitos)</label>
+                                    <input type="text" wire:model="editForm.cue" class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500">
+                                    @error('editForm.cue') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold uppercase mb-1">CUI (Solo Lectura)</label>
-                                    <input type="text" value="{{ $editForm['cui'] }}" disabled class="w-full rounded-md border-gray-200 bg-gray-100 shadow-sm cursor-not-allowed">
+                                    <label class="block text-xs font-bold uppercase mb-1">CUI (7 dígitos)</label>
+                                    <input type="text" wire:model="editForm.cui" class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500">
+                                    @error('editForm.cui') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                                 </div>
                                 <div class="md:col-span-2">
                                     <label class="block text-xs font-bold uppercase mb-1">Establecimiento Cabecera</label>
