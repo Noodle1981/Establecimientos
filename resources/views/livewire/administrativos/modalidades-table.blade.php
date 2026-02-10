@@ -64,6 +64,12 @@
                 <span class="font-medium"><i class="fas fa-exclamation-circle mr-2"></i>¡Error!</span> {{ session('error') }}
             </div>
         @endif
+
+        @if (session()->has('info'))
+            <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 border border-blue-200" role="alert">
+                <span class="font-medium"><i class="fas fa-info-circle mr-2"></i>Información:</span> {{ session('info') }}
+            </div>
+        @endif
     </div>
 
     <!-- FILTROS AVANZADOS -->

@@ -141,6 +141,26 @@ class ModalidadesTable extends Component
         }
     }
 
+    public function updatedEditFormCui($value)
+    {
+        // Buscar si existe un edificio con ese CUI
+        if (strlen($value) >= 3) { // Mínimo 3 caracteres para buscar
+             $edificio = Edificio::where('cui', $value)->first();
+             
+             if ($edificio) {
+                 // Autocompletar datos de ubicación
+                 $this->editForm['calle'] = $edificio->calle;
+                 $this->editForm['numero_puerta'] = $edificio->numero_puerta;
+                 $this->editForm['localidad'] = $edificio->localidad;
+                 $this->editForm['zona_departamento'] = $edificio->zona_departamento;
+                 $this->editForm['latitud'] = $edificio->latitud;
+                 $this->editForm['longitud'] = $edificio->longitud;
+                 
+                 session()->flash('info', "Se encontró el edificio existente (ID: {$edificio->id}). Al guardar, se vinculará este establecimiento a dicho edificio.");
+             }
+        }
+    }
+
     public function getFilteredQuery()
     {
         $query = Modalidad::with(['establecimiento.edificio']);
@@ -488,25 +508,35 @@ class ModalidadesTable extends Component
             $this->editForm['localidad'] = strtoupper($this->editForm['localidad']);
 
             // Actualizar Edificio
+            /*
+                LÓGICA DE REASIGNACIÓN:
+                1. Buscamos si ya existe un edificio con el CUI ingresado.
+                2. Si existe (y es diferente al actual), vinculamos el establecimiento a ese edificio existente.
+                   Adicionalmente, actualizamos los datos de ubicación de ESE edificio existente con lo que haya en el form.
+                3. Si no existe, actualizamos los datos del edificio actual (renombrando CUI si cambió).
+            */
+            
             $edificio = $this->selectedModalidad->establecimiento->edificio;
+            $nuevoEdificioId = $edificio->id; // Por defecto mantenemos el mismo
 
-             // Verificar si cambiado CUI y si ya existe otro con ese CUI
+            // Verificar si el CUI cambió o es diferente al del edificio actual
             if ($edificio->cui !== $this->editForm['cui']) {
                  $existingEdificio = Edificio::where('cui', $this->editForm['cui'])->first();
+                 
                  if ($existingEdificio) {
-                     // Si ya existe, cambiamos el edificio_id del establecimiento a este nuevo
-                     // NOTA: Esto es complejo porque el establecimiento actual apunta a $edificio.
-                     // Si cambiamos el CUI de $edificio, afectamos a todos los establecimientos en ese edificio.
-                     // Asumimos que el usuario quiere CORREGIR el dato del edificio actual.
-                     // Si quisiera mover el establecimiento a OTRO edificio, debería ser otra acción.
-                     // Por ahora, permitimos corregir el CUI del edificio actual si no existe otro igual.
-                     \Illuminate\Support\Facades\Log::warning("Intento de duplicar CUI: {$this->editForm['cui']}");
-                     throw new \Exception("Ya existe otro edificio con el CUI {$this->editForm['cui']}. No se puede duplicar.");
+                     // CASO: REASIGNACIÓN A EDIFICIO EXISTENTE
+                     \Illuminate\Support\Facades\Log::info("Reasignando establecimiento {$this->selectedModalidad->establecimiento->id} al edificio existente {$existingEdificio->id} (CUI: {$this->editForm['cui']})");
+                     
+                     // Usamos el edificio existente como target
+                     $edificio = $existingEdificio;
+                     $nuevoEdificioId = $existingEdificio->id;
                  }
             }
 
+            // Actualizamos los datos del edificio destino (sea el viejo o el nuevo encontrado)
+            // Esto permite corregir la dirección del edificio compartido si es necesario.
             $edificio->fill([
-                'cui' => $this->editForm['cui'], // Permitir editar CUI
+                'cui' => $this->editForm['cui'], // Aseguramos que el CUI coincida (útil si es el mismo edificio o uno nuevo)
                 'calle' => $this->editForm['calle'],
                 'numero_puerta' => $this->editForm['numero_puerta'],
                 'localidad' => $this->editForm['localidad'],
@@ -516,7 +546,8 @@ class ModalidadesTable extends Component
             ]);
 
             if ($edificio->isDirty()) {
-                $activityLogger->logUpdate($edificio, "Actualización de Edificio desde Modalidades", [
+                // Logueamos cambio en el edificio
+                $activityLogger->logUpdate($edificio, "Actualización de Edificio (desde Modalidades)", [
                     'before' => array_intersect_key($edificio->getOriginal(), $edificio->getDirty()),
                     'after' => $edificio->getDirty(),
                 ]);
@@ -525,6 +556,13 @@ class ModalidadesTable extends Component
 
             // Actualizar Establecimiento
             $establecimiento = $this->selectedModalidad->establecimiento;
+            
+            // Si cambiamos de edificio, actualizamos la FK
+            if ($establecimiento->edificio_id !== $nuevoEdificioId) {
+                // Loguear el cambio de edificio
+                 \Illuminate\Support\Facades\Log::info("Cambiando FK edificio_id de {$establecimiento->edificio_id} a {$nuevoEdificioId}");
+                 $establecimiento->edificio_id = $nuevoEdificioId;
+            }
 
              // Verificar si cambiado CUE y si ya existe
             if ($establecimiento->cue !== $this->editForm['cue']) {
@@ -536,9 +574,10 @@ class ModalidadesTable extends Component
             }
 
             $establecimiento->fill([
-                'cue' => $this->editForm['cue'], // Permitir editar CUE
+                'cue' => $this->editForm['cue'],
                 'nombre' => $this->editForm['nombre_establecimiento'],
                 'establecimiento_cabecera' => $this->editForm['establecimiento_cabecera'],
+                //'edificio_id' => $nuevoEdificioId // Ya asignado arriba si cambió
             ]);
 
             if ($establecimiento->isDirty()) {
