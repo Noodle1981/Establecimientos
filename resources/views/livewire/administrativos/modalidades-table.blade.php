@@ -334,7 +334,10 @@
             <!-- This element is to trick the browser into centering the modal contents. -->
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full relative z-50">
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full relative z-50"
+                 x-data="{ edificioEncontrado: false, edificioNuevo: false }"
+                 @edificio-encontrado.window="edificioEncontrado = true; edificioNuevo = false"
+                 @edificio-no-encontrado.window="edificioEncontrado = false; edificioNuevo = true">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="flex justify-between items-center mb-5">
                        <h3 class="text-xl leading-6 font-bold text-gray-900">Nuevo Establecimiento</h3>
@@ -362,12 +365,20 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase mb-1">CUI (7 dígitos)</label>
-                                    <input type="text" wire:model="createForm.cui" class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                    <input type="text" wire:model.live.debounce.500ms="createForm.cui" class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
                                     @error('createForm.cui') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                    <div class="mt-1">
+                                        <div wire:loading wire:target="updatedCreateFormCui" class="text-xs text-gray-500">
+                                            <i class="fas fa-spinner fa-spin"></i> Buscando edificio...
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="md:col-span-2">
-                                    <label class="block text-xs font-bold uppercase mb-1">Establecimiento Cabecera (Opcional)</label>
+                                    <label class="block text-xs font-bold uppercase mb-1">
+                                        Establecimiento Cabecera <span class="text-red-500">*</span>
+                                    </label>
                                     <input type="text" wire:model="createForm.establecimiento_cabecera" class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 uppercase" placeholder="NOMBRE DE LA CABECERA">
+                                    @error('createForm.establecimiento_cabecera') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                                 </div>
                                 <div>
                                      <label class="block text-xs font-bold uppercase mb-1">Estado Validación</label>
@@ -380,9 +391,19 @@
                         </div>
 
                         <!-- Ubicación -->
-                        <div class="md:col-span-1 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                            <h4 class="text-sm font-bold text-gray-700 mb-3 border-b border-gray-200 pb-1">
-                                <i class="fas fa-map-marker-alt mr-1"></i> Ubicación
+                        <div class="md:col-span-1 bg-gray-50 p-4 rounded-lg border" 
+                             :class="edificioEncontrado ? 'border-green-200' : 'border-gray-200'">
+                            <h4 class="text-sm font-bold mb-3 border-b pb-1 flex items-center justify-between"
+                                :class="edificioEncontrado ? 'text-green-600 border-green-200' : 'text-gray-700 border-gray-200'">
+                                <span>
+                                    <i class="fas fa-map-marker-alt mr-1"></i> Ubicación
+                                </span>
+                                <span x-show="edificioEncontrado" class="text-xs font-normal text-green-600">
+                                    <i class="fas fa-check-circle"></i> Edificio existente
+                                </span>
+                                <span x-show="edificioNuevo" class="text-xs font-normal text-blue-600">
+                                    <i class="fas fa-plus-circle"></i> Edificio nuevo
+                                </span>
                             </h4>
                             <div class="space-y-3">
                                 <div>

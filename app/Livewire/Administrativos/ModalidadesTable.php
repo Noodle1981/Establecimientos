@@ -41,10 +41,21 @@ class ModalidadesTable extends Component
     public $nivelAreaMap = [
         'INICIAL' => 'NIVEL INICIAL',
         'PRIMARIO' => 'EDUCACIÓN PRIMARIA',
+        'ALBERGUE' => 'EDUCACIÓN PRIMARIA',
         'SECUNDARIO' => 'EDUCACIÓN SECUNDARIA',
         'ADULTOS' => 'EDUCACIÓN DE ADULTOS',
+        'CENS' => 'EDUCACIÓN DE ADULTOS',
+        'UEPA' => 'EDUCACIÓN DE ADULTOS',
+        'PROPAA' => 'EDUCACIÓN DE ADULTOS',
         'ESPECIAL' => 'EDUCACIÓN ESPECIAL',
+        'EDUCACIÓN ESPECIAL' => 'EDUCACIÓN ESPECIAL',
+        'EDUCACIÓN HOSPITALARIA' => 'EDUCACIÓN ESPECIAL',
         'SUPERIOR' => 'EDUCACIÓN SUPERIOR',
+        'TÉCNICO' => 'TÉCNICA',
+        'AGROTECNICA' => 'TÉCNICA',
+        'MONOTÉCNICA' => 'TÉCNICA',
+        'TEC. CAP. LABORAL' => 'TÉCNICA',
+        'FOR. PROF. EDUC. NO FORMAL' => 'TÉCNICA',
     ];
 
     // Formulario de creación
@@ -138,6 +149,40 @@ class ModalidadesTable extends Component
         // Auto-asignar dirección de área según nivel
         if (isset($this->nivelAreaMap[$value])) {
             $this->createForm['direccion_area'] = $this->nivelAreaMap[$value];
+        }
+    }
+
+    public function updatedCreateFormCui($value)
+    {
+        // Buscar si existe un edificio con ese CUI
+        if (strlen($value) >= 3) { // Mínimo 3 caracteres para buscar
+             $edificio = Edificio::where('cui', $value)->first();
+             
+             if ($edificio) {
+                 // Autocompletar datos de ubicación
+                 $this->createForm['calle'] = $edificio->calle;
+                 $this->createForm['numero_puerta'] = $edificio->numero_puerta;
+                 $this->createForm['localidad'] = $edificio->localidad;
+                 $this->createForm['zona_departamento'] = $edificio->zona_departamento;
+                 $this->createForm['latitud'] = $edificio->latitud;
+                 $this->createForm['longitud'] = $edificio->longitud;
+                 
+                 // Obtener el establecimiento principal del edificio
+                 $establecimientoPrincipal = $edificio->establecimientos()
+                     ->whereColumn('cue', 'cue_edificio_principal')
+                     ->first();
+                 
+                 if ($establecimientoPrincipal) {
+                     $this->createForm['establecimiento_cabecera'] = $establecimientoPrincipal->nombre;
+                 }
+                 
+                 $this->dispatch('edificio-encontrado', [
+                     'cui' => $value,
+                     'edificioId' => $edificio->id
+                 ]);
+             } else {
+                 $this->dispatch('edificio-no-encontrado', ['cui' => $value]);
+             }
         }
     }
 
@@ -347,6 +392,7 @@ class ModalidadesTable extends Component
             'createForm.nombre_establecimiento' => 'required|string',
             'createForm.cue' => ['required', 'regex:/^(\d{9}|PROV)$/'],
             'createForm.cui' => ['required', 'regex:/^(\d{7}|PROV)$/'],
+            'createForm.establecimiento_cabecera' => 'required|string',
             'createForm.nivel_educativo' => 'required',
             'createForm.ambito' => 'required',
             'createForm.zona_departamento' => 'required',
@@ -354,6 +400,7 @@ class ModalidadesTable extends Component
         ], [
             'createForm.cue.regex' => 'El CUE debe tener 9 dígitos o ser "PROV"',
             'createForm.cui.regex' => 'El CUI debe tener 7 dígitos o ser "PROV"',
+            'createForm.establecimiento_cabecera.required' => 'El Establecimiento Cabecera es obligatorio',
         ]);
 
         // Convertir a mayúsculas
