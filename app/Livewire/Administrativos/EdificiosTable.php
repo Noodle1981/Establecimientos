@@ -18,7 +18,7 @@ class EdificiosTable extends Component
     public $search = '';
     public $zonaFilter = '';
     public $localidadFilter = '';
-    public $letraZonaFilter = '';
+    public $ambitoFilter = '';
 
     // Modales
     public $showViewModal = false;
@@ -46,7 +46,7 @@ class EdificiosTable extends Component
         'search',
         'zonaFilter',
         'localidadFilter',
-        'letraZonaFilter',
+        'ambitoFilter',
     ];
 
     public function updatingSearch()
@@ -56,7 +56,7 @@ class EdificiosTable extends Component
 
     public function updated($propertyName)
     {
-        if (in_array($propertyName, ['zonaFilter', 'localidadFilter', 'letraZonaFilter'])) {
+        if (in_array($propertyName, ['zonaFilter', 'localidadFilter', 'ambitoFilter'])) {
             $this->resetPage();
         }
         
@@ -104,8 +104,10 @@ class EdificiosTable extends Component
             $query->where('localidad', 'like', '%' . trim($this->localidadFilter) . '%');
         }
 
-        if ($this->letraZonaFilter) {
-            $query->where('letra_zona', trim($this->letraZonaFilter));
+        if ($this->ambitoFilter) {
+            $query->whereHas('establecimientos.modalidades', function ($q) {
+                $q->where('ambito', $this->ambitoFilter);
+            });
         }
 
         return $query;
@@ -117,7 +119,6 @@ class EdificiosTable extends Component
             'edificios' => $this->getFilteredQuery()->paginate(20),
             'zonas' => Edificio::select('zona_departamento')->distinct()->orderBy('zona_departamento')->pluck('zona_departamento'),
             'localidades' => Edificio::select('localidad')->distinct()->whereNotNull('localidad')->orderBy('localidad')->pluck('localidad'),
-            'letrasZona' => Edificio::select('letra_zona')->distinct()->whereNotNull('letra_zona')->where('letra_zona', '!=', '')->orderBy('letra_zona')->pluck('letra_zona'),
         ]);
     }
 
@@ -192,6 +193,159 @@ class EdificiosTable extends Component
         // Output
         $writer = new Xlsx($spreadsheet);
         $fileName = 'edificios_' . date('Y-m-d_His') . '.xlsx';
+        
+        return response()->streamDownload(function() use ($writer) {
+            $writer->save('php://output');
+        }, $fileName);
+    }
+
+    public function exportRadioAudit()
+    {
+        // Cargar datos del archivo de auditoría de radios
+        $excelPath = base_path('estados_radios.xlsx');
+        
+        if (!file_exists($excelPath)) {
+            session()->flash('error', 'No se encontró el archivo estados_radios.xlsx');
+            return;
+        }
+
+        // Leer el archivo Excel de auditoría
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader('Xlsx');
+        $auditSpreadsheet = $reader->load($excelPath);
+        $auditSheet = $auditSpreadsheet->getActiveSheet();
+        
+        // Convertir datos de auditoría a array asociativo
+        $auditData = [];
+        $highestRow = $auditSheet->getHighestRow();
+        
+        for ($row = 2; $row <= $highestRow; $row++) {
+            $cue = $auditSheet->getCell('A' . $row)->getValue();
+            $cui = $auditSheet->getCell('B' . $row)->getValue();
+            
+            $auditData[] = [
+                'cue' => $cue,
+                'cui' => $cui,
+                'punto_partida' => $auditSheet->getCell('C' . $row)->getValue(),
+                'dist_circunf' => $auditSheet->getCell('D' . $row)->getValue(),
+                'radio_circ' => $auditSheet->getCell('E' . $row)->getValue(),
+                'distancia_camino' => $auditSheet->getCell('F' . $row)->getValue(),
+                'radio_camino' => $auditSheet->getCell('G' . $row)->getValue(),
+                'radio_sige' => $auditSheet->getCell('H' . $row)->getValue(),
+                'estado' => trim($auditSheet->getCell('I' . $row)->getCalculatedValue()),
+            ];
+        }
+
+        // Crear nuevo spreadsheet para exportación
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Headers
+        $headers = [
+            'A1' => 'CUI',
+            'B1' => 'CUE',
+            'C1' => 'ESTABLECIMIENTO',
+            'D1' => 'CANT. ESTABLECIMIENTOS',
+            'E1' => 'PUNTO PARTIDA',
+            'F1' => 'DIST CIRCUNF (km)',
+            'G1' => 'RADIO CIRC (km)',
+            'H1' => 'DIST CAMINO (km)',
+            'I1' => 'RADIO CAMINO (km)',
+            'J1' => 'RADIO SIGE (km)',
+            'K1' => 'ESTADO',
+        ];
+
+        foreach ($headers as $cell => $value) {
+            $sheet->setCellValue($cell, $value);
+        }
+
+        // Style Headers
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '1D6F42']
+            ],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+        ];
+        $sheet->getStyle('A1:K1')->applyFromArray($headerStyle);
+        $sheet->getRowDimension(1)->setRowHeight(20);
+
+        // Obtener todos los establecimientos con sus edificios y contar modalidades por edificio
+        $establecimientos = Establecimiento::with('edificio')->get();
+        
+        // Crear un mapa de establecimientos por CUE para búsqueda rápida
+        $establecimientosPorCue = [];
+        foreach ($establecimientos as $est) {
+            $establecimientosPorCue[$est->cue] = $est;
+        }
+        
+        // Contar modalidades por CUI (edificio)
+        $modalidadesPorCui = \App\Models\Modalidad::join('establecimientos', 'modalidades.establecimiento_id', '=', 'establecimientos.id')
+            ->join('edificios', 'establecimientos.edificio_id', '=', 'edificios.id')
+            ->selectRaw('edificios.cui, COUNT(*) as total')
+            ->groupBy('edificios.cui')
+            ->pluck('total', 'cui')
+            ->toArray();
+
+        // Poblar datos
+        $row = 2;
+        foreach ($auditData as $audit) {
+            $establecimiento = $establecimientosPorCue[$audit['cue']] ?? null;
+            $cantEstablecimientos = $modalidadesPorCui[$audit['cui']] ?? 0;
+            
+            $sheet->setCellValue('A' . $row, $audit['cui']);
+            $sheet->setCellValue('B' . $row, $audit['cue']);
+            $sheet->setCellValue('C' . $row, $establecimiento ? $establecimiento->nombre : 'NO ENCONTRADO');
+            $sheet->setCellValue('D' . $row, $cantEstablecimientos);
+            $sheet->setCellValue('E' . $row, $audit['punto_partida']);
+            $sheet->setCellValue('F' . $row, $audit['dist_circunf']);
+            $sheet->setCellValue('G' . $row, $audit['radio_circ']);
+            $sheet->setCellValue('H' . $row, $audit['distancia_camino']);
+            $sheet->setCellValue('I' . $row, $audit['radio_camino']);
+            $sheet->setCellValue('J' . $row, $audit['radio_sige']);
+            $sheet->setCellValue('K' . $row, $audit['estado']);
+            
+            // Aplicar formato condicional al ESTADO
+            $estadoCell = 'K' . $row;
+            $estado = strtoupper($audit['estado']);
+            
+            if ($estado === 'COINCIDE') {
+                $sheet->getStyle($estadoCell)->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => 'C6EFCE']
+                    ],
+                    'font' => ['color' => ['rgb' => '006100'], 'bold' => true],
+                ]);
+            } elseif ($estado === 'DISTINTO') {
+                $sheet->getStyle($estadoCell)->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => 'FFEB9C']
+                    ],
+                    'font' => ['color' => ['rgb' => '9C6500'], 'bold' => true],
+                ]);
+            } elseif ($estado === 'INCONGRUENTE') {
+                $sheet->getStyle($estadoCell)->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => 'FFC7CE']
+                    ],
+                    'font' => ['color' => ['rgb' => '9C0006'], 'bold' => true],
+                ]);
+            }
+            
+            $row++;
+        }
+
+        // Auto Size Columns
+        foreach (range('A', 'J') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Output
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'auditoria_radios_' . date('Y-m-d_His') . '.xlsx';
         
         return response()->streamDownload(function() use ($writer) {
             $writer->save('php://output');
@@ -314,7 +468,7 @@ class EdificiosTable extends Component
             'search',
             'zonaFilter',
             'localidadFilter',
-            'letraZonaFilter',
+            'ambitoFilter',
         ]);
         $this->resetPage();
     }
@@ -325,7 +479,7 @@ class EdificiosTable extends Component
         if ($this->search) $count++;
         if ($this->zonaFilter) $count++;
         if ($this->localidadFilter) $count++;
-        if ($this->letraZonaFilter) $count++;
+        if ($this->ambitoFilter) $count++;
         return $count;
     }
 

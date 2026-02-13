@@ -28,6 +28,17 @@
                 <span wire:loading.remove wire:target="exportExcel">Exportar Excel</span>
                 <span wire:loading wire:target="exportExcel">Generando...</span>
             </button>
+            
+            <button wire:click="exportRadioAudit" wire:loading.attr="disabled"
+                    class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition bg-white"
+                    style="border: 1px solid #1D6F42; color: #1D6F42;"
+                    onmouseover="this.style.backgroundColor='rgba(29, 111, 66, 0.1)'"
+                    onmouseout="this.style.backgroundColor='#FFFFFF'">
+                <i class="fas fa-map-marked-alt" wire:loading.remove wire:target="exportRadioAudit"></i>
+                <i class="fas fa-spinner fa-spin" wire:loading wire:target="exportRadioAudit"></i>
+                <span wire:loading.remove wire:target="exportRadioAudit">Auditoria Radios</span>
+                <span wire:loading wire:target="exportRadioAudit">Generando...</span>
+            </button>
         </div>
     </div>
 
@@ -87,12 +98,13 @@
                     </select>
                 </div>
                 
-                <!-- Letra Zona -->
+                <!-- Ámbito -->
                 <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Letra Zona</label>
-                    <select wire:model.live="letraZonaFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
-                        <option value="">Todas</option>
-                        @foreach($letrasZona as $letra) <option value="{{ $letra }}">{{ $letra }}</option> @endforeach
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Ámbito</label>
+                    <select wire:model.live="ambitoFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
+                        <option value="">Todos</option>
+                        <option value="PUBLICO">Público</option>
+                        <option value="PRIVADO">Privado</option>
                     </select>
                     <div class="mt-1 text-right">
                         <span class="text-3xl font-bold" style="color: #FE8204;">
