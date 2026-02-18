@@ -28,6 +28,7 @@ class ModalidadesTable extends Component
     public $direccionAreaFilter = '';
     public $estadoFilter = '';
     public $zonaLetraFilter = '';
+    public $conObservacionesFilter = false;
     public $showDeleted = false;
 
     // Modales
@@ -118,6 +119,7 @@ class ModalidadesTable extends Component
         'direccionAreaFilter',
         'estadoFilter',
         'zonaLetraFilter',
+        'conObservacionesFilter',
         'showDeleted'
     ];
 
@@ -138,6 +140,7 @@ class ModalidadesTable extends Component
             'direccionAreaFilter', 
             'estadoFilter', 
             'zonaLetraFilter',
+            'conObservacionesFilter',
             'showDeleted'
         ])) {
             $this->resetPage();
@@ -262,6 +265,10 @@ class ModalidadesTable extends Component
                 // IMPORTANT: TRIM input to prevent mismatch with DB data
                 $q->where('zona_departamento', trim($this->zonaFilter));
             });
+        }
+
+        if ($this->conObservacionesFilter) {
+            $query->whereNotNull('observaciones')->where('observaciones', '!=', '');
         }
 
         if ($this->showDeleted) {

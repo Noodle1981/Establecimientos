@@ -38,6 +38,14 @@
                 <span wire:loading.remove wire:target="exportExcel">Exportar Excel</span>
                 <span wire:loading wire:target="exportExcel">Generando...</span>
             </button>
+            <button wire:click="$toggle('conObservacionesFilter')" 
+                    class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition"
+                    style="border: 1px solid #F59E0B; background-color: {{ $conObservacionesFilter ? '#FDE68A' : '#FEF3C7' }}; color: #000000;"
+                    onmouseover="this.style.backgroundColor='#FDE68A'"
+                    onmouseout="this.style.backgroundColor='{{ $conObservacionesFilter ? '#FDE68A' : '#FEF3C7' }}'">
+                <i class="fas fa-comment-alt" style="color: #F59E0B;"></i>
+                {{ $conObservacionesFilter ? 'Todos los registros' : 'Ver Observaciones' }}
+            </button>
             <button wire:click="$toggle('showDeleted')" 
                     class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white font-semibold transition"
                     style="border: 1px solid #FE8204; color: #000000;"
