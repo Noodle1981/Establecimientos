@@ -86,9 +86,6 @@
 </div>
 
 @push('scripts')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
     let map;
     let markers = [];
@@ -252,11 +249,11 @@
             // Filtro por texto
             if (!query) return true;
             
-            return edificio.localidad.toLowerCase().includes(query) ||
-                   edificio.calle.toLowerCase().includes(query) ||
+            return (edificio.localidad || '').toLowerCase().includes(query) ||
+                   (edificio.calle || '').toLowerCase().includes(query) ||
                    edificio.establecimientos.some(est => 
-                       est.nombre.toLowerCase().includes(query) || 
-                       est.cue.toLowerCase().includes(query)
+                       (est.nombre || '').toLowerCase().includes(query) || 
+                       String(est.cue).toLowerCase().includes(query)
                    );
         });
 
