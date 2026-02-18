@@ -23,6 +23,7 @@ class EdificiosTable extends Component
     // Modales
     public $showViewModal = false;
     public $showEditModal = false;
+    public $showCreateModal = false;
     public $selectedEdificio = null;
 
     // Formulario de edición
@@ -41,6 +42,21 @@ class EdificiosTable extends Component
     ];
     
     public $nombreEstablecimientoPrincipal = '';
+
+    // Formulario de creación
+    public $createForm = [
+        'cui' => '',
+        'calle' => '',
+        'numero_puerta' => '',
+        'orientacion' => '',
+        'codigo_postal' => '',
+        'localidad' => '',
+        'zona_departamento' => '',
+        'letra_zona' => '',
+        'latitud' => '',
+        'longitud' => '',
+        'te_voip' => '',
+    ];
 
     protected $queryString = [
         'search',
@@ -483,10 +499,66 @@ class EdificiosTable extends Component
         return $count;
     }
 
+    public function openCreateModal()
+    {
+        $this->reset('createForm');
+        $this->showCreateModal = true;
+    }
+
+    public function createEdificio()
+    {
+        // Normalizar a mayúsculas antes de validar para que unique sea case-insensitive
+        $this->createForm['cui'] = strtoupper(trim($this->createForm['cui'] ?? ''));
+
+        $this->validate([
+            'createForm.cui'              => 'required|string|max:50|unique:edificios,cui',
+            'createForm.calle'            => 'required|string|max:255',
+            'createForm.numero_puerta'    => 'nullable|string|max:20',
+            'createForm.orientacion'      => 'nullable|string|max:50',
+            'createForm.codigo_postal'    => 'nullable|integer',
+            'createForm.localidad'        => 'required|string|max:255',
+            'createForm.zona_departamento'=> 'required|string|max:255',
+            'createForm.letra_zona'       => 'nullable|string|max:1',
+            'createForm.latitud'          => 'nullable|numeric',
+            'createForm.longitud'         => 'nullable|numeric',
+            'createForm.te_voip'          => 'nullable|string|max:50',
+        ], [
+            'createForm.cui.required'              => 'El CUI es obligatorio.',
+            'createForm.cui.unique'                => 'Ya existe un edificio con ese CUI.',
+            'createForm.calle.required'            => 'La calle es obligatoria.',
+            'createForm.localidad.required'        => 'La localidad es obligatoria.',
+            'createForm.zona_departamento.required'=> 'El departamento es obligatorio.',
+        ]);
+
+        try {
+            Edificio::create([
+                'cui'              => $this->createForm['cui'],
+                'calle'            => strtoupper($this->createForm['calle']),
+                'numero_puerta'    => $this->createForm['numero_puerta'],
+                'orientacion'      => $this->createForm['orientacion'] ?: null,
+                'codigo_postal'    => $this->createForm['codigo_postal'] ?: null,
+                'localidad'        => strtoupper($this->createForm['localidad']),
+                'zona_departamento'=> strtoupper($this->createForm['zona_departamento']),
+                'letra_zona'       => strtoupper($this->createForm['letra_zona']),
+                'latitud'          => $this->createForm['latitud'] ?: null,
+                'longitud'         => $this->createForm['longitud'] ?: null,
+                'te_voip'          => $this->createForm['te_voip'] ?: null,
+            ]);
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+            $this->addError('createForm.cui', 'Ya existe un edificio con ese CUI.');
+            return;
+        }
+
+        $this->showCreateModal = false;
+        $this->reset('createForm');
+        session()->flash('success', 'Edificio creado correctamente.');
+    }
+
     public function closeModals()
     {
         $this->showViewModal = false;
         $this->showEditModal = false;
+        $this->showCreateModal = false;
         $this->selectedEdificio = null;
     }
 }

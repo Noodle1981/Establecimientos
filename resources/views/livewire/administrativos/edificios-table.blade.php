@@ -18,6 +18,15 @@
         </div>
         
         <div class="flex gap-3 bg-white p-1.5 rounded-lg shadow-sm" style="border: 1px solid #FE8204;">
+            <button wire:click="openCreateModal"
+                    class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition text-white"
+                    style="background-color: #FE8204;"
+                    onmouseover="this.style.backgroundColor='#E57303'"
+                    onmouseout="this.style.backgroundColor='#FE8204'">
+                <i class="fas fa-plus"></i>
+                <span>Nuevo Edificio</span>
+            </button>
+
             <button wire:click="exportExcel" wire:loading.attr="disabled"
                     class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition bg-white"
                     style="border: 1px solid #1D6F42; color: #1D6F42;"
@@ -479,4 +488,173 @@
         </div>
     </div>
     @endif
+
+    {{-- Modal Crear Edificio --}}
+    @if($showCreateModal)
+    <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-create-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-20 backdrop-blur-sm transition-opacity" aria-hidden="true" wire:click="closeModals"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full relative z-50">
+                {{-- Header del modal --}}
+                <div class="px-6 py-4 flex justify-between items-center" style="background-color: #FE8204;">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white rounded-lg">
+                            <i class="fas fa-building" style="color: #FE8204;"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white" id="modal-create-title">Nuevo Edificio</h3>
+                    </div>
+                    <button wire:click="closeModals" class="text-white hover:text-yellow-200 transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="bg-white px-6 py-5">
+                    {{-- Mensajes de error --}}
+                    @if($errors->any())
+                        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <ul class="text-sm text-red-600 list-disc list-inside">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        {{-- Identificación --}}
+                        <div class="md:col-span-2 bg-orange-50 p-4 rounded-lg border border-orange-200">
+                            <h4 class="text-sm font-bold text-orange-600 mb-3 border-b border-orange-200 pb-1">
+                                <i class="fas fa-id-card mr-1"></i> Identificación
+                            </h4>
+                            <div>
+                                <label class="block text-xs font-bold uppercase mb-1">CUI <span class="text-red-500">*</span></label>
+                                <input type="text" wire:model="createForm.cui"
+                                       class="w-full md:w-1/3 rounded-md border-gray-300 shadow-sm focus:border-orange-500 uppercase"
+                                       placeholder="Ej: 1234567 o PROV0443">
+                                @error('createForm.cui') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+
+                        {{-- Ubicación --}}
+                        <div class="md:col-span-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <h4 class="text-sm font-bold text-gray-700 mb-3 border-b border-gray-200 pb-1">
+                                <i class="fas fa-map-marker-alt mr-1"></i> Ubicación
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold uppercase mb-1">Calle <span class="text-red-500">*</span></label>
+                                    <input type="text" wire:model="createForm.calle"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 uppercase"
+                                           placeholder="Ej: AV. LIBERTADOR">
+                                    @error('createForm.calle') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase mb-1">N° Puerta</label>
+                                    <input type="text" wire:model="createForm.numero_puerta"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 text-center"
+                                           placeholder="Ej: 123">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase mb-1">Código Postal</label>
+                                    <input type="number" wire:model="createForm.codigo_postal"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500"
+                                           placeholder="Ej: 5400">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold uppercase mb-1">Localidad <span class="text-red-500">*</span></label>
+                                    <input type="text" wire:model="createForm.localidad"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 uppercase"
+                                           placeholder="Ej: SAN JUAN">
+                                    @error('createForm.localidad') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase mb-1">Departamento <span class="text-red-500">*</span></label>
+                                    <input type="text" wire:model="createForm.zona_departamento"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 uppercase"
+                                           placeholder="Ej: CAPITAL">
+                                    @error('createForm.zona_departamento') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase mb-1">Letra Zona</label>
+                                    <input type="text" wire:model="createForm.letra_zona" maxlength="1"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 uppercase text-center"
+                                           placeholder="X">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase mb-1">Orientación</label>
+                                    <select wire:model="createForm.orientacion"
+                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500">
+                                        <option value="">-- Sin especificar --</option>
+                                        <option value="NORTE">Norte</option>
+                                        <option value="SUR">Sur</option>
+                                        <option value="ESTE">Este</option>
+                                        <option value="OESTE">Oeste</option>
+                                        <option value="NORESTE">Noreste</option>
+                                        <option value="NOROESTE">Noroeste</option>
+                                        <option value="SURESTE">Sureste</option>
+                                        <option value="SUROESTE">Suroeste</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Coordenadas --}}
+                        <div class="md:col-span-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <h4 class="text-sm font-bold text-gray-700 mb-3 border-b border-gray-200 pb-1">
+                                <i class="fas fa-map-pin mr-1"></i> Coordenadas Geográficas
+                            </h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase mb-1">Latitud</label>
+                                    <input type="text" wire:model="createForm.latitud"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500"
+                                           placeholder="Ej: -31.5432">
+                                    @error('createForm.latitud') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase mb-1">Longitud</label>
+                                    <input type="text" wire:model="createForm.longitud"
+                                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500"
+                                           placeholder="Ej: -68.5432">
+                                    @error('createForm.longitud') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Teléfono VoIP (opcional) --}}
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold uppercase mb-1">Teléfono VoIP</label>
+                            <input type="text" wire:model="createForm.te_voip"
+                                   class="w-full md:w-1/3 rounded-md border-gray-300 shadow-sm focus:border-orange-500"
+                                   placeholder="Ej: 264-4123456">
+                        </div>
+
+                    </div>
+                </div>
+
+                {{-- Footer --}}
+                <div class="bg-gray-50 px-6 py-4 flex flex-row-reverse gap-3 border-t">
+                    <button wire:click="createEdificio" wire:loading.attr="disabled" type="button"
+                            class="inline-flex items-center gap-2 rounded-md border border-transparent shadow-sm px-5 py-2 font-bold text-white text-sm focus:outline-none"
+                            style="background-color: #FE8204;"
+                            onmouseover="this.style.backgroundColor='#E57303'"
+                            onmouseout="this.style.backgroundColor='#FE8204'">
+                        <i class="fas fa-save" wire:loading.remove wire:target="createEdificio"></i>
+                        <i class="fas fa-spinner fa-spin" wire:loading wire:target="createEdificio"></i>
+                        <span wire:loading.remove wire:target="createEdificio">GUARDAR EDIFICIO</span>
+                        <span wire:loading wire:target="createEdificio">Guardando...</span>
+                    </button>
+                    <button wire:click="closeModals" type="button"
+                            class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-5 py-2 bg-white text-sm font-bold text-gray-700 hover:bg-gray-50 focus:outline-none">
+                        CANCELAR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
 </div>

@@ -37,24 +37,24 @@ class ModalidadesTable extends Component
     public $showCreateModal = false;
     public $selectedModalidad = null;
 
-    // Mapeo Nivel → Dirección de Área
+    // Mapeo Nivel → Dirección de Área (valores cortos estándar)
     public $nivelAreaMap = [
-        'INICIAL' => 'NIVEL INICIAL',
-        'PRIMARIO' => 'EDUCACIÓN PRIMARIA',
-        'ALBERGUE' => 'EDUCACIÓN PRIMARIA',
-        'SECUNDARIO' => 'EDUCACIÓN SECUNDARIA',
-        'ADULTOS' => 'EDUCACIÓN DE ADULTOS',
-        'CENS' => 'EDUCACIÓN DE ADULTOS',
-        'UEPA' => 'EDUCACIÓN DE ADULTOS',
-        'PROPAA' => 'EDUCACIÓN DE ADULTOS',
-        'ESPECIAL' => 'EDUCACIÓN ESPECIAL',
-        'EDUCACIÓN ESPECIAL' => 'EDUCACIÓN ESPECIAL',
-        'EDUCACIÓN HOSPITALARIA' => 'EDUCACIÓN ESPECIAL',
-        'SUPERIOR' => 'EDUCACIÓN SUPERIOR',
-        'TÉCNICO' => 'TÉCNICA',
-        'AGROTECNICA' => 'TÉCNICA',
-        'MONOTÉCNICA' => 'TÉCNICA',
-        'TEC. CAP. LABORAL' => 'TÉCNICA',
+        'INICIAL'                    => 'INICIAL',
+        'PRIMARIO'                   => 'PRIMARIO',
+        'ALBERGUE'                   => 'PRIMARIO',
+        'SECUNDARIO'                 => 'SECUNDARIO',
+        'ADULTOS'                    => 'ADULTOS',
+        'CENS'                       => 'ADULTOS',
+        'UEPA'                       => 'ADULTOS',
+        'PROPAA'                     => 'ADULTOS',
+        'ESPECIAL'                   => 'ED. ESPECIAL',
+        'EDUCACIÓN ESPECIAL'         => 'ED. ESPECIAL',
+        'EDUCACIÓN HOSPITALARIA'     => 'ED. ESPECIAL',
+        'SUPERIOR'                   => 'SUPERIOR',
+        'TÉCNICO'                    => 'TÉCNICA',
+        'AGROTECNICA'                => 'TÉCNICA',
+        'MONOTÉCNICA'                => 'TÉCNICA',
+        'TEC. CAP. LABORAL'          => 'TÉCNICA',
         'FOR. PROF. EDUC. NO FORMAL' => 'TÉCNICA',
     ];
 
@@ -390,16 +390,16 @@ class ModalidadesTable extends Component
         // Validaciones
         $this->validate([
             'createForm.nombre_establecimiento' => 'required|string',
-            'createForm.cue' => ['required', 'regex:/^(\d{9}|PROV)$/'],
-            'createForm.cui' => ['required', 'regex:/^(\d{7}|PROV)$/'],
+            'createForm.cue' => ['required', 'regex:/^(\d{9}|PROV.*)$/'],
+            'createForm.cui' => ['required', 'regex:/^(\d{7}|PROV.*)$/'],
             'createForm.establecimiento_cabecera' => 'required|string',
             'createForm.nivel_educativo' => 'required',
             'createForm.ambito' => 'required',
             'createForm.zona_departamento' => 'required',
             'createForm.zona' => 'nullable|string|max:1',
         ], [
-            'createForm.cue.regex' => 'El CUE debe tener 9 dígitos o ser "PROV"',
-            'createForm.cui.regex' => 'El CUI debe tener 7 dígitos o ser "PROV"',
+            'createForm.cue.regex' => 'El CUE debe tener 9 dígitos o comenzar con "PROV"',
+            'createForm.cui.regex' => 'El CUI debe tener 7 dígitos o comenzar con "PROV"',
             'createForm.establecimiento_cabecera.required' => 'El Establecimiento Cabecera es obligatorio',
         ]);
 

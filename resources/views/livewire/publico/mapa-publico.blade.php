@@ -254,7 +254,10 @@
             
             return edificio.localidad.toLowerCase().includes(query) ||
                    edificio.calle.toLowerCase().includes(query) ||
-                   edificio.establecimientos.some(est => est.nombre.toLowerCase().includes(query));
+                   edificio.establecimientos.some(est => 
+                       est.nombre.toLowerCase().includes(query) || 
+                       est.cue.toLowerCase().includes(query)
+                   );
         });
 
         renderEstablishments(filtered);

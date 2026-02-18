@@ -611,7 +611,14 @@
                                     <label class="block text-xs font-bold uppercase mb-1">Dirección de Área</label>
                                     <select wire:model="editForm.direccion_area" class="w-full rounded-md border-gray-300 shadow-sm">
                                         <option value="">Seleccione...</option>
-                                        @foreach($direccionesArea as $area) <option value="{{ $area }}">{{ $area }}</option> @endforeach
+                                        <option value="INICIAL">INICIAL</option>
+                                        <option value="PRIMARIO">PRIMARIO</option>
+                                        <option value="SECUNDARIO">SECUNDARIO</option>
+                                        <option value="ADULTOS">ADULTOS</option>
+                                        <option value="ED. ESPECIAL">ED. ESPECIAL</option>
+                                        <option value="SUPERIOR">SUPERIOR</option>
+                                        <option value="TÉCNICA">TÉCNICA</option>
+                                        <option value="PRIVADA">PRIVADA</option>
                                     </select>
                                 </div>
                                 <div>
