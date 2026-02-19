@@ -22,12 +22,19 @@
         </div>
         
         <div class="flex flex-wrap gap-3 glass p-2 rounded-xl">
-             @if (session()->has('message'))
+            @if (session()->has('message'))
                 <div class="px-4 py-2 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm font-bold flex items-center gap-2">
                     <i class="fas fa-check-circle"></i>
                     {{ session('message') }}
                 </div>
             @endif
+            
+            <button wire:click="generarReporte" wire:loading.attr="disabled"
+                    class="btn-primary flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all">
+                <i class="fas fa-file-pdf" wire:loading.remove wire:target="generarReporte"></i>
+                <i class="fas fa-spinner fa-spin" wire:loading wire:target="generarReporte"></i>
+                <span>Reporte de Auditoría</span>
+            </button>
         </div>
     </div>
 
@@ -37,29 +44,67 @@
     </div>
 
     <!-- CONTADORES TIPO DASHBOARD (KPIs) -->
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
         @php
             $estados = [
                 'PENDIENTE' => ['label' => 'Pendientes', 'icon' => 'fa-clock', 'color' => 'text-yellow-500', 'border' => 'border-yellow-500', 'bg' => 'bg-yellow-50'],
                 'CORRECTO'  => ['label' => 'Correctos', 'icon' => 'fa-check-circle', 'color' => 'text-primary-orange', 'border' => 'border-primary-orange', 'bg' => 'bg-orange-50'],
-                'CORREGIDO' => ['label' => 'Corregidos', 'icon' => 'fa-sync', 'color' => 'text-blue-500', 'border' => 'border-blue-500', 'bg' => 'bg-blue-50'],
+                'CORREGIDO' => ['label' => 'Corregir', 'icon' => 'fa-sync', 'color' => 'text-blue-500', 'border' => 'border-blue-500', 'bg' => 'bg-blue-50'],
+                'FALTANTE_EDUGE' => ['label' => 'Faltantes', 'icon' => 'fa-search-minus', 'color' => 'text-red-500', 'border' => 'border-red-500', 'bg' => 'bg-red-50'],
                 'BAJA'      => ['label' => 'De Baja', 'icon' => 'fa-exclamation-triangle', 'color' => 'text-secondary-red', 'border' => 'border-secondary-red', 'bg' => 'bg-red-50'],
-                'ELIMINADO' => ['label' => 'Eliminados', 'icon' => 'fa-trash-alt', 'color' => 'text-gray-800', 'border' => 'border-gray-800', 'bg' => 'bg-gray-50'],
             ];
         @endphp
 
         @foreach($estados as $key => $meta)
         <div wire:click="$set('estadoFilter', '{{ $key }}')" 
-             class="group cursor-pointer transition-all duration-300">
-            <div class="bg-white p-5 rounded-xl border-l-4 shadow-sm hover:shadow-md transition-all {{ $estadoFilter === $key ? 'ring-2 ring-offset-2 ring-primary-orange' : '' }}"
-                 class="{{ $meta['border'] }}">
-                <div class="flex flex-col">
-                    <span class="text-xs font-bold uppercase {{ $meta['color'] }} opacity-80">{{ $meta['label'] }}</span>
-                    <h4 class="text-3xl font-black {{ $meta['color'] }}">{{ $contadores[$key] ?? 0 }}</h4>
+             class="group cursor-pointer">
+            <div class="relative overflow-hidden rounded-xl p-4 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg
+                        {{ $estadoFilter === $key ? 'ring-2 ring-offset-2 ring-primary-orange shadow-md' : 'shadow-sm border border-gray-100' }}
+                        {{ $meta['bg'] }}">
+                
+                <!-- Decorative Icon (Background) -->
+                <div class="absolute -right-4 -bottom-4 text-6xl opacity-10 transform rotate-12 transition-transform group-hover:scale-110 {{ $meta['color'] }}">
+                    <i class="fas {{ $meta['icon'] }}"></i>
+                </div>
+
+                <div class="relative z-10 flex flex-col items-start justify-between h-full space-y-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full {{ str_replace('text-', 'bg-', $meta['color']) }}"></div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-gray-600 group-hover:text-gray-800 transition-colors">
+                            {{ $meta['label'] }}
+                        </span>
+                    </div>
+                    <h4 class="text-3xl font-black {{ $meta['color'] }} tracking-tight">
+                        {{ number_format($contadores[$key] ?? 0, 0, ',', '.') }}
+                    </h4>
                 </div>
             </div>
         </div>
         @endforeach
+
+        <!-- Tarjeta de Avance (Progreso) -->
+        <div class="group cursor-default">
+            <div class="relative overflow-hidden rounded-xl p-4 shadow-sm border border-gray-100 bg-purple-50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg">
+                <!-- Decorative Icon -->
+                <div class="absolute -right-4 -bottom-4 text-6xl opacity-10 transform rotate-12 transition-transform group-hover:scale-110 text-purple-600">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+
+                <div class="relative z-10 flex flex-col items-start justify-between h-full space-y-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-purple-600"></div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-gray-600 transition-colors">
+                            Progreso
+                        </span>
+                    </div>
+                    <div class="flex items-baseline gap-1">
+                        <h4 class="text-3xl font-black text-purple-600 tracking-tight">
+                            {{ $porcentajeAvance }}%
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- FILTROS AVANZADOS -->
@@ -77,26 +122,71 @@
         </div>
 
         <div x-show="filtersOpen" x-collapse class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="md:col-span-3">
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Buscar Establecimiento</label>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <!-- Buscador (Línea completa o mayor peso) -->
+                <div class="md:col-span-12 lg:col-span-4">
+                    <label class="block text-xs font-bold uppercase mb-1 ml-1 text-gray-500">Buscar</label>
                     <div class="relative">
                         <input type="text" wire:model.live.debounce.300ms="search" 
-                               placeholder="Nombre o número de CUE..." 
-                               class="input-glass w-full pl-10 pr-4 py-2.5 rounded-lg transition-all focus:ring-2 focus:ring-orange-500/20">
-                        <i class="fas fa-school absolute left-3 top-3.5 text-gray-400"></i>
+                               placeholder="Nombre, CUE..." 
+                               class="input-glass w-full pl-9 pr-4 py-2 rounded-lg text-sm transition-all focus:ring-2 focus:ring-orange-500/20">
+                        <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Estado de Validación</label>
-                    <select wire:model.live="estadoFilter" class="input-glass w-full py-2.5 rounded-lg">
+
+                <!-- Filtros (Grid) -->
+                <div class="md:col-span-6 lg:col-span-2">
+                    <label class="block text-xs font-bold uppercase mb-1 ml-1 text-gray-500">Estado</label>
+                    <select wire:model.live="estadoFilter" class="input-glass w-full py-2 rounded-lg text-sm">
                         <option value="">Todos</option>
                         @foreach($estados as $key => $meta)
                             <option value="{{ $key }}">{{ $meta['label'] }}</option>
                         @endforeach
                     </select>
                 </div>
-            </div>
+
+                <div class="md:col-span-6 lg:col-span-3">
+                    <label class="block text-xs font-bold uppercase mb-1 ml-1 text-gray-500">Nivel</label>
+                    <select wire:model.live="nivelFilter" class="input-glass w-full py-2 rounded-lg text-sm">
+                        <option value="">Todos</option>
+                        @foreach($opciones['niveles'] as $nivel)
+                            <option value="{{ $nivel }}">{{ $nivel }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="md:col-span-6 lg:col-span-3">
+                    <label class="block text-xs font-bold uppercase mb-1 ml-1 text-gray-500">Ámbito</label>
+                    <select wire:model.live="ambitoFilter" class="input-glass w-full py-2 rounded-lg text-sm">
+                        <option value="">Todos</option>
+                        @foreach($opciones['ambitos'] as $ambito)
+                            <option value="{{ $ambito }}">{{ $ambito }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="md:col-span-12 lg:col-span-4">
+                    <label class="block text-xs font-bold uppercase mb-1 ml-1 text-gray-500">Departamento</label>
+                    <select wire:model.live="departamentoFilter" class="input-glass w-full py-2 rounded-lg text-sm">
+                        <option value="">Todos</option>
+                        @foreach($opciones['departamentos'] as $depto)
+                            <option value="{{ $depto }}">{{ $depto }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Toggle Papelera -->
+                <div class="md:col-span-12 flex items-end justify-end pt-2">
+                    <label class="inline-flex items-center cursor-pointer group">
+                        <input type="checkbox" wire:model.live="verEliminados" class="sr-only peer">
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                        <span class="ms-3 text-sm font-bold text-gray-700 group-hover:text-red-700 transition-colors">
+                            <i class="fas fa-trash-alt mr-1 {{ $verEliminados ? 'text-red-600' : 'text-gray-400' }}"></i>
+                            Ver registros dado de Baja
+                        </span>
+                    </label>
+                </div>
+            <!-- Filtro de Año Eliminado -->
         </div>
     </div>
 
@@ -106,30 +196,52 @@
             <table class="w-full">
                 <thead>
                     <tr class="bg-primary-orange text-white">
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Establecimiento / CUE</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Estado Auditoría</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Validador</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Establecimiento</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Detalles Educativos</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Ubicación</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider w-32">Validador</th>
                         <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 bg-white">
                     @forelse($modalidades as $modalidad)
-                        <tr class="group hover:bg-orange-50/30 transition-colors duration-200">
-                            <td class="px-6 py-5">
+                        @php
+                            $inactivo = $modalidad->trashed() || in_array($modalidad->estado_validacion, ['BAJA', 'ELIMINADO']);
+                            $rowClass = $inactivo 
+                                ? 'bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors duration-200' 
+                                : 'group hover:bg-orange-50/30 transition-colors duration-200';
+                            $opacityClass = $inactivo ? 'opacity-70' : '';
+                        @endphp
+                        <tr class="{{ $rowClass }}">
+                            <td class="px-6 py-5 {{ $opacityClass }}">
                                 <div class="flex items-center gap-4">
-                                    <!-- Identificador Visual -->
-                                    <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center font-black border border-gray-200 text-primary-orange shadow-sm group-hover:border-primary-orange transition-colors">
-                                        {{ substr($modalidad->establecimiento->nombre, 0, 1) }}
-                                    </div>
+
                                     <div>
-                                        <p class="text-sm font-bold text-gray-800 leading-tight">
-                                            {{ $modalidad->establecimiento->nombre }}
+                                        <p class="text-sm font-bold {{ $inactivo ? 'text-gray-600' : 'text-gray-800' }} leading-tight">
+                                            {{ $modalidad->establecimiento->nombre }} 
+                                            @if($modalidad->trashed())
+                                                <span class="ml-1 text-[10px] text-red-500 font-black uppercase">(Papelera)</span>
+                                            @endif
                                         </p>
-                                        <div class="flex gap-2 mt-1.5 font-mono text-[10px]">
-                                            <span class="px-2 py-0.5 rounded border border-gray-200 text-gray-500">CUE {{ $modalidad->establecimiento->cue }}</span>
-                                            <span class="px-2 py-0.5 rounded bg-yellow-50 text-yellow-700 border border-yellow-200">{{ $modalidad->nivel_educativo }}</span>
-                                        </div>
+                                        <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded border border-gray-200 mt-1 inline-block font-mono">
+                                            CUE: {{ $modalidad->establecimiento->cue }}
+                                        </span>
                                     </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5 {{ $opacityClass }}">
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-xs font-semibold text-gray-700">{{ $modalidad->nivel_educativo }}</span>
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100 self-start">{{ $modalidad->ambito }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5 {{ $opacityClass }}">
+                                <div class="flex flex-col gap-0.5 text-xs">
+                                    <span class="text-gray-500 text-[10px]">{{ $modalidad->establecimiento->edificio->zona_departamento ?? 'S/D' }}</span>
+                                    <span class="text-gray-400 text-[10px] truncate max-w-[150px]" title="{{ $modalidad->establecimiento->edificio->calle ?? '' }}">
+                                        {{ $modalidad->establecimiento->edificio->calle ?? '' }} {{ $modalidad->establecimiento->edificio->numero_puerta ?? '' }}
+                                    </span>
                                 </div>
                             </td>
                             <td class="px-6 py-5">
@@ -144,20 +256,23 @@
                                     $class = $badgeClasses[$modalidad->estado_validacion] ?? 'bg-gray-100 text-gray-800 border-gray-200';
                                 @endphp
                                 <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border {{ $class }}">
-                                    {{ $modalidad->estado_validacion }}
+                                    {{
+                                    $modalidad->estado_validacion == 'CORREGIDO' ? 'CORREGIR' : 
+                                    ($modalidad->estado_validacion == 'FALTANTE_EDUGE' ? 'FALTANTES' : $modalidad->estado_validacion)
+                                    }}
                                 </span>
                             </td>
-                            <td class="px-6 py-5">
+                            <td class="px-6 py-5 {{ $opacityClass }}">
                                 <div class="flex items-center gap-2">
-                                    <i class="fas fa-user-check text-primary-orange"></i>
+                                    <i class="fas fa-user-check {{ $inactivo ? 'text-gray-400' : 'text-primary-orange' }}"></i>
                                     <div>
-                                        <p class="text-xs font-bold text-gray-800">{{ $modalidad->usuarioValidacion?->name ?? 'SISTEMA' }}</p>
+                                        <p class="text-xs font-bold {{ $inactivo ? 'text-gray-500' : 'text-gray-800' }}">{{ $modalidad->usuarioValidacion?->name ?? 'SISTEMA' }}</p>
                                         <p class="text-[10px] uppercase font-bold text-gray-400">{{ $modalidad->validado_en?->format('d/m/Y') ?? 'Pendiente' }}</p>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-5 text-right">
-                                <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                                <div class="flex justify-end gap-2 transition-all">
                                     <button wire:click="abrirCambiarEstado({{ $modalidad->id }})"
                                             class="btn-primary px-4 py-2 text-[10px] uppercase tracking-tighter shadow-md">
                                         <i class="fas fa-edit mr-1"></i> Validar
@@ -237,9 +352,9 @@
                             <option value="">Seleccione un estado...</option>
                             <option value="PENDIENTE">PENDIENTE (En revisión)</option>
                             <option value="CORRECTO">CORRECTO (Aprobado)</option>
-                            <option value="CORREGIDO">CORREGIDO (Con cambios)</option>
+                            <option value="CORREGIDO">CORREGIR (Con cambios)</option>
+                            <option value="FALTANTE_EDUGE">FALTANTES (No en Eduge)</option>
                             <option value="BAJA">DE BAJA (Inactivo)</option>
-                            <option value="ELIMINADO">ELIMINADO (Error de carga)</option>
                         </select>
                         @error('nuevoEstado') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
