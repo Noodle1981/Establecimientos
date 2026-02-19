@@ -1,98 +1,83 @@
 <div>
     <!-- HEADER ESTRATÉGICO -->
-    <div class="mb-8 flex flex-col md:flex-row justify-between items-end gap-4">
+    <!-- HEADER ESTRATÉGICO -->
+    <div class="mb-8 flex flex-col md:flex-row justify-between items-end gap-4 animate-fade-in">
         <div>
-            <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest mb-2" style="color: #FE8204;">
+            <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest mb-2 text-primary-orange">
                 <i class="fas fa-university"></i>
                 <span>Ministerio de Educación</span>
                 <span>•</span>
                 <span>Gestión de Edificios</span>
             </nav>
             <div class="flex items-center gap-3">
-                <div class="p-2 rounded-lg" style="background-color: rgba(254, 130, 4, 0.1);">
-                    <i class="fas fa-building fa-2x" style="color: #FE8204;"></i>
+                <div class="p-3 rounded-xl bg-orange-50 border border-orange-100 shadow-sm">
+                    <i class="fas fa-building fa-2x text-primary-orange"></i>
                 </div>
-                <h2 class="text-4xl font-extrabold tracking-tight" style="color: #000000;">Gestión de Edificios</h2>
+                <div>
+                    <h2 class="text-3xl font-black tracking-tight text-black">
+                        Gestión de <span class="text-primary-orange">Edificios</span>
+                    </h2>
+                    <p class="text-sm text-gray-500 font-medium">Control y administración de infraestructura educativa</p>
+                </div>
             </div>
-            <p class="mt-1 ml-14" style="color: #000000;">Control y administración de infraestructura educativa.</p>
         </div>
         
-        <div class="flex gap-3 bg-white p-1.5 rounded-lg shadow-sm" style="border: 1px solid #FE8204;">
+        <div class="flex flex-wrap gap-3 glass p-2 rounded-xl">
             <button wire:click="openCreateModal"
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition text-white"
-                    style="background-color: #FE8204;"
-                    onmouseover="this.style.backgroundColor='#E57303'"
-                    onmouseout="this.style.backgroundColor='#FE8204'">
+                    class="btn-primary flex items-center gap-2">
                 <i class="fas fa-plus"></i>
-                <span>Nuevo Edificio</span>
+                <span>Nuevo</span>
             </button>
 
             <button wire:click="exportExcel" wire:loading.attr="disabled"
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition bg-white"
-                    style="border: 1px solid #1D6F42; color: #1D6F42;"
-                    onmouseover="this.style.backgroundColor='rgba(29, 111, 66, 0.1)'"
-                    onmouseout="this.style.backgroundColor='#FFFFFF'">
+                    class="px-4 py-2 rounded-lg font-bold transition-all bg-white border border-green-600 text-green-700 hover:bg-green-50 shadow-sm flex items-center gap-2">
                 <i class="fas fa-file-excel" wire:loading.remove wire:target="exportExcel"></i>
                 <i class="fas fa-spinner fa-spin" wire:loading wire:target="exportExcel"></i>
-                <span wire:loading.remove wire:target="exportExcel">Exportar Excel</span>
-                <span wire:loading wire:target="exportExcel">Generando...</span>
+                <span wire:loading.remove wire:target="exportExcel">Excel</span>
+                <span wire:loading wire:target="exportExcel">...</span>
             </button>
             
             <button wire:click="exportRadioAudit" wire:loading.attr="disabled"
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition bg-white"
-                    style="border: 1px solid #1D6F42; color: #1D6F42;"
-                    onmouseover="this.style.backgroundColor='rgba(29, 111, 66, 0.1)'"
-                    onmouseout="this.style.backgroundColor='#FFFFFF'">
+                    class="btn-secondary flex items-center gap-2">
                 <i class="fas fa-map-marked-alt" wire:loading.remove wire:target="exportRadioAudit"></i>
                 <i class="fas fa-spinner fa-spin" wire:loading wire:target="exportRadioAudit"></i>
                 <span wire:loading.remove wire:target="exportRadioAudit">Auditoria Radios</span>
-                <span wire:loading wire:target="exportRadioAudit">Generando...</span>
+                <span wire:loading wire:target="exportRadioAudit">...</span>
             </button>
         </div>
     </div>
 
     <!-- FILTROS AVANZADOS -->
-    <div class="mb-8 bg-white rounded-lg overflow-hidden" style="border: 1px solid #FE8204; box-shadow: 0 4px 12px rgba(254, 130, 4, 0.15);" x-data="{ filtersOpen: true }">
-        <div class="px-6 py-4 flex justify-between items-center" style="background-color: #FE8204; border-bottom: 1px solid #FADC3C;">
+    <!-- FILTROS AVANZADOS -->
+    <div class="mb-8 glass-strong rounded-xl overflow-hidden shadow-lg border border-gray-100" x-data="{ filtersOpen: true }">
+        <div class="px-6 py-4 flex justify-between items-center bg-gray-50/50 border-b border-gray-100">
             <div class="flex items-center gap-3">
-                <div class="p-2 bg-white rounded-lg">
-                    <i class="fas fa-search" style="color: #FE8204;"></i>
+                <div class="p-2 bg-white rounded-lg shadow-sm text-primary-orange">
+                    <i class="fas fa-search"></i>
                 </div>
-                <h3 class="font-bold text-white">Panel de Búsqueda y Filtros</h3>
+                <h3 class="font-bold text-gray-800">Panel de Búsqueda y Filtros</h3>
             </div>
-            <button @click="filtersOpen = !filtersOpen" class="text-white hover:text-yellow-200 transition">
-                <i class="fas fa-chevron-down transform transition" :class="filtersOpen ? 'rotate-180' : ''"></i>
+            <button @click="filtersOpen = !filtersOpen" class="text-gray-400 hover:text-primary-orange transition-colors">
+                <i class="fas fa-chevron-down transform transition duration-200" :class="filtersOpen ? 'rotate-180' : ''"></i>
             </button>
         </div>
 
-        <div x-show="filtersOpen" x-transition class="p-6 space-y-6 bg-white">
+        <div x-show="filtersOpen" x-transition class="p-6 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <!-- Búsqueda -->
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Buscar por CUI, Localidad o Establecimiento Cabecera</label>
-                    <div class="flex gap-2">
-                        <div class="relative flex-1">
-                            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Ej: 1234567, San Juan..." 
-                                   class="w-full pl-10 pr-4 py-2.5 bg-white rounded-lg transition"
-                                   style="border: 1px solid #FE8204; color: #000000;"
-                                   onfocus="this.style.borderColor='#FE8204'; this.style.boxShadow='0 0 0 3px rgba(254, 130, 4, 0.1)'"
-                                   onblur="this.style.boxShadow='none'">
-                            <i class="fas fa-search absolute left-3 top-3.5" style="color: #FE8204;"></i>
-                        </div>
-                        <button wire:click="$refresh" 
-                                class="px-6 py-2.5 rounded-lg text-white font-bold transition shadow-md hover:shadow-lg"
-                                style="background-color: #FE8204;"
-                                onmouseover="this.style.backgroundColor='#E57303'"
-                                onmouseout="this.style.backgroundColor='#FE8204'">
-                            BUSCAR
-                        </button>
+                <div class="md:col-span-1">
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-2 ml-1">Búsqueda General</label>
+                    <div class="relative">
+                        <input type="text" wire:model.live.debounce.300ms="search" placeholder="CUI, Localidad..." 
+                               class="input-glass w-full pl-10 pr-4 py-2.5 rounded-lg transition-all focus:ring-2 focus:ring-orange-500/20">
+                        <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
                     </div>
                 </div>
                 
                 <!-- Departamento -->
                 <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Departamento</label>
-                    <select wire:model.live="zonaFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-2 ml-1">Departamento</label>
+                    <select wire:model.live="zonaFilter" class="input-glass w-full py-2.5 rounded-lg bg-gray-50/50">
                         <option value="">Todos</option>
                         @foreach($zonas as $zona) <option value="{{ $zona }}">{{ $zona }}</option> @endforeach
                     </select>
@@ -100,8 +85,8 @@
                 
                 <!-- Localidad -->
                 <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Localidad</label>
-                    <select wire:model.live="localidadFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-2 ml-1">Localidad</label>
+                    <select wire:model.live="localidadFilter" class="input-glass w-full py-2.5 rounded-lg bg-gray-50/50">
                         <option value="">Todas</option>
                         @foreach($localidades as $loc) <option value="{{ $loc }}">{{ $loc }}</option> @endforeach
                     </select>
@@ -109,24 +94,28 @@
                 
                 <!-- Ámbito -->
                 <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Ámbito</label>
-                    <select wire:model.live="ambitoFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
-                        <option value="">Todos</option>
-                        <option value="PUBLICO">Público</option>
-                        <option value="PRIVADO">Privado</option>
-                    </select>
-                    <div class="mt-1 text-right">
-                        <span class="text-3xl font-bold" style="color: #FE8204;">
-                            <i class="fas fa-list-ol mr-1"></i> Total: {{ $edificios->total() }}
-                        </span>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-2 ml-1">Ámbito</label>
+                    <div class="flex items-center gap-2">
+                        <select wire:model.live="ambitoFilter" class="input-glass w-full py-2.5 rounded-lg bg-gray-50/50 flex-1">
+                            <option value="">Todos</option>
+                            <option value="PUBLICO">Público</option>
+                            <option value="PRIVADO">Privado</option>
+                        </select>
+                        <div class="text-right whitespace-nowrap min-w-fit">
+                            <span class="text-2xl font-bold text-gray-800">
+                                {{ $edificios->total() }}
+                            </span>
+                            <span class="text-xs font-normal text-gray-500 uppercase block leading-none">Registros</span>
+                        </div>
                     </div>
                 </div>
             </div>
+            
             @if($this->activeFiltersCount > 0)
-                <div class="flex justify-end border-t pt-4" style="border-color: #FADC3C;">
-                    <button wire:click="clearFilters" class="text-sm font-bold flex items-center gap-1 hover:underline" style="color: #E43C2F;">
+                <div class="flex justify-end border-t border-gray-100 pt-4">
+                    <button wire:click="clearFilters" class="text-sm font-bold flex items-center gap-2 text-secondary-red hover:text-red-700 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50">
                         <i class="fas fa-times"></i>
-                        Limpiar todos los filtros
+                        Limpiar filtros
                     </button>
                 </div>
             @endif
@@ -134,63 +123,62 @@
     </div>
 
     <!-- TABLA DE RESULTADOS -->
-    <div class="bg-white rounded-lg overflow-hidden" style="border: 1px solid #FE8204; box-shadow: 0 4px 12px rgba(254, 130, 4, 0.15);">
-        <table class="min-w-full">
+    <!-- TABLA DE RESULTADOS -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200">
             <thead>
-                <tr style="background-color: #FE8204;">
-                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Identificación</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Ubicación</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Coordenadas</th>
-                    <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Establecimientos</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">Acciones</th>
+                <tr class="bg-primary-orange">
+                    <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Identificación</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Ubicación</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">Coordenadas</th>
+                    <th class="px-6 py-3 text-center text-xs font-bold text-white uppercase tracking-wider">Establecimientos</th>
+                    <th class="px-6 py-3 text-right text-xs font-bold text-white uppercase tracking-wider">Acciones</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y" style="border-color: #FADC3C;">
+            <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($edificios as $edificio)
                     @php
                         $establecimientoCabecera = $edificio->establecimientos->first(fn($e) => $e->cue_edificio_principal) ?? $edificio->establecimientos->first();
                     @endphp
-                    <tr wire:key="row-{{ $edificio->id }}" class="group transition-all cursor-default" 
-                        onmouseover="this.style.backgroundColor='rgba(254, 130, 4, 0.05)'"
-                        onmouseout="this.style.backgroundColor='#FFFFFF'">
-                        <td class="px-6 py-5">
+                    <tr wire:key="row-{{ $edificio->id }}" class="group hover:bg-orange-50/50 transition-colors duration-150">
+                        <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center gap-3">
-                                <div class="w-1.5 h-12 rounded-full" style="background-color: #FE8204;"></div>
+                                <div class="w-1 h-10 rounded-full bg-primary-orange/20 group-hover:bg-primary-orange transition-colors"></div>
                                 <div>
-                                    <div class="text-sm font-bold uppercase leading-tight" style="color: #000000;">
+                                    <div class="text-sm font-bold text-gray-900 leading-tight uppercase">
                                         {{ $establecimientoCabecera->establecimiento_cabecera ?? 'SIN CABECERA' }}
                                     </div>
-                                    <div class="flex gap-2 mt-1.5">
-                                        <span class="text-xs px-2 py-0.5 rounded-md border font-mono" style="background-color: #FFFFFF; color: #000000; border-color: #FE8204;">CUI {{ $edificio->cui }}</span>
+                                    <div class="flex gap-2 mt-1">
+                                        <span class="text-[10px] px-2 py-0.5 rounded border border-gray-200 bg-gray-50 text-gray-600 font-mono">CUI {{ $edificio->cui }}</span>
                                         @if($establecimientoCabecera && $establecimientoCabecera->cue_edificio_principal)
-                                            <span class="text-xs px-2 py-0.5 rounded-md border font-mono" style="background-color: #FFFFFF; color: #000000; border-color: #FE8204;">CUE {{ $establecimientoCabecera->cue_edificio_principal }}</span>
+                                            <span class="text-[10px] px-2 py-0.5 rounded border border-gray-200 bg-gray-50 text-gray-600 font-mono">CUE {{ $establecimientoCabecera->cue_edificio_principal }}</span>
                                         @endif
                                     </div>
                                     @if($edificio->letra_zona)
                                         <div class="mt-1">
-                                            <span class="text-xs px-2 py-0.5 rounded-md border font-mono" style="background-color: #f3f4f6; color: #374151; border-color: #d1d5db;">ZONA {{ $edificio->letra_zona }}</span>
+                                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100 font-bold">ZONA {{ $edificio->letra_zona }}</span>
                                         </div>
                                     @endif
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-5">
-                            <div class="text-sm font-medium" style="color: #000000;">{{ $edificio->calle }} {{ $edificio->numero_puerta }}</div>
-                            <div class="text-xs" style="color: #000000;">{{ $edificio->localidad }}</div>
-                            <div class="text-xs font-bold" style="color: #FE8204;">{{ $edificio->zona_departamento }}</div>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-medium text-gray-900">{{ $edificio->calle }} {{ $edificio->numero_puerta }}</div>
+                            <div class="text-xs text-gray-500 uppercase">{{ $edificio->localidad }}</div>
+                            <div class="text-xs font-bold text-primary-orange mt-0.5">{{ $edificio->zona_departamento }}</div>
                             @if($edificio->codigo_postal)
-                                <div class="text-xs" style="color: #666;">CP: {{ $edificio->codigo_postal }}</div>
+                                <div class="text-[10px] text-gray-400">CP: {{ $edificio->codigo_postal }}</div>
                             @endif
                         </td>
-                        <td class="px-6 py-5">
+                        <td class="px-6 py-4">
                             @if($edificio->latitud && $edificio->longitud)
                                 <div class="flex items-center gap-2">
-                                    <span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                                    <span class="font-mono text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded border border-gray-200">
                                         {{ $edificio->latitud }}, {{ $edificio->longitud }}
                                     </span>
                                     <a href="https://www.google.com/maps/search/?api=1&query={{ $edificio->latitud }},{{ $edificio->longitud }}" 
                                        target="_blank" 
-                                       class="text-orange-500 hover:text-orange-600"
+                                       class="text-primary-orange hover:text-orange-700 transition-colors"
                                        title="Ver en Google Maps">
                                         <i class="fas fa-external-link-alt"></i>
                                     </a>
@@ -199,43 +187,36 @@
                                 <span class="text-xs text-gray-400 italic">No registradas</span>
                             @endif
                         </td>
-                        <td class="px-6 py-5 text-center">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold" 
-                                  style="background-color: rgba(254, 130, 4, 0.1); color: #FE8204;">
-                                <i class="fas fa-school mr-1"></i>
+                        <td class="px-6 py-4 text-center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                <i class="fas fa-school mr-1.5 opacity-70"></i>
                                 {{ $edificio->establecimientos->count() }}
                             </span>
                         </td>
-                        <td class="px-6 py-5 text-right">
-                            <div class="flex justify-end gap-1 transition-all">
+                        <td class="px-6 py-4 text-right whitespace-nowrap text-sm font-medium">
+                            <div class="flex justify-end gap-2">
                                 <button wire:click="viewEdificio({{ $edificio->id }})" 
-                                        class="p-2 rounded-lg transition" 
-                                        style="background-color: #FFFFFF; color: #FE8204; border: 1px solid #FE8204;"
-                                        onmouseover="this.style.backgroundColor='rgba(254, 130, 4, 0.1)'"
-                                        onmouseout="this.style.backgroundColor='#FFFFFF'"
+                                        class="text-gray-400 hover:text-primary-orange transition-colors p-1" 
                                         title="Ver Detalle">
-                                    <i class="fas fa-eye"></i>
+                                    <i class="fas fa-eye fa-lg"></i>
                                 </button>
                                 <button wire:click="editEdificio({{ $edificio->id }})" 
-                                        class="p-2 rounded-lg transition" 
-                                        style="background-color: #FFFFFF; color: #FE8204; border: 1px solid #FE8204;"
-                                        onmouseover="this.style.backgroundColor='rgba(254, 130, 4, 0.1)'"
-                                        onmouseout="this.style.backgroundColor='#FFFFFF'"
+                                        class="text-gray-400 hover:text-primary-orange transition-colors p-1" 
                                         title="Editar">
-                                    <i class="fas fa-edit"></i>
+                                    <i class="fas fa-edit fa-lg"></i>
                                 </button>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-20 text-center">
+                        <td colspan="5" class="px-6 py-12 text-center">
                             <div class="flex flex-col items-center justify-center">
-                                <div class="p-4 rounded-full mb-4" style="background-color: rgba(254, 130, 4, 0.1);">
-                                    <i class="fas fa-search fa-3x" style="color: #FE8204;"></i>
+                                <div class="p-4 rounded-full bg-orange-50 mb-3">
+                                    <i class="fas fa-search fa-2x text-primary-orange"></i>
                                 </div>
-                                <p class="font-medium text-lg" style="color: #000000;">No se encontraron edificios</p>
-                                <p class="text-sm" style="color: #000000; opacity: 0.6;">Prueba ajustando los filtros de búsqueda</p>
+                                <h3 class="font-bold text-gray-900 text-lg">No se encontraron edificios</h3>
+                                <p class="text-sm text-gray-500 mt-1">Intenta ajustar los filtros de búsqueda.</p>
                             </div>
                         </td>
                     </tr>
@@ -260,13 +241,19 @@
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full relative z-50">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="text-lg leading-6 font-bold text-gray-900">Detalle del Edificio</h3>
-                        <button wire:click="closeModals" class="text-gray-400 hover:text-gray-500">
-                            <i class="fas fa-times"></i>
-                        </button>
+                <div class="px-6 py-4 flex justify-between items-center bg-primary-orange">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white rounded-lg">
+                            <i class="fas fa-building text-primary-orange"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Detalle del Edificio</h3>
                     </div>
+                    <button wire:click="closeModals" class="text-white hover:text-yellow-200 transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <!-- Identificación -->
@@ -389,13 +376,19 @@
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full relative z-50">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="flex justify-between items-center mb-5">
-                       <h3 class="text-xl leading-6 font-bold text-gray-900">Editar Edificio</h3>
-                       <button wire:click="closeModals" class="text-gray-400 hover:text-gray-500">
-                           <i class="fas fa-times"></i>
-                       </button>
+                <div class="px-6 py-4 flex justify-between items-center bg-primary-orange">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white rounded-lg">
+                            <i class="fas fa-edit text-primary-orange"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Editar Edificio</h3>
                     </div>
+                    <button wire:click="closeModals" class="text-white hover:text-yellow-200 transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                          <!-- Identificación -->
@@ -477,7 +470,7 @@
                     </div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t">
-                    <button wire:click="updateEdificio" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-600 text-base font-bold text-white hover:bg-orange-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                    <button wire:click="updateEdificio" type="button" class="btn-primary w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 font-bold text-white focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
                         <i class="fas fa-save mr-2"></i> ACTUALIZAR DATOS
                     </button>
                     <button wire:click="closeModals" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-bold text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
@@ -498,10 +491,11 @@
 
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full relative z-50">
                 {{-- Header del modal --}}
-                <div class="px-6 py-4 flex justify-between items-center" style="background-color: #FE8204;">
+                {{-- Header del modal --}}
+                <div class="px-6 py-4 flex justify-between items-center bg-primary-orange">
                     <div class="flex items-center gap-3">
                         <div class="p-2 bg-white rounded-lg">
-                            <i class="fas fa-building" style="color: #FE8204;"></i>
+                            <i class="fas fa-building text-primary-orange"></i>
                         </div>
                         <h3 class="text-lg font-bold text-white" id="modal-create-title">Nuevo Edificio</h3>
                     </div>
@@ -638,10 +632,7 @@
                 {{-- Footer --}}
                 <div class="bg-gray-50 px-6 py-4 flex flex-row-reverse gap-3 border-t">
                     <button wire:click="createEdificio" wire:loading.attr="disabled" type="button"
-                            class="inline-flex items-center gap-2 rounded-md border border-transparent shadow-sm px-5 py-2 font-bold text-white text-sm focus:outline-none"
-                            style="background-color: #FE8204;"
-                            onmouseover="this.style.backgroundColor='#E57303'"
-                            onmouseout="this.style.backgroundColor='#FE8204'">
+                            class="btn-primary inline-flex items-center gap-2 rounded-md border border-transparent shadow-sm px-5 py-2 font-bold text-white text-sm focus:outline-none">
                         <i class="fas fa-save" wire:loading.remove wire:target="createEdificio"></i>
                         <i class="fas fa-spinner fa-spin" wire:loading wire:target="createEdificio"></i>
                         <span wire:loading.remove wire:target="createEdificio">GUARDAR EDIFICIO</span>

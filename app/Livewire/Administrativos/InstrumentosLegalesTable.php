@@ -99,6 +99,6 @@ class InstrumentosLegalesTable extends Component
 
         return view('livewire.administrativos.instrumentos-legales-table', [
             'modalidades' => $query->paginate(20)
-        ]);
+        ])->layout('layouts.app');
     }
 }

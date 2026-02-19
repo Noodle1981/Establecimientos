@@ -135,7 +135,7 @@ class EdificiosTable extends Component
             'edificios' => $this->getFilteredQuery()->paginate(20),
             'zonas' => Edificio::select('zona_departamento')->distinct()->orderBy('zona_departamento')->pluck('zona_departamento'),
             'localidades' => Edificio::select('localidad')->distinct()->whereNotNull('localidad')->orderBy('localidad')->pluck('localidad'),
-        ]);
+        ])->layout('layouts.app');
     }
 
     public function exportExcel()

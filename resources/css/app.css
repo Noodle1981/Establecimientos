@@ -1,183 +1,123 @@
 @import "tailwindcss";
 
 @theme {
-    --color-primary-orange: #FF8200;
-    --color-primary-orange-dark: #E67300;
+    --color-primary-orange: #FE8204;
+    --color-primary-orange-dark: #E57303;
     --color-primary-orange-light: #FFA040;
-    --color-bg-white: #FFFFFF;
-    --color-text-black: #000000;
-    --color-text-gray: #6B7280;
+    --color-secondary-red: #E43C2F;
+    --color-accent-yellow: #FADC3C;
 
-    --font-sans: "Figtree", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
-/* Variables Globales del Proyecto (Mantener para compatibilidad con estilos manuales) */
+/* Variables Globales del Proyecto */
 :root {
-    --primary-orange: #FF8200;
-    --primary-orange-dark: #E67300;
-    --primary-orange-light: #FFA040;
+    --primary-orange: #FE8204;
+    --primary-orange-dark: #E57303;
+    --secondary-red: #E43C2F;
+    --accent-yellow: #FADC3C;
     --bg-white: #FFFFFF;
     --text-black: #000000;
-    --text-gray: #6B7280;
 }
 
 /* Estilos Base */
 body {
-    background-color: var(--color-bg-white);
-    color: var(--color-text-black);
+    background-color: var(--bg-white);
+    color: var(--text-black);
     font-family: var(--font-sans);
 }
 
 /* Glassmorphism Components */
 .glass {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 130, 0, 0.1);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(254, 130, 4, 0.15); /* Orange border low opacity */
+    box-shadow: 0 4px 12px rgba(254, 130, 4, 0.05); /* Warm shadow */
 }
 
 .glass-strong {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 130, 0, 0.2);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
-.glass-nav {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-bottom: 2px solid var(--primary-orange);
-    box-shadow: 0 4px 6px -1px rgba(255, 130, 0, 0.1);
+    border: 1px solid rgba(254, 130, 4, 0.2);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
-/* Botones Primarios */
+.glass-nav {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 2px solid var(--primary-orange);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Utilities System */
 .btn-primary {
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    color: white;
-    transition: all 0.2s;
+    @apply px-4 py-2 rounded-lg font-bold text-white transition-all shadow-md;
     background-color: var(--primary-orange);
 }
 
 .btn-primary:hover {
-    opacity: 0.9;
     background-color: var(--primary-orange-dark);
+    box-shadow: 0 4px 12px rgba(254, 130, 4, 0.3);
+    transform: translateY(-1px);
 }
 
 .btn-secondary {
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    border: 2px solid var(--primary-orange);
-    transition: all 0.2s;
+    @apply px-4 py-2 rounded-lg font-bold transition-all;
+    background-color: white;
     color: var(--primary-orange);
+    border: 1px solid var(--primary-orange);
 }
 
 .btn-secondary:hover {
-    background-color: rgba(255, 130, 0, 0.1);
+    background-color: rgba(254, 130, 4, 0.05);
 }
 
-/* Inputs */
-.input-primary {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 2px solid #E5E7EB;
-    /* border-gray-200 */
-    border-radius: 0.5rem;
-    transition: all 0.2s;
+.btn-danger {
+    @apply px-4 py-2 rounded-lg font-bold text-white transition-all shadow-md;
+    background-color: var(--secondary-red);
 }
 
-.input-primary:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--color-primary-orange-light);
+.btn-danger:hover {
+    box-shadow: 0 4px 12px rgba(228, 60, 47, 0.3);
+    transform: translateY(-1px);
+}
+
+.input-glass {
+    @apply w-full rounded-lg border-gray-300 focus:ring-0 transition-all;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.input-glass:focus {
     border-color: var(--primary-orange);
-}
-
-/* Cards */
-.card-glass {
-    border-radius: 1rem;
-    padding: 1.5rem;
-    transition: all 0.2s;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 130, 0, 0.1);
-}
-
-.card-glass:hover {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
-/* Links */
-.link-primary {
-    color: var(--primary-orange);
-    transition: all 0.2s;
-}
-
-.link-primary:hover {
-    text-decoration: underline;
-}
-
-/* Badges */
-.badge-orange {
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    background-color: rgba(255, 130, 0, 0.1);
-    color: var(--primary-orange-dark);
-}
-
-/* Alerts */
-.alert-success {
-    border-radius: 0.5rem;
-    padding: 1rem;
-    border-left: 4px solid var(--primary-orange);
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-}
-
-/* Tablas */
-.table-header {
-    background-color: rgba(255, 130, 0, 0.05);
-}
-
-.table-row:hover {
-    background-color: rgba(255, 130, 0, 0.05);
+    box-shadow: 0 0 0 3px rgba(254, 130, 4, 0.1);
 }
 
 /* Animaciones */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Scrollbar personalizada */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
 }
-
 ::-webkit-scrollbar-track {
     background: #f1f1f1;
 }
-
 ::-webkit-scrollbar-thumb {
     background: var(--primary-orange);
-    border-radius: 4px;
+    border-radius: 3px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
     background: var(--primary-orange-dark);
 }

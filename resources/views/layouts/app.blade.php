@@ -15,50 +15,9 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        
-        
-        <style>
-    :root {
-        --primary-orange: #FE8204;
-        --primary-orange-dark: #E57303;
-        --gov-red: #E43C2F;
-        --gov-yellow: #FADC3C;
-        --bg-slate: #FFFFFF;
-    }
-    
-    body {
-        background-color: #FFFFFF;
-        color: #000000;
-    }
-    
-    /* Glassmorphism mejorado */
-    .glass {
-        background: rgba(255, 255, 255, 0.75);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
-    }
-    
-    .glass-strong {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 130, 0, 0.2);
-    }
-
-    /* Navbar con efecto glass refinado */
-    .glass-nav {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border-bottom: 1px solid rgba(255, 130, 0, 0.15);
-        box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.08);
-    }
-    
-</style>
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen" style="background-color: #FFFFFF;">
+    <body class="font-sans antialiased text-black bg-white">
+        <div class="min-h-screen bg-white">
             <!-- Navigation -->
             <livewire:layout.navigation />
 
@@ -69,6 +28,9 @@
                 </div>
             </main>
         </div>
+        
+        <!-- Toast Notifications -->
+        <x-toast-notifications />
         
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

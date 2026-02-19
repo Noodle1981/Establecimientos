@@ -1,58 +1,56 @@
 <div>
     <!-- HEADER ESTRATÉGICO -->
-    <div class="mb-8 flex flex-col md:flex-row justify-between items-end gap-4">
+    <div class="mb-8 flex flex-col md:flex-row justify-between items-end gap-4 animate-fade-in">
         <div>
-            <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest mb-2" style="color: #FE8204;">
+            <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest mb-2 text-primary-orange">
                 <i class="fas fa-university"></i>
                 <span>Ministerio de Educación</span>
                 <span>•</span>
                 <span>Auditoría de Establecimientos</span>
             </nav>
             <div class="flex items-center gap-3">
-                <div class="p-2 rounded-lg" style="background-color: rgba(254, 130, 4, 0.1);">
-                    <i class="fas fa-school fa-2x" style="color: #FE8204;"></i>
+                <div class="p-3 rounded-xl bg-orange-50 border border-orange-100 shadow-sm">
+                    <i class="fas fa-school fa-2x text-primary-orange"></i>
                 </div>
-                <h2 class="text-4xl font-extrabold tracking-tight" style="color: #000000;">Gestión de Establecimientos</h2>
+                <div>
+                    <h2 class="text-3xl font-black tracking-tight text-black">
+                        Gestión de <span class="text-primary-orange">Establecimientos</span>
+                    </h2>
+                    <p class="text-sm text-gray-500 font-medium">Control y validación de infraestructura educativa</p>
+                </div>
             </div>
-            <p class="mt-1 ml-14" style="color: #000000;">Control y comparación de datos entre Direcciones de Área y Plataforma de Gestión.</p>
         </div>
         
-        <div class="flex gap-3 bg-white p-1.5 rounded-lg shadow-sm" style="border: 1px solid #FE8204;">
+        <div class="flex flex-wrap gap-3 glass p-2 rounded-xl">
             @can('create', App\Models\Modalidad::class)
                 <button wire:click="openCreateModal" 
-                        class="flex items-center gap-2 px-5 py-2.5 rounded-lg text-white font-semibold transition shadow-md"
-                        style="background-color: #FE8204; box-shadow: 0 4px 12px rgba(254, 130, 4, 0.15);"
-                        onmouseover="this.style.backgroundColor='#E57303'"
-                        onmouseout="this.style.backgroundColor='#FE8204'">
+                        class="btn-primary flex items-center gap-2">
                     <i class="fas fa-plus"></i>
-                    Nuevo Establecimiento
+                    <span>Nuevo</span>
                 </button>
             @endcan
+            
             <button wire:click="exportExcel" wire:loading.attr="disabled"
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition bg-white"
-                    style="border: 1px solid #1D6F42; color: #1D6F42;"
-                    onmouseover="this.style.backgroundColor='rgba(29, 111, 66, 0.1)'"
-                    onmouseout="this.style.backgroundColor='#FFFFFF'">
+                    class="px-4 py-2 rounded-lg font-bold transition-all bg-white border border-green-600 text-green-700 hover:bg-green-50 shadow-sm flex items-center gap-2">
                 <i class="fas fa-file-excel" wire:loading.remove wire:target="exportExcel"></i>
                 <i class="fas fa-spinner fa-spin" wire:loading wire:target="exportExcel"></i>
-                <span wire:loading.remove wire:target="exportExcel">Exportar Excel</span>
-                <span wire:loading wire:target="exportExcel">Generando...</span>
+                <span wire:loading.remove wire:target="exportExcel">Excel</span>
+                <span wire:loading wire:target="exportExcel">...</span>
             </button>
+
             <button wire:click="$toggle('conObservacionesFilter')" 
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition"
-                    style="border: 1px solid #F59E0B; background-color: {{ $conObservacionesFilter ? '#FDE68A' : '#FEF3C7' }}; color: #000000;"
-                    onmouseover="this.style.backgroundColor='#FDE68A'"
-                    onmouseout="this.style.backgroundColor='{{ $conObservacionesFilter ? '#FDE68A' : '#FEF3C7' }}'">
-                <i class="fas fa-comment-alt" style="color: #F59E0B;"></i>
-                {{ $conObservacionesFilter ? 'Todos los registros' : 'Ver Observaciones' }}
+                    class="px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 border shadow-sm
+                    {{ $conObservacionesFilter 
+                        ? 'bg-yellow-100 text-yellow-800 border-yellow-300' 
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-yellow-300 hover:text-yellow-600' }}">
+                <i class="fas fa-comment-dots {{ $conObservacionesFilter ? 'animate-pulse' : '' }}"></i>
+                {{ $conObservacionesFilter ? 'Filtrado' : 'Observaciones' }}
             </button>
+
             <button wire:click="$toggle('showDeleted')" 
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white font-semibold transition"
-                    style="border: 1px solid #FE8204; color: #000000;"
-                    onmouseover="this.style.backgroundColor='rgba(254, 130, 4, 0.05)'"
-                    onmouseout="this.style.backgroundColor='#FFFFFF'">
-                <i class="fas fa-trash-restore" style="color: #FE8204;"></i>
-                {{ $showDeleted ? 'Ver Activos' : 'Ver Eliminados' }}
+                    class="btn-secondary flex items-center gap-2">
+                <i class="fas fa-trash-restore"></i>
+                {{ $showDeleted ? 'Activos' : 'Papelera' }}
             </button>
         </div>
     </div>
@@ -81,122 +79,104 @@
     </div>
 
     <!-- FILTROS AVANZADOS -->
-    <div class="mb-8 bg-white rounded-lg overflow-hidden" style="border: 1px solid #FE8204; box-shadow: 0 4px 12px rgba(254, 130, 4, 0.15);" x-data="{ filtersOpen: true }">
-        <div class="px-6 py-4 flex justify-between items-center" style="background-color: #FE8204; border-bottom: 1px solid #FADC3C;">
+    <div class="mb-8 glass-strong rounded-xl overflow-hidden shadow-lg" x-data="{ filtersOpen: true }">
+        <div class="px-6 py-4 flex justify-between items-center bg-orange-50/50 border-b border-orange-100">
             <div class="flex items-center gap-3">
-                <div class="p-2 bg-white rounded-lg">
-                    <i class="fas fa-search" style="color: #FE8204;"></i>
+                <div class="p-2 bg-white rounded-lg shadow-sm text-primary-orange">
+                    <i class="fas fa-search"></i>
                 </div>
-                <h3 class="font-bold text-white">Panel de Búsqueda y Filtros</h3>
+                <h3 class="font-bold text-gray-800">Búsqueda y Filtros</h3>
             </div>
-            <button @click="filtersOpen = !filtersOpen" class="text-white hover:text-yellow-200 transition">
-                <i class="fas fa-chevron-down transform transition" :class="filtersOpen ? 'rotate-180' : ''"></i>
+            <button @click="filtersOpen = !filtersOpen" class="text-gray-400 hover:text-primary-orange transition-colors">
+                <i class="fas fa-chevron-down transform transition duration-300" :class="filtersOpen ? 'rotate-180' : ''"></i>
             </button>
         </div>
 
-        <div x-show="filtersOpen" x-transition class="p-6 space-y-6 bg-white">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <!-- Fila 1 -->
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Buscar por Nombre, CUE o CUI</label>
-                    <div class="flex gap-2">
-                        <div class="relative flex-1">
-                            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Ej: Escuela Normal Sarmiento..." 
-                                   class="w-full pl-10 pr-4 py-2.5 bg-white rounded-lg transition"
-                                   style="border: 1px solid #FE8204; color: #000000;"
-                                   onfocus="this.style.borderColor='#FE8204'; this.style.boxShadow='0 0 0 3px rgba(254, 130, 4, 0.1)'"
-                                   onblur="this.style.boxShadow='none'">
-                            <i class="fas fa-search absolute left-3 top-3.5" style="color: #FE8204;"></i>
-                        </div>
-                        <button wire:click="$refresh" 
-                                class="px-6 py-2.5 rounded-lg text-white font-bold transition shadow-md hover:shadow-lg"
-                                style="background-color: #FE8204;"
-                                onmouseover="this.style.backgroundColor='#E57303'"
-                                onmouseout="this.style.backgroundColor='#FE8204'">
-                            BUSCAR
-                        </button>
+        <div x-show="filtersOpen" x-collapse class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+                <!-- Fila 1: Principales (4 cols cada uno) -->
+                <div class="md:col-span-4">
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Búsqueda General</label>
+                    <div class="relative">
+                        <input type="text" wire:model.live.debounce.300ms="search" 
+                               placeholder="Nombre, CUE o CUI..." 
+                               class="input-glass w-full pl-10 pr-4 py-2.5 rounded-lg transition-all focus:ring-2 focus:ring-orange-500/20">
+                        <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Nivel Educativo</label>
-                    <select wire:model.live="nivelFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
-                        <option value="">Todos los niveles</option>
+
+                <div class="md:col-span-4">
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Nivel</label>
+                    <select wire:model.live="nivelFilter" class="input-glass w-full py-2.5 rounded-lg">
+                        <option value="">Todos</option>
                         @foreach($niveles as $nivel) <option value="{{ $nivel }}">{{ $nivel }}</option> @endforeach
                     </select>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Ámbito</label>
-                    <select wire:model.live="ambitoFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
+
+                <div class="md:col-span-4">
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Dirección Área</label>
+                    <select wire:model.live="direccionAreaFilter" class="input-glass w-full py-2.5 rounded-lg">
+                        <option value="">Todas</option>
+                        @foreach($direccionesArea as $area) <option value="{{ $area }}">{{ $area }}</option> @endforeach
+                    </select>
+                </div>
+
+                <!-- Fila 2: Secundarios (2 cols cada uno) -->
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Categ.</label>
+                    <select wire:model.live="categoriaFilter" class="input-glass w-full py-2.5 rounded-lg">
+                        <option value="">Todas</option>
+                        @foreach($categorias as $cat) <option value="{{ $cat }}">{{ $cat }}</option> @endforeach
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Depto</label>
+                    <select wire:model.live="zonaFilter" class="input-glass w-full py-2.5 rounded-lg">
+                        <option value="">Todos</option>
+                        @foreach($zonas as $zona) <option value="{{ $zona }}">{{ $zona }}</option> @endforeach
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Radio</label>
+                    <select wire:model.live="radioFilter" class="input-glass w-full py-2.5 rounded-lg">
+                        <option value="">Todos</option>
+                        @foreach($radios as $radio) <option value="{{ $radio }}">{{ $radio }}</option> @endforeach
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Ámbito</label>
+                    <select wire:model.live="ambitoFilter" class="input-glass w-full py-2.5 rounded-lg">
                         <option value="">Todos</option>
                         <option value="PUBLICO">Público</option>
                         <option value="PRIVADO">Privado</option>
                     </select>
                 </div>
-
-                <!-- Fila 2 -->
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Dirección de Área</label>
-                    <select wire:model.live="direccionAreaFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
-                        <option value="">Todas</option>
-                        @foreach($direccionesArea as $area) <option value="{{ $area }}">{{ $area }}</option> @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Sector</label>
-                    <select wire:model.live="sectorFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
-                        <option value="">Todos</option>
-                        @foreach($sectores as $sector) <option value="{{ $sector }}">{{ $sector }}</option> @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Categoría</label>
-                    <select wire:model.live="categoriaFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
-                        <option value="">Todas</option>
-                        @foreach($categorias as $cat) <option value="{{ $cat }}">{{ $cat }}</option> @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Departamento</label>
-                    <select wire:model.live="zonaFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
-                        <option value="">Todos</option>
-                        @foreach($zonas as $zona) <option value="{{ $zona }}">{{ $zona }}</option> @endforeach
-                    </select>
-                    <div class="mt-1 text-right">
-                        <span class="text-3xl font-bold" style="color: #FE8204;">
-                            <i class="fas fa-list-ol mr-1"></i> Total: {{ $modalidades->total() }}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Fila 3 (Opcional si hay más) -->
-                 <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Radio</label>
-                    <select wire:model.live="radioFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
-                        <option value="">Todos</option>
-                        @foreach($radios as $radio) <option value="{{ $radio }}">{{ $radio }}</option> @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Estado</label>
-                    <select wire:model.live="estadoFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Estado</label>
+                    <select wire:model.live="estadoFilter" class="input-glass w-full py-2.5 rounded-lg">
                         <option value="">Todos</option>
                         <option value="VALIDADO">Validado</option>
                         <option value="PENDIENTE">Pendiente</option>
                     </select>
                 </div>
-                 <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1" style="color: #000000;">Zona (Letra)</label>
-                    <select wire:model.live="zonaLetraFilter" class="w-full py-2.5 bg-white rounded-lg" style="border: 1px solid #FE8204; color: #000000;">
-                        <option value="">Todas</option>
-                        @foreach($zonasLetras as $z) <option value="{{ $z }}">{{ $z }}</option> @endforeach
-                    </select>
+                
+                 <div class="md:col-span-2 flex items-end justify-end">
+                    <div class="text-right w-full">
+                        <div class="text-xs font-bold uppercase text-gray-400 mb-1">Total Registros</div>
+                        <div class="text-3xl font-black text-primary-orange leading-none tracking-tight">
+                            {{ $modalidades->total() }}
+                        </div>
+                    </div>
                 </div>
             </div>
+            
             @if($this->activeFiltersCount > 0)
-                <div class="flex justify-end border-t pt-4" style="border-color: #FADC3C;">
-                    <button wire:click="clearFilters" class="text-sm font-bold flex items-center gap-1 hover:underline" style="color: #E43C2F;">
-                        <i class="fas fa-times"></i>
-                        Limpiar todos los filtros
+                <div class="flex justify-end border-t border-orange-100 pt-4">
+                    <button wire:click="clearFilters" class="text-sm font-bold flex items-center gap-2 text-red-500 hover:text-red-700 transition">
+                        <div class="w-6 h-6 rounded-full bg-red-50 flex items-center justify-center">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        Limpiar filtros
                     </button>
                 </div>
             @endif
@@ -204,124 +184,129 @@
     </div>
 
     <!-- TABLA DE RESULTADOS -->
-    <div class="bg-white rounded-lg overflow-hidden" style="border: 1px solid #FE8204; box-shadow: 0 4px 12px rgba(254, 130, 4, 0.15);">
-        <table class="min-w-full">
-            <thead>
-                <tr style="background-color: #FE8204;">
-                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Detalles del Establecimiento</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Dirección de Área</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider text-center">Gestión</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Ubicación</th>
-                    <th class="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">Acciones</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y" style="border-color: #FADC3C;">
-                @forelse($modalidades as $modalidad)
-                    <tr wire:key="row-{{ $modalidad->id }}" class="group transition-all cursor-default {{ $modalidad->trashed() ? 'opacity-60 grayscale bg-gray-50' : '' }}" 
-                        onmouseover="this.style.backgroundColor='{{ $modalidad->trashed() ? '#F9FAFB' : 'rgba(254, 130, 4, 0.05)' }}'"
-                        onmouseout="this.style.backgroundColor='{{ $modalidad->trashed() ? '#F9FAFB' : '#FFFFFF' }}'">
-                        <td class="px-6 py-5">
-                            <div class="flex items-center gap-3">
-                                <div class="w-1.5 h-12 rounded-full" style="background-color: {{ $modalidad->validado ? '#22c55e' : '#FE8204' }};"></div>
-                                <div>
-                                    <div class="text-sm font-bold uppercase leading-tight" style="color: #000000;">
-                                        {{ $modalidad->establecimiento->nombre }}
+    <div class="glass-strong rounded-xl overflow-hidden shadow-lg border border-orange-100">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-orange-100">
+                <thead>
+                    <tr class="bg-primary-orange text-white">
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Establecimiento</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Detalles Educativos</th>
+                        <th class="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Ubicación</th>
+                        <th class="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100">
+                    @forelse($modalidades as $modalidad)
+                        <tr wire:key="row-{{ $modalidad->id }}" 
+                            class="group transition-all hover:bg-orange-50/40 {{ $modalidad->trashed() ? 'opacity-60 grayscale bg-gray-50' : '' }}">
+                            <td class="px-6 py-4">
+                                <div class="flex items-start gap-3">
+                                    <!-- Indicator Bar -->
+                                    <div class="w-1.5 h-12 rounded-full self-center flex-shrink-0 {{ $modalidad->validado ? 'bg-green-500' : 'bg-orange-400' }}"></div>
+                                    
+                                    <div>
+                                        <div class="text-sm font-black uppercase text-gray-900 leading-snug">
+                                            {{ $modalidad->establecimiento->nombre }}
+                                        </div>
+                                        <div class="flex flex-wrap gap-2 mt-2">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                                                CUE: {{ $modalidad->establecimiento->cue }}
+                                            </span>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                                                CUI: {{ $modalidad->establecimiento->edificio->cui }}
+                                            </span>
+                                        </div>
+                                        @if($modalidad->observaciones)
+                                        <div class="mt-2">
+                                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold bg-yellow-100 text-yellow-700 border border-yellow-200">
+                                                <i class="fas fa-comment-dots"></i> OBS
+                                            </span>
+                                        </div>
+                                        @endif
                                     </div>
-                                    <div class="flex gap-2 mt-1.5">
-                                        <span class="text-xs px-2 py-0.5 rounded-md border font-mono" style="background-color: #FFFFFF; color: #000000; border-color: #FE8204;">CUE {{ $modalidad->establecimiento->cue }}</span>
-                                        <span class="text-xs px-2 py-0.5 rounded-md border font-mono" style="background-color: #FFFFFF; color: #000000; border-color: #FE8204;">CUI {{ $modalidad->establecimiento->edificio->cui }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="space-y-1">
+                                    <div class="text-xs font-bold uppercase text-primary-orange">{{ $modalidad->nivel_educativo }}</div>
+                                    <div class="text-xs text-gray-600 font-medium flex items-center gap-1">
+                                        <i class="fas fa-sitemap text-gray-400"></i> {{ $modalidad->direccion_area }}
                                     </div>
-                                    <div class="flex gap-2 mt-1">
-                                        @if($modalidad->radio)
-                                            <span class="text-xs px-2 py-0.5 rounded-md border font-mono" style="background-color: #f3f4f6; color: #374151; border-color: #d1d5db;">RAD {{ $modalidad->radio }}</span>
+                                    <div class="flex gap-1 mt-1">
+                                         @if($modalidad->radio)
+                                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 font-mono">R:{{ $modalidad->radio }}</span>
                                         @endif
                                         @if($modalidad->categoria)
-                                            <span class="text-xs px-2 py-0.5 rounded-md border font-mono" style="background-color: #f3f4f6; color: #374151; border-color: #d1d5db;">CAT {{ $modalidad->categoria }}</span>
+                                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 font-mono">C:{{ $modalidad->categoria }}</span>
                                         @endif
                                     </div>
-                                    @if($modalidad->observaciones)
-                                    <div class="mt-1">
-                                        <span class="text-[10px] px-2 py-0.5 rounded-md font-bold flex items-center gap-1 w-max" style="background-color: #FFF9C4; color: #F57F17; border: 1px solid #FBC02D;">
-                                            <i class="fas fa-comment-dots"></i> CON OBSERVACIONES
-                                        </span>
-                                    </div>
-                                    @endif
                                 </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-5">
-                            <div class="text-xs font-bold uppercase tracking-tighter mb-1" style="color: #FE8204;">{{ $modalidad->nivel_educativo }}</div>
-                            <div class="text-sm font-medium" style="color: #000000;">{{ $modalidad->direccion_area }}</div>
-                        </td>
-                        <td class="px-6 py-5 text-center">
-                            <span class="px-3 py-1 text-[10px] font-bold rounded-lg" 
-                                  style="{{ $modalidad->ambito === 'PUBLICO' ? 'background-color: #FE8204; color: #FFFFFF;' : 'background-color: #FFFFFF; color: #FE8204; border: 1px solid #FE8204;' }}">
-                                {{ $modalidad->ambito }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-5">
-                            <div class="text-sm font-medium" style="color: #000000;">{{ $modalidad->establecimiento->edificio->zona_departamento }}</div>
-                            <div class="text-xs" style="color: #000000;">{{ $modalidad->establecimiento->edificio->localidad }}</div>
-                        </td>
-                        <td class="px-6 py-5 text-right">
-                            <div class="flex justify-end gap-1 transition-all">
-                                <button wire:click="viewModalidad({{ $modalidad->id }})" 
-                                        class="p-2 rounded-lg transition" 
-                                        style="background-color: #FFFFFF; color: #FE8204; border: 1px solid #FE8204;"
-                                        onmouseover="this.style.backgroundColor='rgba(254, 130, 4, 0.1)'"
-                                        onmouseout="this.style.backgroundColor='#FFFFFF'"
-                                        title="Ver Detalle">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                @can('update', $modalidad)
-                                <button wire:click="editModalidad({{ $modalidad->id }})" 
-                                        class="p-2 rounded-lg transition" 
-                                        style="background-color: #FFFFFF; color: #FE8204; border: 1px solid #FE8204;"
-                                        onmouseover="this.style.backgroundColor='rgba(254, 130, 4, 0.1)'"
-                                        onmouseout="this.style.backgroundColor='#FFFFFF'"
-                                        title="Editar ID: {{ $modalidad->id }}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                @endcan
-                                @can('delete', $modalidad)
-                                    @if(!$modalidad->trashed())
-                                    <button wire:click="confirmDelete({{ $modalidad->id }})" 
-                                            class="p-2 rounded-lg transition" 
-                                            style="background-color: #FFFFFF; color: #E43C2F; border: 1px solid #E43C2F;"
-                                            onmouseover="this.style.backgroundColor='rgba(228, 60, 47, 0.1)'"
-                                            onmouseout="this.style.backgroundColor='#FFFFFF'"
-                                            title="Eliminar">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex flex-col items-center gap-2">
+                                    <span class="px-3 py-1 text-[10px] font-bold rounded-full border {{ $modalidad->ambito === 'PUBLICO' ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-blue-50 text-blue-700 border-blue-200' }}">
+                                        {{ $modalidad->ambito }}
+                                    </span>
+                                    @if($modalidad->validado)
+                                        <i class="fas fa-check-circle text-green-500" title="Validado"></i>
                                     @else
-                                    <button wire:click="restore({{ $modalidad->id }})" 
-                                            class="p-2 rounded-lg transition" 
-                                            style="background-color: #FFFFFF; color: #22c55e; border: 1px solid #22c55e;"
-                                            onmouseover="this.style.backgroundColor='rgba(34, 197, 94, 0.1)'"
-                                            onmouseout="this.style.backgroundColor='#FFFFFF'"
-                                            title="Restaurar">
-                                        <i class="fas fa-trash-restore"></i>
-                                    </button>
+                                        <i class="fas fa-clock text-orange-400" title="Pendiente"></i>
                                     @endif
-                                @endcan
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" class="px-6 py-20 text-center">
-                            <div class="flex flex-col items-center justify-center">
-                                <div class="p-4 rounded-full mb-4" style="background-color: rgba(254, 130, 4, 0.1);">
-                                    <i class="fas fa-search fa-3x" style="color: #FE8204;"></i>
                                 </div>
-                                <p class="font-medium text-lg" style="color: #000000;">No se encontraron establecimientos</p>
-                                <p class="text-sm" style="color: #000000; opacity: 0.6;">Prueba ajustando los filtros de búsqueda</p>
-                            </div>
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-gray-900">{{ $modalidad->establecimiento->edificio->zona_departamento }}</div>
+                                <div class="text-xs text-gray-500">{{ $modalidad->establecimiento->edificio->localidad }}</div>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex justify-end items-center gap-2">
+                                    <button wire:click="viewModalidad({{ $modalidad->id }})" 
+                                            class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:text-primary-orange hover:bg-orange-50 transition-colors"
+                                            title="Ver Detalle">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    @can('update', $modalidad)
+                                    <button wire:click="editModalidad({{ $modalidad->id }})" 
+                                            class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                            title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    @endcan
+                                    @can('delete', $modalidad)
+                                        @if(!$modalidad->trashed())
+                                        <button wire:click="confirmDelete({{ $modalidad->id }})" 
+                                                class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                                title="Eliminar">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                        @else
+                                        <button wire:click="restore({{ $modalidad->id }})" 
+                                                class="w-8 h-8 flex items-center justify-center rounded-lg text-green-500 hover:text-green-700 hover:bg-green-50 transition-colors"
+                                                title="Restaurar">
+                                            <i class="fas fa-trash-restore"></i>
+                                        </button>
+                                        @endif
+                                    @endcan
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <div class="flex flex-col items-center justify-center text-gray-400">
+                                    <div class="p-4 rounded-full bg-gray-50 mb-3">
+                                        <i class="fas fa-search fa-2x"></i>
+                                    </div>
+                                    <p class="font-medium text-lg">No se encontraron resultados</p>
+                                    <p class="text-sm">Prueba ajustando los filtros de búsqueda</p>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Paginación -->
@@ -346,13 +331,19 @@
                  x-data="{ edificioEncontrado: false, edificioNuevo: false }"
                  @edificio-encontrado.window="edificioEncontrado = true; edificioNuevo = false"
                  @edificio-no-encontrado.window="edificioEncontrado = false; edificioNuevo = true">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="flex justify-between items-center mb-5">
-                       <h3 class="text-xl leading-6 font-bold text-gray-900">Nuevo Establecimiento</h3>
-                       <button wire:click="closeModals" class="text-gray-400 hover:text-gray-500">
-                           <i class="fas fa-times"></i>
-                       </button>
+                <div class="px-6 py-4 flex justify-between items-center bg-primary-orange">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white rounded-lg">
+                            <i class="fas fa-school text-primary-orange"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Nuevo Establecimiento</h3>
                     </div>
+                    <button wire:click="closeModals" class="text-white hover:text-yellow-200 transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <!-- Identificación -->
@@ -497,9 +488,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t">
-                    <button wire:click="createEstablecimiento" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-600 text-base font-bold text-white hover:bg-orange-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
-                        <i class="fas fa-save mr-2"></i> GUARDAR ESTABLECIMIENTO
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-100">
+                    <button wire:click="createEstablecimiento" type="button" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-md px-4 py-2 bg-primary-orange text-base font-bold text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm transition-all">
+                        <i class="fas fa-save mr-2 mt-1"></i> GUARDAR ESTABLECIMIENTO
                     </button>
                     <button wire:click="closeModals" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-bold text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                         CANCELAR
@@ -521,13 +512,19 @@
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full relative z-50">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="flex justify-between items-center mb-5">
-                       <h3 class="text-xl leading-6 font-bold text-gray-900">Editar Establecimiento</h3>
-                       <button wire:click="closeModals" class="text-gray-400 hover:text-gray-500">
-                           <i class="fas fa-times"></i>
-                       </button>
+                <div class="px-6 py-4 flex justify-between items-center bg-primary-orange">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white rounded-lg">
+                            <i class="fas fa-edit text-primary-orange"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Editar Establecimiento</h3>
                     </div>
+                    <button wire:click="closeModals" class="text-white hover:text-yellow-200 transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                          <!-- Identificación -->
@@ -664,9 +661,9 @@
                         <textarea wire:model="editForm.observaciones" class="w-full rounded-md border-gray-300 shadow-sm h-20 uppercase" placeholder="Ingrese observaciones de validación..."></textarea>
                     </div>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t">
-                    <button wire:click="updateModalidad" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-orange-600 text-base font-bold text-white hover:bg-orange-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
-                        <i class="fas fa-save mr-2"></i> ACTUALIZAR DATOS
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-100">
+                    <button wire:click="updateModalidad" type="button" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-md px-4 py-2 bg-primary-orange text-base font-bold text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:ml-3 sm:w-auto sm:text-sm transition-all">
+                        <i class="fas fa-save mr-2 mt-1"></i> ACTUALIZAR DATOS
                     </button>
                     <button wire:click="closeModals" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-bold text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                         CANCELAR
@@ -688,13 +685,27 @@
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full relative z-50">
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="flex justify-between items-start">
-                        <h3 class="text-lg leading-6 font-bold text-gray-900 mb-4">{{ $selectedModalidad->establecimiento->nombre }}</h3>
-                        <span class="px-2 py-1 text-xs rounded-full {{ $selectedModalidad->ambito == 'PUBLICO' ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800' }}">
+                <div class="px-6 py-4 flex justify-between items-center bg-primary-orange">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white rounded-lg">
+                            <i class="fas fa-school text-primary-orange"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <h3 class="text-lg font-bold text-white leading-tight">{{ $selectedModalidad->establecimiento->nombre }}</h3>
+                            <span class="text-xs text-orange-100 font-mono">{{ $selectedModalidad->establecimiento->cue }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="px-2 py-1 text-xs font-bold rounded-lg border {{ $selectedModalidad->ambito == 'PUBLICO' ? 'bg-white text-primary-orange border-white' : 'bg-blue-600 text-white border-blue-500' }}">
                             {{ $selectedModalidad->ambito }}
                         </span>
+                        <button wire:click="closeModals" class="text-white hover:text-yellow-200 transition">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
+                </div>
+
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                         <!-- Identificación -->
@@ -813,22 +824,37 @@
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full relative z-50">
+                <div class="px-6 py-4 flex justify-between items-center bg-secondary-red">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white rounded-lg">
+                            <i class="fas fa-exclamation-triangle text-secondary-red"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Confirmar Eliminación</h3>
+                    </div>
+                    <button wire:click="closeModals" class="text-white hover:text-red-200 transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                            <i class="fas fa-exclamation-triangle text-red-600"></i>
-                        </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Confirmar Eliminación</h3>
-                            <div class="mt-2">
-                                <p class="text-sm text-gray-500">¿Estás seguro que deseas eliminar el establecimiento <strong>{{ $selectedModalidad->establecimiento->nombre }}</strong>?</p>
-                                <p class="text-sm text-gray-500 mt-2">Esta acción moverá el registro a la papelera (soft delete).</p>
+                        <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                            <div class="p-4 bg-red-50 rounded-lg border border-red-100 mb-4">
+                                <p class="text-sm text-red-800 font-semibold">
+                                    ¿Estás seguro que deseas eliminar el establecimiento?
+                                </p>
+                                <p class="text-lg font-bold text-gray-900 mt-1">
+                                    {{ $selectedModalidad->establecimiento->nombre }}
+                                </p>
                             </div>
+                            <p class="text-sm text-gray-500">
+                                Esta acción moverá el registro a la papelera (soft delete) y podría afectar a los datos asociados.
+                            </p>
                         </div>
                     </div>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button wire:click="softDelete" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse rounded-b-lg">
+                    <button wire:click="softDelete" type="button" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-md px-4 py-2 bg-secondary-red text-base font-bold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-all">
                         Eliminar
                     </button>
                     <button wire:click="closeModals" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
