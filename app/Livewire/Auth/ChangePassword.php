@@ -5,6 +5,8 @@ namespace App\Livewire\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 
+use Livewire\Attributes\Layout;
+
 class ChangePassword extends Component
 {
     public $current_password = '';
@@ -65,8 +67,9 @@ class ChangePassword extends Component
         return redirect()->route('dashboard');
     }
 
+    #[Layout('layouts.guest')]
     public function render()
     {
-        return view('livewire.auth.change-password')->layout('layouts.guest');
+        return view('livewire.auth.change-password');
     }
 }

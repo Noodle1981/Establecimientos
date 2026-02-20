@@ -7,47 +7,65 @@
     <div id="map" class="absolute inset-0 z-0"></div>
 
     <!-- Panel Lateral (Sidebar) -->
-    <div class="absolute top-0 left-0 h-full z-10 transition-transform duration-300"
+    <div class="absolute top-0 left-0 h-full z-10 transition-all duration-500 ease-in-out"
          :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
-        <div class="h-full w-72 glass-strong shadow-2xl flex flex-col">
+        <div class="h-full w-80 glass-strong shadow-2xl flex flex-col border-r border-orange-100/30 animate-fade-in text-black">
             <!-- Header del Panel -->
-            <div class="p-4 border-b border-gray-200">
-                <h2 class="text-2xl font-bold text-black mb-2">🏫 Establecimientos</h2>
-                <p class="text-sm text-gray-600">San Juan, Argentina</p>
+            <div class="p-6 border-b border-orange-100 bg-orange-50/30">
+                <nav class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest mb-3 text-primary-orange">
+                    <i class="fas fa-university"></i>
+                    <span>Ministerio de Educación</span>
+                </nav>
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 rounded-xl bg-white border border-orange-100 shadow-sm text-primary-orange">
+                        <i class="fas fa-map-marked-alt fa-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black tracking-tight text-gray-900 leading-tight">
+                            Mapa de <span class="text-primary-orange">Escuelas</span>
+                        </h2>
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">San Juan, Argentina</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Buscador -->
-            <div class="p-4 border-b border-gray-200">
-                <div class="relative">
+            <div class="p-4 bg-white/50 border-b border-orange-50">
+                <div class="relative group">
                     <input type="text" 
                            x-model="searchQuery"
-                           placeholder="Buscar establecimiento..."
-                           class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition">
-                    <svg class="absolute left-3 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
+                           placeholder="Buscar por Nombre, CUE o CUI..."
+                           class="input-glass w-full pl-10 pr-4 py-2.5 rounded-xl transition-all border-orange-100/50 focus:border-primary-orange">
+                    <i class="fas fa-search absolute left-3.5 top-3.5 text-gray-400 group-focus-within:text-primary-orange transition-colors"></i>
                 </div>
             </div>
 
             <!-- Lista de Establecimientos -->
-            <div class="flex-1 overflow-y-auto p-4 space-y-3" id="establishments-list">
+            <div class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar" id="establishments-list">
                 <!-- Los establecimientos se cargarán dinámicamente aquí -->
+                <div class="flex items-center justify-center h-full">
+                    <i class="fas fa-circle-notch fa-spin text-primary-orange fa-2x"></i>
+                </div>
             </div>
 
-            <!-- Leyenda -->
-            <div class="p-4 border-t border-gray-200 bg-white bg-opacity-50">
-                <div class="flex items-center justify-around text-xs">
+            <!-- Legend / Filter Pilles -->
+            <div class="p-4 border-t border-orange-100 bg-orange-50/20 backdrop-blur-sm">
+                <div class="flex items-center gap-2">
                     <button @click="showPublic = !showPublic" 
-                            class="flex items-center gap-2 transition-opacity duration-200"
-                            :class="showPublic ? 'opacity-100' : 'opacity-40 grayscale'">
-                        <div class="w-3 h-3 rounded-full" style="background-color: #FF8200;"></div>
-                        <span class="font-medium">Público</span>
+                            class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all border"
+                            :class="showPublic 
+                                ? 'bg-orange-50 text-primary-orange border-primary-orange/30 shadow-sm' 
+                                : 'bg-gray-50 text-gray-400 border-gray-100 grayscale'">
+                        <div class="w-2 h-2 rounded-full bg-primary-orange shadow-sm shadow-orange-500/50"></div>
+                        <span>Público</span>
                     </button>
                     <button @click="showPrivate = !showPrivate"
-                            class="flex items-center gap-2 transition-opacity duration-200"
-                            :class="showPrivate ? 'opacity-100' : 'opacity-40 grayscale'">
-                        <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-                        <span class="font-medium">Privado</span>
+                            class="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all border"
+                            :class="showPrivate 
+                                ? 'bg-blue-50 text-blue-600 border-blue-200 shadow-sm' 
+                                : 'bg-gray-50 text-gray-400 border-gray-100 grayscale'">
+                        <div class="w-2 h-2 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50"></div>
+                        <span>Privado</span>
                     </button>
                 </div>
             </div>
@@ -56,31 +74,30 @@
 
     <!-- Botón Toggle Sidebar -->
     <button @click="sidebarOpen = !sidebarOpen"
-            class="absolute top-4 z-20 transition-all duration-300 glass-strong rounded-full p-3 shadow-lg hover:scale-110"
-            :class="sidebarOpen ? 'left-72' : 'left-4'">
-        <svg class="w-6 h-6 transition-transform duration-300" 
-             :class="sidebarOpen ? 'rotate-0' : 'rotate-180'"
-             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-        </svg>
+            class="absolute top-6 z-20 transition-all duration-300 glass-strong rounded-r-xl border border-l-0 border-orange-100/50 p-3 shadow-xl hover:bg-orange-50 group"
+            :class="sidebarOpen ? 'left-80' : 'left-0'">
+        <i class="fas fa-chevron-left text-primary-orange transition-transform duration-500"
+           :class="sidebarOpen ? 'rotate-0' : 'rotate-180'"></i>
     </button>
 
     <!-- Botón Reportar Error -->
     <button onclick="window.open('mailto:soporte@educacion.gob.ar?subject=Reporte de Error en Mapa', '_blank')"
-            class="absolute bottom-4 right-16 z-20 glass-strong rounded-full px-4 py-2 shadow-lg hover:scale-105 transition-transform flex items-center gap-2 group">
-        <i class="fas fa-bug text-red-500 group-hover:animate-pulse"></i>
-        <span class="text-sm font-bold text-gray-800">Reportar Error</span>
+            class="absolute bottom-6 right-20 z-20 glass-strong rounded-full px-5 py-2.5 shadow-xl hover:scale-105 transition-all flex items-center gap-2.5 group border border-orange-100/50">
+        <div class="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition-colors">
+            <i class="fas fa-bug text-sm"></i>
+        </div>
+        <span class="text-sm font-black text-gray-800 tracking-tight">Reportar Error</span>
     </button>
 
     <!-- Zoom Controls -->
-    <div class="absolute bottom-4 right-4 z-20 flex flex-col gap-2">
+    <div class="absolute bottom-6 right-6 z-20 flex flex-col gap-3">
         <button onclick="map.zoomIn()"
-                class="glass-strong rounded-lg p-2 shadow-lg hover:scale-110 transition-transform text-gray-700 hover:text-orange-500">
-            <i class="fas fa-plus fa-lg"></i>
+                class="glass-strong rounded-xl p-3 shadow-xl hover:bg-orange-50 hover:scale-110 transition-all text-primary-orange border border-orange-100/50">
+            <i class="fas fa-plus"></i>
         </button>
         <button onclick="map.zoomOut()"
-                class="glass-strong rounded-lg p-2 shadow-lg hover:scale-110 transition-transform text-gray-700 hover:text-orange-500">
-            <i class="fas fa-minus fa-lg"></i>
+                class="glass-strong rounded-xl p-3 shadow-xl hover:bg-orange-50 hover:scale-110 transition-all text-primary-orange border border-orange-100/50">
+            <i class="fas fa-minus"></i>
         </button>
     </div>
 </div>
@@ -115,68 +132,66 @@
 
     function addMarkersToMap(edificios) {
         edificios.forEach(edificio => {
-            const color = edificio.ambito === 'PUBLICO' ? '#FF8200' : '#3B82F6';
+            const isPublic = edificio.ambito === 'PUBLICO';
+            const color = isPublic ? '#FE8204' : '#3B82F6';
             
             const marker = L.circleMarker([edificio.latitud, edificio.longitud], {
-                radius: 10,
+                radius: 12,
                 fillColor: color,
                 color: '#fff',
-                weight: 3,
+                weight: 4,
                 opacity: 1,
-                fillOpacity: 0.9
+                fillOpacity: 0.9,
+                className: 'marker-pulse'
             }).addTo(map);
             
-            // Popup con información expandida
+            // Popup con diseño Premium (Similar a ModalidadesTable row)
             let popupContent = `
-                <div class="p-3 min-w-[320px] max-w-[400px]">
-                    <h3 class="font-bold text-black mb-1.5 text-base">${edificio.localidad}</h3>
-                    <p class="text-xs text-gray-600 mb-2">
-                        <strong>📍</strong> ${edificio.calle} ${edificio.numero_puerta || 'S/N'}
-                    </p>
-                    <div class="border-t pt-2">
-                        <p class="text-[10px] font-semibold mb-2" style="color: #FF8200;">Establecimientos (${edificio.establecimientos.length}):</p>
-                        <div class="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                <div class="p-1 min-w-[300px]">
+                    <div class="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                        <div class="p-2 rounded-lg ${isPublic ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600'}">
+                            <i class="fas fa-school"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-gray-900 leading-tight uppercase text-sm">${edificio.localidad || 'Edificio Educativo'}</h3>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">${edificio.calle} ${edificio.numero_puerta || 'S/N'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Establecimientos en este edificio:</p>
             `;
             
             edificio.establecimientos.forEach(est => {
                 popupContent += `
-                    <div class="p-2 bg-gray-50 rounded-lg border border-gray-200">
-                        <p class="text-xs font-bold text-black mb-1.5">${est.nombre}</p>
-                        <div class="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px]">
-                            <div class="flex gap-1">
-                                <p class="text-gray-500">CUE:</p>
-                                <p class="font-medium text-gray-700">${est.cue}</p>
+                    <div class="p-3 bg-gray-50/50 rounded-xl border border-gray-100 hover:border-orange-200 transition-colors group">
+                        <p class="text-[11px] font-black text-gray-800 mb-2 leading-snug uppercase">${est.nombre}</p>
+                        <div class="grid grid-cols-2 gap-2">
+                             <div class="flex flex-col">
+                                <span class="text-[8px] text-gray-400 font-bold uppercase">CUE</span>
+                                <span class="text-[10px] font-mono font-bold text-gray-700">${est.cue}</span>
                             </div>
-                            <div class="flex gap-1">
-                                <p class="text-gray-500">Radio:</p>
-                                <p class="font-medium text-gray-700">${est.radio}</p>
+                            <div class="flex flex-col">
+                                <span class="text-[8px] text-gray-400 font-bold uppercase">Radio</span>
+                                <span class="text-[10px] font-bold text-gray-700">${est.radio || '-'}</span>
                             </div>
-                            <div class="flex gap-1">
-                                <p class="text-gray-500">Nivel:</p>
-                                <p class="font-medium text-gray-700">${est.nivel_educativo}</p>
-                            </div>
-                            <div class="flex gap-1">
-                                <p class="text-gray-500">Categoría:</p>
-                                <p class="font-medium text-gray-700">${est.categoria}</p>
-                            </div>
-                            <div class="col-span-2 flex gap-1">
-                                <p class="text-gray-500">Dirección de Área:</p>
-                                <p class="font-medium text-gray-700">${est.direccion_area}</p>
-                            </div>
-                            <div class="col-span-2 flex gap-1">
-                                <p class="text-gray-500">Departamento/Zona:</p>
-                                <p class="font-medium text-gray-700">${edificio.zona_departamento || 'N/A'}</p>
+                            <div class="col-span-2">
+                                <span class="text-[8px] text-gray-400 font-bold uppercase block mb-0.5">Nivel / Area</span>
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[9px] font-bold text-primary-orange uppercase">${est.nivel_educativo}</span>
+                                    <span class="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[9px] font-bold text-gray-500 uppercase truncate max-w-[120px]">${est.direccion_area}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 `;
             });
             
-            popupContent += `</div></div></div>`;
+            popupContent += `</div></div>`;
             
             marker.bindPopup(popupContent, {
-                maxWidth: 450,
-                minWidth: 320,
+                maxWidth: 350,
+                minWidth: 300,
                 className: 'custom-popup'
             });
 
@@ -190,32 +205,50 @@
         container.innerHTML = '';
 
         if (edificios.length === 0) {
-            container.innerHTML = '<p class="text-center text-gray-400 py-8">No se encontraron establecimientos</p>';
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-12 text-gray-400 animate-fade-in">
+                    <div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
+                        <i class="fas fa-search fa-2xl"></i>
+                    </div>
+                    <p class="font-bold text-gray-500">Sin resultados</p>
+                    <p class="text-[10px] font-medium text-center px-4">Prueba ajustando los filtros o el nombre</p>
+                </div>
+            `;
             return;
         }
 
         edificios.forEach(edificio => {
-            const color = edificio.ambito === 'PUBLICO' ? '#FF8200' : '#3B82F6';
+            const isPublic = edificio.ambito === 'PUBLICO';
+            const color = isPublic ? '#FE8204' : '#3B82F6';
             
             // Crear una card por cada establecimiento
             edificio.establecimientos.forEach(est => {
                 const card = document.createElement('div');
-                card.className = 'bg-white rounded-lg p-3 shadow hover:shadow-lg transition cursor-pointer border-l-4 mb-2';
-                card.style.borderColor = color;
+                card.className = 'group relative glass p-4 rounded-xl border border-orange-100/30 hover:border-primary-orange hover:shadow-xl hover:shadow-orange-500/5 hover:-translate-y-0.5 transition-all cursor-pointer animate-fade-in';
                 
                 card.innerHTML = `
-                    <h4 class="font-bold text-black mb-1 text-sm leading-tight">${est.nombre}</h4>
-                    <p class="text-xs text-gray-500 mb-2">CUE: ${est.cue}</p>
-                    <p class="text-xs text-gray-600 mb-1">
-                        <span class="font-medium">📍</span> ${edificio.calle} ${edificio.numero_puerta || 'S/N'}
-                    </p>
-                    <p class="text-xs text-gray-600 mb-2">
-                        <span class="font-medium">📌</span> ${edificio.zona_departamento || edificio.localidad}
-                    </p>
-                    <div class="flex items-center justify-between mt-2">
-                        <span class="text-xs px-2 py-1 rounded-full font-medium" style="background-color: ${color}20; color: ${color};">
-                            ${edificio.ambito}
-                        </span>
+                    <div class="flex items-start gap-3">
+                        <div class="w-1 h-10 rounded-full ${isPublic ? 'bg-primary-orange' : 'bg-blue-500'} flex-shrink-0"></div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-black text-gray-900 text-[11px] leading-tight uppercase group-hover:text-primary-orange transition-colors mb-1 truncate">${est.nombre}</h4>
+                            <div class="flex gap-2 mb-2">
+                                <span class="bg-gray-100 text-gray-500 font-mono text-[9px] px-1.5 py-0.5 rounded border border-gray-200">CUE: ${est.cue}</span>
+                                <span class="bg-${isPublic ? 'orange' : 'blue'}-50 text-${isPublic ? 'orange' : 'blue'}-600 text-[9px] font-black px-1.5 py-0.5 rounded border border-${isPublic ? 'orange' : 'blue'}-100 uppercase">${edificio.ambito}</span>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-[10px] text-gray-600 flex items-center gap-1.5">
+                                    <i class="fas fa-map-marker-alt text-gray-300 w-3 text-center"></i>
+                                    <span class="truncate">${edificio.calle} ${edificio.numero_puerta || 'S/N'}</span>
+                                </p>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase flex items-center gap-1.5">
+                                    <i class="fas fa-graduation-cap text-gray-300 w-3 text-center"></i>
+                                    <span class="truncate">${est.nivel_educativo}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="self-center transform translate-x-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary-orange">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
                     </div>
                 `;
             
@@ -283,13 +316,55 @@
 </script>
 
 <style>
+    /* Custom Scrollbar for Sidebar */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #FE820430;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #FE820460;
+    }
+
+    /* Popup Styling */
     .custom-popup .leaflet-popup-content-wrapper {
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1), 0 5px 15px rgba(254, 130, 4, 0.05);
+        border: 1px solid rgba(254, 130, 4, 0.1);
+        padding: 5px;
     }
     
     .custom-popup .leaflet-popup-tip {
-        box-shadow: 0 3px 14px rgba(0,0,0,0.1);
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .custom-popup .leaflet-popup-content {
+        margin: 12px;
+    }
+
+    /* Marker Animation */
+    .marker-pulse {
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transform-origin: center;
+        transform-box: fill-box;
+    }
+    .marker-pulse:hover {
+        transform: scale(1.3);
+        filter: drop-shadow(0 0 10px rgba(254, 130, 4, 0.6));
+        cursor: pointer;
+    }
+
+    /* Leaflet Controls Adjustments */
+    .leaflet-container {
+        font-family: 'Inter', sans-serif !important;
     }
 </style>
 @endpush

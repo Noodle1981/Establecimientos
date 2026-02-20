@@ -17,6 +17,8 @@ class UserManagement extends Component
     public $newRole = '';
     public $showDeleteModal = false;
     public $userToDelete = null;
+    public $showResetModal = false;
+    public $userToReset = null;
 
     // Create user properties
     public $showCreateModal = false;
@@ -175,6 +177,52 @@ class UserManagement extends Component
     {
         $this->showDeleteModal = false;
         $this->userToDelete = null;
+    }
+
+    public function confirmReset($userId)
+    {
+        $user = User::find($userId);
+        
+        if (!$user) {
+            $this->dispatch('notify', type: 'error', message: 'Usuario no encontrado.');
+            return;
+        }
+
+        $this->userToReset = $user;
+        $this->showResetModal = true;
+    }
+
+    public function resetPassword()
+    {
+        if (!$this->userToReset) {
+            return;
+        }
+
+        $temporaryPassword = 'Educacion2026!';
+        
+        // Update user: set temp password and nullify password_changed_at to force change
+        $this->userToReset->update([
+            'password' => Hash::make($temporaryPassword),
+            'password_changed_at' => null,
+        ]);
+
+        // Log the action
+        app(\App\Services\ActivityLogService::class)->logUpdate(
+            $this->userToReset, 
+            "Blanqueó la contraseña del usuario {$this->userToReset->name}. Nueva clave temporal asignada.",
+            ['password' => ['before' => 'HIDDEN', 'after' => 'TEMPORARY_RESET']]
+        );
+
+        $this->dispatch('notify', type: 'success', message: "Contraseña blanqueada. La clave temporal es: {$temporaryPassword}");
+        
+        $this->showResetModal = false;
+        $this->userToReset = null;
+    }
+
+    public function cancelReset()
+    {
+        $this->showResetModal = false;
+        $this->userToReset = null;
     }
 
     public function render()

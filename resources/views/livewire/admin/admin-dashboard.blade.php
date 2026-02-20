@@ -1,121 +1,180 @@
 <div class="min-h-screen bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <!-- Header -->
-        <div class="mb-10">
-            <h1 class="text-4xl font-bold text-black mb-2">Panel de Administración</h1>
-            <p class="text-gray-600">Visión general del sistema y gestión</p>
+    <!-- HEADER ESTRATÉGICO -->
+    <div class="px-4 sm:px-6 lg:px-8 py-8 mb-8">
+        <div class="mb-8 flex flex-col md:flex-row justify-between items-end gap-4 animate-fade-in">
+            <div>
+                <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest mb-2 text-primary-orange">
+                    <i class="fas fa-university"></i>
+                    <span>Ministerio de Educación</span>
+                    <span>•</span>
+                    <span>Administración Central</span>
+                </nav>
+                <div class="flex items-center gap-3">
+                    <div class="p-3 rounded-xl bg-orange-50 border border-orange-100 shadow-sm">
+                        <i class="fas fa-chart-line fa-2x text-primary-orange"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-black tracking-tight text-black leading-tight">
+                            Panel <span class="text-primary-orange">Administrativo</span>
+                        </h2>
+                        <p class="text-sm text-gray-500 font-medium">Control operativo y gestión de usuarios del sistema</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-3 glass p-2 rounded-xl border border-orange-100/50 shadow-sm">
+                <div class="px-4 py-2 bg-white rounded-lg border border-orange-100 flex items-center gap-3">
+                    <span class="text-xs font-bold text-gray-500 uppercase">Estado Sistema:</span>
+                    <span class="flex items-center gap-1.5 text-xs font-black text-green-600">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        ACTIVO
+                    </span>
+                </div>
+            </div>
         </div>
 
         <!-- Stats Overview -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
             <!-- Total Users -->
-            <div class="glass rounded-2xl p-6 relative overflow-hidden">
+            <div class="glass-strong rounded-2xl p-6 relative overflow-hidden group hover:shadow-xl hover:shadow-orange-500/5 transition-all">
                 <div class="relative z-10">
-                    <p class="text-sm font-medium text-gray-500 mb-1">Total Usuarios</p>
-                    <h3 class="text-3xl font-bold text-black">{{ $stats['users_total'] }}</h3>
-                    <p class="text-xs text-green-600 mt-2 font-medium">
-                        +{{ $stats['users_recent'] }} en los últimos 7 días
-                    </p>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-2 rounded-lg bg-orange-50 text-primary-orange">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <span class="text-[10px] font-black uppercase text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-100">
+                             +{{ $stats['users_recent'] }} New
+                        </span>
+                    </div>
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Usuarios</p>
+                    <h3 class="text-4xl font-black text-black tracking-tight">{{ $stats['users_total'] }}</h3>
                 </div>
-                <div class="absolute right-[-10px] top-[-10px] opacity-5">
-                    <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path></svg>
+                <div class="absolute right-[-10px] bottom-[-20px] opacity-[0.03] group-hover:opacity-[0.05] group-hover:scale-110 transition-all text-primary-orange">
+                    <i class="fas fa-users-cog fa-8x"></i>
                 </div>
             </div>
 
             <!-- Admins -->
-            <div class="glass rounded-2xl p-6">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-sm font-medium text-gray-500">Administradores</p>
-                    <span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full font-bold">Privilegiado</span>
+            <div class="glass-strong rounded-2xl p-6 relative group hover:shadow-xl transition-all border border-orange-100/30">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-2 rounded-lg bg-red-50 text-red-600">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <span class="px-2 py-1 bg-red-100 text-red-800 text-[10px] rounded-full font-black uppercase tracking-tighter">Privilegiado</span>
                 </div>
-                <h3 class="text-2xl font-bold text-black">{{ $stats['users_admin'] }}</h3>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Administradores</p>
+                <h3 class="text-3xl font-black text-black tracking-tight">{{ $stats['users_admin'] }}</h3>
             </div>
 
             <!-- Administrativos -->
-            <div class="glass rounded-2xl p-6">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-sm font-medium text-gray-500">Administrativos</p>
-                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-bold">Gestión</span>
+            <div class="glass-strong rounded-2xl p-6 relative group hover:shadow-xl transition-all border border-orange-100/30">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-2 rounded-lg bg-blue-50 text-blue-600">
+                        <i class="fas fa-user-edit"></i>
+                    </div>
+                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-[10px] rounded-full font-black uppercase tracking-tighter">Gestión</span>
                 </div>
-                <h3 class="text-2xl font-bold text-black">{{ $stats['users_administrativos'] }}</h3>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Administrativos</p>
+                <h3 class="text-3xl font-black text-black tracking-tight">{{ $stats['users_administrativos'] }}</h3>
             </div>
 
             <!-- Standard Users -->
-            <div class="glass rounded-2xl p-6">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-sm font-medium text-gray-500">Usuarios</p>
-                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full font-bold">Estándar</span>
+            <div class="glass-strong rounded-2xl p-6 relative group hover:shadow-xl transition-all border border-orange-100/30">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-2 rounded-lg bg-gray-50 text-gray-600">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-[10px] rounded-full font-black uppercase tracking-tighter">Estándar</span>
                 </div>
-                <h3 class="text-2xl font-bold text-black">{{ $stats['users_user'] }}</h3>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Usuarios</p>
+                <h3 class="text-3xl font-black text-black tracking-tight">{{ $stats['users_user'] }}</h3>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Main Actions -->
             <div class="lg:col-span-2 space-y-6">
-                <h2 class="text-xl font-bold text-black">Acciones Rápidas</h2>
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-1 h-6 bg-primary-orange rounded-full"></div>
+                    <h2 class="text-xl font-black text-gray-900 tracking-tight uppercase text-sm italic">Acciones Estratégicas</h2>
+                </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <a href="{{ route('admin.users') }}" class="glass p-6 rounded-2xl hover:shadow-lg transition group border border-gray-100">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <h3 class="font-bold text-lg mb-1 group-hover:text-orange-600 transition">Gestionar Usuarios</h3>
-                                <p class="text-sm text-gray-500">Crear, editar y eliminar usuarios del sistema.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <a href="{{ route('admin.users') }}" class="glass-strong p-8 rounded-3xl hover:shadow-2xl hover:shadow-orange-500/10 transition-all group border border-orange-100/30 relative overflow-hidden">
+                        <div class="relative z-10 flex flex-col h-full">
+                            <div class="w-14 h-14 bg-orange-50 text-primary-orange rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary-orange group-hover:text-white transition-all transform group-hover:scale-110 shadow-sm">
+                                <i class="fas fa-users-cog fa-2x"></i>
                             </div>
-                            <div class="p-3 bg-orange-50 text-orange-600 rounded-xl group-hover:bg-orange-100 transition">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            <h3 class="text-xl font-black text-gray-900 mb-2 group-hover:text-primary-orange transition-colors">Gestión de Usuarios</h3>
+                            <p class="text-sm text-gray-500 font-medium leading-relaxed">Administración profunda de cuentas, roles y permisos del ecosistema.</p>
+                            <div class="mt-8 flex items-center gap-2 text-primary-orange font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0">
+                                <span>Acceder</span>
+                                <i class="fas fa-arrow-right"></i>
                             </div>
                         </div>
+                        <!-- Abstract Background Detail -->
+                        <div class="absolute top-[-20%] right-[-10%] w-40 h-40 bg-orange-500/5 rounded-full blur-3xl group-hover:bg-orange-500/10 transition-colors"></div>
                     </a>
 
-                    <a href="{{ route('admin.activity-log') }}" class="glass p-6 rounded-2xl hover:shadow-lg transition group border border-gray-100">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <h3 class="font-bold text-lg mb-1 group-hover:text-blue-600 transition">Registro de Actividad</h3>
-                                <p class="text-sm text-gray-500">Auditar cambios y acciones en el sistema.</p>
+                    <a href="{{ route('admin.activity-log') }}" class="glass-strong p-8 rounded-3xl hover:shadow-2xl hover:shadow-blue-500/10 transition-all group border border-orange-100/30 relative overflow-hidden">
+                        <div class="relative z-10 flex flex-col h-full">
+                            <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-all transform group-hover:scale-110 shadow-sm">
+                                <i class="fas fa-history fa-2x"></i>
                             </div>
-                            <div class="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-100 transition">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                            <h3 class="text-xl font-black text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">Bitácora Global</h3>
+                            <p class="text-sm text-gray-500 font-medium leading-relaxed">Auditoría centralizada de todas las modificaciones críticas del sistema.</p>
+                            <div class="mt-8 flex items-center gap-2 text-blue-600 font-black text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0">
+                                <span>Ver Historial</span>
+                                <i class="fas fa-arrow-right"></i>
                             </div>
                         </div>
+                        <div class="absolute top-[-20%] right-[-10%] w-40 h-40 bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/10 transition-colors"></div>
                     </a>
                 </div>
             </div>
 
             <!-- Recent Activity Widget -->
-            <div class="glass rounded-2xl p-6 h-full">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-black">Actividad Reciente</h2>
-                    <a href="{{ route('admin.activity-log') }}" class="text-sm text-orange-600 hover:text-orange-700 font-medium">Ver todo</a>
-                </div>
+            <div class="glass-strong rounded-3xl p-8 border border-orange-100/30 shadow-lg relative overflow-hidden">
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-8 pb-4 border-b border-orange-100/50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-primary-orange">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <h2 class="text-lg font-black text-gray-900 tracking-tight uppercase italic">Eventos</h2>
+                        </div>
+                        <a href="{{ route('admin.activity-log') }}" class="text-[10px] font-black uppercase tracking-widest text-primary-orange hover:text-orange-700 transition-colors bg-orange-50 px-3 py-1 rounded-full">Ver todo</a>
+                    </div>
 
-                <div class="space-y-6">
-                    @forelse($recentActivity as $log)
-                        <div class="flex gap-4">
-                            <div class="flex-shrink-0 mt-1">
-                                <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
-                                    @if($log->action === 'create') bg-green-100 text-green-700
-                                    @elseif($log->action === 'update') bg-blue-100 text-blue-700
-                                    @elseif($log->action === 'delete') bg-red-100 text-red-700
-                                    @else bg-gray-100 text-gray-700
-                                    @endif">
-                                    {{ strtoupper(substr($log->action, 0, 1)) }}
+                    <div class="space-y-8">
+                        @forelse($recentActivity as $log)
+                            <div class="flex gap-4 group cursor-default">
+                                <div class="flex-shrink-0">
+                                    <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-black shadow-sm transform group-hover:scale-110 transition-all
+                                        @if($log->action === 'create') bg-green-50 text-green-600 border border-green-100
+                                        @elseif($log->action === 'update') bg-blue-50 text-blue-600 border border-blue-100
+                                        @elseif($log->action === 'delete') bg-red-50 text-red-600 border border-red-100
+                                        @else bg-gray-50 text-gray-600 border border-gray-100
+                                        @endif">
+                                        {{ strtoupper(substr($log->action, 0, 1)) }}
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm text-gray-900 font-bold leading-tight group-hover:text-primary-orange transition-colors">{{ $log->description }}</p>
+                                    <div class="flex items-center gap-2 mt-1.5 font-bold uppercase tracking-tighter italic">
+                                        <span class="text-[10px] text-gray-400">{{ $log->user->name ?? 'Sistema' }}</span>
+                                        <span class="w-1 h-1 bg-gray-200 rounded-full"></span>
+                                        <span class="text-[10px] text-primary-orange lg:opacity-70">{{ $log->created_at->diffForHumans() }}</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <p class="text-sm text-black font-medium">{{ $log->description }}</p>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <span class="text-xs text-gray-500">{{ $log->user->name ?? 'Usuario Sistema' }}</span>
-                                    <span class="text-xs text-gray-300">•</span>
-                                    <span class="text-xs text-gray-400">{{ $log->created_at->diffForHumans() }}</span>
-                                </div>
+                        @empty
+                            <div class="flex flex-col items-center justify-center py-20 text-gray-300">
+                                <i class="fas fa-stream fa-3x mb-4 opacity-20"></i>
+                                <p class="text-xs font-black uppercase tracking-widest">Sin actividad reciente</p>
                             </div>
-                        </div>
-                    @empty
-                        <div class="text-center py-10 text-gray-400">
-                            <p class="text-sm">No hay actividad reciente</p>
-                        </div>
-                    @endforelse
+                        @endforelse
+                    </div>
                 </div>
             </div>
         </div>
