@@ -11,6 +11,8 @@ class InstrumentosLegalesTable extends Component
     use WithPagination;
 
     public $search = '';
+    public $nivelFilter = '';
+    public $direccionAreaFilter = '';
     public $filterMissing = false;
     
     // Columns to manage (snake_case from database)
@@ -28,11 +30,13 @@ class InstrumentosLegalesTable extends Component
         'inst_legal_creacion' => '',
     ];
 
-    protected $queryString = ['search', 'filterMissing'];
+    protected $queryString = ['search', 'filterMissing', 'nivelFilter', 'direccionAreaFilter'];
 
-    public function updatingSearch()
+    public function updated($propertyName)
     {
-        $this->resetPage();
+        if (in_array($propertyName, ['search', 'nivelFilter', 'direccionAreaFilter', 'filterMissing'])) {
+            $this->resetPage();
+        }
     }
 
     public function startEdit($id)
@@ -68,6 +72,22 @@ class InstrumentosLegalesTable extends Component
         $this->cancelEdit();
     }
 
+    public function clearFilters()
+    {
+        $this->reset(['search', 'nivelFilter', 'direccionAreaFilter', 'filterMissing']);
+        $this->resetPage();
+    }
+
+    public function getActiveFiltersCountProperty()
+    {
+        $count = 0;
+        if ($this->search) $count++;
+        if ($this->nivelFilter) $count++;
+        if ($this->direccionAreaFilter) $count++;
+        if ($this->filterMissing) $count++;
+        return $count;
+    }
+
     public function render()
     {
         $query = Modalidad::query()
@@ -76,8 +96,19 @@ class InstrumentosLegalesTable extends Component
         if ($this->search) {
             $query->whereHas('establecimiento', function($q) {
                 $q->where('nombre', 'like', '%' . $this->search . '%')
-                  ->orWhere('cue', 'like', '%' . $this->search . '%');
+                  ->orWhere('cue', 'like', '%' . $this->search . '%')
+                  ->orWhereHas('edificio', function($qe) {
+                      $qe->where('cui', 'like', '%' . $this->search . '%');
+                  });
             });
+        }
+
+        if ($this->nivelFilter) {
+            $query->where('nivel_educativo', $this->nivelFilter);
+        }
+
+        if ($this->direccionAreaFilter) {
+            $query->where('direccion_area', $this->direccionAreaFilter);
         }
 
         if ($this->filterMissing) {
@@ -98,7 +129,9 @@ class InstrumentosLegalesTable extends Component
         }
 
         return view('livewire.administrativos.instrumentos-legales-table', [
-            'modalidades' => $query->paginate(20)
+            'modalidades' => $query->paginate(20),
+            'niveles' => Modalidad::select('nivel_educativo')->distinct()->pluck('nivel_educativo'),
+            'direccionesArea' => Modalidad::select('direccion_area')->distinct()->whereNotNull('direccion_area')->orderBy('direccion_area')->pluck('direccion_area'),
         ])->layout('layouts.app');
     }
 }

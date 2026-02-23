@@ -74,13 +74,6 @@
                         <tr class="group hover:bg-orange-50/30 transition-all duration-300">
                             <td class="px-8 py-5 whitespace-nowrap">
                                 <div class="flex items-center gap-4">
-                                    <div class="relative">
-                                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-inner group-hover:scale-110 transition-transform"
-                                             style="background: linear-gradient(135deg, var(--primary-orange), #FFB040);">
-                                            {{ strtoupper(substr($user->name, 0, 1)) }}
-                                        </div>
-                                        <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
-                                    </div>
                                     <div class="ml-1">
                                         <div class="text-sm font-black text-gray-900 leading-tight uppercase group-hover:text-primary-orange transition-colors">{{ $user->name }}</div>
                                         <div class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Miembro Verificado</div>

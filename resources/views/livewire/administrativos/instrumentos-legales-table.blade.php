@@ -41,35 +41,80 @@
         <div class="px-6 py-4 flex justify-between items-center bg-orange-50/50 border-b border-orange-100">
             <div class="flex items-center gap-3">
                 <div class="p-2 bg-white rounded-lg shadow-sm text-primary-orange">
-                    <i class="fas fa-filter"></i>
+                    <i class="fas fa-search"></i>
                 </div>
-                <h3 class="font-bold text-gray-800">Filtros de Búsqueda</h3>
+                <h3 class="font-bold text-gray-800">Búsqueda y Filtros</h3>
             </div>
             <button @click="filtersOpen = !filtersOpen" class="text-gray-400 hover:text-primary-orange transition-colors">
                 <i class="fas fa-chevron-down transform transition duration-300" :class="filtersOpen ? 'rotate-180' : ''"></i>
             </button>
         </div>
         
-        <div x-show="filtersOpen" x-collapse class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-                <div>
-                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Buscar Establecimiento</label>
+        <div x-show="filtersOpen" x-collapse class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
+                <!-- Búsqueda General -->
+                <div class="md:col-span-4">
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Búsqueda General</label>
                     <div class="relative">
                         <input type="text" wire:model.live.debounce.300ms="search" 
-                               placeholder="Nombre, CUE o nivel..." 
+                               placeholder="Nombre, CUE o CUI..." 
                                class="input-glass w-full pl-10 pr-4 py-2.5 rounded-lg transition-all focus:ring-2 focus:ring-orange-500/20">
                         <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
                     </div>
                 </div>
-                
-                <div class="pb-2">
+
+                <!-- Filtro Nivel -->
+                <div class="md:col-span-3">
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Nivel Educativo</label>
+                    <select wire:model.live="nivelFilter" class="input-glass w-full py-2.5 rounded-lg font-bold text-gray-700">
+                        <option value="">TODOS LOS NIVELES</option>
+                        @foreach($niveles as $nivel)
+                            <option value="{{ $nivel }}">{{ $nivel }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Filtro Dirección Área -->
+                <div class="md:col-span-3">
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Dirección de Área</label>
+                    <select wire:model.live="direccionAreaFilter" class="input-glass w-full py-2.5 rounded-lg font-bold text-gray-700">
+                        <option value="">TODAS LAS ÁREAS</option>
+                        @foreach($direccionesArea as $area)
+                            <option value="{{ $area }}">{{ $area }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Toggle Faltantes -->
+                <div class="md:col-span-2 pb-2">
                     <label class="inline-flex items-center cursor-pointer group select-none">
                         <div class="relative">
                             <input type="checkbox" wire:model.live="filterMissing" class="sr-only peer">
-                            <div class="w-10 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
+                            <div class="w-10 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-orange"></div>
                         </div>
-                        <span class="ml-3 text-sm font-bold text-gray-700 group-hover:text-primary-orange transition-colors">Ver solo con datos faltantes</span>
+                        <span class="ml-3 text-[10px] font-black uppercase text-gray-500 group-hover:text-primary-orange transition-colors">Faltantes</span>
                     </label>
+                </div>
+            </div>
+
+            <!-- Footer Filtros: Limpiar y Contador -->
+            <div class="flex flex-col md:flex-row justify-between items-center pt-4 border-t border-orange-100 gap-4">
+                <div>
+                    @if($this->activeFiltersCount > 0)
+                        <button wire:click="clearFilters" class="text-xs font-black uppercase tracking-widest flex items-center gap-2 text-red-500 hover:text-red-700 transition">
+                            <div class="w-6 h-6 rounded-full bg-red-50 flex items-center justify-center">
+                                <i class="fas fa-times"></i>
+                            </div>
+                            Limpiar filtros
+                        </button>
+                    @endif
+                </div>
+
+                <div class="text-right">
+                    <div class="text-[10px] font-black uppercase text-gray-400 mb-1">Total Registros Filtrados</div>
+                    <div class="text-3xl font-black text-primary-orange leading-none tracking-tight">
+                        {{ $modalidades->total() }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -94,16 +139,11 @@
                             <!-- Nombre y CUE -->
                             <td class="px-6 py-4">
                                 @if($mod->establecimiento)
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded bg-gray-50 flex items-center justify-center font-bold text-primary-orange border border-gray-200 text-xs shadow-sm">
-                                            {{ substr($mod->establecimiento->nombre, 0, 1) }}
-                                        </div>
-                                        <div>
-                                            <div class="text-sm font-bold text-gray-900 leading-tight uppercase">{{ $mod->establecimiento->nombre }}</div>
-                                            <div class="flex gap-2 mt-1">
-                                                <span class="text-[10px] font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded border border-gray-200">CUE: {{ $mod->establecimiento->cue }}</span>
-                                                <span class="text-[10px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded border border-orange-200 font-bold">{{ $mod->nivel_educativo }}</span>
-                                            </div>
+                                    <div>
+                                        <div class="text-sm font-bold text-gray-900 leading-tight uppercase">{{ $mod->establecimiento->nombre }}</div>
+                                        <div class="flex gap-2 mt-1">
+                                            <span class="text-[10px] font-mono bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded border border-gray-200">CUE: {{ $mod->establecimiento->cue }}</span>
+                                            <span class="text-[10px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded border border-orange-200 font-bold">{{ $mod->nivel_educativo }}</span>
                                         </div>
                                     </div>
                                 @else

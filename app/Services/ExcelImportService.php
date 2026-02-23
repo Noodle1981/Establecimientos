@@ -24,6 +24,8 @@ class ExcelImportService
             'errores' => []
         ];
         
+        $skippedCount = 0;
+        
         DB::beginTransaction();
         
         try {
@@ -42,8 +44,19 @@ class ExcelImportService
                 if (empty($data[4]) || empty($data[7])) { // CUE or CUI empty
                     continue;
                 }
+               // Mapear datos de la fila
+                $rowData = $this->mapRowData($data); // Keep existing $data parameter for mapRowData
+
+                // [CLEANUP] Evitar registros redundantes de modalidad ADULTOS
+                $dirClean = strtoupper(trim($rowData['direccion_area'] ?? ''));
+                $nivelClean = strtoupper(trim($rowData['nivel_educativo'] ?? ''));
                 
-                $rowData = $this->mapRowData($data);
+                if ($nivelClean === 'ADULTOS') {
+                    if ($dirClean === 'ADULTOS' || $dirClean === 'PRIVADA') {
+                        $skippedCount++;
+                        continue;
+                    }
+                }
                 
                 try {
                     // 1. Crear/obtener Edificio por CUI

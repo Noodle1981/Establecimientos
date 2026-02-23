@@ -13,7 +13,11 @@ class AdministrativosDashboard extends Component
 {
     public $ambito = 'TODOS';
     public $departamento = '';
+    public $direccion_area = '';
+    public $nivel_educativo = '';
     public $departamentos = [];
+    public $direcciones_area = [];
+    public $niveles_educativos = [];
 
     public function mount()
     {
@@ -24,10 +28,72 @@ class AdministrativosDashboard extends Component
             ->orderBy('zona_departamento')
             ->pluck('zona_departamento')
             ->toArray();
+
+        $this->loadDireccionesArea();
     }
 
-    public function updatedAmbito() { $this->dispatch('update-charts', $this->chartData); }
+    private function loadDireccionesArea()
+    {
+        $query = Modalidad::select('direccion_area')->distinct()
+            ->whereNotNull('direccion_area')
+            ->where('direccion_area', '!=', '');
+
+        if ($this->ambito !== 'TODOS') {
+            $query->where('ambito', $this->ambito);
+        }
+
+        $this->direcciones_area = $query->orderBy('direccion_area')
+            ->pluck('direccion_area')
+            ->toArray();
+    }
+
+    public function updatedAmbito() 
+    { 
+        $this->loadDireccionesArea();
+
+        // Si la dirección seleccionada ya no existe en el nuevo ámbito, resetearla
+        if (!empty($this->direccion_area) && !in_array($this->direccion_area, $this->direcciones_area)) {
+            $this->direccion_area = '';
+            $this->nivel_educativo = '';
+            $this->niveles_educativos = [];
+        } else {
+            $this->loadNivelesEducativos();
+        }
+
+        $this->dispatch('update-charts', $this->chartData); 
+    }
+
     public function updatedDepartamento() { $this->dispatch('update-charts', $this->chartData); }
+    
+    public function updatedDireccionArea() 
+    { 
+        $this->loadNivelesEducativos();
+        $this->nivel_educativo = ''; // Reset sub-filter
+        $this->dispatch('update-charts', $this->chartData); 
+    }
+
+    public function updatedNivelEducativo() { $this->dispatch('update-charts', $this->chartData); }
+
+    private function loadNivelesEducativos()
+    {
+        if (empty($this->direccion_area)) {
+            $this->niveles_educativos = [];
+            return;
+        }
+
+        $query = Modalidad::select('nivel_educativo')->distinct()
+            ->where('direccion_area', $this->direccion_area)
+            ->whereNotNull('nivel_educativo')
+            ->where('nivel_educativo', '!=', '');
+        
+        if ($this->ambito !== 'TODOS') {
+            $query->where('ambito', $this->ambito);
+        }
+
+        $this->niveles_educativos = $query->orderBy('nivel_educativo')
+            ->pluck('nivel_educativo')
+            ->toArray();
+    }
 
     public function getChartDataProperty()
     {
@@ -66,6 +132,28 @@ class AdministrativosDashboard extends Component
                 $query->where('edificios.zona_departamento', $this->departamento);
             } elseif ($context === 'establecimiento') {
                 $query->whereHas('edificio', fn($q) => $q->where('zona_departamento', $this->departamento));
+            }
+        }
+
+        // 3. Dirección de Área Filter
+        if (!empty($this->direccion_area)) {
+            if ($context === 'modalidad' || $context === 'join_edificio') {
+                $query->where('direccion_area', $this->direccion_area);
+            } elseif ($context === 'edificio') {
+                $query->whereHas('establecimientos.modalidades', fn($q) => $q->where('direccion_area', $this->direccion_area));
+            } elseif ($context === 'establecimiento') {
+                $query->whereHas('modalidades', fn($q) => $q->where('direccion_area', $this->direccion_area));
+            }
+        }
+
+        // 4. Nivel Educativo (Modalidad específica) Filter
+        if (!empty($this->nivel_educativo)) {
+            if ($context === 'modalidad' || $context === 'join_edificio') {
+                $query->where('nivel_educativo', $this->nivel_educativo);
+            } elseif ($context === 'edificio') {
+                $query->whereHas('establecimientos.modalidades', fn($q) => $q->where('nivel_educativo', $this->nivel_educativo));
+            } elseif ($context === 'establecimiento') {
+                $query->whereHas('modalidades', fn($q) => $q->where('nivel_educativo', $this->nivel_educativo));
             }
         }
 

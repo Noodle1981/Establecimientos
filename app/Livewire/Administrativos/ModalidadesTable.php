@@ -30,6 +30,7 @@ class ModalidadesTable extends Component
     public $zonaLetraFilter = '';
     public $conObservacionesFilter = false;
     public $showDeleted = false;
+    public $nivelesEducativos = [];
 
     // Modales
     public $showViewModal = false;
@@ -123,14 +124,17 @@ class ModalidadesTable extends Component
         'showDeleted'
     ];
 
-    public function updatingSearch()
-    {
-        $this->resetPage();
-    }
-
     public function updated($propertyName)
     {
+        if (in_array($propertyName, ['direccionAreaFilter', 'ambitoFilter'])) {
+            if ($propertyName === 'direccionAreaFilter') {
+                $this->nivelFilter = ''; // Solo reseteamos nivel si cambia el área
+            }
+            $this->loadNivelesEducativos();
+        }
+        
         if (in_array($propertyName, [
+            'search',
             'nivelFilter', 
             'ambitoFilter', 
             'radioFilter', 
@@ -145,6 +149,30 @@ class ModalidadesTable extends Component
         ])) {
             $this->resetPage();
         }
+    }
+
+    public function mount()
+    {
+        $this->loadNivelesEducativos();
+    }
+
+    private function loadNivelesEducativos()
+    {
+        $query = Modalidad::select('nivel_educativo')->distinct()
+            ->whereNotNull('nivel_educativo')
+            ->where('nivel_educativo', '!=', '');
+
+        if ($this->direccionAreaFilter) {
+            $query->where('direccion_area', $this->direccionAreaFilter);
+        }
+
+        if ($this->ambitoFilter && $this->ambitoFilter !== 'TODOS') {
+            $query->where('ambito', $this->ambitoFilter);
+        }
+
+        $this->nivelesEducativos = $query->orderBy('nivel_educativo')
+            ->pluck('nivel_educativo')
+            ->toArray();
     }
 
     public function updatedCreateFormNivelEducativo($value)
@@ -282,7 +310,7 @@ class ModalidadesTable extends Component
     {
         return view('livewire.administrativos.modalidades-table', [
             'modalidades' => $this->getFilteredQuery()->paginate(20),
-            'niveles' => Modalidad::select('nivel_educativo')->distinct()->pluck('nivel_educativo'),
+            'niveles' => $this->nivelesEducativos,
             'zonas' => Edificio::select('zona_departamento')->distinct()->orderBy('zona_departamento')->pluck('zona_departamento'),
             'radios' => Modalidad::select('radio')->distinct()->whereNotNull('radio')->orderBy('radio')->pluck('radio'),
             'zonasLetras' => Modalidad::select('zona')->distinct()->whereNotNull('zona')->where('zona', '!=', '')->orderBy('zona')->pluck('zona'),
@@ -742,6 +770,7 @@ class ModalidadesTable extends Component
             'zonaLetraFilter',
         ]);
         $this->resetPage();
+        $this->loadNivelesEducativos();
     }
 
     /**

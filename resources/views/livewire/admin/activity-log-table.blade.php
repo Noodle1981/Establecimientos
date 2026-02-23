@@ -117,15 +117,10 @@
                             </td>
                             @if(!auth()->user()->isAdministrativo())
                             <td class="px-6 py-4">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shadow-sm bg-primary-orange">
-                                        {{ substr($log->user->name ?? '?', 0, 1) }}
-                                    </div>
-                                    <div class="ml-3">
+                                    <div>
                                         <div class="text-sm font-bold text-gray-900">{{ $log->user->name ?? 'Usuario Eliminado' }}</div>
                                         <div class="text-[10px] text-gray-500 uppercase tracking-wide">{{ $log->user->role ?? '-' }}</div>
                                     </div>
-                                </div>
                             </td>
                             @endif
                             <td class="px-6 py-4">

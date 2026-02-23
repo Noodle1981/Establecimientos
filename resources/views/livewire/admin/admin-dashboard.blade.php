@@ -149,16 +149,6 @@
                     <div class="space-y-8">
                         @forelse($recentActivity as $log)
                             <div class="flex gap-4 group cursor-default">
-                                <div class="flex-shrink-0">
-                                    <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-black shadow-sm transform group-hover:scale-110 transition-all
-                                        @if($log->action === 'create') bg-green-50 text-green-600 border border-green-100
-                                        @elseif($log->action === 'update') bg-blue-50 text-blue-600 border border-blue-100
-                                        @elseif($log->action === 'delete') bg-red-50 text-red-600 border border-red-100
-                                        @else bg-gray-50 text-gray-600 border border-gray-100
-                                        @endif">
-                                        {{ strtoupper(substr($log->action, 0, 1)) }}
-                                    </div>
-                                </div>
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm text-gray-900 font-bold leading-tight group-hover:text-primary-orange transition-colors">{{ $log->description }}</p>
                                     <div class="flex items-center gap-2 mt-1.5 font-bold uppercase tracking-tighter italic">

@@ -17,8 +17,8 @@
         <div class="p-6 flex-1 overflow-y-auto">
             
             <!-- Filtro Departamento -->
-            <div class="mb-6">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Filtrar por Departamento</h3>
+            <div class="mb-4">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Filtrar por Departamento</h3>
                 <div class="relative">
                     <select wire:model.live="departamento" 
                             class="w-full appearance-none bg-gray-50 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded-xl focus:outline-none focus:bg-white focus:border-orange-500 font-bold text-sm">
@@ -32,6 +32,42 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Filtro Dirección de Área -->
+            <div class="mb-6">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Filtrar por Dirección de Área</h3>
+                <div class="relative">
+                    <select wire:model.live="direccion_area" 
+                            class="w-full appearance-none bg-gray-50 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded-xl focus:outline-none focus:bg-white focus:border-orange-500 font-bold text-sm">
+                        <option value="">Todas las Direcciones</option>
+                        @foreach($direcciones_area as $dir)
+                            <option value="{{ $dir }}">{{ $dir }}</option>
+                        @endforeach
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtro Desglose por Modalidad -->
+            @if(!empty($direccion_area))
+            <div class="mb-6 animate-fade-in-down">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Desglose por Modalidad</h3>
+                <div class="relative">
+                    <select wire:model.live="nivel_educativo" 
+                            class="w-full appearance-none bg-orange-50 border border-orange-200 text-orange-900 py-3 px-4 pr-8 rounded-xl focus:outline-none focus:bg-white focus:border-orange-500 font-bold text-sm">
+                        <option value="">Todas las Modalidades ({{ $direccion_area }})</option>
+                        @foreach($niveles_educativos as $niv)
+                            <option value="{{ $niv }}">{{ $niv }}</option>
+                        @endforeach
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-orange-500">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                </div>
+            </div>
+            @endif
 
             <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Filtrar por Ámbito</h3>
             
