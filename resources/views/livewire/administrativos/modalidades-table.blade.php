@@ -544,8 +544,13 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase mb-1">CUI (7 dígitos)</label>
-                                    <input type="text" wire:model="editForm.cui" class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500">
+                                    <input type="text" wire:model.live.debounce.500ms="editForm.cui" class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500">
                                     @error('editForm.cui') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                    <div class="mt-1">
+                                        <div wire:loading wire:target="updatedEditFormCui" class="text-xs text-gray-500">
+                                            <i class="fas fa-spinner fa-spin"></i> Buscando edificio...
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="md:col-span-2">
                                     <label class="block text-xs font-bold uppercase mb-1">Establecimiento Cabecera</label>

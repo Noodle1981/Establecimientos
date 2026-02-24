@@ -126,6 +126,19 @@ class ModalidadesTable extends Component
 
     public function updated($propertyName)
     {
+        // Detectar cambios en campos anidados para disparar lógica de búsqueda/autocompletado
+        if ($propertyName === 'createForm.cui') {
+            $this->updatedCreateFormCui($this->createForm['cui']);
+        }
+        
+        if ($propertyName === 'editForm.cui') {
+            $this->updatedEditFormCui($this->editForm['cui']);
+        }
+
+        if ($propertyName === 'createForm.nivel_educativo') {
+            $this->updatedCreateFormNivelEducativo($this->createForm['nivel_educativo']);
+        }
+
         if (in_array($propertyName, ['direccionAreaFilter', 'ambitoFilter'])) {
             if ($propertyName === 'direccionAreaFilter') {
                 $this->nivelFilter = ''; // Solo reseteamos nivel si cambia el área
@@ -232,6 +245,15 @@ class ModalidadesTable extends Component
                  $this->editForm['latitud'] = $edificio->latitud;
                  $this->editForm['longitud'] = $edificio->longitud;
                  
+                 // Obtener el establecimiento principal del edificio para la cabecera
+                 $establecimientoPrincipal = $edificio->establecimientos()
+                     ->whereColumn('cue', 'cue_edificio_principal')
+                     ->first();
+                 
+                 if ($establecimientoPrincipal) {
+                     $this->editForm['establecimiento_cabecera'] = $establecimientoPrincipal->nombre;
+                 }
+
                  session()->flash('info', "Se encontró el edificio existente (ID: {$edificio->id}). Al guardar, se vinculará este establecimiento a dicho edificio.");
              }
         }
