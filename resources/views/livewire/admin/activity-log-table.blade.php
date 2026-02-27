@@ -79,6 +79,39 @@
                     </select>
                 </div>
 
+                <!-- Area Filter -->
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Área</label>
+                    <select wire:model.live="areaFilter" class="input-glass w-full py-2.5 rounded-lg">
+                        <option value="">Todas</option>
+                        @foreach($areas as $area)
+                            <option value="{{ $area }}">{{ $area }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Ambito Filter -->
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Ámbito</label>
+                    <select wire:model.live="ambitoFilter" class="input-glass w-full py-2.5 rounded-lg">
+                        <option value="">Todos</option>
+                        @foreach($ambitos as $ambito)
+                            <option value="{{ $ambito }}">{{ $ambito }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Departamento Filter -->
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Departamento</label>
+                    <select wire:model.live="departamentoFilter" class="input-glass w-full py-2.5 rounded-lg">
+                        <option value="">Todos</option>
+                        @foreach($departamentos as $depto)
+                            <option value="{{ $depto }}">{{ $depto }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <!-- Date Range -->
                 <div>
                     <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Desde</label>
@@ -88,6 +121,43 @@
                     <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Hasta</label>
                     <input type="date" wire:model.live="dateTo" class="input-glass w-full py-2.5 rounded-lg">
                 </div>
+
+                <!-- Fields Filter (Checkboxes) -->
+                <div class="md:col-span-4 mt-2">
+                    <label class="block text-xs font-bold uppercase mb-3 ml-1 text-gray-500">
+                        <i class="fas fa-check-square mr-1"></i> Filtrar por campos modificados
+                    </label>
+                    <div class="flex flex-wrap gap-4 p-4 bg-white/50 rounded-xl border border-orange-100/50 shadow-inner">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" wire:model.live="fieldsFilter" value="nombre" class="w-4 h-4 rounded border-gray-300 text-primary-orange focus:ring-primary-orange/20">
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-primary-orange transition-colors">Nombre</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" wire:model.live="fieldsFilter" value="cue" class="w-4 h-4 rounded border-gray-300 text-primary-orange focus:ring-primary-orange/20">
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-primary-orange transition-colors">CUE</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" wire:model.live="fieldsFilter" value="direccion" class="w-4 h-4 rounded border-gray-300 text-primary-orange focus:ring-primary-orange/20">
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-primary-orange transition-colors">Dirección</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" wire:model.live="fieldsFilter" value="categoria" class="w-4 h-4 rounded border-gray-300 text-primary-orange focus:ring-primary-orange/20">
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-primary-orange transition-colors">Categoría/Nivel</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" wire:model.live="fieldsFilter" value="zona" class="w-4 h-4 rounded border-gray-300 text-primary-orange focus:ring-primary-orange/20">
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-primary-orange transition-colors">Zona</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTONES DE ACCIÓN -->
+            <div class="mt-6 pt-6 border-t border-orange-100 flex justify-end gap-3">
+                <button wire:click="resetFilters" class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-red-500 transition-colors flex items-center gap-2">
+                    <i class="fas fa-undo"></i>
+                    Limpiar Filtros
+                </button>
             </div>
         </div>
     </div>
