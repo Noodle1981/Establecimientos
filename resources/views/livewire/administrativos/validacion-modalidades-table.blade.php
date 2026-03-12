@@ -230,7 +230,8 @@
                                                 <span class="ml-1 text-[10px] text-red-500 font-black uppercase">(Papelera)</span>
                                             @endif
                                         </p>
-                                        <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded border border-gray-200 mt-1 inline-block font-mono">
+                                        <span class="text-sm font-black bg-gray-900 text-primary-orange px-3 py-1 rounded-lg border border-gray-800 mt-2 inline-flex items-center gap-2 font-mono shadow-md">
+                                            <i class="fas fa-barcode text-[10px] opacity-70"></i>
                                             CUE: {{ $modalidad->establecimiento->cue }}
                                         </span>
                                     </div>
