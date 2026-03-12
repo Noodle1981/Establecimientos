@@ -100,7 +100,7 @@ class ValidacionModalidadesTable extends Component
     public function cambiarEstado()
     {
         $this->validate([
-            'nuevoEstado' => 'required|in:PENDIENTE,CORRECTO,CORREGIDO,FALTANTE_EDUGE,BAJA',
+            'nuevoEstado' => 'required|in:PENDIENTE,CORRECTO,CORREGIDO,REVISAR,FALTANTE_EDUGE,BAJA',
             'observaciones' => $this->requiereObservaciones() ? 'required|min:10' : 'nullable',
         ], [
             'observaciones.required' => 'Las observaciones son obligatorias para este cambio de estado.',
@@ -160,6 +160,15 @@ class ValidacionModalidadesTable extends Component
                 'border' => 'border-blue-200',
                 'icon' => 'fa-sync-alt',
                 'description' => 'Información corregida y validada'
+            ],
+            'REVISAR' => [
+                'label' => 'A Revisar',
+                'badge' => 'Revisar',
+                'color' => 'text-indigo-600',
+                'bg' => 'bg-indigo-50',
+                'border' => 'border-indigo-200',
+                'icon' => 'fa-search-plus',
+                'description' => 'Casos complejos que requieren análisis'
             ],
         ];
     }
@@ -269,6 +278,7 @@ class ValidacionModalidadesTable extends Component
             'total' => $resultados->count(),
             'CORRECTO' => $resultados->where('estado_validacion', 'CORRECTO')->count(),
             'CORREGIDO' => $resultados->where('estado_validacion', 'CORREGIDO')->count(),
+            'REVISAR' => $resultados->where('estado_validacion', 'REVISAR')->count(),
             'PENDIENTE' => $resultados->where('estado_validacion', 'PENDIENTE')->count(),
         ];
 
@@ -340,6 +350,7 @@ class ValidacionModalidadesTable extends Component
             'PENDIENTE' => $rawCounts['PENDIENTE'] ?? 0,
             'CORRECTO' => $rawCounts['CORRECTO'] ?? 0,
             'CORREGIDO' => $rawCounts['CORREGIDO'] ?? 0,
+            'REVISAR' => $rawCounts['REVISAR'] ?? 0,
         ];
 
         // Calcular porcentaje de avance
@@ -357,6 +368,7 @@ class ValidacionModalidadesTable extends Component
             'PENDIENTE' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
             'CORRECTO' => 'bg-green-100 text-green-800 border-green-200',
             'CORREGIDO' => 'bg-blue-100 text-blue-800 border-blue-200',
+            'REVISAR' => 'bg-indigo-100 text-indigo-800 border-indigo-200',
             'FALTANTE_EDUGE' => 'bg-red-100 text-red-800 border-red-200',
             'BAJA' => 'bg-orange-100 text-orange-800 border-orange-200',
         ];

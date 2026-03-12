@@ -279,12 +279,13 @@
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Seleccione el Estado de Auditoría</label>
                         <div class="grid grid-cols-2 gap-4">
-                            @foreach(['PENDIENTE', 'CORRECTO', 'CORREGIDO', 'FALTANTE_EDUGE', 'BAJA'] as $estado)
+                            @foreach(['PENDIENTE', 'CORRECTO', 'CORREGIDO', 'REVISAR', 'FALTANTE_EDUGE', 'BAJA'] as $estado)
                                 @php
                                     $meta = [
                                         'PENDIENTE' => ['color' => 'orange', 'icon' => 'clock', 'label' => 'Pendiente'],
                                         'CORRECTO' => ['color' => 'green', 'icon' => 'check-circle', 'label' => 'Correcto'],
                                         'CORREGIDO' => ['color' => 'blue', 'icon' => 'sync-alt', 'label' => 'Corregido'],
+                                        'REVISAR' => ['color' => 'indigo', 'icon' => 'search-plus', 'label' => 'Revisar'],
                                         'FALTANTE_EDUGE' => ['color' => 'red', 'icon' => 'exclamation-circle', 'label' => 'Faltante'],
                                         'BAJA' => ['color' => 'gray', 'icon' => 'minus-circle', 'label' => 'Baja'],
                                     ][$estado];

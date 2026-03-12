@@ -44,7 +44,7 @@
     </div>
 
     <!-- CONTADORES TIPO DASHBOARD (KPIs) -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         @foreach($this->estadosMetadata as $key => $meta)
         <div wire:click="$set('estadoFilter', '{{ $key }}')" 
              class="group cursor-pointer">

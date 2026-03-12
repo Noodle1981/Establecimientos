@@ -117,6 +117,7 @@
         .badge-corregido { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
         .badge-faltante { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
         .badge-pendiente { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .badge-revisar { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
         .badge-baja { background: #f3f4f6; color: #1f2937; border: 1px solid #e5e7eb; }
     </style>
 </head>
@@ -171,6 +172,10 @@
             <span class="kpi-label">Pendientes</span>
         </div>
         <div class="kpi-box">
+            <span class="kpi-val" style="color: #6366f1;">{{ $contadores['REVISAR'] ?? 0 }}</span>
+            <span class="kpi-label">Revisar</span>
+        </div>
+        <div class="kpi-box">
             <span class="kpi-val" style="color: #9333ea;">{{ $porcentajeAvance }}%</span>
             <span class="kpi-label">Progreso</span>
         </div>
@@ -200,23 +205,21 @@
         <tbody>
             @forelse($anomalias as $item)
                 <tr>
-                    <td>{{ $item->establecimiento->nombre }}</td>
+                    <td>{{ $item->establecimiento->nombre }} <br> <small style="color: #666;">{{ $item->nivel_educativo }} ({{ $item->ambito }})</small></td>
                     <td>{{ $item->establecimiento->cue }}</td>
-                    <td>{{ $item->nivel_educativo }}</td>
-                    <td>{{ $item->ambito }}</td>
                     <td>{{ $item->establecimiento->edificio?->zona_departamento ?? 'S/D' }}</td>
                     <td>
                         @php
                             $class = match($item->estado_validacion) {
                                 'CORRECTO' => 'badge-correcto',
                                 'CORREGIDO' => 'badge-corregido',
+                                'REVISAR' => 'badge-revisar',
                                 'FALTANTE_EDUGE' => 'badge-faltante',
                                 'PENDIENTE' => 'badge-pendiente',
                                 default => 'badge-baja'
                             };
-                            $label = $item->estado_validacion === 'CORREGIDO' ? 'CORREGIDO' : $item->estado_validacion;
                         @endphp
-                        <span class="badge {{ $class }}">{{ $label }}</span>
+                        <span class="badge {{ $class }}">{{ $item->estado_validacion }}</span>
                     </td>
                     <td>{{ $item->usuarioValidacion?->name ?? 'Sistema' }}</td>
                     <td>{{ $item->validado_en ? $item->validado_en->format('d/m/Y') : '-' }}</td>
@@ -226,7 +229,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" style="text-align: center; padding: 20px; color: #666;">
+                    <td colspan="7" style="text-align: center; padding: 20px; color: #666;">
                         No se encontraron anomalías en el período seleccionado. ¡Excelente trabajo!
                     </td>
                 </tr>
