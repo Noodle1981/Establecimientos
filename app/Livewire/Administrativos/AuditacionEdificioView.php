@@ -31,7 +31,7 @@ class AuditacionEdificioView extends Component
         $this->modalidadIdSeleccionada = $modalidadId;
         $this->nuevoEstado = $modalidad->estado_validacion;
         $this->nombreEstablecimientoSeleccionado = $modalidad->establecimiento->nombre;
-        $this->observaciones = '';
+        $this->observaciones = $modalidad->observaciones;
         $this->showCambiarEstadoModal = true;
     }
 

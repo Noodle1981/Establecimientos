@@ -234,11 +234,11 @@
                                             </div>
 
                                             <!-- Observaciones Inline if any -->
-                                            @if($mod->observaciones_validacion || $mod->historialEstados->first()?->observaciones)
+                                            @if($mod->observaciones || $mod->historialEstados->first()?->observaciones)
                                                 <div class="mt-4 pt-4 border-t border-gray-100 flex items-start gap-3">
                                                     <i class="fas fa-comment-alt text-[10px] text-gray-300 mt-1"></i>
                                                     <p class="text-[10px] font-bold text-gray-500 italic">
-                                                        "{{ $mod->observaciones_validacion ?: $mod->historialEstados->first()->observaciones }}"
+                                                        "{{ $mod->observaciones ?: $mod->historialEstados->first()->observaciones }}"
                                                     </p>
                                                 </div>
                                             @endif
