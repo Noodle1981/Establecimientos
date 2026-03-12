@@ -741,7 +741,7 @@ class ModalidadesTable extends Component
 
     public function confirmDelete($id)
     {
-        $this->selectedModalidad = Modalidad::findOrFail($id);
+        $this->selectedModalidad = Modalidad::withTrashed()->findOrFail($id);
         $this->showDeleteModal = true;
     }
 
@@ -763,6 +763,32 @@ class ModalidadesTable extends Component
         $modalidad->forceDelete();
 
         session()->flash('success', 'Modalidad eliminada permanentemente.');
+    }
+
+    public function forceDeleteEstablecimiento($id)
+    {
+        $modalidad = Modalidad::withTrashed()->with(['establecimiento.modalidades', 'establecimiento.auditorias'])->findOrFail($id);
+        $establecimiento = $modalidad->establecimiento;
+
+        $this->authorize('forceDelete', $modalidad);
+
+        // Borrado definitivo de todas las modalidades del establecimiento
+        foreach ($establecimiento->modalidades()->withTrashed()->get() as $mod) {
+            $mod->forceDelete();
+        }
+
+        // Borrado definitivo de auditorías
+        foreach ($establecimiento->auditorias()->withTrashed()->get() as $aud) {
+            $aud->forceDelete();
+        }
+
+        // Borrado definitivo del establecimiento (libera el CUE)
+        $establecimiento->forceDelete();
+
+        $this->showDeleteModal = false;
+        $this->selectedModalidad = null;
+
+        session()->flash('success', 'Establecimiento y todos sus datos asociados fueron eliminados de forma definitiva. El CUE ha sido liberado.');
     }
 
     public function restore($id)

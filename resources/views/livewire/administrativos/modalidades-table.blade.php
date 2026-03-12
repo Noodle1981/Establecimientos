@@ -52,6 +52,14 @@
                 <i class="fas fa-trash-restore"></i>
                 {{ $showDeleted ? 'Activos' : 'Papelera' }}
             </button>
+
+            @if(auth()->user()->isAdmin())
+            <a href="{{ route('admin.trash') }}" 
+               class="px-4 py-2 rounded-lg font-bold transition-all bg-red-600 text-white hover:bg-red-700 shadow-md flex items-center gap-2 animate-pulse hover:animate-none">
+                <i class="fas fa-skull-crossbones"></i>
+                <span class="hidden md:inline text-xs uppercase tracking-tighter">Papelera Crítica</span>
+            </a>
+            @endif
         </div>
     </div>
 
@@ -281,11 +289,20 @@
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                         @else
-                                        <button wire:click="restore({{ $modalidad->id }})" 
-                                                class="w-8 h-8 flex items-center justify-center rounded-lg text-green-500 hover:text-green-700 hover:bg-green-50 transition-colors"
-                                                title="Restaurar">
-                                            <i class="fas fa-trash-restore"></i>
-                                        </button>
+                                        <div class="flex items-center gap-1">
+                                            <button wire:click="restore({{ $modalidad->id }})" 
+                                                    class="w-8 h-8 flex items-center justify-center rounded-lg text-green-500 hover:text-green-700 hover:bg-green-50 transition-colors"
+                                                    title="Restaurar">
+                                                <i class="fas fa-trash-restore"></i>
+                                            </button>
+                                            @if(auth()->user()->isAdmin())
+                                            <button wire:click="confirmDelete({{ $modalidad->id }})" 
+                                                    class="w-8 h-8 flex items-center justify-center rounded-lg text-red-600 hover:text-red-800 hover:bg-red-50 transition-colors"
+                                                    title="Eliminar Definitivamente">
+                                                <i class="fas fa-skull-crossbones"></i>
+                                            </button>
+                                            @endif
+                                        </div>
                                         @endif
                                     @endcan
                                 </div>
@@ -855,12 +872,30 @@
                             <p class="text-sm text-gray-500">
                                 Esta acción moverá el registro a la papelera (soft delete) y podría afectar a los datos asociados.
                             </p>
+
+                            @if(auth()->user()->isAdmin())
+                            <div class="mt-6 p-4 bg-red-600 rounded-lg border border-red-700 shadow-inner">
+                                <h4 class="text-white font-bold flex items-center gap-2 mb-2">
+                                    <i class="fas fa-skull-crossbones"></i> ZONA DE PELIGRO - ADMIN
+                                </h4>
+                                <p class="text-red-100 text-xs leading-relaxed mb-4">
+                                    Si necesitas liberar el CUE para otro edificio o corregir un error crítico, puedes realizar un <b>borrado definitivo</b>. Esta acción eliminará permanentemente el establecimiento, sus modalidades y auditorias relacionadas. <b>Esta acción no se puede deshacer.</b>
+                                </p>
+                                <button wire:click="forceDeleteEstablecimiento({{ $selectedModalidad->id }})" 
+                                        wire:loading.attr="disabled"
+                                        class="w-full py-2 bg-white text-red-700 font-black text-xs uppercase tracking-widest rounded shadow hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
+                                    <i class="fas fa-eraser" wire:loading.remove wire:target="forceDeleteEstablecimiento"></i>
+                                    <i class="fas fa-spinner fa-spin" wire:loading wire:target="forceDeleteEstablecimiento"></i>
+                                    Borrado Definitivo de Todo
+                                </button>
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse rounded-b-lg">
                     <button wire:click="softDelete" type="button" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-md px-4 py-2 bg-secondary-red text-base font-bold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-all">
-                        Eliminar
+                        Eliminar (Soft Delete)
                     </button>
                     <button wire:click="closeModals" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                         Cancelar

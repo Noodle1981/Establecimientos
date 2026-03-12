@@ -48,6 +48,7 @@ Route::middleware(['auth', 'verified', 'password.change'])->group(function () {
         Route::get('/', AdminDashboard::class)->name('admin.dashboard');
         Route::get('/users', UserManagement::class)->name('admin.users');
         Route::get('/activity-log', \App\Livewire\Admin\ActivityLogTable::class)->name('admin.activity-log');
+        Route::get('/papelera-admin', \App\Livewire\Admin\TrashManager::class)->name('admin.trash');
         
         // Gestión Compartida bajo prefijo admin
         Route::get('/establecimientos', \App\Livewire\Administrativos\ModalidadesTable::class)->name('admin.establecimientos');

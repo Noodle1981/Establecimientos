@@ -43,6 +43,12 @@ new class extends Component
                                 <x-nav-link-custom href="{{ route('admin.users') }}" icon="fas fa-users" :active="request()->routeIs('admin.users')">
                                     Usuarios
                                 </x-nav-link-custom>
+                                <x-nav-link-custom href="{{ route('admin.establecimientos') }}" icon="fas fa-school" :active="request()->routeIs('admin.establecimientos')">
+                                    Establecimientos
+                                </x-nav-link-custom>
+                                <x-nav-link-custom href="{{ route('admin.trash') }}" icon="fas fa-skull-crossbones" :active="request()->routeIs('admin.trash')">
+                                    Papelera Admin
+                                </x-nav-link-custom>
                                 <x-nav-link-custom href="{{ route('admin.activity-log') }}" icon="fas fa-clipboard-list" :active="request()->routeIs('admin.activity-log')">
                                     Actividad
                                 </x-nav-link-custom>
@@ -146,6 +152,12 @@ new class extends Component
                         </a>
                         <a href="{{ route('admin.users') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('admin.users') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
                             <i class="fas fa-users mr-2" style="color: #FE8204;"></i> Usuarios
+                        </a>
+                         <a href="{{ route('admin.establecimientos') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('admin.establecimientos') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                            <i class="fas fa-school mr-2" style="color: #FE8204;"></i> Establecimientos
+                        </a>
+                        <a href="{{ route('admin.trash') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('admin.trash') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                            <i class="fas fa-skull-crossbones mr-2" style="color: #FE8204;"></i> Papelera Admin
                         </a>
                         <a href="{{ route('admin.activity-log') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('admin.activity-log') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
                             <i class="fas fa-clipboard-list mr-2" style="color: #FE8204;"></i> Actividad
