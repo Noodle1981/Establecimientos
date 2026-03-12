@@ -20,6 +20,10 @@ class ValidacionModalidadesTable extends Component
     public $departamentoFilter = '';
     public $nivelFilter = '';
     public $ambitoFilter = '';
+    
+    // Filtros de fecha
+    public $desdeFilter = '';
+    public $hastaFilter = '';
 
     // Modal state
     public $showCambiarEstadoModal = false;
@@ -27,6 +31,7 @@ class ValidacionModalidadesTable extends Component
     public $modalidadSeleccionada = null;
     public $nuevoEstado = '';
     public $observaciones = '';
+    
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -34,6 +39,8 @@ class ValidacionModalidadesTable extends Component
         'departamentoFilter' => ['except' => ''],
         'nivelFilter' => ['except' => ''],
         'ambitoFilter' => ['except' => ''],
+        'desdeFilter' => ['except' => ''],
+        'hastaFilter' => ['except' => ''],
         'verEliminados' => ['except' => false],
     ];
 
@@ -63,6 +70,15 @@ class ValidacionModalidadesTable extends Component
     }
 
     public function updatingVerEliminados()
+    {
+        $this->resetPage();
+    }
+    public function updatingHastaFilter()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingDesdeFilter()
     {
         $this->resetPage();
     }
@@ -108,15 +124,57 @@ class ValidacionModalidadesTable extends Component
      */
     private function requiereObservaciones()
     {
-        $estadoActual = $this->modalidadSeleccionada->estado_validacion;
-        $cambiosQueRequierenObservaciones = [
-            'CORREGIDO',
-            'FALTANTE_EDUGE',
-            'BAJA',
-        ];
+        return $this->nuevoEstado === 'CORREGIDO' && 
+               $this->modalidadSeleccionada->estado_validacion !== 'CORREGIDO';
+    }
 
-        return in_array($this->nuevoEstado, $cambiosQueRequierenObservaciones) && 
-               $estadoActual !== $this->nuevoEstado;
+    /**
+     * Metadata centralizada para estados de validación
+     */
+    public function getEstadosMetadataProperty()
+    {
+        return [
+            'PENDIENTE' => [
+                'label' => 'Pendientes',
+                'badge' => 'Pendiente',
+                'color' => 'text-yellow-500',
+                'bg' => 'bg-yellow-50',
+                'border' => 'border-yellow-200',
+                'icon' => 'fa-clock',
+                'description' => 'Aún no validado en EDUGE'
+            ],
+            'CORRECTO' => [
+                'label' => 'Correctos',
+                'badge' => 'Correcto',
+                'color' => 'text-green-600',
+                'bg' => 'bg-green-50',
+                'border' => 'border-green-200',
+                'icon' => 'fa-check-circle',
+                'description' => 'Coincide con EDUGE'
+            ],
+            'CORREGIDO' => [
+                'label' => 'Corregidos',
+                'badge' => 'Corregido',
+                'color' => 'text-blue-600',
+                'bg' => 'bg-blue-50',
+                'border' => 'border-blue-200',
+                'icon' => 'fa-sync-alt',
+                'description' => 'Información corregida y validada'
+            ],
+        ];
+    }
+
+    public function toggleCorrecto($id)
+    {
+        $modalidad = Modalidad::withTrashed()->findOrFail($id);
+        
+        $modalidad->cambiarEstado(
+            'CORRECTO',
+            'Validación rápida: Correcto según EDUGE',
+            auth()->id()
+        );
+
+        session()->flash('message', 'Validado como CORRECTO.');
     }
 
     /**
@@ -139,6 +197,7 @@ class ValidacionModalidadesTable extends Component
         $this->nuevoEstado = '';
         $this->observaciones = '';
     }
+
 
     /**
      * Aplicar filtros a una consulta
@@ -183,6 +242,14 @@ class ValidacionModalidadesTable extends Component
                 $q->where('zona_departamento', $this->departamentoFilter);
             });
         }
+
+        // Filtros de fecha de validación
+        if ($this->desdeFilter) {
+            $query->whereDate('validado_en', '>=', $this->desdeFilter);
+        }
+        if ($this->hastaFilter) {
+            $query->whereDate('validado_en', '<=', $this->hastaFilter);
+        }
         
         return $query;
     }
@@ -197,26 +264,28 @@ class ValidacionModalidadesTable extends Component
 
         $resultados = $query->orderBy('validado_en', 'desc')->get();
 
-        // Calcular contadores para el reporte
+        // Calcular contadores para el reporte basado en los 3 estados oficiales
         $contadores = [
             'total' => $resultados->count(),
             'CORRECTO' => $resultados->where('estado_validacion', 'CORRECTO')->count(),
             'CORREGIDO' => $resultados->where('estado_validacion', 'CORREGIDO')->count(),
-            'FALTANTE_EDUGE' => $resultados->where('estado_validacion', 'FALTANTE_EDUGE')->count(),
             'PENDIENTE' => $resultados->where('estado_validacion', 'PENDIENTE')->count(),
-            'BAJA' => $resultados->where('estado_validacion', 'BAJA')->count(),
         ];
 
         // Calcular porcentaje de avance
-        $total = array_sum($contadores);
-        $pendientes = $contadores['PENDIENTE'];
-        $procesados = $total - $pendientes;
+        $total = $contadores['total'];
+        $procesados = $contadores['CORRECTO'] + $contadores['CORREGIDO'];
         $porcentajeAvance = $total > 0 ? round(($procesados / $total) * 100, 1) : 0;
 
         // Anomalías (todo lo que no es CORRECTO)
         $anomalias = $resultados->filter(function($item) {
-            return $item->estado_validacion !== 'CORRECTO';
+            return $item->estado_validacion !== 'CORRECTO' || !empty($item->observaciones_validacion);
         });
+
+        // Asegurarse de traer el historial para ver las observaciones
+        $anomalias->load(['historialEstados' => function($q) {
+            $q->orderBy('created_at', 'desc');
+        }]);
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.reporte-auditoria', [
             'anomalias' => $anomalias,
@@ -226,6 +295,8 @@ class ValidacionModalidadesTable extends Component
                 'departamento' => $this->departamentoFilter,
                 'nivel' => $this->nivelFilter,
                 'ambito' => $this->ambitoFilter,
+                'desde' => $this->desdeFilter,
+                'hasta' => $this->hastaFilter,
             ]
         ]);
 
@@ -269,14 +340,11 @@ class ValidacionModalidadesTable extends Component
             'PENDIENTE' => $rawCounts['PENDIENTE'] ?? 0,
             'CORRECTO' => $rawCounts['CORRECTO'] ?? 0,
             'CORREGIDO' => $rawCounts['CORREGIDO'] ?? 0,
-            'FALTANTE_EDUGE' => $rawCounts['FALTANTE_EDUGE'] ?? 0,
-            'BAJA' => $rawCounts['BAJA'] ?? 0,
         ];
 
         // Calcular porcentaje de avance
         $total = array_sum($contadores);
-        $pendientes = $contadores['PENDIENTE'];
-        $procesados = $total - $pendientes;
+        $procesados = $contadores['CORRECTO'] + $contadores['CORREGIDO'];
         $porcentajeAvance = $total > 0 ? round(($procesados / $total) * 100, 1) : 0;
 
         // Obtener listas para filtros (Optimización: Cachear si es posible, o simple query)

@@ -44,18 +44,8 @@
     </div>
 
     <!-- CONTADORES TIPO DASHBOARD (KPIs) -->
-    <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
-        @php
-            $estados = [
-                'PENDIENTE' => ['label' => 'Pendientes', 'icon' => 'fa-clock', 'color' => 'text-yellow-500', 'border' => 'border-yellow-500', 'bg' => 'bg-yellow-50'],
-                'CORRECTO'  => ['label' => 'Correctos', 'icon' => 'fa-check-circle', 'color' => 'text-primary-orange', 'border' => 'border-primary-orange', 'bg' => 'bg-orange-50'],
-                'CORREGIDO' => ['label' => 'Corregir', 'icon' => 'fa-sync', 'color' => 'text-blue-500', 'border' => 'border-blue-500', 'bg' => 'bg-blue-50'],
-                'FALTANTE_EDUGE' => ['label' => 'Faltantes', 'icon' => 'fa-search-minus', 'color' => 'text-red-500', 'border' => 'border-red-500', 'bg' => 'bg-red-50'],
-                'BAJA'      => ['label' => 'De Baja', 'icon' => 'fa-exclamation-triangle', 'color' => 'text-secondary-red', 'border' => 'border-secondary-red', 'bg' => 'bg-red-50'],
-            ];
-        @endphp
-
-        @foreach($estados as $key => $meta)
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        @foreach($this->estadosMetadata as $key => $meta)
         <div wire:click="$set('estadoFilter', '{{ $key }}')" 
              class="group cursor-pointer">
             <div class="relative overflow-hidden rounded-xl p-4 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg
@@ -139,7 +129,7 @@
                     <label class="block text-xs font-bold uppercase mb-1 ml-1 text-gray-500">Estado</label>
                     <select wire:model.live="estadoFilter" class="input-glass w-full py-2 rounded-lg text-sm">
                         <option value="">Todos</option>
-                        @foreach($estados as $key => $meta)
+                        @foreach($this->estadosMetadata as $key => $meta)
                             <option value="{{ $key }}">{{ $meta['label'] }}</option>
                         @endforeach
                     </select>
@@ -173,6 +163,17 @@
                             <option value="{{ $depto }}">{{ $depto }}</option>
                         @endforeach
                     </select>
+                </div>
+
+                <!-- Filtros de Fecha -->
+                <div class="md:col-span-6 lg:col-span-2">
+                    <label class="block text-xs font-bold uppercase mb-1 ml-1 text-gray-500">Desde (Auditado)</label>
+                    <input type="date" wire:model.live="desdeFilter" class="input-glass w-full py-2 rounded-lg text-sm">
+                </div>
+
+                <div class="md:col-span-6 lg:col-span-2">
+                    <label class="block text-xs font-bold uppercase mb-1 ml-1 text-gray-500">Hasta (Auditado)</label>
+                    <input type="date" wire:model.live="hastaFilter" class="input-glass w-full py-2 rounded-lg text-sm">
                 </div>
 
                 <!-- Toggle Papelera -->
@@ -212,6 +213,11 @@
                                 ? 'bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors duration-200' 
                                 : 'group hover:bg-orange-50/30 transition-colors duration-200';
                             $opacityClass = $inactivo ? 'opacity-70' : '';
+                            
+                            // Determinar ruta según rol
+                            $auditoriaRoute = auth()->user()->isAdmin() 
+                                ? route('admin.edificios.auditoria', $modalidad->establecimiento->edificio_id)
+                                : route('administrativos.edificios.auditoria', $modalidad->establecimiento->edificio_id);
                         @endphp
                         <tr class="{{ $rowClass }}">
                             <td class="px-6 py-5 {{ $opacityClass }}">
@@ -238,28 +244,30 @@
                             </td>
                             <td class="px-6 py-5 {{ $opacityClass }}">
                                 <div class="flex flex-col gap-0.5 text-xs">
-                                    <span class="text-gray-500 text-[10px]">{{ $modalidad->establecimiento->edificio->zona_departamento ?? 'S/D' }}</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <a href="{{ $auditoriaRoute }}" 
+                                           wire:navigate
+                                           class="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-50 text-primary-orange hover:bg-primary-orange hover:text-white transition-all shadow-sm border border-orange-100"
+                                           title="Entrar a Auditoría de Edificio">
+                                            <i class="fas fa-eye text-xs"></i>
+                                        </a>
+                                        <span class="text-gray-500 text-[10px]">{{ $modalidad->establecimiento->edificio->zona_departamento ?? 'S/D' }}</span>
+                                    </div>
                                     <span class="text-gray-400 text-[10px] truncate max-w-[150px]" title="{{ $modalidad->establecimiento->edificio->calle ?? '' }}">
                                         {{ $modalidad->establecimiento->edificio->calle ?? '' }} {{ $modalidad->establecimiento->edificio->numero_puerta ?? '' }}
                                     </span>
                                 </div>
                             </td>
-                            <td class="px-6 py-5">
+                            <td class="px-6 py-5 whitespace-nowrap">
                                 @php
-                                    $badgeClasses = [
-                                        'PENDIENTE' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
-                                        'CORRECTO'  => 'bg-green-100 text-green-800 border-green-200',
-                                        'CORREGIDO' => 'bg-blue-100 text-blue-800 border-blue-200',
-                                        'BAJA'      => 'bg-red-100 text-red-800 border-red-200',
-                                        'ELIMINADO' => 'bg-gray-100 text-gray-800 border-gray-200',
-                                    ];
-                                    $class = $badgeClasses[$modalidad->estado_validacion] ?? 'bg-gray-100 text-gray-800 border-gray-200';
+                                    $meta = $this->estadosMetadata[$modalidad->estado_validacion] ?? null;
+                                    $class = $meta ? "{$meta['bg']} {$meta['color']} {$meta['border']}" : 'bg-gray-100 text-gray-800 border-gray-200';
+                                    $label = $meta ? $meta['badge'] : $modalidad->estado_validacion;
+                                    $icon = $meta ? $meta['icon'] : 'fa-question-circle';
                                 @endphp
-                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border {{ $class }}">
-                                    {{
-                                    $modalidad->estado_validacion == 'CORREGIDO' ? 'CORREGIR' : 
-                                    ($modalidad->estado_validacion == 'FALTANTE_EDUGE' ? 'FALTANTES' : $modalidad->estado_validacion)
-                                    }}
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border flex items-center gap-1.5 w-fit {{ $class }}">
+                                    <i class="fas {{ $icon }}"></i>
+                                    {{ $label }}
                                 </span>
                             </td>
                             <td class="px-6 py-5 {{ $opacityClass }}">
@@ -272,14 +280,23 @@
                                 </div>
                             </td>
                             <td class="px-6 py-5 text-right">
-                                <div class="flex justify-end gap-2 transition-all">
+                                <div class="flex justify-end gap-1.5 transition-all">
+                                    @if($modalidad->estado_validacion === 'PENDIENTE')
+                                    <button wire:click="toggleCorrecto({{ $modalidad->id }})"
+                                            class="w-8 h-8 flex items-center justify-center rounded-lg bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition-all shadow-sm border border-green-100"
+                                            title="Validar como Correcto">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    @endif
                                     <button wire:click="abrirCambiarEstado({{ $modalidad->id }})"
-                                            class="btn-primary px-4 py-2 text-[10px] uppercase tracking-tighter shadow-md">
-                                        <i class="fas fa-edit mr-1"></i> Validar
+                                            class="w-8 h-8 flex items-center justify-center rounded-lg bg-orange-50 text-primary-orange hover:bg-primary-orange hover:text-white transition-all shadow-sm border border-orange-100"
+                                            title="Editar Estado/Validar">
+                                        <i class="fas fa-edit"></i>
                                     </button>
                                     <button wire:click="abrirHistorial({{ $modalidad->id }})"
-                                            class="btn-secondary px-3 py-2 text-gray-500 hover:text-primary-orange border-gray-200">
-                                        <i class="fas fa-history"></i>
+                                            class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-all border border-gray-100"
+                                            title="Ver Historial">
+                                        <i class="fas fa-history text-[10px]"></i>
                                     </button>
                                 </div>
                             </td>
@@ -346,17 +363,25 @@
                         </div>
                     @endif
 
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Nuevo Estado</label>
-                        <select wire:model="nuevoEstado" class="input-glass w-full">
-                            <option value="">Seleccione un estado...</option>
-                            <option value="PENDIENTE">PENDIENTE (En revisión)</option>
-                            <option value="CORRECTO">CORRECTO (Aprobado)</option>
-                            <option value="CORREGIDO">CORREGIR (Con cambios)</option>
-                            <option value="FALTANTE_EDUGE">FALTANTES (No en Eduge)</option>
-                            <option value="BAJA">DE BAJA (Inactivo)</option>
-                        </select>
-                        @error('nuevoEstado') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                    <div class="grid grid-cols-1 gap-3">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 text-center">Seleccione el resultado de la auditoría</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            @foreach($this->estadosMetadata as $key => $meta)
+                                <button type="button" 
+                                        wire:click="$set('nuevoEstado', '{{ $key }}')"
+                                        class="flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2 
+                                               {{ $nuevoEstado === $key 
+                                                  ? "{$meta['border']} {$meta['bg']} ring-2 ring-offset-2 ring-opacity-50 ".str_replace('text-', 'ring-', $meta['color']) 
+                                                  : 'border-gray-100 bg-white hover:border-gray-300 hover:bg-gray-50' }}">
+                                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl {{ $meta['bg'] }} {{ $meta['color'] }}">
+                                        <i class="fas {{ $meta['icon'] }}"></i>
+                                    </div>
+                                    <span class="text-[11px] font-black uppercase tracking-tight {{ $meta['color'] }}">{{ $meta['badge'] }}</span>
+                                    <span class="text-[9px] text-gray-400 leading-tight text-center">{{ $meta['description'] }}</span>
+                                </button>
+                            @endforeach
+                        </div>
+                        @error('nuevoEstado') <span class="text-red-500 text-xs mt-1 block text-center">{{ $message }}</span> @enderror
                     </div>
 
                     <div>

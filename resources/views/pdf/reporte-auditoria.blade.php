@@ -129,7 +129,17 @@
         <div class="meta-info">
             <p><strong>Fecha de Emisión:</strong> {{ now()->format('d/m/Y H:i') }}</p>
             <p><strong>Generado por:</strong> {{ auth()->user()->name }}</p>
-            <p><strong>Período Auditado:</strong> Histórico Completo</p>
+            <p><strong>Período Auditado:</strong> 
+                @if($filtros['desde'] && $filtros['hasta'])
+                    {{ \Carbon\Carbon::parse($filtros['desde'])->format('d/m/Y') }} al {{ \Carbon\Carbon::parse($filtros['hasta'])->format('d/m/Y') }}
+                @elseif($filtros['desde'])
+                    Desde {{ \Carbon\Carbon::parse($filtros['desde'])->format('d/m/Y') }}
+                @elseif($filtros['hasta'])
+                    Hasta {{ \Carbon\Carbon::parse($filtros['hasta'])->format('d/m/Y') }}
+                @else
+                    Histórico Completo
+                @endif
+            </p>
         </div>
     </header>
 
@@ -154,11 +164,7 @@
         </div>
         <div class="kpi-box">
             <span class="kpi-val" style="color: #3b82f6;">{{ $contadores['CORREGIDO'] ?? 0 }}</span>
-            <span class="kpi-label">Corregir</span>
-        </div>
-        <div class="kpi-box">
-            <span class="kpi-val" style="color: #ef4444;">{{ $contadores['FALTANTE_EDUGE'] ?? 0 }}</span>
-            <span class="kpi-label">Faltantes</span>
+            <span class="kpi-label">Corregidos</span>
         </div>
         <div class="kpi-box">
             <span class="kpi-val" style="color: #f59e0b;">{{ $contadores['PENDIENTE'] ?? 0 }}</span>
@@ -184,12 +190,11 @@
             <tr>
                 <th>Establecimiento</th>
                 <th>CUE</th>
-                <th>Nivel</th>
-                <th>Ámbito</th>
                 <th>Departamento</th>
                 <th>Estado</th>
                 <th>Validado Por</th>
                 <th>Fecha</th>
+                <th width="20%">Observaciones / Notas</th>
             </tr>
         </thead>
         <tbody>
@@ -209,16 +214,15 @@
                                 'PENDIENTE' => 'badge-pendiente',
                                 default => 'badge-baja'
                             };
-                            $label = match($item->estado_validacion) {
-                                'CORREGIDO' => 'CORREGIR',
-                                'FALTANTE_EDUGE' => 'FALTANTES',
-                                default => $item->estado_validacion
-                            };
+                            $label = $item->estado_validacion === 'CORREGIDO' ? 'CORREGIDO' : $item->estado_validacion;
                         @endphp
                         <span class="badge {{ $class }}">{{ $label }}</span>
                     </td>
                     <td>{{ $item->usuarioValidacion?->name ?? 'Sistema' }}</td>
                     <td>{{ $item->validado_en ? $item->validado_en->format('d/m/Y') : '-' }}</td>
+                    <td style="font-style: italic; color: #555;">
+                        {{ $item->observaciones_validacion ?: ($item->historialEstados->first()->observaciones ?? '-') }}
+                    </td>
                 </tr>
             @empty
                 <tr>
