@@ -90,7 +90,7 @@ class ValidacionModalidadesTable extends Component
     {
         $this->modalidadSeleccionada = Modalidad::withTrashed()->with(['establecimiento', 'usuarioValidacion'])->find($modalidadId);
         $this->nuevoEstado = $this->modalidadSeleccionada->estado_validacion;
-        $this->observaciones = '';
+        $this->observaciones = $this->modalidadSeleccionada->observaciones;
         $this->showCambiarEstadoModal = true;
     }
 
