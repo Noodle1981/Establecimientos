@@ -104,6 +104,7 @@ class Modalidad extends Model
         
         // Actualizar estado
         $this->estado_validacion = $nuevoEstado;
+        $this->validado = true; // Asegurar que pase a ser considerado validado
         $this->validado_por_user_id = $userId ?? auth()->id();
         $this->validado_en = now();
         $this->save();

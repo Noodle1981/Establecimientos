@@ -12,22 +12,23 @@ class AuditacionEdificioView extends Component
     
     // Modal state for validation
     public $showCambiarEstadoModal = false;
-    public $modalidadSeleccionada = null;
+    public $modalidadIdSeleccionada = null; // Usar ID para mayor confiabilidad en rehidratación
     public $nuevoEstado = '';
     public $observaciones = '';
+    public $nombreEstablecimientoSeleccionado = '';
 
     public function mount(Edificio $edificio)
     {
-        $this->edificio = $edificio->load(['establecimientos.modalidades']);
+        $this->edificio = $edificio->load(['establecimientos.modalidades.historialEstados']);
     }
 
     /**
      * Abrir modal para cambiar estado
      */
-    public function abrirCambiarEstado($modalidadId)
-    {
-        $this->modalidadSeleccionada = Modalidad::withTrashed()->with(['establecimiento'])->find($modalidadId);
-        $this->nuevoEstado = $this->modalidadSeleccionada->estado_validacion;
+        $modalidad = Modalidad::withTrashed()->with(['establecimiento'])->findOrFail($modalidadId);
+        $this->modalidadIdSeleccionada = $modalidadId;
+        $this->nuevoEstado = $modalidad->estado_validacion;
+        $this->nombreEstablecimientoSeleccionado = $modalidad->establecimiento->nombre;
         $this->observaciones = '';
         $this->showCambiarEstadoModal = true;
     }
@@ -37,8 +38,11 @@ class AuditacionEdificioView extends Component
      */
     private function requiereObservaciones()
     {
+        if (!$this->modalidadIdSeleccionada) return false;
+        
+        $modalidad = Modalidad::withTrashed()->find($this->modalidadIdSeleccionada);
         return $this->nuevoEstado === 'CORREGIDO' && 
-               ($this->modalidadSeleccionada->estado_validacion ?? '') !== 'CORREGIDO';
+               ($modalidad->estado_validacion ?? '') !== 'CORREGIDO';
     }
 
     /**
@@ -49,19 +53,24 @@ class AuditacionEdificioView extends Component
         $this->validate([
             'nuevoEstado' => 'required|in:PENDIENTE,CORRECTO,CORREGIDO,FALTANTE_EDUGE,BAJA',
             'observaciones' => $this->requiereObservaciones() ? 'required|min:10' : 'nullable',
+        ], [
+            'observaciones.required' => 'Las observaciones son obligatorias para el estado CORREGIDO.',
+            'observaciones.min' => 'Las observaciones deben tener al menos 10 caracteres.',
         ]);
 
-        $this->modalidadSeleccionada->cambiarEstado(
+        $modalidad = Modalidad::withTrashed()->findOrFail($this->modalidadIdSeleccionada);
+        
+        $modalidad->cambiarEstado(
             $this->nuevoEstado,
             $this->observaciones,
             auth()->id()
         );
 
         $this->showCambiarEstadoModal = false;
-        $this->modalidadSeleccionada = null;
+        $this->modalidadIdSeleccionada = null;
         
-        // Refresh здание
-        $this->edificio->load(['establecimientos.modalidades']);
+        // Refresh completo del edificio y sus relaciones para asegurar vista actualizada
+        $this->edificio = Edificio::with(['establecimientos.modalidades.historialEstados'])->find($this->edificio->id);
         
         session()->flash('message', 'Estado actualizado correctamente.');
     }

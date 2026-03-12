@@ -251,7 +251,7 @@
     </div>
 
     <!-- MODAL DE CAMBIO DE ESTADO (REUTILIZADO) -->
-    @if($showCambiarEstadoModal && $modalidadSeleccionada)
+    @if($showCambiarEstadoModal && $modalidadIdSeleccionada)
     <div class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm transition-opacity" aria-hidden="true" wire:click="cerrarModales"></div>
@@ -266,7 +266,7 @@
                         </div>
                         <div>
                             <h3 class="text-2xl font-black text-white leading-none mb-2">Validar Información</h3>
-                            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">{{ $modalidadSeleccionada->establecimiento->nombre }}</p>
+                            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">{{ $nombreEstablecimientoSeleccionado }}</p>
                         </div>
                     </div>
                     <button wire:click="cerrarModales" class="absolute top-8 right-8 text-gray-400 hover:text-white transition-colors">
