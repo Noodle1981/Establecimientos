@@ -40,11 +40,7 @@ class AuditacionEdificioView extends Component
      */
     private function requiereObservaciones()
     {
-        if (!$this->modalidadIdSeleccionada) return false;
-        
-        $modalidad = Modalidad::withTrashed()->find($this->modalidadIdSeleccionada);
-        return $this->nuevoEstado === 'CORREGIDO' && 
-               ($modalidad->estado_validacion ?? '') !== 'CORREGIDO';
+        return in_array($this->nuevoEstado, ['CORREGIDO', 'REVISAR', 'BAJA', 'ELIMINADO']);
     }
 
     /**

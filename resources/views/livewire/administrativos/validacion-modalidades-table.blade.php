@@ -397,7 +397,7 @@
                         @error('observaciones') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         <p class="text-xs text-gray-400 mt-2">
                             <i class="fas fa-info-circle mr-1"></i>
-                            Obligatorio para estados: CORREGIDO, BAJA, ELIMINADO.
+                            Obligatorio para estados: CORREGIDO y REVISAR.
                         </p>
                     </div>
                 </div>

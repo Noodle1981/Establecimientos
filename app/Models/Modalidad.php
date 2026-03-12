@@ -107,6 +107,7 @@ class Modalidad extends Model
         $this->validado = true; // Asegurar que pase a ser considerado validado
         $this->validado_por_user_id = $userId ?? auth()->id();
         $this->validado_en = now();
+        $this->observaciones = $observaciones; // Persistir observaciones en la modalidad
         $this->save();
         
         // Registrar en historial

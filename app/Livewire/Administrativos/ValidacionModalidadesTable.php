@@ -124,8 +124,7 @@ class ValidacionModalidadesTable extends Component
      */
     private function requiereObservaciones()
     {
-        return $this->nuevoEstado === 'CORREGIDO' && 
-               $this->modalidadSeleccionada->estado_validacion !== 'CORREGIDO';
+        return in_array($this->nuevoEstado, ['CORREGIDO', 'REVISAR', 'BAJA', 'ELIMINADO']);
     }
 
     /**
@@ -289,7 +288,7 @@ class ValidacionModalidadesTable extends Component
 
         // Anomalías (todo lo que no es CORRECTO)
         $anomalias = $resultados->filter(function($item) {
-            return $item->estado_validacion !== 'CORRECTO' || !empty($item->observaciones_validacion);
+            return $item->estado_validacion !== 'CORRECTO' || !empty($item->observaciones);
         });
 
         // Asegurarse de traer el historial para ver las observaciones

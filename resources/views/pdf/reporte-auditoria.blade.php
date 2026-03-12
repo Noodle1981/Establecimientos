@@ -224,7 +224,7 @@
                     <td>{{ $item->usuarioValidacion?->name ?? 'Sistema' }}</td>
                     <td>{{ $item->validado_en ? $item->validado_en->format('d/m/Y') : '-' }}</td>
                     <td style="font-style: italic; color: #555;">
-                        {{ $item->observaciones_validacion ?: ($item->historialEstados->first()->observaciones ?? '-') }}
+                        {{ $item->observaciones ?: ($item->historialEstados->first()->observaciones ?? '-') }}
                     </td>
                 </tr>
             @empty
