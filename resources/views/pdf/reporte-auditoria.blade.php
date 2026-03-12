@@ -181,13 +181,12 @@
         </div>
     </div>
 
-    <!-- DETALLE DE ANOMALÍAS -->
+    <!-- DETALLE DE AUDITORÍA -->
     <h3 style="color: #666; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 15px;">
-        2. Detalle de Anomalías y Correcciones
+        2. Detalle de Auditoría Completa
     </h3>
     <p style="font-size: 10px; color: #666; margin-bottom: 10px;">
-        Se listan a continuación los establecimientos que presentaron observaciones, fueron corregidos, o marcan inconsistencias con EDUGE.
-        (Se excluyen los registros marcados como "Correcto").
+        Se listan a continuación todos los establecimientos procesados en este reporte, incluyendo estados correctos, correcciones y observaciones detalladas.
     </p>
 
     <table>

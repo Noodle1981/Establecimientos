@@ -286,18 +286,16 @@ class ValidacionModalidadesTable extends Component
         $procesados = $contadores['CORRECTO'] + $contadores['CORREGIDO'];
         $porcentajeAvance = $total > 0 ? round(($procesados / $total) * 100, 1) : 0;
 
-        // Anomalías (todo lo que no es CORRECTO)
-        $anomalias = $resultados->filter(function($item) {
-            return $item->estado_validacion !== 'CORRECTO' || !empty($item->observaciones);
-        });
+        // Todos los registros filtrados
+        $items = $resultados;
 
         // Asegurarse de traer el historial para ver las observaciones
-        $anomalias->load(['historialEstados' => function($q) {
+        $items->load(['historialEstados' => function($q) {
             $q->orderBy('created_at', 'desc');
         }]);
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.reporte-auditoria', [
-            'anomalias' => $anomalias,
+            'anomalias' => $items,
             'contadores' => $contadores,
             'porcentajeAvance' => $porcentajeAvance,
             'filtros' => [
