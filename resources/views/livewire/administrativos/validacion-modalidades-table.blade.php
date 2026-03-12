@@ -234,6 +234,10 @@
                                             <i class="fas fa-barcode text-[10px] opacity-70"></i>
                                             CUE: {{ $modalidad->establecimiento->cue }}
                                         </span>
+                                        <span class="text-[10px] font-black bg-white text-gray-800 px-2 py-1 rounded-lg border border-gray-200 mt-2 inline-flex items-center gap-2 font-mono shadow-sm">
+                                            <i class="fas fa-building text-[10px] opacity-50 text-primary-orange"></i>
+                                            CUI: {{ $modalidad->establecimiento->edificio->cui }}
+                                        </span>
                                     </div>
                                 </div>
                             </td>

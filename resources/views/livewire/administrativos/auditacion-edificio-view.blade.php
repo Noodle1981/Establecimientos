@@ -157,6 +157,9 @@
                                             <span class="flex items-center gap-2 text-sm font-black text-primary-orange bg-gray-900 px-4 py-1.5 rounded-xl border border-gray-800 uppercase tracking-tighter shadow-md">
                                                 <i class="fas fa-barcode text-xs opacity-70"></i> CUE: <span class="text-white font-black">{{ $est->cue }}</span>
                                             </span>
+                                            <span class="flex items-center gap-2 text-[10px] font-black text-gray-700 bg-white px-3 py-1 rounded-lg border border-gray-200 uppercase tracking-tighter shadow-sm">
+                                                <i class="fas fa-building text-xs opacity-50 text-primary-orange"></i> CUI: <span class="text-gray-900 font-black">{{ $edificio->cui }}</span>
+                                            </span>
                                             @if($est->establecimiento_cabecera)
                                                 <span class="flex items-center gap-1.5 text-[9px] font-black text-yellow-600 bg-yellow-50 px-3 py-1 rounded-full border border-yellow-100 uppercase tracking-tighter">
                                                     <i class="fas fa-crown text-[10px]"></i> SEDE CABECERA
