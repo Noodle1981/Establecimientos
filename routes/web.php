@@ -89,4 +89,4 @@ Route::get('/mapa', \App\Livewire\Publico\MapaPublico::class)->name('mapa.public
 /**
  * API Routes
  */
-Route::get('/api/edificios-mapa', [\App\Http\Controllers\Api\EdificiosMapaController::class, 'index']);
+Route::middleware('throttle:60,1')->get('/api/edificios-mapa', [\App\Http\Controllers\Api\EdificiosMapaController::class, 'index']);

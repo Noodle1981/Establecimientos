@@ -7,6 +7,7 @@ use App\Models\Edificio;
 use App\Models\Establecimiento;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 
 class AdministrativosDashboard extends Component
@@ -21,13 +22,15 @@ class AdministrativosDashboard extends Component
 
     public function mount()
     {
-        $this->departamentos = Edificio::select('zona_departamento')
-            ->distinct()
-            ->whereNotNull('zona_departamento')
-            ->where('zona_departamento', '!=', '')
-            ->orderBy('zona_departamento')
-            ->pluck('zona_departamento')
-            ->toArray();
+        $this->departamentos = Cache::remember('dashboard-departamentos', 3600, function () {
+            return Edificio::select('zona_departamento')
+                ->distinct()
+                ->whereNotNull('zona_departamento')
+                ->where('zona_departamento', '!=', '')
+                ->orderBy('zona_departamento')
+                ->pluck('zona_departamento')
+                ->toArray();
+        });
 
         $this->loadDireccionesArea();
     }
@@ -97,14 +100,20 @@ class AdministrativosDashboard extends Component
 
     public function getChartDataProperty()
     {
-        return [
-            'modalidades' => $this->getModalidadesData(),
-            'categorias' => $this->getCategoriasData(),
-            'zonas' => $this->getZonasData(),
-            'radios' => $this->getRadiosData(),
-            'ambito' => $this->getAmbitoData(),
-            'stats' => $this->getStats(),
-        ];
+        $cacheKey = 'dashboard_data_' . md5(json_encode([
+            $this->ambito, $this->departamento, $this->direccion_area, $this->nivel_educativo
+        ]));
+
+        return Cache::remember($cacheKey, 300, function () {
+            return [
+                'modalidades' => $this->getModalidadesData(),
+                'categorias' => $this->getCategoriasData(),
+                'zonas' => $this->getZonasData(),
+                'radios' => $this->getRadiosData(),
+                'ambito' => $this->getAmbitoData(),
+                'stats' => $this->getStats(),
+            ];
+        });
     }
     
     // Contexts: 'modalidad' (default), 'edificio', 'establecimiento', 'join_edificio'

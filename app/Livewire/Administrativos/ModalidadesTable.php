@@ -12,6 +12,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use Illuminate\Support\Facades\Cache;
 
 
 class ModalidadesTable extends Component
@@ -196,67 +197,52 @@ class ModalidadesTable extends Component
         }
     }
 
+    public function lookupEdificioByCui($value, $isEdit = false)
+    {
+        if (strlen($value) >= 3) {
+            $edificio = Edificio::where('cui', $value)->first();
+             
+            if ($edificio) {
+                // Determine target form array based on context
+                $targetForm = $isEdit ? 'editForm' : 'createForm';
+                 
+                $this->$targetForm['calle'] = $edificio->calle;
+                $this->$targetForm['numero_puerta'] = $edificio->numero_puerta;
+                $this->$targetForm['localidad'] = $edificio->localidad;
+                $this->$targetForm['zona_departamento'] = $edificio->zona_departamento;
+                $this->$targetForm['latitud'] = $edificio->latitud;
+                $this->$targetForm['longitud'] = $edificio->longitud;
+                 
+                $establecimientoPrincipal = $edificio->establecimientos()
+                    ->whereColumn('cue', 'cue_edificio_principal')
+                    ->first();
+                 
+                if ($establecimientoPrincipal) {
+                    $this->$targetForm['establecimiento_cabecera'] = $establecimientoPrincipal->nombre;
+                }
+                 
+                if (!$isEdit) {
+                    $this->dispatch('edificio-encontrado', [
+                        'cui' => $value,
+                        'edificioId' => $edificio->id
+                    ]);
+                } else {
+                    session()->flash('info', "Se encontró el edificio existente (ID: {$edificio->id}). Al guardar, se vinculará este establecimiento a dicho edificio.");
+                }
+            } else if (!$isEdit) {
+                $this->dispatch('edificio-no-encontrado', ['cui' => $value]);
+            }
+        }
+    }
+
     public function updatedCreateFormCui($value)
     {
-        // Buscar si existe un edificio con ese CUI
-        if (strlen($value) >= 3) { // Mínimo 3 caracteres para buscar
-             $edificio = Edificio::where('cui', $value)->first();
-             
-             if ($edificio) {
-                 // Autocompletar datos de ubicación
-                 $this->createForm['calle'] = $edificio->calle;
-                 $this->createForm['numero_puerta'] = $edificio->numero_puerta;
-                 $this->createForm['localidad'] = $edificio->localidad;
-                 $this->createForm['zona_departamento'] = $edificio->zona_departamento;
-                 $this->createForm['latitud'] = $edificio->latitud;
-                 $this->createForm['longitud'] = $edificio->longitud;
-                 
-                 // Obtener el establecimiento principal del edificio
-                 $establecimientoPrincipal = $edificio->establecimientos()
-                     ->whereColumn('cue', 'cue_edificio_principal')
-                     ->first();
-                 
-                 if ($establecimientoPrincipal) {
-                     $this->createForm['establecimiento_cabecera'] = $establecimientoPrincipal->nombre;
-                 }
-                 
-                 $this->dispatch('edificio-encontrado', [
-                     'cui' => $value,
-                     'edificioId' => $edificio->id
-                 ]);
-             } else {
-                 $this->dispatch('edificio-no-encontrado', ['cui' => $value]);
-             }
-        }
+        $this->lookupEdificioByCui($value, false);
     }
 
     public function updatedEditFormCui($value)
     {
-        // Buscar si existe un edificio con ese CUI
-        if (strlen($value) >= 3) { // Mínimo 3 caracteres para buscar
-             $edificio = Edificio::where('cui', $value)->first();
-             
-             if ($edificio) {
-                 // Autocompletar datos de ubicación
-                 $this->editForm['calle'] = $edificio->calle;
-                 $this->editForm['numero_puerta'] = $edificio->numero_puerta;
-                 $this->editForm['localidad'] = $edificio->localidad;
-                 $this->editForm['zona_departamento'] = $edificio->zona_departamento;
-                 $this->editForm['latitud'] = $edificio->latitud;
-                 $this->editForm['longitud'] = $edificio->longitud;
-                 
-                 // Obtener el establecimiento principal del edificio para la cabecera
-                 $establecimientoPrincipal = $edificio->establecimientos()
-                     ->whereColumn('cue', 'cue_edificio_principal')
-                     ->first();
-                 
-                 if ($establecimientoPrincipal) {
-                     $this->editForm['establecimiento_cabecera'] = $establecimientoPrincipal->nombre;
-                 }
-
-                 session()->flash('info', "Se encontró el edificio existente (ID: {$edificio->id}). Al guardar, se vinculará este establecimiento a dicho edificio.");
-             }
-        }
+        $this->lookupEdificioByCui($value, true);
     }
 
     public function getFilteredQuery()
@@ -330,16 +316,21 @@ class ModalidadesTable extends Component
 
     public function render()
     {
-        return view('livewire.administrativos.modalidades-table', [
+        $filterOptions = Cache::remember('modalidades_table_filters', 3600, function () {
+            return [
+                'zonas' => Edificio::select('zona_departamento')->distinct()->orderBy('zona_departamento')->pluck('zona_departamento'),
+                'radios' => Modalidad::select('radio')->distinct()->whereNotNull('radio')->orderBy('radio')->pluck('radio'),
+                'zonasLetras' => Modalidad::select('zona')->distinct()->whereNotNull('zona')->where('zona', '!=', '')->orderBy('zona')->pluck('zona'),
+                'categorias' => Modalidad::select('categoria')->distinct()->whereNotNull('categoria')->orderBy('categoria')->pluck('categoria'),
+                'sectores' => Modalidad::select('sector')->distinct()->whereNotNull('sector')->orderBy('sector')->pluck('sector'),
+                'direccionesArea' => Modalidad::select('direccion_area')->distinct()->whereNotNull('direccion_area')->orderBy('direccion_area')->pluck('direccion_area'),
+            ];
+        });
+
+        return view('livewire.administrativos.modalidades-table', array_merge([
             'modalidades' => $this->getFilteredQuery()->paginate(20),
             'niveles' => $this->nivelesEducativos,
-            'zonas' => Edificio::select('zona_departamento')->distinct()->orderBy('zona_departamento')->pluck('zona_departamento'),
-            'radios' => Modalidad::select('radio')->distinct()->whereNotNull('radio')->orderBy('radio')->pluck('radio'),
-            'zonasLetras' => Modalidad::select('zona')->distinct()->whereNotNull('zona')->where('zona', '!=', '')->orderBy('zona')->pluck('zona'),
-            'categorias' => Modalidad::select('categoria')->distinct()->whereNotNull('categoria')->orderBy('categoria')->pluck('categoria'),
-            'sectores' => Modalidad::select('sector')->distinct()->whereNotNull('sector')->orderBy('sector')->pluck('sector'),
-            'direccionesArea' => Modalidad::select('direccion_area')->distinct()->whereNotNull('direccion_area')->orderBy('direccion_area')->pluck('direccion_area'),
-        ])->layout('layouts.app');
+        ], $filterOptions))->layout('layouts.app');
     }
 
     public function exportExcel()
@@ -474,7 +465,6 @@ class ModalidadesTable extends Component
                 'calle' => $this->createForm['calle'],
                 'numero_puerta' => $this->createForm['numero_puerta'],
                 'localidad' => $this->createForm['localidad'],
-                'localidad' => $this->createForm['localidad'],
                 'zona_departamento' => $this->createForm['zona_departamento'],
                 'latitud' => $this->createForm['latitud'],
                 'longitud' => $this->createForm['longitud'],
@@ -557,8 +547,6 @@ class ModalidadesTable extends Component
     public function updateModalidad(\App\Services\ActivityLogService $activityLogger)
     {
         try {
-            \Illuminate\Support\Facades\Log::info("updateModalidad iniciado for ID: " . ($this->selectedModalidad->id ?? 'null'));
-            
             $this->authorize('update', $this->selectedModalidad);
 
             // Validar CUE y CUI solo si se modifican o si no, permitir valor actual (aunque sea incorrecto, para permitir editar otros campos)
@@ -602,8 +590,6 @@ class ModalidadesTable extends Component
                 'editForm.cui.regex' => 'El CUI debe tener 7 dígitos o ser "PROV"',
             ]);
 
-            \Illuminate\Support\Facades\Log::info("Validación exitosa", $validatedData);
-
             // Convertir a mayúsculas
             $this->editForm['nombre_establecimiento'] = strtoupper($this->editForm['nombre_establecimiento']);
             $this->editForm['establecimiento_cabecera'] = strtoupper($this->editForm['establecimiento_cabecera']);
@@ -629,8 +615,6 @@ class ModalidadesTable extends Component
                  
                  if ($existingEdificio) {
                      // CASO: REASIGNACIÓN A EDIFICIO EXISTENTE
-                     \Illuminate\Support\Facades\Log::info("Reasignando establecimiento {$this->selectedModalidad->establecimiento->id} al edificio existente {$existingEdificio->id} (CUI: {$this->editForm['cui']})");
-                     
                      // Usamos el edificio existente como target
                      $edificio = $existingEdificio;
                      $nuevoEdificioId = $existingEdificio->id;
@@ -663,8 +647,7 @@ class ModalidadesTable extends Component
             
             // Si cambiamos de edificio, actualizamos la FK
             if ($establecimiento->edificio_id !== $nuevoEdificioId) {
-                // Loguear el cambio de edificio
-                 \Illuminate\Support\Facades\Log::info("Cambiando FK edificio_id de {$establecimiento->edificio_id} a {$nuevoEdificioId}");
+                // Cambiar el edificio
                  $establecimiento->edificio_id = $nuevoEdificioId;
             }
 
@@ -672,7 +655,6 @@ class ModalidadesTable extends Component
             if ($establecimiento->cue !== $this->editForm['cue']) {
                  $existingEstablecimiento = Establecimiento::where('cue', $this->editForm['cue'])->first();
                  if ($existingEstablecimiento) {
-                     \Illuminate\Support\Facades\Log::warning("Intento de duplicar CUE: {$this->editForm['cue']}");
                      throw new \Exception("Ya existe otro establecimiento con el CUE {$this->editForm['cue']}.");
                  }
             }

@@ -43,9 +43,9 @@ class Modalidad extends Model
         return $this->belongsTo(Establecimiento::class);
     }
 
-    public function edificio()
+    public function edificio(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
     {
-        return $this->establecimiento->edificio;
+        return $this->hasOneThrough(Edificio::class, Establecimiento::class, 'id', 'id', 'establecimiento_id', 'edificio_id');
     }
 
     /**

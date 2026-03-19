@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Edificio;
+use Illuminate\Support\Facades\Cache;
 
 class EdificiosMapaController extends Controller
 {
     public function index()
     {
-        $edificios = Edificio::with(['establecimientos.modalidades'])
-            ->get()
+        $edificios = Cache::remember('api-edificios-mapa', 3600, function () {
+            return Edificio::select('id', 'cui', 'latitud', 'longitud', 'localidad', 'calle', 'numero_puerta', 'zona_departamento')
+                ->with(['establecimientos:id,edificio_id,cue,nombre', 'establecimientos.modalidades:id,establecimiento_id,ambito'])
+                ->get()
             ->map(function ($edificio) {
                 // Determinar ámbito predominante
                 $ambito = $edificio->modalidades->first()?->ambito ?? 'PUBLICO';
@@ -33,6 +36,7 @@ class EdificiosMapaController extends Controller
                     }),
                 ];
             });
+        });
 
         return response()->json($edificios);
     }

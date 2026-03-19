@@ -44,43 +44,15 @@ class ValidacionModalidadesTable extends Component
         'verEliminados' => ['except' => false],
     ];
 
-    public function updatingSearch()
+    public function updated($propertyName)
     {
-        $this->resetPage();
-    }
-
-    public function updatingEstadoFilter()
-    {
-        $this->resetPage();
-    }
-
-    public function updatingDepartamentoFilter()
-    {
-        $this->resetPage();
-    }
-
-    public function updatingNivelFilter()
-    {
-        $this->resetPage();
-    }
-
-    public function updatingAmbitoFilter()
-    {
-        $this->resetPage();
-    }
-
-    public function updatingVerEliminados()
-    {
-        $this->resetPage();
-    }
-    public function updatingHastaFilter()
-    {
-        $this->resetPage();
-    }
-
-    public function updatingDesdeFilter()
-    {
-        $this->resetPage();
+        if (in_array($propertyName, [
+            'search', 'estadoFilter', 'departamentoFilter',
+            'nivelFilter', 'ambitoFilter', 'desdeFilter',
+            'hastaFilter', 'verEliminados'
+        ])) {
+            $this->resetPage();
+        }
     }
 
     /**
@@ -212,14 +184,20 @@ class ValidacionModalidadesTable extends Component
      */
     private function aplicarFiltros($query)
     {
+        // Filtro por estado
+        if ($this->estadoFilter) {
+            $query->where('estado_validacion', $this->estadoFilter);
+        }
+
+        return $this->aplicarFiltrosExcluyendoEstado($query);
+    }
+
+    private function aplicarFiltrosExcluyendoEstado($query)
+    {
         // Filtro de Eliminados vs Activos
         if ($this->verEliminados) {
             $query->onlyTrashed();
         } else {
-            // Nota: Si usas Modalidad::withTrashed() como base, aquí debes filtrar
-            // Si usas Modalidad::query() (que excluye trashed por defecto), no necesitas esto.
-            // PERO en render() se usa withTrashed() inicialmente.
-            // Para ser seguro, forzamos:
             $query->withoutTrashed();
         }
 
@@ -229,11 +207,6 @@ class ValidacionModalidadesTable extends Component
                 $q->where('nombre', 'like', '%' . $this->search . '%')
                   ->orWhere('cue', 'like', '%' . $this->search . '%');
             });
-        }
-
-        // Filtro por estado
-        if ($this->estadoFilter) {
-            $query->where('estado_validacion', $this->estadoFilter);
         }
 
         // Filtros de Modalidad
@@ -323,20 +296,8 @@ class ValidacionModalidadesTable extends Component
 
         // Contadores globales (respetando filtros actuales)
         $kpiQuery = Modalidad::withTrashed()->with(['establecimiento.edificio']);
-        
-        if ($this->search) {
-            $kpiQuery->whereHas('establecimiento', function ($q) {
-                $q->where('nombre', 'like', '%' . $this->search . '%')
-                  ->orWhere('cue', 'like', '%' . $this->search . '%');
-            });
-        }
-        if ($this->nivelFilter) $kpiQuery->where('nivel_educativo', $this->nivelFilter);
-        if ($this->ambitoFilter) $kpiQuery->where('ambito', $this->ambitoFilter);
-        if ($this->departamentoFilter) {
-            $kpiQuery->whereHas('establecimiento.edificio', function ($q) {
-                $q->where('zona_departamento', $this->departamentoFilter);
-            });
-        }
+        // Reuse same logic as main table to assure numbers match, excluding estadoFilter naturally
+        $kpiQuery = $this->aplicarFiltrosExcluyendoEstado($kpiQuery);
 
         $rawCounts = $kpiQuery->selectRaw('estado_validacion, count(*) as count')
                               ->groupBy('estado_validacion')

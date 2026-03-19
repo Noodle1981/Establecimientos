@@ -20,8 +20,7 @@ class Establecimiento extends Model
     ];
 
     protected $casts = [
-        'cue' => 'integer',
-        'cue_edificio_principal' => 'integer',
+        // 'cue' and 'cue_edificio_principal' left as strings to preserve leading zeros
     ];
 
     public function edificio(): BelongsTo
