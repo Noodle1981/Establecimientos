@@ -168,8 +168,15 @@
                     </select>
                 </div>
                 
-                 <div class="md:col-span-2 flex items-end justify-end">
-                    <div class="text-right w-full">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Sector</label>
+                    <input type="text" wire:model.live.debounce.500ms="sectorFilter" 
+                           placeholder="Ej: 22..." 
+                           class="input-glass w-full py-2.5 rounded-lg">
+                </div>
+                
+                 <div class="md:col-span-12 flex justify-end border-t border-orange-100/30 pt-4 mt-2">
+                    <div class="text-right">
                         <div class="text-xs font-bold uppercase text-gray-400 mb-1">Total Registros</div>
                         <div class="text-3xl font-black text-primary-orange leading-none tracking-tight">
                             {{ $modalidades->total() }}
@@ -218,10 +225,12 @@
                                             {{ $modalidad->establecimiento->nombre }}
                                         </div>
                                         <div class="flex flex-wrap gap-2 mt-2">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                                            <span class="text-sm font-black bg-gray-900 text-primary-orange px-3 py-1 rounded-lg border border-gray-800 inline-flex items-center gap-2 font-mono shadow-md">
+                                                <i class="fas fa-barcode text-[10px] opacity-70"></i>
                                                 CUE: {{ $modalidad->establecimiento->cue }}
                                             </span>
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                                            <span class="text-[10px] font-black bg-white text-gray-800 px-2 py-1 rounded-lg border border-gray-200 inline-flex items-center gap-2 font-mono shadow-sm">
+                                                <i class="fas fa-building text-[10px] opacity-50 text-primary-orange"></i>
                                                 CUI: {{ $modalidad->establecimiento->edificio->cui }}
                                             </span>
                                         </div>
@@ -344,7 +353,7 @@
             <!-- This element is to trick the browser into centering the modal contents. -->
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full relative z-50"
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl w-full sm:w-full relative z-50"
                  x-data="{ edificioEncontrado: false, edificioNuevo: false }"
                  @edificio-encontrado.window="edificioEncontrado = true; edificioNuevo = false"
                  @edificio-no-encontrado.window="edificioEncontrado = false; edificioNuevo = true">
@@ -528,7 +537,7 @@
              <!-- This element is to trick the browser into centering the modal contents. -->
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl sm:w-full relative z-50">
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-5xl w-full sm:w-full relative z-50">
                 <div class="px-6 py-4 flex justify-between items-center bg-primary-orange">
                     <div class="flex items-center gap-3">
                         <div class="p-2 bg-white rounded-lg">
@@ -706,7 +715,7 @@
              <!-- This element is to trick the browser into centering the modal contents. -->
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full relative z-50">
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full sm:w-full relative z-50">
                 <div class="px-6 py-4 flex justify-between items-center bg-primary-orange">
                     <div class="flex items-center gap-3">
                         <div class="p-2 bg-white rounded-lg">
@@ -845,7 +854,7 @@
              <!-- This element is to trick the browser into centering the modal contents. -->
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full relative z-50">
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full sm:w-full relative z-50">
                 <div class="px-6 py-4 flex justify-between items-center bg-secondary-red">
                     <div class="flex items-center gap-3">
                         <div class="p-2 bg-white rounded-lg">
