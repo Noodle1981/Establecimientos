@@ -144,6 +144,14 @@
                         @foreach($zonas as $zona) <option value="{{ $zona }}">{{ $zona }}</option> @endforeach
                     </select>
                 </div>
+                <!-- Filtro Zona -->
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Zona</label>
+                    <select wire:model.live="zonaLetraFilter" class="input-glass w-full py-2.5 rounded-lg">
+                        <option value="">Todas</option>
+                        @foreach($zonasLetras as $zl) <option value="{{ $zl }}">{{ $zl }}</option> @endforeach
+                    </select>
+                </div>
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold uppercase mb-2 ml-1 text-gray-500">Radio</label>
                     <select wire:model.live="radioFilter" class="input-glass w-full py-2.5 rounded-lg">
