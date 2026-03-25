@@ -568,8 +568,8 @@ class ModalidadesTable extends Component
             // PERO, si el usuario solo quiere cambiar 'validado' y no sabe el CUE correcto, se bloquea.
             // Voy a permitir el valor actual si no se cambió.
             
-            $cueRule = ['required', 'regex:/^(\d{9}|PROV)$/'];
-            $cuiRule = ['required', 'regex:/^(\d{7}|PROV)$/'];
+            $cueRule = ['required', 'regex:/^(\d{9}|PROV.*)$/'];
+            $cuiRule = ['required', 'regex:/^(\d{7}|PROV.*)$/'];
 
             // Si el valor enviado es igual al original, no validamos regex estricto (asumimos legacy data allow)
             // O mejor: si es igual al original, lo dejamos pasar.
@@ -588,6 +588,25 @@ class ModalidadesTable extends Component
             $validatedData = $this->validate($rules, [
                 'editForm.cue.regex' => 'El CUE debe tener 9 dígitos o ser "PROV"',
                 'editForm.cui.regex' => 'El CUI debe tener 7 dígitos o ser "PROV"',
+            ]);
+
+            // Limpiar y normalizar datos numéricos (reemplazar coma por punto)
+            $this->editForm['latitud'] = str_replace(',', '.', (string)($this->editForm['latitud'] ?? ''));
+            $this->editForm['longitud'] = str_replace(',', '.', (string)($this->editForm['longitud'] ?? ''));
+
+            // Validar campos de edificio adicionales
+            $this->validate([
+                'editForm.calle'            => 'required|string|max:255',
+                'editForm.localidad'        => 'required|string|max:255',
+                'editForm.zona_departamento'=> 'required|string|max:255',
+                'editForm.latitud'          => 'nullable|numeric',
+                'editForm.longitud'         => 'nullable|numeric',
+            ], [
+                'editForm.calle.required'     => 'La calle del edificio es obligatoria.',
+                'editForm.localidad.required' => 'La localidad del edificio es obligatoria.',
+                'editForm.zona_departamento.required' => 'El departamento del edificio es obligatorio.',
+                'editForm.latitud.numeric'    => 'La latitud debe ser un número.',
+                'editForm.longitud.numeric'   => 'La longitud debe ser un número.',
             ]);
 
             // Convertir a mayúsculas
@@ -629,8 +648,8 @@ class ModalidadesTable extends Component
                 'numero_puerta' => $this->editForm['numero_puerta'],
                 'localidad' => $this->editForm['localidad'],
                 'zona_departamento' => $this->editForm['zona_departamento'],
-                'latitud' => $this->editForm['latitud'],
-                'longitud' => $this->editForm['longitud'],
+                'latitud' => $this->editForm['latitud'] ?: null,
+                'longitud' => $this->editForm['longitud'] ?: null,
             ]);
 
             if ($edificio->isDirty()) {
@@ -714,6 +733,9 @@ class ModalidadesTable extends Component
             $this->selectedModalidad = null;
             
             session()->flash('success', 'Modalidad actualizada correctamente.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Dejar que Livewire maneje la excepción de validación para mostrar errores en el form
+            throw $e;
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Error actualizando modalidad: " . $e->getMessage());
             \Illuminate\Support\Facades\Log::error($e->getTraceAsString());

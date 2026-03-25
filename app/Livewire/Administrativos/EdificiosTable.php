@@ -407,6 +407,30 @@ class EdificiosTable extends Component
 
     public function updateEdificio(\App\Services\ActivityLogService $activityLogger)
     {
+        // Limpiar y normalizar datos numéricos (reemplazar coma por punto)
+        $this->editForm['latitud'] = str_replace(',', '.', (string)$this->editForm['latitud']);
+        $this->editForm['longitud'] = str_replace(',', '.', (string)$this->editForm['longitud']);
+        $this->editForm['codigo_postal'] = str_replace(',', '.', (string)$this->editForm['codigo_postal']);
+
+        // Validar datos
+        $this->validate([
+            'editForm.calle'            => 'required|string|max:255',
+            'editForm.numero_puerta'    => 'nullable|string|max:20',
+            'editForm.codigo_postal'    => 'nullable|numeric',
+            'editForm.localidad'        => 'required|string|max:255',
+            'editForm.latitud'          => 'nullable|numeric',
+            'editForm.longitud'         => 'nullable|numeric',
+            'editForm.letra_zona'       => 'nullable|string|max:1',
+            'editForm.zona_departamento'=> 'required|string|max:255',
+        ], [
+            'editForm.calle.required'     => 'La calle es obligatoria.',
+            'editForm.localidad.required' => 'La localidad es obligatoria.',
+            'editForm.zona_departamento.required' => 'El departamento es obligatorio.',
+            'editForm.latitud.numeric'    => 'La latitud debe ser un número.',
+            'editForm.longitud.numeric'   => 'La longitud debe ser un número.',
+            'editForm.codigo_postal.numeric' => 'El código postal debe ser un número.',
+        ]);
+
         // Convertir a mayúsculas
         $this->editForm['localidad'] = strtoupper($this->editForm['localidad']);
         $this->editForm['calle'] = strtoupper($this->editForm['calle']);
@@ -416,10 +440,10 @@ class EdificiosTable extends Component
         $this->selectedEdificio->fill([
             'calle' => $this->editForm['calle'],
             'numero_puerta' => $this->editForm['numero_puerta'],
-            'codigo_postal' => $this->editForm['codigo_postal'],
+            'codigo_postal' => $this->editForm['codigo_postal'] ?: null,
             'localidad' => $this->editForm['localidad'],
-            'latitud' => $this->editForm['latitud'],
-            'longitud' => $this->editForm['longitud'],
+            'latitud' => $this->editForm['latitud'] ?: null,
+            'longitud' => $this->editForm['longitud'] ?: null,
             'letra_zona' => $this->editForm['letra_zona'],
             'zona_departamento' => $this->editForm['zona_departamento'],
         ]);
