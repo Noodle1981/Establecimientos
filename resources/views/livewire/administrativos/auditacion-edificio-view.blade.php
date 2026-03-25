@@ -162,7 +162,7 @@
                                             </span>
                                             @if($est->establecimiento_cabecera)
                                                 <span class="flex items-center gap-1.5 text-[9px] font-black text-yellow-600 bg-yellow-50 px-3 py-1 rounded-full border border-yellow-100 uppercase tracking-tighter">
-                                                    <i class="fas fa-crown text-[10px]"></i> SEDE CABECERA
+                                                    <i class="fas fa-crown text-[10px]"></i> {{ $est->establecimiento_cabecera }}
                                                 </span>
                                             @endif
                                         </div>

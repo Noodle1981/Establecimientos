@@ -339,75 +339,72 @@
 
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full relative z-50">
                 <!-- Header -->
-                <div class="px-6 py-4 flex justify-between items-center bg-orange-50/50 border-b border-orange-100">
-                    <div class="flex items-center gap-3 text-primary-orange">
-                        <div class="p-2 bg-orange-50 rounded-lg">
-                            <i class="fas fa-edit"></i>
+                <div class="px-6 py-4 flex justify-between items-center bg-primary-orange">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-white rounded-lg">
+                            <i class="fas fa-edit text-primary-orange"></i>
                         </div>
-                        <h3 class="font-black text-xl">Validar Estado</h3>
+                        <h3 class="text-lg font-bold text-white">Validar Estado</h3>
                     </div>
-                    <button wire:click="cerrarModales" class="text-gray-400 hover:text-primary-orange transition">
+                    <button wire:click="cerrarModales" class="text-white hover:text-yellow-200 transition">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
 
                 <!-- Content -->
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 space-y-4">
+                <div class="px-5 py-4 space-y-4">
                     @if($modalidadSeleccionada)
-                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <p class="text-xs font-bold text-gray-400 uppercase mb-1">Establecimiento</p>
-                            <p class="font-bold text-gray-800">{{ $modalidadSeleccionada->establecimiento->nombre }}</p>
-                            <div class="flex gap-2 mt-2">
-                                 <span class="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-mono">
-                                    CUE: {{ $modalidadSeleccionada->establecimiento->cue }}
-                                 </span>
-                                 <span class="px-2 py-1 bg-white border border-gray-200 rounded text-xs font-mono">
-                                    Estado Actual: {{ $modalidadSeleccionada->estado_validacion }}
-                                 </span>
+                        <div class="bg-gray-50 rounded-lg border border-gray-200 px-4 py-2 flex items-center justify-between gap-2">
+                            <div>
+                                <p class="font-bold text-gray-800 text-sm leading-tight">{{ $modalidadSeleccionada->establecimiento->nombre }}</p>
+                                <p class="text-xs text-gray-500 font-mono mt-0.5">CUE: {{ $modalidadSeleccionada->establecimiento->cue }}</p>
                             </div>
+                            <span class="px-2 py-1 bg-white border border-gray-200 rounded text-[10px] font-bold text-gray-600 whitespace-nowrap">
+                                Estado: {{ $modalidadSeleccionada->estado_validacion }}
+                            </span>
                         </div>
                     @endif
 
-                    <div class="grid grid-cols-1 gap-3">
-                        <label class="block text-sm font-bold text-gray-700 mb-2 text-center">Seleccione el resultado de la auditoría</label>
-                        <div class="grid grid-cols-3 gap-3">
+                    {{-- Estado: selector horizontal compacto --}}
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Nuevo Estado</label>
+                        <div class="flex flex-wrap gap-2">
                             @foreach($this->estadosMetadata as $key => $meta)
-                                <button type="button" 
+                                <button type="button"
                                         wire:click="$set('nuevoEstado', '{{ $key }}')"
-                                        class="flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2 
-                                               {{ $nuevoEstado === $key 
-                                                  ? "{$meta['border']} {$meta['bg']} ring-2 ring-offset-2 ring-opacity-50 ".str_replace('text-', 'ring-', $meta['color']) 
-                                                  : 'border-gray-100 bg-white hover:border-gray-300 hover:bg-gray-50' }}">
-                                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl {{ $meta['bg'] }} {{ $meta['color'] }}">
-                                        <i class="fas {{ $meta['icon'] }}"></i>
-                                    </div>
-                                    <span class="text-[11px] font-black uppercase tracking-tight {{ $meta['color'] }}">{{ $meta['badge'] }}</span>
-                                    <span class="text-[9px] text-gray-400 leading-tight text-center">{{ $meta['description'] }}</span>
+                                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 text-xs font-black uppercase transition-all
+                                               {{ $nuevoEstado === $key
+                                                  ? "{$meta['border']} {$meta['bg']} {$meta['color']}"
+                                                  : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300' }}">
+                                    <i class="fas {{ $meta['icon'] }} text-[10px]"></i>
+                                    {{ $meta['badge'] }}
                                 </button>
                             @endforeach
                         </div>
-                        @error('nuevoEstado') <span class="text-red-500 text-xs mt-1 block text-center">{{ $message }}</span> @enderror
+                        @error('nuevoEstado') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
+                    {{-- Observaciones --}}
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Observaciones</label>
-                        <textarea wire:model="observaciones" rows="3" 
-                                  class="input-glass w-full" 
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">
+                            Observaciones
+                            @if(in_array($nuevoEstado, ['CORREGIDO', 'REVISAR', 'BAJA', 'ELIMINADO']))
+                                <span class="text-red-500 ml-1">* Obligatorio</span>
+                            @endif
+                        </label>
+                        <textarea wire:model="observaciones" rows="4"
+                                  class="input-glass w-full text-sm"
                                   placeholder="Ingrese detalles sobre la validación..."></textarea>
                         @error('observaciones') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                        <p class="text-xs text-gray-400 mt-2">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            Obligatorio para estados: CORREGIDO y REVISAR.
-                        </p>
                     </div>
                 </div>
 
                 <!-- Footer -->
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse rounded-b-lg">
-                    <button wire:click="cambiarEstado" class="btn-primary w-full sm:w-auto sm:ml-3">
-                        <i class="fas fa-save mr-2"></i> Guardar Cambios
+                <div class="bg-gray-50 px-5 py-3 flex flex-row-reverse gap-2 border-t rounded-b-lg">
+                    <button wire:click="cambiarEstado" class="btn-primary">
+                        <i class="fas fa-save mr-1.5"></i> Guardar
                     </button>
-                    <button wire:click="cerrarModales" class="btn-secondary w-full sm:w-auto mt-3 sm:mt-0">
+                    <button wire:click="cerrarModales" class="btn-secondary">
                         Cancelar
                     </button>
                 </div>
