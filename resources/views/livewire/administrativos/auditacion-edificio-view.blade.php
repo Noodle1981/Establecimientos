@@ -27,6 +27,16 @@
                     {{ session('message') }}
                 </div>
             @endif
+            
+            <button wire:click="abrirBulkAction('EDIFICIO')" 
+                    class="px-5 py-2.5 rounded-xl bg-primary-orange text-white flex items-center gap-3 shadow-lg shadow-orange-500/20 hover:bg-orange-600 transition-all active:scale-95">
+                <i class="fas fa-layer-group"></i>
+                <div class="flex flex-col items-start">
+                    <span class="text-[9px] font-black uppercase text-orange-200 tracking-tighter leading-none">Acción Global</span>
+                    <span class="text-xs font-black">VALIDAR EDIFICIO</span>
+                </div>
+            </button>
+
             <div class="px-5 py-2.5 rounded-xl bg-gray-900 text-white flex items-center gap-3 shadow-lg">
                 <i class="fas fa-id-card text-primary-orange"></i>
                 <div class="flex flex-col">
@@ -36,6 +46,78 @@
             </div>
         </div>
     </div>
+
+    <!-- PANEL ACCION MASIVA -->
+    @if($showBulkAction)
+    <div class="mb-8 p-8 bg-gray-900 rounded-[40px] shadow-2xl border border-gray-800 animate-slide-up relative overflow-hidden">
+        <div class="absolute top-0 right-0 p-8 opacity-10">
+            <i class="fas fa-layer-group text-8xl text-white"></i>
+        </div>
+        
+        <div class="relative z-10">
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="px-3 py-1 bg-primary-orange text-white text-[10px] font-black rounded-lg uppercase">Validación Masiva</span>
+                        <span class="text-gray-400 text-xs font-bold uppercase tracking-widest">
+                            Scope: <span class="text-white">{{ $bulkScope === 'EDIFICIO' ? 'Todo el Edificio' : 'Establecimiento' }}</span>
+                        </span>
+                    </div>
+                    <h3 class="text-2xl font-black text-white">Aplicar cambios a múltiples registros</h3>
+                    <p class="text-sm text-gray-400">Esta acción afectará a todas las modalidades dentro del alcance seleccionado.</p>
+                </div>
+                <button wire:click="cerrarModales" class="text-gray-500 hover:text-white transition-colors">
+                    <i class="fas fa-times fa-lg"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                {{-- Selector de Estado --}}
+                <div class="space-y-4">
+                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest">Nuevo Estado para el Grupo</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        @foreach($this->estadosMetadata as $key => $meta)
+                            <button type="button" 
+                                    wire:click="$set('bulkEstado', '{{ $key }}')"
+                                    class="flex items-center gap-2.5 p-3 rounded-2xl border-2 transition-all text-left
+                                           {{ $bulkEstado === $key 
+                                              ? 'border-primary-orange bg-orange-500/10 text-white shadow-[0_0_20px_rgba(255,102,0,0.2)]' 
+                                              : 'border-gray-800 bg-gray-800/50 text-gray-500 hover:border-gray-700' }}">
+                                <i class="fas {{ $meta['icon'] }} {{ $bulkEstado === $key ? 'text-primary-orange' : '' }}"></i>
+                                <span class="text-[10px] font-black uppercase">{{ $meta['badge'] }}</span>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Observaciones --}}
+                <div class="space-y-4">
+                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest flex justify-between">
+                        Observación Histórica Única
+                        @if(in_array($bulkEstado, ['CORREGIDO', 'REVISAR', 'BAJA', 'ELIMINADO']))
+                            <span class="text-primary-orange text-[9px]">OBLIGATORIO</span>
+                        @endif
+                    </label>
+                    <div class="flex flex-col gap-4">
+                        <textarea wire:model="bulkObservaciones" rows="3" 
+                                  class="w-full bg-gray-800 border-gray-700 text-white rounded-2xl focus:border-primary-orange focus:ring-primary-orange text-sm p-4"
+                                  placeholder="Indique el motivo del cambio masivo (ej: Corrección de domicilio del edificio)..."></textarea>
+                        
+                        <div class="flex gap-3">
+                            <button wire:click="aplicarValidacionMasiva" class="btn-primary flex-1 py-4 text-[10px] font-black uppercase shadow-lg shadow-orange-500/20 shadow-lg">
+                                <i class="fas fa-check-double mr-2"></i> Procesar Validación Masiva
+                            </button>
+                            <button wire:click="cerrarModales" class="btn-secondary px-6 text-[10px] font-black uppercase">
+                                Cancelar
+                            </button>
+                        </div>
+                        @error('bulkObservaciones') <span class="text-[10px] font-bold text-red-400 italic font-mono">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- MAIN CONTENT: GRID 12 COLUMNS -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -168,6 +250,11 @@
                                         </div>
                                     </div>
                                 </div>
+                                <button wire:click="abrirBulkAction('ESTABLECIMIENTO', {{ $est->id }})" 
+                                        class="px-4 py-2 bg-white text-gray-400 text-[10px] font-black rounded-xl border border-gray-100 hover:border-primary-orange hover:text-primary-orange transition-all shadow-sm flex items-center gap-2 group/btn">
+                                    <i class="fas fa-school text-primary-orange/50 group-hover/btn:scale-110 transition-transform"></i>
+                                    VALIDACIÓN ESCUELA
+                                </button>
                             </div>
 
                             <!-- Est. Modalities Table-like list -->
@@ -221,26 +308,76 @@
 
                                                 <!-- Audit Actions (3 col) -->
                                                 <div class="md:col-span-3 flex justify-end gap-2">
-                                                    <button wire:click="toggleCorrecto({{ $mod->id }})" 
-                                                            class="w-10 h-10 flex items-center justify-center rounded-xl bg-green-50 text-green-600 border border-green-100 hover:bg-green-600 hover:text-white transition-all shadow-sm hover:shadow-green-500/20"
-                                                            title="Marcar como CORRECTO">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                    <button wire:click="abrirCambiarEstado({{ $mod->id }})" 
-                                                            class="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 text-[10px] font-black rounded-xl border border-gray-200 hover:border-primary-orange hover:text-primary-orange transition-all shadow-sm">
-                                                        <i class="fas fa-edit"></i> CORREGIR
-                                                    </button>
+                                                    @if($editModalidadId !== $mod->id)
+                                                        <button wire:click="toggleCorrecto({{ $mod->id }})" 
+                                                                class="w-10 h-10 flex items-center justify-center rounded-xl bg-green-50 text-green-600 border border-green-100 hover:bg-green-600 hover:text-white transition-all shadow-sm hover:shadow-green-500/20"
+                                                                title="Marcar como CORRECTO">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                        <button wire:click="abrirCambiarEstado({{ $mod->id }})" 
+                                                                class="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 text-[10px] font-black rounded-xl border border-gray-200 hover:border-primary-orange hover:text-primary-orange transition-all shadow-sm">
+                                                            <i class="fas fa-edit"></i> CORREGIR
+                                                        </button>
+                                                    @else
+                                                        <button wire:click="cerrarModales" class="btn-secondary px-3 py-1.5 text-[10px] uppercase">
+                                                            Cancelar
+                                                        </button>
+                                                    @endif
                                                 </div>
                                             </div>
 
-                                            <!-- Observaciones Inline if any -->
-                                            @if($mod->observaciones || $mod->historialEstados->first()?->observaciones)
-                                                <div class="mt-4 pt-4 border-t border-gray-100 flex items-start gap-3">
-                                                    <i class="fas fa-comment-alt text-[10px] text-gray-300 mt-1"></i>
-                                                    <p class="text-[10px] font-bold text-gray-500 italic">
-                                                        "{{ $mod->observaciones ?: $mod->historialEstados->first()->observaciones }}"
-                                                    </p>
+                                            <!-- Formulario de Edición Inline -->
+                                            @if($editModalidadId === $mod->id)
+                                                <div class="mt-6 pt-6 border-t border-orange-100 space-y-4 animate-fade-in">
+                                                    <div class="flex flex-col md:flex-row gap-6">
+                                                        {{-- Pill Selector --}}
+                                                        <div class="flex-1">
+                                                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Nuevo Estado</label>
+                                                            <div class="flex flex-wrap gap-2">
+                                                                @foreach($this->estadosMetadata as $key => $meta)
+                                                                    <button type="button" 
+                                                                            wire:click="$set('nuevoEstado', '{{ $key }}')"
+                                                                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 text-[10px] font-black uppercase transition-all
+                                                                                   {{ $nuevoEstado === $key 
+                                                                                      ? "{$meta['border']} {$meta['bg']} {$meta['color']}" 
+                                                                                      : 'border-gray-100 bg-white text-gray-400 hover:border-gray-200' }}">
+                                                                        <i class="fas {{ $meta['icon'] }} text-[9px]"></i>
+                                                                        {{ $meta['badge'] }}
+                                                                    </button>
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+
+                                                        {{-- Observations & Save --}}
+                                                        <div class="flex-[1.5] flex flex-col gap-2">
+                                                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest flex justify-between">
+                                                                Observaciones
+                                                                @if(in_array($nuevoEstado, ['CORREGIDO', 'REVISAR', 'BAJA', 'ELIMINADO']))
+                                                                    <span class="text-primary-orange">OBLIGATORIO</span>
+                                                                @endif
+                                                            </label>
+                                                            <div class="flex gap-2">
+                                                                <textarea wire:model="observaciones" rows="2" 
+                                                                          class="input-glass flex-1 text-xs py-2" 
+                                                                          placeholder="Detalles de la validación..."></textarea>
+                                                                <button wire:click="cambiarEstado" class="btn-primary px-4 self-end h-10">
+                                                                    <i class="fas fa-save"></i>
+                                                                </button>
+                                                            </div>
+                                                            @error('observaciones') <span class="text-[9px] font-bold text-red-500">{{ $message }}</span> @enderror
+                                                        </div>
+                                                    </div>
                                                 </div>
+                                            @else
+                                                <!-- Observaciones Inline si NO está editando -->
+                                                @if($mod->observaciones || $mod->historialEstados->first()?->observaciones)
+                                                    <div class="mt-4 pt-4 border-t border-gray-100 flex items-start gap-3">
+                                                        <i class="fas fa-comment-alt text-[10px] text-gray-300 mt-1"></i>
+                                                        <p class="text-[10px] font-bold text-gray-500 italic">
+                                                            "{{ $mod->observaciones ?: $mod->historialEstados->first()->observaciones }}"
+                                                        </p>
+                                                    </div>
+                                                @endif
                                             @endif
                                         </div>
                                     @endforeach
@@ -253,82 +390,4 @@
         </div>
     </div>
 
-    <!-- MODAL DE CAMBIO DE ESTADO (REUTILIZADO) -->
-    @if($showCambiarEstadoModal && $modalidadIdSeleccionada)
-    <div class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm transition-opacity" aria-hidden="true" wire:click="cerrarModales"></div>
-            
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            
-            <div class="inline-block align-bottom bg-white rounded-[40px] text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full animate-modal-pop">
-                <div class="bg-gray-900 px-8 py-8 relative">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-2xl bg-primary-orange flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
-                            <i class="fas fa-clipboard-check fa-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-black text-white leading-none mb-2">Validar Información</h3>
-                            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">{{ $nombreEstablecimientoSeleccionado }}</p>
-                        </div>
-                    </div>
-                    <button wire:click="cerrarModales" class="absolute top-8 right-8 text-gray-400 hover:text-white transition-colors">
-                        <i class="fas fa-times fa-lg"></i>
-                    </button>
-                </div>
-
-                <div class="p-10 space-y-8">
-                    <!-- Selector de Estado Premium -->
-                    <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Seleccione el Estado de Auditoría</label>
-                        <div class="grid grid-cols-2 gap-4">
-                            @foreach(['PENDIENTE', 'CORRECTO', 'CORREGIDO', 'REVISAR', 'FALTANTE_EDUGE', 'BAJA'] as $estado)
-                                @php
-                                    $meta = [
-                                        'PENDIENTE' => ['color' => 'orange', 'icon' => 'clock', 'label' => 'Pendiente'],
-                                        'CORRECTO' => ['color' => 'green', 'icon' => 'check-circle', 'label' => 'Correcto'],
-                                        'CORREGIDO' => ['color' => 'blue', 'icon' => 'sync-alt', 'label' => 'Corregido'],
-                                        'REVISAR' => ['color' => 'indigo', 'icon' => 'search-plus', 'label' => 'Revisar'],
-                                        'FALTANTE_EDUGE' => ['color' => 'red', 'icon' => 'exclamation-circle', 'label' => 'Faltante'],
-                                        'BAJA' => ['color' => 'gray', 'icon' => 'minus-circle', 'label' => 'Baja'],
-                                    ][$estado];
-                                @endphp
-                                <button wire:click="$set('nuevoEstado', '{{ $estado }}')"
-                                        class="flex items-center gap-3 p-4 rounded-2xl border-2 transition-all text-left {{ $nuevoEstado === $estado ? 'border-primary-orange bg-orange-50 shadow-md ring-2 ring-orange-100' : 'border-gray-100 hover:border-gray-200' }}">
-                                    <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm text-{{ $meta['color'] }}-500">
-                                        <i class="fas fa-{{ $meta['icon'] }}"></i>
-                                    </div>
-                                    <span class="text-xs font-black text-gray-700 uppercase">{{ $meta['label'] }}</span>
-                                </button>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <!-- Observaciones -->
-                    <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 flex justify-between">
-                            Observaciones de Auditoría
-                            @if($this->requiereObservaciones())
-                                <span class="text-primary-orange font-black">OBLIGATORIO</span>
-                            @endif
-                        </label>
-                        <textarea wire:model="observaciones" rows="4" 
-                                  placeholder="Escriba aquí los detalles de la inconsistencia o los cambios realizados..."
-                                  class="w-full p-5 rounded-3xl bg-gray-50 border-gray-100 text-sm font-medium focus:ring-4 focus:ring-orange-500/10 focus:border-primary-orange transition-all"></textarea>
-                        @error('observaciones') <span class="text-[10px] font-bold text-red-500 mt-2 block pl-2">{{ $message }}</span> @enderror
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 px-10 py-8 flex flex-col md:flex-row gap-4 border-t border-gray-100">
-                    <button wire:click="cambiarEstado" class="btn-primary flex-1 py-4 text-xs font-black shadow-lg shadow-orange-500/20 active:scale-95 transition-transform">
-                        CONFIRMAR VALIDACIÓN
-                    </button>
-                    <button wire:click="cerrarModales" class="btn-secondary px-8 text-xs font-black uppercase">
-                        Cancelar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
 </div>

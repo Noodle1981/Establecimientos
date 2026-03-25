@@ -293,11 +293,6 @@
                                         <i class="fas fa-check"></i>
                                     </button>
                                     @endif
-                                    <button wire:click="abrirCambiarEstado({{ $modalidad->id }})"
-                                            class="w-8 h-8 flex items-center justify-center rounded-lg bg-orange-50 text-primary-orange hover:bg-primary-orange hover:text-white transition-all shadow-sm border border-orange-100"
-                                            title="Editar Estado/Validar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
                                     <button wire:click="abrirHistorial({{ $modalidad->id }})"
                                             class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-all border border-gray-100"
                                             title="Ver Historial">

@@ -205,7 +205,10 @@ class ValidacionModalidadesTable extends Component
         if ($this->search) {
             $query->whereHas('establecimiento', function ($q) {
                 $q->where('nombre', 'like', '%' . $this->search . '%')
-                  ->orWhere('cue', 'like', '%' . $this->search . '%');
+                  ->orWhere('cue', 'like', '%' . $this->search . '%')
+                  ->orWhereHas('edificio', function ($q2) {
+                      $q2->where('cui', 'like', '%' . $this->search . '%');
+                  });
             });
         }
 
