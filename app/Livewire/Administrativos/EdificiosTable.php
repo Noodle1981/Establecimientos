@@ -414,6 +414,7 @@ class EdificiosTable extends Component
 
         // Validar datos
         $this->validate([
+            'editForm.cui'              => 'required|string|max:50|unique:edificios,cui,' . $this->selectedEdificio->id,
             'editForm.calle'            => 'required|string|max:255',
             'editForm.numero_puerta'    => 'nullable|string|max:20',
             'editForm.codigo_postal'    => 'nullable|numeric',
@@ -423,6 +424,8 @@ class EdificiosTable extends Component
             'editForm.letra_zona'       => 'nullable|string|max:1',
             'editForm.zona_departamento'=> 'required|string|max:255',
         ], [
+            'editForm.cui.required'       => 'El CUI es obligatorio.',
+            'editForm.cui.unique'         => 'Ya existe un edificio con ese CUI.',
             'editForm.calle.required'     => 'La calle es obligatoria.',
             'editForm.localidad.required' => 'La localidad es obligatoria.',
             'editForm.zona_departamento.required' => 'El departamento es obligatorio.',
@@ -432,12 +435,14 @@ class EdificiosTable extends Component
         ]);
 
         // Convertir a mayúsculas
+        $this->editForm['cui'] = strtoupper(trim($this->editForm['cui']));
         $this->editForm['localidad'] = strtoupper($this->editForm['localidad']);
         $this->editForm['calle'] = strtoupper($this->editForm['calle']);
         $this->editForm['establecimiento_cabecera'] = strtoupper($this->editForm['establecimiento_cabecera']);
 
         // Actualizar Edificio
         $this->selectedEdificio->fill([
+            'cui'  => $this->editForm['cui'],
             'calle' => $this->editForm['calle'],
             'numero_puerta' => $this->editForm['numero_puerta'],
             'codigo_postal' => $this->editForm['codigo_postal'] ?: null,

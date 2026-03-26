@@ -398,8 +398,9 @@
                             </h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block text-xs font-bold uppercase mb-1">CUI (Solo Lectura)</label>
-                                    <input type="text" value="{{ $editForm['cui'] }}" disabled class="w-full rounded-md border-gray-200 bg-gray-100 shadow-sm cursor-not-allowed">
+                                    <label class="block text-xs font-bold uppercase mb-1">CUI</label>
+                                    <input type="text" wire:model="editForm.cui" class="w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 uppercase">
+                                    @error('editForm.cui') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase mb-1">CUE Edificio Principal</label>

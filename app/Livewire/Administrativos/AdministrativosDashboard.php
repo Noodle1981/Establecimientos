@@ -37,17 +37,21 @@ class AdministrativosDashboard extends Component
 
     private function loadDireccionesArea()
     {
-        $query = Modalidad::select('direccion_area')->distinct()
-            ->whereNotNull('direccion_area')
-            ->where('direccion_area', '!=', '');
+        $ambitoCacheKey = 'dashboard-direcciones-' . md5($this->ambito);
 
-        if ($this->ambito !== 'TODOS') {
-            $query->where('ambito', $this->ambito);
-        }
+        $this->direcciones_area = Cache::remember($ambitoCacheKey, 3600, function () {
+            $query = Modalidad::select('direccion_area')->distinct()
+                ->whereNotNull('direccion_area')
+                ->where('direccion_area', '!=', '');
 
-        $this->direcciones_area = $query->orderBy('direccion_area')
-            ->pluck('direccion_area')
-            ->toArray();
+            if ($this->ambito !== 'TODOS') {
+                $query->where('ambito', $this->ambito);
+            }
+
+            return $query->orderBy('direccion_area')
+                ->pluck('direccion_area')
+                ->toArray();
+        });
     }
 
     public function updatedAmbito() 
