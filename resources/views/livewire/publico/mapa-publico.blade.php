@@ -166,22 +166,26 @@
                 popupContent += `
                     <div class="p-3 bg-gray-50/50 rounded-xl border border-gray-100 hover:border-orange-200 transition-colors group">
                         <p class="text-[11px] font-black text-gray-800 mb-2 leading-snug uppercase">${est.nombre}</p>
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid grid-cols-2 gap-2 mb-2">
                              <div class="flex flex-col">
                                 <span class="text-[8px] text-gray-400 font-bold uppercase">CUE</span>
                                 <span class="text-[10px] font-mono font-bold text-gray-700">${est.cue}</span>
                             </div>
-                            <div class="flex flex-col">
-                                <span class="text-[8px] text-gray-400 font-bold uppercase">Radio</span>
-                                <span class="text-[10px] font-bold text-gray-700">${est.radio || '-'}</span>
-                            </div>
-                            <div class="col-span-2">
-                                <span class="text-[8px] text-gray-400 font-bold uppercase block mb-0.5">Nivel / Area</span>
-                                <div class="flex flex-wrap gap-1">
-                                    <span class="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[9px] font-bold text-primary-orange uppercase">${est.nivel_educativo}</span>
-                                    <span class="px-1.5 py-0.5 rounded bg-white border border-gray-200 text-[9px] font-bold text-gray-500 uppercase truncate max-w-[120px]">${est.direccion_area}</span>
+                        </div>
+                        <div class="space-y-2">
+                            ${(est.modalidades || []).map(mod => `
+                                <div class="p-2 bg-white border border-gray-100 rounded-lg">
+                                    <span class="text-[8px] text-gray-400 font-bold uppercase block mb-0.5">Nivel / Area</span>
+                                    <div class="flex flex-wrap gap-1">
+                                        <span class="px-1.5 py-0.5 rounded bg-orange-50 border border-orange-100 text-[9px] font-bold text-primary-orange uppercase">${mod.nivel}</span>
+                                        <span class="px-1.5 py-0.5 rounded bg-gray-50 border border-gray-100 text-[9px] font-bold text-gray-500 uppercase truncate max-w-[150px]">${mod.area}</span>
+                                    </div>
+                                    <div class="flex gap-2 mt-1">
+                                        <span class="text-[8px] text-gray-400 font-medium italic">Radio: ${mod.radio}</span>
+                                        <span class="text-[8px] text-gray-400 font-medium italic">Cat: ${mod.categoria}</span>
+                                    </div>
                                 </div>
-                            </div>
+                            `).join('')}
                         </div>
                     </div>
                 `;
@@ -240,10 +244,11 @@
                                     <i class="fas fa-map-marker-alt text-gray-300 w-3 text-center"></i>
                                     <span class="truncate">${edificio.calle} ${edificio.numero_puerta || 'S/N'}</span>
                                 </p>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase flex items-center gap-1.5">
-                                    <i class="fas fa-graduation-cap text-gray-300 w-3 text-center"></i>
-                                    <span class="truncate">${est.nivel_educativo}</span>
-                                </p>
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                    ${(est.modalidades || []).map(mod => `
+                                        <span class="px-1 py-0.5 rounded bg-gray-50 border border-gray-100 text-[8px] font-bold text-gray-500 uppercase shrink-0">${mod.nivel}</span>
+                                    `).join('')}
+                                </div>
                             </div>
                         </div>
                         <div class="self-center transform translate-x-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary-orange">

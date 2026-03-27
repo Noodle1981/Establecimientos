@@ -13,6 +13,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Support\Facades\Cache;
+use Livewire\Attributes\Computed;
 
 
 class ModalidadesTable extends Component
@@ -31,7 +32,6 @@ class ModalidadesTable extends Component
     public $zonaLetraFilter = '';
     public $conObservacionesFilter = false;
     public $showDeleted = false;
-    public $nivelesEducativos = [];
 
     // Modales
     public $showViewModal = false;
@@ -140,11 +140,20 @@ class ModalidadesTable extends Component
             $this->updatedCreateFormNivelEducativo($this->createForm['nivel_educativo']);
         }
 
+        // Lógica para filtros dependientes (Tab principal)
         if (in_array($propertyName, ['direccionAreaFilter', 'ambitoFilter'])) {
             if ($propertyName === 'direccionAreaFilter') {
                 $this->nivelFilter = ''; // Solo reseteamos nivel si cambia el área
             }
-            $this->loadNivelesEducativos();
+        }
+
+        // Lógica para modales (Edit y Create)
+        if ($propertyName === 'editForm.direccion_area') {
+            $this->editForm['nivel_educativo'] = ''; // Resetear nivel al cambiar área en modal
+        }
+
+        if ($propertyName === 'createForm.direccion_area') {
+            $this->createForm['nivel_educativo'] = ''; // Resetear nivel al cambiar área en modal
         }
         
         if (in_array($propertyName, [
@@ -165,12 +174,11 @@ class ModalidadesTable extends Component
         }
     }
 
-    public function mount()
-    {
-        $this->loadNivelesEducativos();
-    }
-
-    private function loadNivelesEducativos()
+    /**
+     * Propiedad computada para los niveles en el FILTRO principal
+     */
+    #[Computed]
+    public function nivelesFiltrados()
     {
         $query = Modalidad::select('nivel_educativo')->distinct()
             ->whereNotNull('nivel_educativo')
@@ -184,9 +192,56 @@ class ModalidadesTable extends Component
             $query->where('ambito', $this->ambitoFilter);
         }
 
-        $this->nivelesEducativos = $query->orderBy('nivel_educativo')
-            ->pluck('nivel_educativo')
-            ->toArray();
+        return $query->orderBy('nivel_educativo')->pluck('nivel_educativo')->toArray();
+    }
+
+    /**
+     * Propiedad computada para los niveles en el modal de EDICIÓN
+     */
+    #[Computed]
+    public function nivelesEdit()
+    {
+        $query = Modalidad::select('nivel_educativo')->distinct()
+            ->whereNotNull('nivel_educativo')
+            ->where('nivel_educativo', '!=', '');
+
+        if (isset($this->editForm['direccion_area']) && $this->editForm['direccion_area']) {
+            $query->where('direccion_area', $this->editForm['direccion_area']);
+        }
+
+        if (isset($this->editForm['ambito']) && $this->editForm['ambito']) {
+            $query->where('ambito', $this->editForm['ambito']);
+        }
+
+        return $query->orderBy('nivel_educativo')->pluck('nivel_educativo')->toArray();
+    }
+
+    /**
+     * Propiedad computada para los niveles en el modal de CREACIÓN
+     */
+    #[Computed]
+    public function nivelesCreate()
+    {
+        $query = Modalidad::select('nivel_educativo')->distinct()
+            ->whereNotNull('nivel_educativo')
+            ->where('nivel_educativo', '!=', '');
+
+        // En creación el ámbito suele ser PUBLICO por defecto
+        if (isset($this->createForm['ambito']) && $this->createForm['ambito']) {
+            $query->where('ambito', $this->createForm['ambito']);
+        }
+        
+        // Si el usuario quiere que el área también filtre el nivel en creación (opcional)
+        if (isset($this->createForm['direccion_area']) && $this->createForm['direccion_area']) {
+             $query->where('direccion_area', $this->createForm['direccion_area']);
+        }
+
+        return $query->orderBy('nivel_educativo')->pluck('nivel_educativo')->toArray();
+    }
+
+    public function mount()
+    {
+        // No longer needed: loadNivelesEducativos()
     }
 
     public function updatedCreateFormNivelEducativo($value)
@@ -329,7 +384,8 @@ class ModalidadesTable extends Component
 
         return view('livewire.administrativos.modalidades-table', array_merge([
             'modalidades' => $this->getFilteredQuery()->paginate(20),
-            'niveles' => $this->nivelesEducativos,
+            // Pasamos nivelesFiltrados por compatibilidad con el loop principal del filtro
+            'niveles' => $this->nivelesFiltrados, 
         ], $filterOptions))->layout('layouts.app');
     }
 

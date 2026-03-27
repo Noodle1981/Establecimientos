@@ -31,7 +31,14 @@ class EdificiosMapaController extends Controller
                         return [
                             'cue' => $est->cue,
                             'nombre' => $est->nombre,
-                            'modalidades_count' => $est->modalidades->count(),
+                            'modalidades' => $est->modalidades->map(function ($mod) {
+                                return [
+                                    'nivel' => $mod->nivel_educativo,
+                                    'area' => $mod->direccion_area,
+                                    'radio' => $mod->radio ?? 'N/A',
+                                    'categoria' => $mod->categoria ?? 'N/A',
+                                ];
+                            })->toArray(),
                         ];
                     }),
                 ];

@@ -484,13 +484,19 @@
                                     <label class="block text-xs font-bold uppercase mb-1">Nivel Educativo</label>
                                     <select wire:model.live="createForm.nivel_educativo" class="w-full rounded-md border-gray-300 shadow-sm">
                                         <option value="">Seleccione...</option>
-                                        @foreach($niveles as $nivel) <option value="{{ $nivel }}">{{ $nivel }}</option> @endforeach
+                                        @foreach($this->niveles_create as $nivel) <option value="{{ $nivel }}">{{ $nivel }}</option> @endforeach
                                     </select>
                                     @error('createForm.nivel_educativo') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase mb-1">Dirección de Área</label>
-                                    <input type="text" wire:model="createForm.direccion_area" class="w-full rounded-md border-gray-300 shadow-sm uppercase" readonly>
+                                    <div class="flex gap-2">
+                                        <input type="text" wire:model="createForm.direccion_area" class="w-full rounded-md border-gray-300 bg-gray-100 shadow-sm uppercase" readonly>
+                                        <select wire:model.live="createForm.direccion_area" class="rounded-md border-gray-300 shadow-sm text-xs">
+                                            <option value="">Auto/Manual</option>
+                                            @foreach($direccionesArea as $area) <option value="{{ $area }}">{{ $area }}</option> @endforeach
+                                        </select>
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase mb-1">Ámbito</label>
@@ -648,12 +654,13 @@
                                 <div>
                                     <label class="block text-xs font-bold uppercase mb-1">Nivel Educativo</label>
                                     <select wire:model="editForm.nivel_educativo" class="w-full rounded-md border-gray-300 shadow-sm">
-                                        @foreach($niveles as $nivel) <option value="{{ $nivel }}">{{ $nivel }}</option> @endforeach
+                                        <option value="">Seleccione...</option>
+                                        @foreach($this->niveles_edit as $nivel) <option value="{{ $nivel }}">{{ $nivel }}</option> @endforeach
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold uppercase mb-1">Dirección de Área</label>
-                                    <select wire:model="editForm.direccion_area" class="w-full rounded-md border-gray-300 shadow-sm">
+                                    <select wire:model.live="editForm.direccion_area" class="w-full rounded-md border-gray-300 shadow-sm">
                                         <option value="">Seleccione...</option>
                                         <option value="INICIAL">INICIAL</option>
                                         <option value="PRIMARIO">PRIMARIO</option>

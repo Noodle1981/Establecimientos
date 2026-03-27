@@ -41,16 +41,17 @@ class MapaPublico extends Component
                         'zona_departamento' => $edificio->zona_departamento ?? '',
                         'ambito' => $ambito,
                         'establecimientos' => $edificio->establecimientos->map(function ($est) {
-                            // Obtener la primera modalidad para mostrar info adicional
-                            $modalidad = $est->modalidades->first();
-                            
                             return [
                                 'nombre' => $est->nombre,
                                 'cue' => $est->cue,
-                                'radio' => $modalidad?->radio ?? 'N/A',
-                                'categoria' => $modalidad?->categoria ?? 'N/A',
-                                'nivel_educativo' => $modalidad?->nivel_educativo ?? 'N/A',
-                                'direccion_area' => $modalidad?->direccion_area ?? 'N/A',
+                                'modalidades' => $est->modalidades->map(function ($mod) {
+                                    return [
+                                        'nivel' => $mod->nivel_educativo,
+                                        'area' => $mod->direccion_area,
+                                        'radio' => $mod->radio ?? 'N/A',
+                                        'categoria' => $mod->categoria ?? 'N/A',
+                                    ];
+                                })->toArray(),
                             ];
                         })->toArray(),
                     ];
