@@ -14,9 +14,7 @@
             border-bottom: 2px solid #FE8204;
             padding-bottom: 10px;
             margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            width: 100%;
         }
         .logo-text {
             text-transform: uppercase;
@@ -42,6 +40,8 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+            table-layout: fixed; /* Ayuda enormemente a optimizar el renderizado y RAM en miles de registros */
+            word-wrap: break-word;
         }
         th {
             background-color: #FE8204;
@@ -123,25 +123,31 @@
 </head>
 <body>
     <header>
-        <div>
-            <div class="logo-text">Ministerio de Educación</div>
-            <h1>Informe de Auditoría de Establecimientos</h1>
-        </div>
-        <div class="meta-info">
-            <p><strong>Fecha de Emisión:</strong> {{ now()->format('d/m/Y H:i') }}</p>
-            <p><strong>Generado por:</strong> {{ auth()->user()->name }}</p>
-            <p><strong>Período Auditado:</strong> 
-                @if($filtros['desde'] && $filtros['hasta'])
-                    {{ \Carbon\Carbon::parse($filtros['desde'])->format('d/m/Y') }} al {{ \Carbon\Carbon::parse($filtros['hasta'])->format('d/m/Y') }}
-                @elseif($filtros['desde'])
-                    Desde {{ \Carbon\Carbon::parse($filtros['desde'])->format('d/m/Y') }}
-                @elseif($filtros['hasta'])
-                    Hasta {{ \Carbon\Carbon::parse($filtros['hasta'])->format('d/m/Y') }}
-                @else
-                    Histórico Completo
-                @endif
-            </p>
-        </div>
+        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 0;">
+            <tr>
+                <td width="60%" style="vertical-align: middle; border: none; text-align: left;">
+                    <div class="logo-text">Ministerio de Educación</div>
+                    <h1>Informe de Auditoría de Establecimientos</h1>
+                </td>
+                <td width="40%" style="vertical-align: middle; border: none; text-align: right;">
+                    <div class="meta-info">
+                        <p style="margin: 0;"><strong>Fecha de Emisión:</strong> {{ now()->format('d/m/Y H:i') }}</p>
+                        <p style="margin: 0;"><strong>Generado por:</strong> {{ auth()->user()->name }}</p>
+                        <p style="margin: 0;"><strong>Período Auditado:</strong> 
+                            @if($filtros['desde'] && $filtros['hasta'])
+                                {{ \Carbon\Carbon::parse($filtros['desde'])->format('d/m/Y') }} al {{ \Carbon\Carbon::parse($filtros['hasta'])->format('d/m/Y') }}
+                            @elseif($filtros['desde'])
+                                Desde {{ \Carbon\Carbon::parse($filtros['desde'])->format('d/m/Y') }}
+                            @elseif($filtros['hasta'])
+                                Hasta {{ \Carbon\Carbon::parse($filtros['hasta'])->format('d/m/Y') }}
+                            @else
+                                Histórico Completo
+                            @endif
+                        </p>
+                    </div>
+                </td>
+            </tr>
+        </table>
     </header>
 
     <footer>
@@ -192,13 +198,13 @@
     <table>
         <thead>
             <tr>
-                <th>Establecimiento</th>
-                <th>CUE</th>
-                <th>Departamento</th>
-                <th>Estado</th>
-                <th>Validado Por</th>
-                <th>Fecha</th>
-                <th width="20%">Observaciones / Notas</th>
+                <th width="25%">Establecimiento</th>
+                <th width="10%">CUE</th>
+                <th width="10%">Depto.</th>
+                <th width="10%">Estado</th>
+                <th width="15%">Validado Por</th>
+                <th width="10%">Fecha</th>
+                <th width="20%">Observaciones</th>
             </tr>
         </thead>
         <tbody>

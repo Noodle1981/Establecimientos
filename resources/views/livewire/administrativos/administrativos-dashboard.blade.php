@@ -1,16 +1,49 @@
-<div class="relative w-full h-full overflow-hidden bg-gray-50" x-data="{ sidebarOpen: true }">
+<div class="relative w-full h-full overflow-hidden bg-gray-50" x-data="{ sidebarOpen: true }" wire:init="loadData">
+    
+    <!-- Loading Overlay -->
+    <div wire:loading.delay.longest wire:target="loadData, refreshData, ambito, departamento, direccion_area, nivel_educativo" 
+         class="absolute inset-0 z-[100] flex items-center justify-center bg-white/60 backdrop-blur-sm transition-all duration-500">
+        <div class="flex flex-col items-center p-8 bg-white rounded-3xl shadow-2xl border border-orange-100">
+            <div class="relative w-20 h-20 mb-4">
+                <div class="absolute inset-0 rounded-full border-4 border-orange-100"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-orange-500 border-t-transparent animate-spin"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <i class="fas fa-chart-pie text-2xl text-orange-500"></i>
+                </div>
+            </div>
+            <h2 class="text-xl font-black text-gray-800 mb-1">Analizando Datos</h2>
+            <p class="text-sm text-gray-500 font-medium">Esto tomará solo un segundo...</p>
+        </div>
+    </div>
+
+    <!-- Inicialización de carga -->
+    @if(!$readyToLoad)
+    <div class="absolute inset-0 z-[99] flex items-center justify-center bg-white">
+        <div class="flex flex-col items-center">
+            <div class="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="mt-4 font-bold text-gray-600">Preparando panel...</p>
+        </div>
+    </div>
+    @endif
     
     <!-- Sidebar (Filtros) -->
     <div class="absolute top-0 left-0 h-full w-72 z-20 glass-strong shadow-2xl transition-transform duration-300 flex flex-col"
          :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
         
         <!-- Header Sidebar -->
-        <div class="p-6 border-b border-gray-200 bg-white bg-opacity-50">
+        <div class="p-6 border-b border-gray-200 bg-white bg-opacity-50 relative">
             <h2 class="text-xl font-black text-gray-900 flex items-center gap-2">
                 <i class="fas fa-sliders-h text-orange-500"></i>
                 Panel de Control
             </h2>
             <p class="text-xs text-gray-500 mt-1">Configuración de vistas</p>
+            
+            <!-- Botón de Refresco Manual -->
+            <button wire:click="refreshData" 
+                    class="absolute top-6 right-6 p-2 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-500 hover:text-white transition-all duration-300 group shadow-sm"
+                    title="Recargar datos">
+                <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i>
+            </button>
         </div>
 
         <!-- Filtros -->

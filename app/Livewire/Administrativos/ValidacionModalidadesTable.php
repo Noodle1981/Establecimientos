@@ -243,6 +243,10 @@ class ValidacionModalidadesTable extends Component
      */
     public function generarReporte()
     {
+        // Aumentar temporalmente la memoria y tiempo de ejecución para reportes grandes
+        ini_set('memory_limit', '2048M');
+        ini_set('max_execution_time', '300');
+
         $query = Modalidad::withTrashed()->with(['establecimiento.edificio', 'usuarioValidacion']);
         $query = $this->aplicarFiltros($query);
 

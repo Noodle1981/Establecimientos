@@ -19,6 +19,22 @@ class AdministrativosDashboard extends Component
     public $departamentos = [];
     public $direcciones_area = [];
     public $niveles_educativos = [];
+    public $readyToLoad = false;
+
+    public function loadData()
+    {
+        $this->readyToLoad = true;
+        $this->dispatch('update-charts', $this->chartData);
+    }
+
+    public function refreshData()
+    {
+        // Limpiamos las claves específicas de caché relacionadas con este dashboard
+        Cache::forget('dashboard-departamentos');
+        $this->loadDireccionesArea(); // Esto ya usa Cache::remember, pero podemos forzarlo
+        
+        $this->dispatch('update-charts', $this->chartData);
+    }
 
     public function mount()
     {
@@ -107,6 +123,17 @@ class AdministrativosDashboard extends Component
         $cacheKey = 'dashboard_data_' . md5(json_encode([
             $this->ambito, $this->departamento, $this->direccion_area, $this->nivel_educativo
         ]));
+
+        if (!$this->readyToLoad) {
+            return [
+                'modalidades' => ['labels' => [], 'values' => []],
+                'categorias' => ['labels' => [], 'values' => []],
+                'zonas' => ['labels' => [], 'values' => []],
+                'radios' => ['labels' => [], 'values' => []],
+                'ambito' => ['labels' => [], 'values' => []],
+                'stats' => ['total_establecimientos' => 0, 'total_modalidades' => 0, 'total_edificios' => 0],
+            ];
+        }
 
         return Cache::remember($cacheKey, 300, function () {
             return [
