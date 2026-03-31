@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Administrativos;
 
+use App\Models\Edificio;
 use App\Models\Modalidad;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -324,9 +325,9 @@ class ValidacionModalidadesTable extends Component
         $porcentajeAvance = $total > 0 ? round(($procesados / $total) * 100, 1) : 0;
 
         // Obtener listas para filtros (Optimización: Cachear si es posible, o simple query)
-        $niveles = \App\Models\Modalidad::distinct()->whereNotNull('nivel_educativo')->orderBy('nivel_educativo')->pluck('nivel_educativo');
-        $departamentos = \App\Models\Edificio::distinct()->whereNotNull('zona_departamento')->orderBy('zona_departamento')->pluck('zona_departamento');
-        $ambitos = \App\Models\Modalidad::distinct()->whereNotNull('ambito')->orderBy('ambito')->pluck('ambito');
+        $niveles = Modalidad::distinct()->whereNotNull('nivel_educativo')->orderBy('nivel_educativo')->pluck('nivel_educativo');
+        $departamentos = Edificio::distinct()->whereNotNull('zona_departamento')->orderBy('zona_departamento')->pluck('zona_departamento');
+        $ambitos = Modalidad::distinct()->whereNotNull('ambito')->orderBy('ambito')->pluck('ambito');
 
         // Clases de badges por estado
         $badgeClasses = [
