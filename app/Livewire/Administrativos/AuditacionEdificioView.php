@@ -5,6 +5,8 @@ namespace App\Livewire\Administrativos;
 use App\Models\Edificio;
 use App\Models\Modalidad;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Auth;
 
 class AuditacionEdificioView extends Component
 {
@@ -79,7 +81,7 @@ class AuditacionEdificioView extends Component
         $modalidad->cambiarEstado(
             $this->nuevoEstado,
             $this->observaciones,
-            auth()->id()
+            Auth::id()
         );
 
         $this->showCambiarEstadoModal = false;
@@ -99,7 +101,7 @@ class AuditacionEdificioView extends Component
         $modalidad->cambiarEstado(
             'CORRECTO',
             'Validación rápida: Correcto según EDUGE',
-            auth()->id()
+            Auth::id()
         );
 
         $this->edificio->load(['establecimientos.modalidades']);
@@ -141,7 +143,7 @@ class AuditacionEdificioView extends Component
             'bulkObservaciones' => in_array($this->bulkEstado, ['CORREGIDO', 'REVISAR', 'BAJA', 'ELIMINADO']) ? 'required|min:10' : 'nullable',
         ]);
 
-        $query = Modalidad::query();
+        $query = Modalidad::withTrashed();
 
         if ($this->bulkScope === 'EDIFICIO') {
             $query->whereHas('establecimiento', function($q) {
@@ -155,11 +157,12 @@ class AuditacionEdificioView extends Component
 
         $modalidades = $query->get();
 
+        /** @var \App\Models\Modalidad $mod */
         foreach ($modalidades as $mod) {
             $mod->cambiarEstado(
                 $this->bulkEstado,
                 $this->bulkObservaciones ?: "Validación masiva ({$this->bulkScope})",
-                auth()->id()
+                Auth::id()
             );
         }
 
@@ -227,6 +230,7 @@ class AuditacionEdificioView extends Component
         ];
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
         // Clases de badges por estado (Reutilizadas para consistencia)
@@ -241,6 +245,6 @@ class AuditacionEdificioView extends Component
 
         return view('livewire.administrativos.auditacion-edificio-view', [
             'badgeClasses' => $badgeClasses
-        ])->layout('layouts.app');
+        ]);
     }
 }

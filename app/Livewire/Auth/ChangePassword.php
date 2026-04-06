@@ -3,6 +3,7 @@
 namespace App\Livewire\Auth;
 
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 use Livewire\Attributes\Layout;
@@ -17,7 +18,9 @@ class ChangePassword extends Component
     public function mount()
     {
         // Check if this is the first login (password never changed)
-        $this->is_first_login = is_null(auth()->user()->password_changed_at);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $this->is_first_login = is_null($user?->password_changed_at);
     }
 
     public function updatePassword()
@@ -38,12 +41,13 @@ class ChangePassword extends Component
             'new_password.confirmed' => 'Las contraseñas no coinciden.',
         ]);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         // Update password and mark as changed
         // Update password and mark as changed using DB directly to ensure it works
         \Illuminate\Support\Facades\DB::table('users')
-            ->where('id', $user->id)
+            ->where('id', $user?->id)
             ->update([
                 'password' => Hash::make($this->new_password),
                 'password_changed_at' => now(),

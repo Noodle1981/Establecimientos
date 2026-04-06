@@ -5,6 +5,7 @@ namespace App\Livewire\Administrativos;
 use App\Models\Modalidad;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
 
 class InstrumentosLegalesTable extends Component
 {
@@ -88,6 +89,7 @@ class InstrumentosLegalesTable extends Component
         return $count;
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
         $query = Modalidad::query()
@@ -132,6 +134,6 @@ class InstrumentosLegalesTable extends Component
             'modalidades' => $query->paginate(20),
             'niveles' => Modalidad::select('nivel_educativo')->distinct()->pluck('nivel_educativo'),
             'direccionesArea' => Modalidad::select('direccion_area')->distinct()->whereNotNull('direccion_area')->orderBy('direccion_area')->pluck('direccion_area'),
-        ])->layout('layouts.app');
+        ]);
     }
 }

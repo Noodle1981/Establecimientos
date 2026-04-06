@@ -6,6 +6,8 @@ use App\Models\Modalidad;
 use App\Models\Establecimiento;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class TrashManager extends Component
@@ -49,7 +51,9 @@ class TrashManager extends Component
             $modalidad = Modalidad::withTrashed()->with(['establecimiento.modalidades', 'establecimiento.auditorias'])->findOrFail($id);
             $establecimiento = $modalidad->establecimiento;
 
-            if (!auth()->user()->isAdmin()) {
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+            if (!$user?->isAdmin()) {
                 abort(403);
             }
 
@@ -76,6 +80,7 @@ class TrashManager extends Component
         }
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
         $query = Modalidad::onlyTrashed()
@@ -87,6 +92,6 @@ class TrashManager extends Component
 
         return view('livewire.admin.trash-manager', [
             'modalidades' => $query->paginate(15)
-        ])->layout('layouts.app');
+        ]);
     }
 }

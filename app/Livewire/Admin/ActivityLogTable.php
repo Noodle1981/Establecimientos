@@ -6,6 +6,8 @@ use App\Models\ActivityLog;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Auth;
 
 class ActivityLogTable extends Component
 {
@@ -75,6 +77,7 @@ class ActivityLogTable extends Component
         $this->resetPage();
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
         $query = ActivityLog::with('user');
@@ -87,8 +90,10 @@ class ActivityLogTable extends Component
         }
 
         // Restricción por rol
-        if (auth()->user()->isAdministrativo()) {
-            $query->where('user_id', auth()->id());
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if ($user?->isAdministrativo()) {
+            $query->where('user_id', Auth::id());
         } elseif ($this->userFilter) {
             // Solo admin puede filtrar por otros usuarios
             $query->where('user_id', $this->userFilter);
@@ -182,6 +187,6 @@ class ActivityLogTable extends Component
             'areas' => $areas,
             'ambitos' => $ambitos,
             'departamentos' => $departamentos,
-        ])->layout('layouts.app');
+        ]);
     }
 }

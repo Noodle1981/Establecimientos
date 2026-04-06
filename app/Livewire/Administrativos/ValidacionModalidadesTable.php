@@ -6,6 +6,8 @@ use App\Models\Edificio;
 use App\Models\Modalidad;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Auth;
 
 class ValidacionModalidadesTable extends Component
 {
@@ -83,7 +85,7 @@ class ValidacionModalidadesTable extends Component
         $this->modalidadSeleccionada->cambiarEstado(
             $this->nuevoEstado,
             $this->observaciones,
-            auth()->id()
+            Auth::id()
         );
 
         $this->showCambiarEstadoModal = false;
@@ -152,7 +154,7 @@ class ValidacionModalidadesTable extends Component
         $modalidad->cambiarEstado(
             'CORRECTO',
             'Validación rápida: Correcto según EDUGE',
-            auth()->id()
+            Auth::id()
         );
 
         session()->flash('message', 'Validado como CORRECTO.');
@@ -293,6 +295,7 @@ class ValidacionModalidadesTable extends Component
         }, 'reporte-auditoria-' . date('Y-m-d') . '.pdf');
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
         $query = Modalidad::withTrashed()->with(['establecimiento.edificio', 'usuarioValidacion']);
@@ -349,6 +352,6 @@ class ValidacionModalidadesTable extends Component
                 'departamentos' => $departamentos,
                 'ambitos' => $ambitos,
             ]
-        ])->layout('layouts.app');
+        ]);
     }
 }

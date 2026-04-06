@@ -141,43 +141,43 @@ new class extends Component
              class="md:hidden border-t"
              style="border-color: #FE8204; background-color: #FFFFFF;">
             <div class="px-4 py-4 space-y-2">
-                <a href="{{ route('mapa.publico') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('mapa.publico') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                <a href="{{ route('mapa.publico') }}" @class(['block px-4 py-2 rounded-lg transition', 'bg-[#FE8204]/10 text-[#FE8204]' => request()->routeIs('mapa.publico'), 'text-black' => !request()->routeIs('mapa.publico')])>
                     <i class="fas fa-map-marked-alt mr-2" style="color: #FE8204;"></i> Mapa
                 </a>
 
                 @auth
                     @if(auth()->user()->isAdmin())
-                        <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('admin.dashboard') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('admin.dashboard') }}" @class(['block px-4 py-2 rounded-lg transition', 'bg-[#FE8204]/10 text-[#FE8204]' => request()->routeIs('admin.dashboard'), 'text-black' => !request()->routeIs('admin.dashboard')])>
                             <i class="fas fa-chart-line mr-2" style="color: #FE8204;"></i> Dashboard Admin
                         </a>
-                        <a href="{{ route('admin.users') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('admin.users') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('admin.users') }}" @class(['block px-4 py-2 rounded-lg transition', 'bg-[#FE8204]/10 text-[#FE8204]' => request()->routeIs('admin.users'), 'text-black' => !request()->routeIs('admin.users')])>
                             <i class="fas fa-users mr-2" style="color: #FE8204;"></i> Usuarios
                         </a>
-                         <a href="{{ route('admin.establecimientos') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('admin.establecimientos') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                         <a href="{{ route('admin.establecimientos') }}" @class(['block px-4 py-2 rounded-lg transition', 'bg-[#FE8204]/10 text-[#FE8204]' => request()->routeIs('admin.establecimientos'), 'text-black' => !request()->routeIs('admin.establecimientos')])>
                             <i class="fas fa-school mr-2" style="color: #FE8204;"></i> Establecimientos
                         </a>
-                        <a href="{{ route('admin.trash') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('admin.trash') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('admin.trash') }}" @class(['block px-4 py-2 rounded-lg transition', 'bg-[#FE8204]/10 text-[#FE8204]' => request()->routeIs('admin.trash'), 'text-black' => !request()->routeIs('admin.trash')])>
                             <i class="fas fa-skull-crossbones mr-2" style="color: #FE8204;"></i> Papelera Admin
                         </a>
-                        <a href="{{ route('admin.activity-log') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('admin.activity-log') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('admin.activity-log') }}" @class(['block px-4 py-2 rounded-lg transition', 'bg-[#FE8204]/10 text-[#FE8204]' => request()->routeIs('admin.activity-log'), 'text-black' => !request()->routeIs('admin.activity-log')])>
                             <i class="fas fa-clipboard-list mr-2" style="color: #FE8204;"></i> Actividad
                         </a>
                     @endif
 
                     @if(auth()->user()->isAdministrativo())
-                        <a href="{{ route('administrativos.dashboard') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('administrativos.dashboard') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('administrativos.dashboard') }}" @class(['block px-4 py-2 rounded-lg transition', 'bg-[#FE8204]/10 text-[#FE8204]' => request()->routeIs('administrativos.dashboard'), 'text-black' => !request()->routeIs('administrativos.dashboard')])>
                             <i class="fas fa-tachometer-alt mr-2" style="color: #FE8204;"></i> Panel Administrativo
                         </a>
-                        <a href="{{ route('administrativos.establecimientos') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('administrativos.establecimientos') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('administrativos.establecimientos') }}" @class(['block px-4 py-2 rounded-lg transition', 'bg-[#FE8204]/10 text-[#FE8204]' => request()->routeIs('administrativos.establecimientos'), 'text-black' => !request()->routeIs('administrativos.establecimientos')])>
                             <i class="fas fa-school mr-2" style="color: #FE8204;"></i> Establecimientos
                         </a>
-                        <a href="{{ route('administrativos.edificios') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('administrativos.edificios') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('administrativos.edificios') }}" @class(['block px-4 py-2 rounded-lg transition', 'bg-[#FE8204]/10 text-[#FE8204]' => request()->routeIs('administrativos.edificios'), 'text-black' => !request()->routeIs('administrativos.edificios')])>
                             <i class="fas fa-building mr-2" style="color: #FE8204;"></i> Edificios
                         </a>
-                        <a href="{{ route('administrativos.validacion') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('administrativos.validacion*') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('administrativos.validacion') }}" @class(['block px-4 py-2 rounded-lg transition', 'bg-[#FE8204]/10 text-[#FE8204]' => request()->routeIs('administrativos.validacion*'), 'text-black' => !request()->routeIs('administrativos.validacion*')])>
                             <i class="fas fa-clipboard-check mr-2" style="color: #FE8204;"></i> Validación
                         </a>
-                        <a href="{{ route('administrativos.bitacora') }}" class="block px-4 py-2 rounded-lg transition" style="{{ request()->routeIs('administrativos.bitacora') ? 'background-color: rgba(254, 130, 4, 0.1); color: #FE8204;' : 'color: #000000;' }}">
+                        <a href="{{ route('administrativos.bitacora') }}" @class(['block px-4 py-2 rounded-lg transition', 'bg-[#FE8204]/10 text-[#FE8204]' => request()->routeIs('administrativos.bitacora'), 'text-black' => !request()->routeIs('administrativos.bitacora')])>
                             <i class="fas fa-history mr-2" style="color: #FE8204;"></i> Bitácora
                         </a>
                     @endif

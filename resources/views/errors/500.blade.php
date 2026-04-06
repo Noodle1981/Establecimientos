@@ -25,6 +25,7 @@
         .text-orange-gradient {
             background: linear-gradient(135deg, #FE8204 0%, #FFB040 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .animate-glitch {

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Livewire\Admin\AdminDashboard;
 use App\Livewire\Admin\UserManagement;
 use App\Livewire\Mid\MidDashboard;
@@ -25,9 +26,10 @@ Route::middleware(['auth', 'password.change'])->group(function () {
      * Dashboard - Redirige según rol
      */
     Route::get('/dashboard', function () {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         
-        if ($user->isAdmin()) {
+        if ($user?->isAdmin()) {
             return redirect()->route('admin.dashboard');
         } elseif ($user->isAdministrativo()) {
             return redirect()->route('administrativos.dashboard');

@@ -7,6 +7,7 @@ use App\Models\Establecimiento;
 use App\Models\Edificio;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -369,6 +370,7 @@ class ModalidadesTable extends Component
         return $query;
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
         $filterOptions = Cache::remember('modalidades_table_filters', 3600, function () {
@@ -386,7 +388,7 @@ class ModalidadesTable extends Component
             'modalidades' => $this->getFilteredQuery()->paginate(20),
             // Pasamos nivelesFiltrados por compatibilidad con el loop principal del filtro
             'niveles' => $this->nivelesFiltrados, 
-        ], $filterOptions))->layout('layouts.app');
+        ], $filterOptions));
     }
 
     public function exportExcel()

@@ -103,10 +103,11 @@
 </div>
 
 @push('scripts')
+<script id="mapa-data" type="application/json">@json($edificios)</script>
 <script>
     let map;
     let markers = [];
-    let establishments = @json($edificios);
+    let establishments = JSON.parse(document.getElementById('mapa-data').textContent);
 
     document.addEventListener('DOMContentLoaded', function() {
         // Inicializar mapa centrado en San Juan

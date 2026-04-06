@@ -3,11 +3,15 @@
 namespace App\Livewire\Publico;
 
 use App\Models\Edificio;
+use App\Models\Establecimiento;
+use App\Models\Modalidad;
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Cache;
 
 class MapaPublico extends Component
 {
+    #[Layout('layouts.app', ['containerClass' => 'w-full p-0'])]
     public function render()
     {
         // Cargar edificios con sus establecimientos y modalidades
@@ -18,12 +22,12 @@ class MapaPublico extends Component
                 ->whereHas('establecimientos.modalidades')
                 ->with(['establecimientos:id,edificio_id,cue,nombre', 'establecimientos.modalidades:id,establecimiento_id,ambito,radio,categoria,nivel_educativo,direccion_area,sector'])
                 ->get()
-                ->map(function ($edificio) {
+                ->map(function (Edificio $edificio) {
                     // Determinar el ámbito predominante (si al menos uno es privado, lo marcamos como privado o mixto)
                     // Buscamos si hay alguna modalidad privada
-                    $esPrivado = $edificio->establecimientos->flatMap(function ($est) {
+                    $esPrivado = $edificio->establecimientos->flatMap(function (Establecimiento $est) {
                         return $est->modalidades;
-                    })->contains(function ($mod) {
+                    })->contains(function (Modalidad $mod) {
                         // Verificamos por campo 'sector' (1 = estatal, 2 = privado) o 'ambito' textualmente
                         return stripos($mod->ambito, 'privado') !== false || $mod->sector == 2;
                     });
@@ -60,6 +64,6 @@ class MapaPublico extends Component
 
         return view('livewire.publico.mapa-publico', [
             'edificios' => $edificios,
-        ])->layout('layouts.app', ['containerClass' => 'w-full p-0']);
+        ]);
     }
 }

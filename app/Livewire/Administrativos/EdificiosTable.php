@@ -6,6 +6,7 @@ use App\Models\Edificio;
 use App\Models\Establecimiento;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -129,13 +130,14 @@ class EdificiosTable extends Component
         return $query;
     }
 
+    #[Layout('layouts.app')]
     public function render()
     {
         return view('livewire.administrativos.edificios-table', [
             'edificios' => $this->getFilteredQuery()->paginate(20),
             'zonas' => Edificio::select('zona_departamento')->distinct()->orderBy('zona_departamento')->pluck('zona_departamento'),
             'localidades' => Edificio::select('localidad')->distinct()->whereNotNull('localidad')->orderBy('localidad')->pluck('localidad'),
-        ])->layout('layouts.app');
+        ]);
     }
 
     public function exportExcel()
