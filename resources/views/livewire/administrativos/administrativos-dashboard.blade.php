@@ -1,30 +1,18 @@
 <div class="relative w-full h-full overflow-hidden bg-gray-50" x-data="{ sidebarOpen: true }" wire:init="loadData">
     
-    <!-- Loading Overlay -->
+    <!-- Background Processing Indicator (Subtle) -->
     <div wire:loading.delay.longest wire:target="loadData, refreshData, ambito, departamento, direccion_area, nivel_educativo" 
-         class="absolute inset-0 z-[100] flex items-center justify-center bg-white/60 backdrop-blur-sm transition-all duration-500">
-        <div class="flex flex-col items-center p-8 bg-white rounded-3xl shadow-2xl border border-orange-100">
-            <div class="relative w-20 h-20 mb-4">
-                <div class="absolute inset-0 rounded-full border-4 border-orange-100"></div>
-                <div class="absolute inset-0 rounded-full border-4 border-orange-500 border-t-transparent animate-spin"></div>
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <i class="fas fa-chart-pie text-2xl text-orange-500"></i>
-                </div>
-            </div>
-            <h2 class="text-xl font-black text-gray-800 mb-1">Analizando Datos</h2>
-            <p class="text-sm text-gray-500 font-medium">Esto tomará solo un segundo...</p>
-        </div>
+         class="absolute top-0 right-0 left-0 h-1 z-[100] bg-orange-100 overflow-hidden">
+        <div class="h-full bg-orange-500 animate-[loading-bar_1.5s_infinite_ease-in-out]"></div>
     </div>
 
-    <!-- Inicialización de carga -->
-    @if(!$readyToLoad)
-    <div class="absolute inset-0 z-[99] flex items-center justify-center bg-white">
-        <div class="flex flex-col items-center">
-            <div class="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-            <p class="mt-4 font-bold text-gray-600">Preparando panel...</p>
-        </div>
-    </div>
-    @endif
+    <style>
+        @keyframes loading-bar {
+            0% { transform: translateX(-100%); width: 30%; }
+            50% { transform: translateX(100%); width: 70%; }
+            100% { transform: translateX(400%); width: 30%; }
+        }
+    </style>
     
     <!-- Sidebar (Filtros) -->
     <div class="absolute top-0 left-0 h-full w-72 z-20 glass-strong shadow-2xl transition-transform duration-300 flex flex-col"
@@ -172,86 +160,91 @@
 
             <!-- Gráficos Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Modalidades -->
-                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300">
-                    <h3 class="font-bold text-gray-800 text-xs uppercase mb-2">Modalidades Educativas</h3>
-                    <div class="h-48 relative w-full">
-                        <canvas id="chartModalidades"></canvas>
-                    </div>
-                </div>
+                @php $chartsCards = [
+                    ['title' => 'Modalidades Educativas', 'id' => 'chartModalidades'],
+                    ['title' => 'Categorías', 'id' => 'chartCategorias'],
+                    ['title' => 'Por Departamento', 'id' => 'chartZonas', 'span' => $ambito !== 'TODOS'],
+                ]; @endphp
 
-                <!-- Categorías -->
-                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300">
-                    <h3 class="font-bold text-gray-800 text-xs uppercase mb-2">Categorías</h3>
-                    <div class="h-48 relative w-full">
-                        <canvas id="chartCategorias"></canvas>
-                    </div>
+                @foreach($chartsCards as $card)
+                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] transition-all duration-300 {{ ($card['span'] ?? false) ? 'lg:row-span-2' : '' }}">
+                    <h3 class="font-bold text-gray-800 text-xs uppercase mb-3 flex items-center gap-2">
+                        <div class="w-1 h-3 bg-orange-500 rounded-full text-black"></div>
+                        {{ $card['title'] }}
+                    </h3>
+                    
+                    @if($readyToLoad)
+                        <div class="relative w-full {{ ($card['span'] ?? false) ? 'h-[28rem]' : 'h-48' }} animate-fade-in text-black">
+                            <canvas id="{{ $card['id'] }}"></canvas>
+                        </div>
+                    @else
+                        <div class="w-full flex flex-col gap-3 animate-pulse">
+                            <div class="w-full {{ ($card['span'] ?? false) ? 'h-[28rem]' : 'h-48' }} bg-gray-50 rounded-xl"></div>
+                        </div>
+                    @endif
                 </div>
-
-                <!-- Zonas -->
-                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300 {{ $ambito !== 'TODOS' ? 'lg:row-span-2' : '' }}">
-                    <h3 class="font-bold text-gray-800 text-xs uppercase mb-2">Por Departamento</h3>
-                    <div class="relative w-full {{ $ambito !== 'TODOS' ? 'h-[28rem]' : 'h-48' }}">
-                        <canvas id="chartZonas"></canvas>
-                    </div>
-                </div>
+                @endforeach
 
                 <!-- Radios (Bar) -->
-                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300 lg:col-span-2">
-                    <h3 class="font-bold text-gray-800 text-xs uppercase mb-2">Distribución por Radio</h3>
-                    <div class="h-48 relative w-full">
-                        <canvas id="chartRadios"></canvas>
-                    </div>
+                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] lg:col-span-2 transition-all">
+                    <h3 class="font-bold text-gray-800 text-xs uppercase mb-3 flex items-center gap-2">
+                        <div class="w-1 h-3 bg-blue-500 rounded-full"></div>
+                        Distribución por Radio
+                    </h3>
+                    @if($readyToLoad)
+                        <div class="h-48 relative w-full animate-fade-in text-black">
+                            <canvas id="chartRadios"></canvas>
+                        </div>
+                    @else
+                        <div class="h-48 w-full bg-gray-50 rounded-xl animate-pulse"></div>
+                    @endif
                 </div>
 
                 <!-- Ámbito -->
                 @if($ambito === 'TODOS')
-                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300">
-                    <h3 class="font-bold text-gray-800 text-xs uppercase mb-2">Público vs Privado</h3>
-                    <div class="h-48 relative w-full">
-                        <canvas id="chartAmbito"></canvas>
-                    </div>
+                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] transition-all">
+                    <h3 class="font-bold text-gray-800 text-xs uppercase mb-3 flex items-center gap-2">
+                        <div class="w-1 h-3 bg-green-500 rounded-full"></div>
+                        Público vs Privado
+                    </h3>
+                    @if($readyToLoad)
+                        <div class="h-48 relative w-full animate-fade-in text-black">
+                            <canvas id="chartAmbito"></canvas>
+                        </div>
+                    @else
+                        <div class="h-48 w-full bg-gray-50 rounded-xl animate-pulse"></div>
+                    @endif
                 </div>
                 @endif
             </div>
 
             <!-- KPIs Summary List (Horizontal) -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                <!-- Establecimientos -->
-                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300 flex items-center justify-between">
-                    <div>
-                        <h3 class="font-bold text-gray-500 text-[10px] uppercase mb-1">Establecimientos</h3>
-                        <p class="text-3xl font-black text-gray-800">{{ $chartData['stats']['total_establecimientos'] }}</p>
-                        <p class="text-xs font-bold text-green-500 mt-0.5">Activos</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-500 shadow-sm">
-                        <i class="fas fa-building text-2xl"></i>
-                    </div>
-                </div>
+                @php $kpis = [
+                    ['title' => 'Establecimientos', 'value' => $chartData['stats']['total_establecimientos'], 'tag' => 'Activos', 'color' => 'orange', 'icon' => 'fa-building'],
+                    ['title' => 'Modalidades', 'value' => $chartData['stats']['total_modalidades'], 'tag' => 'Ofertas', 'color' => 'blue', 'icon' => 'fa-graduation-cap'],
+                    ['title' => 'Infraestructura', 'value' => $chartData['stats']['total_edificios'], 'tag' => 'Edificios', 'color' => 'gray', 'icon' => 'fa-school'],
+                ]; @endphp
 
-                <!-- Modalidades -->
-                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300 flex items-center justify-between">
-                    <div>
-                        <h3 class="font-bold text-gray-500 text-[10px] uppercase mb-1">Modalidades</h3>
-                        <p class="text-3xl font-black text-gray-800">{{ $chartData['stats']['total_modalidades'] }}</p>
-                        <p class="text-xs font-bold text-blue-500 mt-0.5">Ofertas</p>
+                @foreach($kpis as $kpi)
+                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] transition-all flex items-center justify-between group overflow-hidden relative">
+                    <div class="relative z-10">
+                        <h3 class="font-bold text-gray-400 text-[10px] uppercase mb-1 tracking-widest">{{ $kpi['title'] }}</h3>
+                        @if($readyToLoad)
+                            <p class="text-3xl font-black text-gray-800 animate-fade-in">{{ $kpi['value'] }}</p>
+                            <p class="text-[10px] font-black text-{{ $kpi['color'] }}-500 mt-1 uppercase bg-{{ $kpi['color'] }}-50 px-2 py-0.5 rounded-full inline-block">{{ $kpi['tag'] }}</p>
+                        @else
+                            <div class="h-8 w-20 bg-gray-100 rounded-lg animate-pulse mb-2"></div>
+                            <div class="h-4 w-12 bg-gray-50 rounded-full animate-pulse"></div>
+                        @endif
                     </div>
-                    <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 shadow-sm">
-                        <i class="fas fa-graduation-cap text-2xl"></i>
+                    <div class="w-14 h-14 rounded-2xl bg-{{ $kpi['color'] }}-50 flex items-center justify-center text-{{ $kpi['color'] }}-500 shadow-sm relative z-10">
+                        <i class="fas {{ $kpi['icon'] }} text-2xl"></i>
                     </div>
+                    
+                    <i class="fas {{ $kpi['icon'] }} absolute -bottom-4 -right-4 text-8xl text-{{ $kpi['color'] }}-50 opacity-10 rotate-12 transition-transform duration-700 group-hover:scale-150 group-hover:opacity-20"></i>
                 </div>
-
-                <!-- Infraestructura -->
-                <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] hover:shadow-[0_8px_30px_rgb(255,160,0,0.15)] transition-shadow duration-300 flex items-center justify-between">
-                    <div>
-                        <h3 class="font-bold text-gray-500 text-[10px] uppercase mb-1">Infraestructura</h3>
-                        <p class="text-3xl font-black text-gray-800">{{ $chartData['stats']['total_edificios'] }}</p>
-                        <p class="text-xs font-bold text-gray-500 mt-0.5">Edificios</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-500 shadow-sm">
-                        <i class="fas fa-school text-2xl"></i>
-                    </div>
-                </div>
+                @endforeach
             </div>
             
             <div class="h-12"></div> <!-- Spacer footer -->
@@ -260,6 +253,7 @@
 </div>
 
 @push('scripts')
+<script id="dashboard-data" type="application/json">@json($chartData)</script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         let charts = {};
@@ -408,7 +402,7 @@
             }
         };
 
-        initCharts(@json($chartData));
+        initCharts(JSON.parse(document.getElementById('dashboard-data').textContent));
 
         Livewire.on('update-charts', (data) => {
             const newData = Array.isArray(data) ? data[0] : data;

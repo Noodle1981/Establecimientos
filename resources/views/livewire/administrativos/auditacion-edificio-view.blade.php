@@ -192,12 +192,7 @@
                         </section>
                         @endif
 
-                        <!-- Botón de Acción -->
-                        <div class="pt-6 border-t border-gray-50">
-                            <button class="w-full py-4 bg-orange-50 text-primary-orange text-xs font-black rounded-2xl border border-orange-100 hover:bg-primary-orange hover:text-white transition-all shadow-sm">
-                                <i class="fas fa-edit mr-2"></i> EDITAR DATOS EDIFICIO
-                            </button>
-                        </div>
+                        <!-- Botón de Acción eliminado - edición se realiza en vista propia -->
                     </div>
                 </div>
             </div>
