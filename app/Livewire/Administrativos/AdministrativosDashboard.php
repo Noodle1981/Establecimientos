@@ -8,8 +8,9 @@ use App\Models\Establecimiento;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Livewire\Attributes\Layout;
 
-
+#[Layout('layouts.app', ['containerClass' => 'w-full h-[calc(100vh-65px)] p-0 max-w-full'])]
 class AdministrativosDashboard extends Component
 {
     public $ambito = 'TODOS';
@@ -29,9 +30,17 @@ class AdministrativosDashboard extends Component
 
     public function refreshData()
     {
-        // Limpiamos las claves específicas de caché relacionadas con este dashboard
         Cache::forget('dashboard-departamentos');
-        $this->loadDireccionesArea(); // Esto ya usa Cache::remember, pero podemos forzarlo
+        
+        $ambitoCacheKey = 'dashboard-direcciones-' . md5($this->ambito);
+        Cache::forget($ambitoCacheKey);
+        
+        $chartCacheKey = 'dashboard_data_' . md5(json_encode([
+            $this->ambito, $this->departamento, $this->direccion_area, $this->nivel_educativo
+        ]));
+        Cache::forget($chartCacheKey);
+
+        $this->loadDireccionesArea();
         
         $this->dispatch('update-charts', $this->chartData);
     }
@@ -303,6 +312,6 @@ class AdministrativosDashboard extends Component
     {
         return view('livewire.administrativos.administrativos-dashboard', [
             'chartData' => $this->chartData,
-        ])->layout('layouts.app', ['containerClass' => 'w-full h-[calc(100vh-65px)] p-0 max-w-full']);
+        ]);
     }
 }

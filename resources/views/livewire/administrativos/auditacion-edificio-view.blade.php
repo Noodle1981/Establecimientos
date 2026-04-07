@@ -28,15 +28,6 @@
                 </div>
             @endif
             
-            <button wire:click="abrirBulkAction('EDIFICIO')" 
-                    class="px-5 py-2.5 rounded-xl bg-primary-orange text-white flex items-center gap-3 shadow-lg shadow-orange-500/20 hover:bg-orange-600 transition-all active:scale-95">
-                <i class="fas fa-layer-group"></i>
-                <div class="flex flex-col items-start">
-                    <span class="text-[9px] font-black uppercase text-orange-200 tracking-tighter leading-none">Acción Global</span>
-                    <span class="text-xs font-black">VALIDAR EDIFICIO</span>
-                </div>
-            </button>
-
             <div class="px-5 py-2.5 rounded-xl bg-gray-900 text-white flex items-center gap-3 shadow-lg">
                 <i class="fas fa-id-card text-primary-orange"></i>
                 <div class="flex flex-col">
@@ -245,11 +236,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <button wire:click="abrirBulkAction('ESTABLECIMIENTO', {{ $est->id }})" 
-                                        class="px-4 py-2 bg-white text-gray-400 text-[10px] font-black rounded-xl border border-gray-100 hover:border-primary-orange hover:text-primary-orange transition-all shadow-sm flex items-center gap-2 group/btn">
-                                    <i class="fas fa-school text-primary-orange/50 group-hover/btn:scale-110 transition-transform"></i>
-                                    VALIDACIÓN ESCUELA
-                                </button>
                             </div>
 
                             <!-- Est. Modalities Table-like list -->

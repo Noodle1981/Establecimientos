@@ -150,9 +150,13 @@ class AuditacionEdificioView extends Component
                 $q->where('edificio_id', $this->edificio->id);
             });
             $msg = "Se validó todo el edificio como {$this->bulkEstado}.";
-        } elseif ($this->bulkScope === 'ESTABLECIMIENTO') {
+        } elseif ($this->bulkScope === 'ESTABLECIMIENTO' && $this->bulkTargetId) {
             $query->where('establecimiento_id', $this->bulkTargetId);
             $msg = "Se validó el establecimiento correctamente.";
+        } else {
+            // Protección crítica de seguridad: Si no hay scope, cancelar la operación.
+            session()->flash('message', 'Error: No se definió el alcance de la validación masiva.');
+            return;
         }
 
         $modalidades = $query->get();

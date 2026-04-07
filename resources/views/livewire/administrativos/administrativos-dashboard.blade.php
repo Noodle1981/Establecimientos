@@ -1,4 +1,6 @@
-<div class="relative w-full h-full overflow-hidden bg-gray-50" x-data="{ sidebarOpen: true }" wire:init="loadData">
+<div class="relative w-full h-full overflow-hidden bg-gray-50" 
+     x-data="dashboardCharts(@js($chartData))" 
+     wire:init="loadData">
     
     <!-- Background Processing Indicator (Subtle) -->
     <div wire:loading.delay.longest wire:target="loadData, refreshData, ambito, departamento, direccion_area, nivel_educativo" 
@@ -28,6 +30,8 @@
             
             <!-- Botón de Refresco Manual -->
             <button wire:click="refreshData" 
+                    id="btn-refresh-dashboard"
+                    name="refresh-dashboard"
                     class="absolute top-6 right-6 p-2 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-500 hover:text-white transition-all duration-300 group shadow-sm"
                     title="Recargar datos">
                 <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i>
@@ -42,6 +46,8 @@
                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Filtrar por Departamento</h3>
                 <div class="relative">
                     <select wire:model.live="departamento" 
+                            id="select-departamento"
+                            name="departamento"
                             class="w-full appearance-none bg-gray-50 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded-xl focus:outline-none focus:bg-white focus:border-orange-500 font-bold text-sm">
                         <option value="">Todos los Departamentos</option>
                         @foreach($departamentos as $dep)
@@ -59,6 +65,8 @@
                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Filtrar por Dirección de Área</h3>
                 <div class="relative">
                     <select wire:model.live="direccion_area" 
+                            id="select-direccion-area"
+                            name="direccion_area"
                             class="w-full appearance-none bg-gray-50 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded-xl focus:outline-none focus:bg-white focus:border-orange-500 font-bold text-sm">
                         <option value="">Todas las Direcciones</option>
                         @foreach($direcciones_area as $dir)
@@ -77,6 +85,8 @@
                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Desglose por Modalidad</h3>
                 <div class="relative">
                     <select wire:model.live="nivel_educativo" 
+                            id="select-nivel-educativo"
+                            name="nivel_educativo"
                             class="w-full appearance-none bg-orange-50 border border-orange-200 text-orange-900 py-3 px-4 pr-8 rounded-xl focus:outline-none focus:bg-white focus:border-orange-500 font-bold text-sm">
                         <option value="">Todas las Modalidades ({{ $direccion_area }})</option>
                         @foreach($niveles_educativos as $niv)
@@ -140,6 +150,8 @@
 
     <!-- Toggle Button -->
     <button @click="sidebarOpen = !sidebarOpen"
+            id="btn-sidebar-toggle"
+            name="sidebar-toggle"
             class="absolute top-4 z-30 transition-all duration-300 glass-strong rounded-full p-2 shadow-lg hover:scale-110 border border-gray-200 group"
             :class="sidebarOpen ? 'left-[17rem]' : 'left-4'"> <!-- Ajustado a la izquierda del sidebar -->
         <svg class="w-5 h-5 transition-transform duration-300 text-gray-600 group-hover:text-orange-500" 
@@ -173,15 +185,15 @@
                         {{ $card['title'] }}
                     </h3>
                     
-                    @if($readyToLoad)
-                        <div class="relative w-full {{ ($card['span'] ?? false) ? 'h-[28rem]' : 'h-48' }} animate-fade-in text-black">
-                            <canvas id="{{ $card['id'] }}"></canvas>
-                        </div>
-                    @else
-                        <div class="w-full flex flex-col gap-3 animate-pulse">
-                            <div class="w-full {{ ($card['span'] ?? false) ? 'h-[28rem]' : 'h-48' }} bg-gray-50 rounded-xl"></div>
-                        </div>
-                    @endif
+                    <div x-show="$wire.readyToLoad" 
+                         class="relative w-full {{ ($card['span'] ?? false) ? 'h-[28rem]' : 'h-48' }} animate-fade-in text-black">
+                        <canvas x-ref="{{ $card['id'] }}"></canvas>
+                    </div>
+                    
+                    <div x-show="!$wire.readyToLoad" 
+                         class="w-full flex flex-col gap-3 animate-pulse">
+                        <div class="w-full {{ ($card['span'] ?? false) ? 'h-[28rem]' : 'h-48' }} bg-gray-50 rounded-xl"></div>
+                    </div>
                 </div>
                 @endforeach
 
@@ -191,13 +203,12 @@
                         <div class="w-1 h-3 bg-blue-500 rounded-full"></div>
                         Distribución por Radio
                     </h3>
-                    @if($readyToLoad)
-                        <div class="h-48 relative w-full animate-fade-in text-black">
-                            <canvas id="chartRadios"></canvas>
-                        </div>
-                    @else
-                        <div class="h-48 w-full bg-gray-50 rounded-xl animate-pulse"></div>
-                    @endif
+                    <div x-show="$wire.readyToLoad" 
+                         class="h-48 relative w-full animate-fade-in text-black">
+                        <canvas x-ref="chartRadios"></canvas>
+                    </div>
+                    <div x-show="!$wire.readyToLoad" 
+                         class="h-48 w-full bg-gray-50 rounded-xl animate-pulse"></div>
                 </div>
 
                 <!-- Ámbito -->
@@ -207,13 +218,12 @@
                         <div class="w-1 h-3 bg-green-500 rounded-full"></div>
                         Público vs Privado
                     </h3>
-                    @if($readyToLoad)
-                        <div class="h-48 relative w-full animate-fade-in text-black">
-                            <canvas id="chartAmbito"></canvas>
-                        </div>
-                    @else
-                        <div class="h-48 w-full bg-gray-50 rounded-xl animate-pulse"></div>
-                    @endif
+                    <div x-show="$wire.readyToLoad" 
+                         class="h-48 relative w-full animate-fade-in text-black">
+                        <canvas x-ref="chartAmbito"></canvas>
+                    </div>
+                    <div x-show="!$wire.readyToLoad" 
+                         class="h-48 w-full bg-gray-50 rounded-xl animate-pulse"></div>
                 </div>
                 @endif
             </div>
@@ -230,13 +240,14 @@
                 <div class="bg-white rounded-2xl p-6 border border-orange-50 shadow-[0_8px_30px_rgb(255,160,0,0.08)] transition-all flex items-center justify-between group overflow-hidden relative">
                     <div class="relative z-10">
                         <h3 class="font-bold text-gray-400 text-[10px] uppercase mb-1 tracking-widest">{{ $kpi['title'] }}</h3>
-                        @if($readyToLoad)
-                            <p class="text-3xl font-black text-gray-800 animate-fade-in">{{ $kpi['value'] }}</p>
+                        <div x-show="$wire.readyToLoad" class="animate-fade-in">
+                            <p class="text-3xl font-black text-gray-800">{{ $kpi['value'] }}</p>
                             <p class="text-[10px] font-black text-{{ $kpi['color'] }}-500 mt-1 uppercase bg-{{ $kpi['color'] }}-50 px-2 py-0.5 rounded-full inline-block">{{ $kpi['tag'] }}</p>
-                        @else
+                        </div>
+                        <div x-show="!$wire.readyToLoad">
                             <div class="h-8 w-20 bg-gray-100 rounded-lg animate-pulse mb-2"></div>
                             <div class="h-4 w-12 bg-gray-50 rounded-full animate-pulse"></div>
-                        @endif
+                        </div>
                     </div>
                     <div class="w-14 h-14 rounded-2xl bg-{{ $kpi['color'] }}-50 flex items-center justify-center text-{{ $kpi['color'] }}-500 shadow-sm relative z-10">
                         <i class="fas {{ $kpi['icon'] }} text-2xl"></i>
@@ -253,161 +264,201 @@
 </div>
 
 @push('scripts')
-<script id="dashboard-data" type="application/json">@json($chartData)</script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        let charts = {};
-        const colors = {
-            primary: '#FF8200', 
-            secondary: ['#3B82F6', '#60A5FA', '#93C5FD', '#DBEAFE'],
-            multi: ['#FF8200', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6'],
-        };
+    (function() {
+        const dashboardChartsData = (initialData) => ({
+            sidebarOpen: true,
+            charts: {},
+            data: initialData,
+            colors: {
+                primary: '#FF8200', 
+                secondary: ['#3B82F6', '#60A5FA', '#93C5FD', '#DBEAFE'],
+                multi: ['#FF8200', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6'],
+            },
 
-        const initCharts = (data) => {
-            Object.values(charts).forEach(chart => chart.destroy());
-            
-            Chart.defaults.font.family = "'Inter', sans-serif";
-            Chart.defaults.color = '#6B7280';
+            init() {
+                // Initialize charts on load if ready
+                if (this.$wire.readyToLoad) {
+                    this.$nextTick(() => this.renderCharts());
+                }
 
-            // Chart 1: Modalidades
-            const ctxModalidades = document.getElementById('chartModalidades');
-            if (ctxModalidades) {
-                charts.modalidades = new Chart(ctxModalidades, {
-                    type: 'doughnut',
-                    data: {
-                        labels: data.modalidades.labels,
-                        datasets: [{
-                            data: data.modalidades.values,
-                            backgroundColor: colors.multi,
-                            borderWidth: 0,
-                            hoverOffset: 10
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '75%',
-                        plugins: {
-                            legend: { position: 'right', labels: { boxWidth: 10, usePointStyle: true, font: { size: 10 } } }
+                // Listen for Livewire initialization
+                this.$watch('$wire.readyToLoad', value => {
+                    if (value) {
+                        this.$nextTick(() => {
+                           // Pequeño delay para asegurar que los canvas estén en el DOM
+                           setTimeout(() => this.renderCharts(), 150);
+                        });
+                    }
+                });
+
+                // Listen for updates from backend
+                Livewire.on('update-charts', (eventData) => {
+                    this.data = Array.isArray(eventData) ? eventData[0] : eventData;
+                    this.renderCharts();
+                });
+            },
+
+            renderCharts() {
+                const data = this.data;
+                if (!data || !data.modalidades) return;
+
+                // Destruir existentes usando Chart.getChart para asegurar limpieza correcta del canvas real en DOM
+                ['chartModalidades', 'chartCategorias', 'chartZonas', 'chartRadios', 'chartAmbito'].forEach(id => {
+                    const canvas = this.$refs[id];
+                    if (canvas) {
+                        const existingChart = Chart.getChart(canvas);
+                        if (existingChart) {
+                            existingChart.destroy();
+                        }
+                    }
+                });
+                
+                Chart.defaults.font.family = "'Inter', sans-serif";
+                Chart.defaults.color = '#6B7280';
+
+                const config = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                };
+
+                // Chart 1: Modalidades
+                const ctxModalidades = this.$refs.chartModalidades;
+                if (ctxModalidades) {
+                    this.charts.modalidades = new Chart(ctxModalidades, {
+                        type: 'doughnut',
+                        data: {
+                            labels: data.modalidades.labels,
+                            datasets: [{
+                                data: data.modalidades.values,
+                                backgroundColor: this.colors.multi,
+                                borderWidth: 0,
+                                hoverOffset: 10
+                            }]
                         },
-                        layout: { padding: 10 }
-                    }
-                });
-            }
-
-            // Chart 2: Categorías
-            const ctxCategorias = document.getElementById('chartCategorias');
-            if (ctxCategorias) {
-                charts.categorias = new Chart(ctxCategorias, {
-                    type: 'bar',
-                    data: {
-                        labels: data.categorias.labels,
-                        datasets: [{
-                            label: 'Cant.',
-                            data: data.categorias.values,
-                            backgroundColor: colors.primary,
-                            borderRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { 
-                            y: { beginAtZero: true, grid: { borderDash: [4, 4], color: '#f3f4f6' }, border: { display: false } }, 
-                            x: { grid: { display: false }, border: { display: false } } 
+                        options: {
+                            ...config,
+                            cutout: '75%',
+                            plugins: {
+                                legend: { position: 'right', labels: { boxWidth: 10, usePointStyle: true, font: { size: 10 } } }
+                            },
+                            layout: { padding: 10 }
                         }
-                    }
-                });
-            }
+                    });
+                }
 
-            // Chart 3: Zonas
-            const ctxZonas = document.getElementById('chartZonas');
-            if (ctxZonas) {
-                charts.zonas = new Chart(ctxZonas, {
-                    type: 'bar',
-                    data: {
-                        labels: data.zonas.labels,
-                        datasets: [{
-                            label: 'Establecimientos',
-                            data: data.zonas.values,
-                            backgroundColor: '#3B82F6',
-                            borderRadius: 6
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { 
-                            x: { beginAtZero: true, grid: { borderDash: [4, 4], color: '#f3f4f6' }, border: { display: false } }, 
-                            y: { grid: { display: false }, border: { display: false } } 
-                        }
-                    }
-                });
-            }
-
-            // Chart 4: Radios
-            const ctxRadios = document.getElementById('chartRadios');
-            if (ctxRadios) {
-                charts.radios = new Chart(ctxRadios, {
-                    type: 'bar',
-                    data: {
-                        labels: data.radios.labels,
-                        datasets: [{
-                            label: 'Establecimientos',
-                            data: data.radios.values,
-                            backgroundColor: colors.multi,
-                            borderRadius: 6,
-                            barPercentage: 0.6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { 
-                            y: { beginAtZero: true, grid: { borderDash: [4, 4], color: '#f3f4f6' }, border: { display: false } }, 
-                            x: { grid: { display: false }, border: { display: false } } 
-                        }
-                    }
-                });
-            }
-
-            // Chart 5: Ámbito (Solo si existe)
-            const ctxAmbito = document.getElementById('chartAmbito');
-            if (ctxAmbito) {
-                charts.ambito = new Chart(ctxAmbito, {
-                    type: 'doughnut',
-                    data: {
-                        labels: data.ambito.labels,
-                        datasets: [{
-                            data: data.ambito.values,
-                            backgroundColor: [colors.primary, '#3B82F6'],
-                            borderWidth: 0,
-                            hoverOffset: 10
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '75%',
-                        plugins: {
-                            legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 11, weight: 'bold' } } }
+                // Chart 2: Categorías
+                const ctxCategorias = this.$refs.chartCategorias;
+                if (ctxCategorias) {
+                    this.charts.categorias = new Chart(ctxCategorias, {
+                        type: 'bar',
+                        data: {
+                            labels: data.categorias.labels,
+                            datasets: [{
+                                label: 'Cant.',
+                                data: data.categorias.values,
+                                backgroundColor: this.colors.primary,
+                                borderRadius: 6
+                            }]
                         },
-                        layout: { padding: 10 }
-                    }
-                });
+                        options: {
+                            ...config,
+                            plugins: { legend: { display: false } },
+                            scales: { 
+                                y: { beginAtZero: true, grid: { borderDash: [4, 4], color: '#f3f4f6' }, border: { display: false } }, 
+                                x: { grid: { display: false }, border: { display: false } } 
+                            }
+                        }
+                    });
+                }
+
+                // Chart 3: Zonas
+                const ctxZonas = this.$refs.chartZonas;
+                if (ctxZonas) {
+                    this.charts.zonas = new Chart(ctxZonas, {
+                        type: 'bar',
+                        data: {
+                            labels: data.zonas.labels,
+                            datasets: [{
+                                label: 'Establecimientos',
+                                data: data.zonas.values,
+                                backgroundColor: '#3B82F6',
+                                borderRadius: 6
+                            }]
+                        },
+                        options: {
+                            ...config,
+                            indexAxis: 'y',
+                            plugins: { legend: { display: false } },
+                            scales: { 
+                                x: { beginAtZero: true, grid: { borderDash: [4, 4], color: '#f3f4f6' }, border: { display: false } }, 
+                                y: { grid: { display: false }, border: { display: false } } 
+                            }
+                        }
+                    });
+                }
+
+                // Chart 4: Radios
+                const ctxRadios = this.$refs.chartRadios;
+                if (ctxRadios) {
+                    this.charts.radios = new Chart(ctxRadios, {
+                        type: 'bar',
+                        data: {
+                            labels: data.radios.labels,
+                            datasets: [{
+                                label: 'Establecimientos',
+                                data: data.radios.values,
+                                backgroundColor: this.colors.multi,
+                                borderRadius: 6,
+                                barPercentage: 0.6
+                            }]
+                        },
+                        options: {
+                            ...config,
+                            plugins: { legend: { display: false } },
+                            scales: { 
+                                y: { beginAtZero: true, grid: { borderDash: [4, 4], color: '#f3f4f6' }, border: { display: false } }, 
+                                x: { grid: { display: false }, border: { display: false } } 
+                            }
+                        }
+                    });
+                }
+
+                // Chart 5: Ámbito (Solo si existe)
+                const ctxAmbito = this.$refs.chartAmbito;
+                if (ctxAmbito) {
+                    this.charts.ambito = new Chart(ctxAmbito, {
+                        type: 'doughnut',
+                        data: {
+                            labels: data.ambito.labels,
+                            datasets: [{
+                                data: data.ambito.values,
+                                backgroundColor: [this.colors.primary, '#3B82F6'],
+                                borderWidth: 0,
+                                hoverOffset: 10
+                            }]
+                        },
+                        options: {
+                            ...config,
+                            cutout: '75%',
+                            plugins: {
+                                legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 11, weight: 'bold' } } }
+                            },
+                            layout: { padding: 10 }
+                        }
+                    });
+                }
             }
-        };
-
-        initCharts(JSON.parse(document.getElementById('dashboard-data').textContent));
-
-        Livewire.on('update-charts', (data) => {
-            const newData = Array.isArray(data) ? data[0] : data;
-            initCharts(newData);
         });
-    });
+
+        // Robust registration
+        if (window.Alpine) {
+            Alpine.data('dashboardCharts', dashboardChartsData);
+        } else {
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('dashboardCharts', dashboardChartsData);
+            });
+        }
+    })();
 </script>
 @endpush
