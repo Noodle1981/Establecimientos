@@ -21,7 +21,7 @@ class EdificioController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Edificio::with(['establecimientos']);
+        $query = Edificio::with(['establecimientos.modalidades']);
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
@@ -43,14 +43,21 @@ class EdificioController extends Controller
             $query->where('localidad', $localidad);
         }
 
+        if ($ambito = $request->input('ambito')) {
+            $query->whereHas('modalidades', function ($q) use ($ambito) {
+                $q->where('ambito', $ambito);
+            });
+        }
+
         $edificios = $query->latest()->paginate(20)->withQueryString();
 
         return Inertia::render('Administrativos/Edificios/Index', [
             'edificios' => $edificios,
-            'filters' => $request->only(['search', 'zona', 'localidad']),
+            'filters' => $request->only(['search', 'zona', 'localidad', 'ambito']),
             'options' => [
                 'zonas' => Edificio::select('zona_departamento')->distinct()->whereNotNull('zona_departamento')->orderBy('zona_departamento')->pluck('zona_departamento'),
                 'localidades' => Edificio::select('localidad')->distinct()->whereNotNull('localidad')->orderBy('localidad')->pluck('localidad'),
+                'ambitos' => ['PUBLICO', 'PRIVADO'],
             ]
         ]);
     }
@@ -136,7 +143,7 @@ class EdificioController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
         
         $headers = [
-            'A1' => 'CUI', 'B1' => 'CALLE', 'C1' => 'N° PUERTA', 'D1' => 'LOCALIDAD', 'E1' => 'ZONA/DEPARTAMENTO', 'F1' => 'CANT. ESTABLECIMIENTOS'
+            'A1' => 'CUI', 'B1' => 'CALLE', 'C1' => 'N° PUERTA', 'D1' => 'LOCALIDAD', 'E1' => 'ZONA/DEPARTAMENTO', 'F1' => 'AMBITO'
         ];
 
         foreach ($headers as $cell => $value) {
@@ -150,16 +157,18 @@ class EdificioController extends Controller
         ];
         $sheet->getStyle('A1:F1')->applyFromArray($headerStyle);
 
-        $edificios = Edificio::withCount('establecimientos')->get();
+        $edificios = Edificio::with(['establecimientos.modalidades'])->get();
         
         $row = 2;
         foreach ($edificios as $edificio) {
+            $ambito = $edificio->establecimientos->flatMap->modalidades->first()?->ambito ?? 'S/D';
+            
             $sheet->setCellValue('A' . $row, $edificio->cui);
             $sheet->setCellValue('B' . $row, $edificio->calle);
             $sheet->setCellValue('C' . $row, $edificio->numero_puerta);
             $sheet->setCellValue('D' . $row, $edificio->localidad);
             $sheet->setCellValue('E' . $row, $edificio->zona_departamento);
-            $sheet->setCellValue('F' . $row, $edificio->establecimientos_count);
+            $sheet->setCellValue('F' . $row, $ambito);
             $row++;
         }
 

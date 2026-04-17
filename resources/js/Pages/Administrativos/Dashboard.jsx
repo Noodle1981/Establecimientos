@@ -62,30 +62,18 @@ export default function Dashboard({ filters, options, chartData }) {
     };
 
     return (
-        <AuthenticatedLayout
-            header={
-                <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-semibold leading-tight text-black flex items-center gap-2">
-                        <i className="fas fa-chart-area text-brand-orange"></i>
-                        Panel de Control Administrativo
-                    </h2>
-                    <div className="flex gap-2">
-                        {isUpdating && (
-                            <span className="text-xs text-brand-orange font-bold animate-pulse">Sincronizando datos...</span>
-                        )}
-                        <button 
-                            onClick={() => applyFilters(localFilters)}
-                            className="bg-orange-50 text-brand-orange p-2 rounded-lg hover:bg-brand-orange hover:text-white transition-all shadow-sm"
-                        >
-                            <i className="fas fa-sync-alt"></i>
-                        </button>
-                    </div>
-                </div>
-            }
-        >
+        <AuthenticatedLayout header={null}>
             <Head title="Panel Administrativo" />
 
-            <div className="relative flex min-h-[calc(100vh-200px)]">
+            {/* Float sync indicator if needed, but remove the static header block */}
+            {isUpdating && (
+                <div className="fixed top-20 right-10 z-50 flex items-center gap-2 px-4 py-2 bg-brand-orange text-white rounded-full shadow-lg animate-bounce text-[10px] font-black uppercase">
+                    <i className="fas fa-sync-alt fa-spin"></i>
+                    Sincronizando...
+                </div>
+            )}
+
+            <div className="relative flex min-h-[calc(100vh-100px)] pt-2">
                 {/* Sidebar Filtros */}
                 <aside 
                     className={`absolute lg:relative z-40 transition-all duration-300 bg-white border rounded-2xl shadow-sm ${
@@ -302,8 +290,8 @@ function KPICard({ title, value, icon, color }) {
     return (
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex items-center justify-between group">
             <div>
-                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{title}</h4>
-                <p className="text-3xl font-black text-gray-900">{value}</p>
+                <h4 className="text-[10px] font-black text-black/40 uppercase tracking-widest">{title}</h4>
+                <p className="text-3xl font-black text-black">{value}</p>
             </div>
             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl shadow-sm ${
                 color === 'brand-orange' ? 'bg-orange-50 text-brand-orange' : 

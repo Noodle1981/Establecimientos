@@ -46,38 +46,36 @@ export default function Index({ modalidades, filters, options }) {
     };
 
     return (
-        <AuthenticatedLayout
-            header={
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <h2 className="text-xl font-semibold leading-tight text-black flex items-center gap-2">
-                        <i className="fas fa-school text-brand-orange"></i>
-                        Gestión de Establecimientos
-                    </h2>
-                    <div className="flex gap-2">
-                        <a 
-                            href={route('administrativos.establecimientos.export')}
-                            className="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-lg font-bold text-xs text-white uppercase tracking-widest hover:bg-green-700 transition shadow-sm gap-2"
-                        >
-                            <i className="fas fa-file-excel"></i> Exportar
-                        </a>
-                        <PrimaryButton className="gap-2" onClick={() => setShowCreateModal(true)}>
-                            <i className="fas fa-plus"></i> Nueva Modalidad
-                        </PrimaryButton>
-                    </div>
-                </div>
-            }
-        >
+        <AuthenticatedLayout header={null}>
             <Head title="Establecimientos" />
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 pt-2">
                 
-                {/* Filters Sidebar */}
+                {/* Actions & Filters Sidebar */}
                 <div className="lg:col-span-1 space-y-4">
-                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-orange-50 space-y-6">
-                        <div className="flex justify-between items-center border-b border-orange-50 pb-2">
-                            <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">Filtros Avanzados</h3>
-                            <button onClick={resetFilters} className="text-[10px] font-bold text-brand-orange hover:underline">Limpiar</button>
+                    {/* Primary Actions Area */}
+                    <div className="flex flex-col gap-2 mb-6">
+                        <PrimaryButton className="w-full !py-4 gap-3 !rounded-2xl" onClick={() => setShowCreateModal(true)}>
+                            <i className="fas fa-plus"></i>
+                            <span className="text-sm">Nueva Modalidad</span>
+                        </PrimaryButton>
+                        <a 
+                            href={route('administrativos.establecimientos.export')}
+                            className="flex items-center justify-center gap-3 w-full py-3 bg-green-50 text-green-700 border border-green-100 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all shadow-sm"
+                        >
+                            <i className="fas fa-file-excel"></i> Exportar Datos
+                        </a>
+                    </div>
+
+                    <div className="bg-white p-0 rounded-2xl shadow-sm border border-orange-100 overflow-hidden space-y-6">
+                        <div className="flex justify-between items-center bg-orange-50/50 px-5 py-3 border-b border-orange-100">
+                            <h3 className="text-[10px] font-black text-brand-orange uppercase tracking-widest flex items-center gap-2">
+                                <i className="fas fa-filter"></i>
+                                Filtros
+                            </h3>
+                            <button onClick={resetFilters} className="text-[10px] font-black text-brand-orange hover:underline uppercase tracking-widest">Limpiar</button>
                         </div>
+                        <div className="px-5 pb-6 space-y-6">
 
                         {/* Search Input in Sidebar for mobile/desktop harmony */}
                         <div className="space-y-1">
@@ -113,45 +111,46 @@ export default function Index({ modalidades, filters, options }) {
 
                         <FilterSelect label="Radio" value={filters.radio} options={options.radios} onChange={v => handleParamChange('radio', v)} />
                         <FilterSelect label="Zona / Departamento" value={filters.zona_departamento} options={options.zonas} onChange={v => handleParamChange('zona_departamento', v)} />
+                        </div>
                     </div>
                 </div>
 
                 {/* Table Content */}
                 <div className="lg:col-span-3 space-y-6">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100">
+                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 border-l-4 border-l-brand-orange">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-gray-50 text-[10px] uppercase font-bold text-gray-500 border-b">
-                                        <th className="px-6 py-4">Establecimiento / CUE</th>
-                                        <th className="px-6 py-4">Nivel / Área</th>
-                                        <th className="px-6 py-4">Estado</th>
-                                        <th className="px-6 py-4 text-right">Acciones</th>
-                                    </tr>
-                                </thead>
+                                    <thead>
+                                        <tr className="bg-brand-orange text-[10px] uppercase font-black text-white border-b border-orange-600">
+                                            <th className="px-6 py-4">Establecimiento / CUE</th>
+                                            <th className="px-6 py-4">Nivel / Área</th>
+                                            <th className="px-6 py-4">Estado</th>
+                                            <th className="px-6 py-4 text-right">Acciones</th>
+                                        </tr>
+                                    </thead>
                                 <tbody className="divide-y divide-gray-50">
                                     {modalidades.data.map((item) => (
                                         <tr key={item.id} className="hover:bg-orange-50/30 transition-colors group">
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col">
-                                                    <span className="text-xs font-black text-gray-900 group-hover:text-brand-orange leading-tight">{item.establecimiento.nombre}</span>
+                                                    <span className="text-xs font-black text-black group-hover:text-brand-orange leading-tight">{item.establecimiento.nombre}</span>
                                                     <div className="flex gap-2 mt-1">
-                                                        <span className="text-[9px] font-bold text-gray-400 uppercase">CUE: {item.establecimiento.cue}</span>
-                                                        <span className="text-[9px] font-bold text-brand-orange uppercase bg-orange-50 px-1 rounded">CUI: {item.establecimiento.edificio.cui}</span>
+                                                        <span className="text-[9px] font-black text-black/40 uppercase">CUE: {item.establecimiento.cue}</span>
+                                                        <span className="text-[9px] font-black text-brand-orange uppercase bg-orange-50 px-1 rounded">CUI: {item.establecimiento.edificio.cui}</span>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black text-gray-600 uppercase tracking-tighter">{item.nivel_educativo}</span>
-                                                    <span className="text-[9px] text-gray-400 font-bold uppercase truncate max-w-[150px]">{item.direccion_area}</span>
+                                                    <span className="text-[10px] font-black text-black/70 uppercase tracking-tighter">{item.nivel_educativo}</span>
+                                                    <span className="text-[9px] text-black/40 font-black uppercase truncate max-w-[150px]">{item.direccion_area}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border ${
                                                     item.validado 
-                                                        ? 'bg-green-50 text-green-700 border-green-100' 
-                                                        : 'bg-red-50 text-red-500 border-red-100'
+                                                        ? 'bg-orange-50 text-brand-orange border-brand-orange/20' 
+                                                        : 'bg-red-50 text-brand-red border-brand-red/20'
                                                 }`}>
                                                     <i className={`fas ${item.validado ? 'fa-check-circle' : 'fa-clock'} mr-1`}></i>
                                                     {item.validado ? 'Validado' : 'Pendiente'}

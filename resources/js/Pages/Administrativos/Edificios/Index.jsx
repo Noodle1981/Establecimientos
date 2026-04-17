@@ -53,32 +53,12 @@ export default function Index({ edificios, filters, options }) {
     };
 
     return (
-        <AuthenticatedLayout
-            header={
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <h2 className="text-xl font-semibold leading-tight text-black flex items-center gap-2">
-                        <i className="fas fa-building text-brand-orange"></i>
-                        Gestión de Edificios
-                    </h2>
-                    <div className="flex gap-2">
-                        <a 
-                            href={route('administrativos.edificios.export')}
-                            className="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-lg font-bold text-xs text-white uppercase tracking-widest hover:bg-green-700 transition shadow-sm gap-2"
-                        >
-                            <i className="fas fa-file-excel"></i> Exportar
-                        </a>
-                        <PrimaryButton className="gap-2" onClick={() => setShowCreateModal(true)}>
-                            <i className="fas fa-plus"></i> Nuevo Edificio
-                        </PrimaryButton>
-                    </div>
-                </div>
-            }
-        >
+        <AuthenticatedLayout header={null}>
             <Head title="Edificios" />
 
             <div className="space-y-6">
-                {/* Filters Bar */}
-                <div className="bg-white p-4 rounded-2xl shadow-sm border border-orange-50 flex flex-col md:flex-row gap-4">
+                {/* Filters & Actions Bar */}
+                <div className="bg-white p-4 rounded-2x border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4 items-center">
                     <div className="flex-1 relative">
                         <input 
                             type="text"
@@ -102,11 +82,32 @@ export default function Index({ edificios, filters, options }) {
                     <select 
                         value={filters.localidad || ''}
                         onChange={(e) => handleParamChange('localidad', e.target.value)}
-                        className="border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange text-sm min-w-[200px]"
+                        className="border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange text-sm min-w-[150px]"
                     >
                         <option value="">Localidades (Todas)</option>
                         {options.localidades.map(l => <option key={l} value={l}>{l}</option>)}
                     </select>
+
+                    <select 
+                        value={filters.ambito || ''}
+                        onChange={(e) => handleParamChange('ambito', e.target.value)}
+                        className="border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange text-sm min-w-[150px] font-black uppercase"
+                    >
+                        <option value="">Ámbito (Todos)</option>
+                        {options.ambitos.map(a => <option key={a} value={a}>{a}</option>)}
+                    </select>
+
+                    <div className="flex gap-2 shrink-0 border-l pl-4 border-gray-100 ml-2">
+                        <a 
+                            href={route('administrativos.edificios.export')}
+                            className="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-xl font-bold text-[10px] text-white uppercase tracking-widest hover:bg-green-700 transition shadow-sm gap-2"
+                        >
+                            <i className="fas fa-file-excel"></i> Exportar
+                        </a>
+                        <PrimaryButton className="gap-2 !py-2 !px-4 !rounded-xl !text-[10px]" onClick={() => setShowCreateModal(true)}>
+                            <i className="fas fa-plus"></i> Nuevo
+                        </PrimaryButton>
+                    </div>
                 </div>
 
                 {/* Table */}
@@ -114,11 +115,11 @@ export default function Index({ edificios, filters, options }) {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-gray-50 text-[10px] uppercase font-bold text-gray-500 border-b">
+                                <tr className="bg-brand-orange text-[10px] uppercase font-black text-white border-b border-orange-600">
                                     <th className="px-6 py-4">CUI / Ubicación</th>
                                     <th className="px-6 py-4">Establecimiento Cabecera</th>
                                     <th className="px-6 py-4">Depto / Localidad</th>
-                                    <th className="px-6 py-4 text-center">Cant.</th>
+                                    <th className="px-6 py-4 text-center">Ámbito</th>
                                     <th className="px-6 py-4 text-right">Acciones</th>
                                 </tr>
                             </thead>
@@ -127,24 +128,28 @@ export default function Index({ edificios, filters, options }) {
                                     <tr key={edificio.id} className="hover:bg-orange-50/30 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-black text-gray-900 group-hover:text-brand-orange">{edificio.cui}</span>
-                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{edificio.calle} {edificio.numero_puerta || 'S/N'}</span>
+                                                <span className="text-sm font-black text-black group-hover:text-brand-orange">{edificio.cui}</span>
+                                                <span className="text-[10px] font-black text-black/40 uppercase tracking-tighter">{edificio.calle} {edificio.numero_puerta || 'S/N'}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="text-xs font-bold text-gray-700 uppercase leading-tight line-clamp-2">
+                                            <span className="text-xs font-black text-black/80 uppercase leading-tight line-clamp-2">
                                                 {edificio.establecimientos[0]?.establecimiento_cabecera || edificio.establecimientos[0]?.nombre || 'Sin Cabecera'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col">
-                                                <span className="text-xs font-bold text-gray-600">{edificio.zona_departamento}</span>
-                                                <span className="text-[10px] text-gray-400 font-medium">{edificio.localidad}</span>
+                                                <span className="text-xs font-black text-black/70">{edificio.zona_departamento}</span>
+                                                <span className="text-[10px] text-black/40 font-black">{edificio.localidad}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-gray-100 text-[10px] font-black text-gray-500 group-hover:bg-brand-orange group-hover:text-white transition-colors">
-                                                {edificio.establecimientos.length}
+                                            <span className={`inline-flex items-center justify-center px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors ${
+                                                getEdificioAmbito(edificio) === 'PUBLICO' 
+                                                    ? 'bg-orange-50 text-brand-orange border border-orange-100' 
+                                                    : 'bg-blue-50 text-blue-600 border border-blue-100'
+                                            }`}>
+                                                {getEdificioAmbito(edificio)}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
@@ -218,8 +223,8 @@ function CreateEdificioModal({ show, onClose }) {
                         <i className="fas fa-plus-circle"></i>
                     </div>
                     <div>
-                        <h3 className="text-xl font-black text-gray-900 uppercase">Nuevo Edificio</h3>
-                        <p className="text-[10px] font-bold text-gray-400 tracking-widest">ALTA DE REGISTRO</p>
+                        <h3 className="text-xl font-black text-black uppercase">Nuevo Edificio</h3>
+                        <p className="text-[10px] font-black text-black/40 tracking-widest">ALTA DE REGISTRO</p>
                     </div>
                 </div>
 
@@ -236,8 +241,8 @@ function CreateEdificioModal({ show, onClose }) {
                         <InputError message={errors.cui} className="mt-2" />
                     </div>
 
-                    <div className="col-span-2 md:col-span-2 border-t pt-4">
-                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Información de Ubicación</h4>
+                    <div className="col-span-2 md:col-span-2 border-t pt-4 border-orange-100">
+                         <h4 className="text-[10px] font-black text-black/50 uppercase tracking-widest mb-2">Información de Ubicación</h4>
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -508,13 +513,26 @@ function EditEdificioModal({ show, onClose, edificio }) {
 function DetailItem({ icon, label, value }) {
     return (
         <div className="flex gap-4 items-start">
-            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 border border-gray-100 shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-brand-orange border border-orange-100 shrink-0">
                 <i className={icon}></i>
             </div>
             <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">{label}</p>
-                <p className="text-sm font-bold text-gray-800 leading-tight">{value}</p>
+                <p className="text-[10px] font-black text-black/40 uppercase tracking-widest leading-none mb-1">{label}</p>
+                <p className="text-sm font-black text-black leading-tight">{value}</p>
             </div>
         </div>
     );
 }
+
+const getEdificioAmbito = (edificio) => {
+    if (!edificio.establecimientos || edificio.establecimientos.length === 0) return 'S/D';
+    
+    // Buscar en todos los establecimientos del edificio
+    for (const est of edificio.establecimientos) {
+        if (est.modalidades && est.modalidades.length > 0) {
+            // Retornar el primer ámbito encontrado
+            return est.modalidades[0].ambito || 'S/D';
+        }
+    }
+    return 'S/D';
+};

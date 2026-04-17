@@ -60,22 +60,15 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
     };
 
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-black flex items-center gap-2">
-                    <i className="fas fa-clipboard-check text-brand-orange"></i>
-                    Panel de Auditoría y Validación
-                </h2>
-            }
-        >
+        <AuthenticatedLayout header={null}>
             <Head title="Auditoría" />
 
             {/* KPIs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8 pt-2">
                 <KPICard label="Avance Global" value={`${stats.porcentajeAvance}%`} icon="fas fa-percentage" color="orange" />
                 <KPICard label="Pendientes" value={stats.pendientes} icon="fas fa-clock" color="yellow" />
-                <KPICard label="Correctos" value={stats.correctos} icon="fas fa-check-double" color="green" />
-                <KPICard label="Corregidos" value={stats.corregidos} icon="fas fa-tools" color="blue" />
+                <KPICard label="Correctos" value={stats.correctos} icon="fas fa-check-double" color="orange" />
+                <KPICard label="Corregidos" value={stats.corregidos} icon="fas fa-tools" color="yellow" />
                 <KPICard label="A Revisar" value={stats.revisar} icon="fas fa-exclamation-triangle" color="red" />
             </div>
 
@@ -120,7 +113,7 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-gray-50 text-[10px] uppercase font-bold text-gray-500 border-b">
+                                <tr className="bg-brand-orange text-[10px] uppercase font-black text-white border-b border-orange-600">
                                     <th className="px-6 py-4">Establecimiento / CUE</th>
                                     <th className="px-6 py-4">Modalidad</th>
                                     <th className="px-6 py-4">Edificio</th>
@@ -210,11 +203,9 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
 
 function KPICard({ label, value, icon, color }) {
     const colors = {
-        orange: 'bg-orange-50 text-brand-orange border-orange-100',
-        green: 'bg-green-50 text-green-600 border-green-100',
-        yellow: 'bg-yellow-50 text-yellow-500 border-yellow-100',
-        blue: 'bg-blue-50 text-blue-600 border-blue-100',
-        red: 'bg-red-50 text-red-500 border-red-100',
+        orange: 'bg-orange-50 text-brand-orange border-brand-orange/20',
+        yellow: 'bg-yellow-50 text-brand-orange border-brand-yellow/30',
+        red: 'bg-red-50 text-brand-red border-brand-red/20',
     };
     return (
         <div className={`p-4 rounded-2xl border bg-white shadow-sm flex items-center gap-4`}>
@@ -222,8 +213,8 @@ function KPICard({ label, value, icon, color }) {
                 <i className={icon}></i>
             </div>
             <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">{label}</p>
-                <p className="text-xl font-black text-gray-900 leading-none tracking-tight">{value}</p>
+                <p className="text-[10px] font-black text-black uppercase tracking-widest leading-none mb-1 opacity-60">{label}</p>
+                <p className="text-xl font-black text-black leading-none tracking-tight">{value}</p>
             </div>
         </div>
     );
@@ -231,11 +222,11 @@ function KPICard({ label, value, icon, color }) {
 
 function StatusBadge({ status }) {
     const config = {
-        PENDIENTE: 'bg-yellow-50 text-yellow-600 border-yellow-100',
-        CORRECTO: 'bg-green-50 text-green-700 border-green-100',
-        CORREGIDO: 'bg-blue-50 text-blue-600 border-blue-100',
-        REVISAR: 'bg-red-50 text-red-600 border-red-100',
-        BAJA: 'bg-gray-50 text-gray-500 border-gray-100',
+        PENDIENTE: 'bg-yellow-50 text-brand-orange border-brand-yellow',
+        CORRECTO: 'bg-orange-50 text-brand-orange border-brand-orange/30',
+        CORREGIDO: 'bg-orange-100 text-brand-orange border-brand-orange',
+        REVISAR: 'bg-red-50 text-brand-red border-brand-red/30',
+        BAJA: 'bg-gray-100 text-black border-gray-300',
     };
     return (
         <span className={`px-2 py-0.5 rounded-lg border text-[9px] font-black uppercase tracking-widest ${config[status] || config.PENDIENTE}`}>

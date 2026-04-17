@@ -1,11 +1,12 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import debounce from 'lodash/debounce';
 
 export default function MapaPublico({ edificios = [] }) {
+    const { auth } = usePage().props;
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilters, setActiveFilters] = useState({ publico: true, privado: true });
@@ -42,6 +43,7 @@ export default function MapaPublico({ edificios = [] }) {
         <AuthenticatedLayout
             header={false}
             fullWidth={true}
+            showSidebar={!!auth.user}
         >
             <Head title="Mapa de Escuelas" />
 

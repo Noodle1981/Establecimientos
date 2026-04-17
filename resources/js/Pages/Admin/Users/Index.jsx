@@ -24,37 +24,31 @@ export default function Index({ users, filters }) {
     };
 
     return (
-        <AuthenticatedLayout
-            header={
-                <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-black flex items-center gap-2">
-                        <i className="fas fa-users-cog text-brand-orange"></i>
-                        Gestión de Usuarios
-                    </h2>
-                    <PrimaryButton onClick={() => setShowCreateModal(true)}>
-                        <i className="fas fa-user-plus mr-2"></i> Nuevo Usuario
-                    </PrimaryButton>
-                </div>
-            }
-        >
+        <AuthenticatedLayout header={null}>
             <Head title="Usuarios" />
 
-            <div className="space-y-6">
-                <div className="bg-white p-4 rounded-2xl border border-orange-50 relative">
-                    <input 
-                        type="text"
-                        placeholder="Buscar por nombre o email..."
-                        className="w-full pl-10 pr-4 py-2.5 border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange text-sm"
-                        defaultValue={filters.search}
-                        onChange={(e) => handleSearch(e.target.value)}
-                    />
-                    <i className="fas fa-search absolute left-7 top-7 text-gray-400"></i>
+            <div className="space-y-6 pt-2">
+                <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
+                    <div className="flex-1 relative">
+                        <input 
+                            type="text"
+                            placeholder="Buscar por nombre o email..."
+                            className="w-full pl-10 pr-4 py-2.5 border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange text-sm"
+                            defaultValue={filters.search}
+                            onChange={(e) => handleSearch(e.target.value)}
+                        />
+                        <i className="fas fa-search absolute left-4 top-3 text-gray-400"></i>
+                    </div>
+                    <PrimaryButton className="gap-2 !py-2.5 !rounded-xl" onClick={() => setShowCreateModal(true)}>
+                        <i className="fas fa-user-plus text-xs"></i>
+                        <span className="text-[10px] font-black uppercase">Nuevo Usuario</span>
+                    </PrimaryButton>
                 </div>
 
                 <div className="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="bg-gray-50 text-[10px] uppercase font-black text-gray-500 border-b">
+                            <tr className="bg-brand-orange text-[10px] uppercase font-black text-white border-b border-orange-600">
                                 <th className="px-6 py-4">Usuario</th>
                                 <th className="px-6 py-4">Rol</th>
                                 <th className="px-6 py-4">Último Acceso / Cambio Clave</th>
@@ -70,8 +64,8 @@ export default function Index({ users, filters }) {
                                                 {user.name.charAt(0)}
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-xs font-black text-gray-900 leading-tight">{user.name}</span>
-                                                <span className="text-[10px] text-gray-400 font-medium">{user.email}</span>
+                                                <span className="text-xs font-black text-black leading-tight">{user.name}</span>
+                                                <span className="text-[10px] text-black/40 font-black">{user.email}</span>
                                             </div>
                                         </div>
                                     </td>

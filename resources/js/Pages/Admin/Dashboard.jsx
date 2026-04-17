@@ -3,17 +3,10 @@ import { Head } from '@inertiajs/react';
 
 export default function Dashboard({ stats, recentActivity }) {
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-black flex items-center gap-2">
-                    <i className="fas fa-chart-line text-brand-orange"></i>
-                    Panel de Administración
-                </h2>
-            }
-        >
+        <AuthenticatedLayout header={null}>
             <Head title="Admin Dashboard" />
 
-            <div className="space-y-6">
+            <div className="space-y-6 pt-2">
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                     <StatCard 
@@ -61,22 +54,22 @@ export default function Dashboard({ stats, recentActivity }) {
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-gray-50 text-[10px] uppercase font-bold text-gray-500 border-b">
-                                        <th className="px-6 py-3">Usuario</th>
-                                        <th className="px-6 py-3">Acción</th>
-                                        <th className="px-6 py-3">Fecha</th>
-                                    </tr>
-                                </thead>
+                                    <thead>
+                                        <tr className="bg-brand-orange text-[10px] uppercase font-black text-white border-b border-orange-600">
+                                            <th className="px-6 py-3">Usuario</th>
+                                            <th className="px-6 py-3">Acción</th>
+                                            <th className="px-6 py-3">Fecha</th>
+                                        </tr>
+                                    </thead>
                                 <tbody className="divide-y divide-gray-50">
                                     {recentActivity.map((activity) => (
                                         <tr key={activity.id} className="hover:bg-gray-50/50 transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-lg bg-orange-100 text-brand-orange flex items-center justify-center font-bold text-xs">
+                                                    <div className="w-8 h-8 rounded-lg bg-orange-50 text-brand-orange flex items-center justify-center font-black text-xs border border-orange-100">
                                                         {activity.user?.name.charAt(0)}
                                                     </div>
-                                                    <span className="text-sm font-medium text-gray-900">{activity.user?.name}</span>
+                                                    <span className="text-sm font-black text-black">{activity.user?.name}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-600">
@@ -121,9 +114,9 @@ function StatCard({ title, value, icon, color, darkText = false }) {
                 <div className={`w-10 h-10 ${color} rounded-xl flex items-center justify-center text-white shadow-sm`}>
                     <i className={icon}></i>
                 </div>
-                <span className="text-3xl font-black text-gray-900">{value}</span>
+                <span className="text-3xl font-black text-black">{value}</span>
             </div>
-            <h4 className="text-[11px] uppercase font-black tracking-widest text-gray-400">{title}</h4>
+            <h4 className="text-[11px] uppercase font-black tracking-widest text-black/40">{title}</h4>
         </div>
     );
 }

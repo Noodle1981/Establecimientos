@@ -31,17 +31,10 @@ export default function Index({ modalidades, filters }) {
     };
 
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-black flex items-center gap-2">
-                    <i className="fas fa-file-contract text-brand-orange"></i>
-                    Instrumentos Legales
-                </h2>
-            }
-        >
+        <AuthenticatedLayout header={null}>
             <Head title="Instrumentos Legales" />
 
-            <div className="space-y-6">
+            <div className="space-y-6 pt-2">
                 {/* Filters */}
                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-orange-50 flex flex-col md:flex-row items-center gap-6">
                     <div className="flex-1 relative w-full">
@@ -74,7 +67,7 @@ export default function Index({ modalidades, filters }) {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-gray-50 text-[10px] uppercase font-bold text-gray-500 border-b">
+                                <tr className="bg-brand-orange text-[10px] uppercase font-black text-white border-b border-orange-600">
                                     <th className="px-6 py-4">Establecimiento</th>
                                     <th className="px-6 py-4">I.L. Radio</th>
                                     <th className="px-6 py-4">I.L. Categoría</th>
@@ -87,8 +80,8 @@ export default function Index({ modalidades, filters }) {
                                     <tr key={mod.id} className="hover:bg-orange-50/30 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col">
-                                                <span className="text-xs font-black text-gray-900 group-hover:text-brand-orange leading-tight">{mod.establecimiento.nombre}</span>
-                                                <span className="text-[9px] font-bold text-gray-400 uppercase">CUE: {mod.establecimiento.cue}</span>
+                                                <span className="text-xs font-black text-black group-hover:text-brand-orange leading-tight">{mod.establecimiento.nombre}</span>
+                                                <span className="text-[9px] font-black text-black/40 uppercase">CUE: {mod.establecimiento.cue}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
@@ -129,10 +122,10 @@ export default function Index({ modalidades, filters }) {
 function InstrumentBadge({ value }) {
     const isMissing = !value || value.toLowerCase().includes('sin inst') || value === '';
     return (
-        <span className={`text-[10px] font-bold px-2 py-1 rounded-lg border ${
+        <span className={`text-[10px] font-black px-2 py-1 rounded-lg border uppercase tracking-widest ${
             isMissing 
-                ? 'bg-red-50 text-red-500 border-red-100 italic' 
-                : 'bg-green-50 text-green-700 border-green-100'
+                ? 'bg-red-50 text-brand-red border-brand-red/20 italic' 
+                : 'bg-orange-50 text-brand-orange border-brand-orange/20'
         }`}>
             {value || 'Sin Instrumento'}
         </span>
