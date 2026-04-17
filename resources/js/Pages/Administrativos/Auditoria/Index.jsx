@@ -9,9 +9,49 @@ import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 
-export default function Index({ modalidades, stats, filters, options }) {
-    const [selectedMod, setSelectedMod] = useState(null);
+export default function Index({ modalidades, stats, filters, nombresEdificios = {}, options = { departamentos: [] } }) {
+    const { data, setData, post, processing, errors, reset } = useForm({
+        estado: '',
+        observaciones: '',
+    });
+
     const [showStatusModal, setShowStatusModal] = useState(false);
+    const [selectedMod, setSelectedMod] = useState(null);
+
+    // Función para obtener el nombre descriptivo del edificio
+    const getNombreEdificio = (mod) => {
+        try {
+            if (!mod || !mod.establecimiento) return null;
+            
+            const mapa = nombresEdificios || {};
+            
+            // 1. Prioridad: Nombre directo
+            if (mod.establecimiento.edificio && mod.establecimiento.edificio.nombre) {
+                return mod.establecimiento.edificio.nombre;
+            }
+            
+            // 2. Prioridad: Cabecera
+            const cab = mod.establecimiento.establecimiento_cabecera;
+            if (cab && mapa[cab]) {
+                return mapa[cab];
+            }
+
+            // 3. Fallback: CUI del edificio propio
+            if (mod.establecimiento.edificio && mod.establecimiento.edificio.cui && mapa[mod.establecimiento.edificio.cui]) {
+                return mapa[mod.establecimiento.edificio.cui];
+            }
+        } catch (e) {
+            console.error("Error en getNombreEdificio:", e);
+        }
+        return null;
+    };
+
+    const handleSearch = (query) => {
+        router.get(route('administrativos.auditoria.index'), { ...filters, search: query }, { 
+            preserveState: true, 
+            replace: true
+        });
+    };
 
     const handleFilterChange = (key, value) => {
         router.get(route('administrativos.auditoria.index'), { ...filters, [key]: value }, {
@@ -82,6 +122,8 @@ export default function Index({ modalidades, stats, filters, options }) {
                             <thead>
                                 <tr className="bg-gray-50 text-[10px] uppercase font-bold text-gray-500 border-b">
                                     <th className="px-6 py-4">Establecimiento / CUE</th>
+                                    <th className="px-6 py-4">Modalidad</th>
+                                    <th className="px-6 py-4">Edificio</th>
                                     <th className="px-6 py-4">Última Validación</th>
                                     <th className="px-6 py-4">Estado</th>
                                     <th className="px-6 py-4">Observaciones</th>
@@ -95,6 +137,30 @@ export default function Index({ modalidades, stats, filters, options }) {
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-black text-gray-900 leading-tight">{mod.establecimiento.nombre}</span>
                                                 <span className="text-[9px] font-bold text-gray-400">CUE: {mod.establecimiento.cue}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="text-[10px] font-black text-brand-orange bg-orange-50 px-2 py-1 rounded-lg border border-orange-100 uppercase tracking-tight">
+                                                {mod.nivel_educativo || 'S/D'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col max-w-[200px]">
+                                                {/* Usamos la función de búsqueda de nombre de cabecera */}
+                                                {getNombreEdificio(mod) ? (
+                                                    <>
+                                                        <span className="text-[10px] font-black text-gray-900 leading-tight" title={getNombreEdificio(mod)}>
+                                                            {getNombreEdificio(mod)}
+                                                        </span>
+                                                        <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">
+                                                            CUI: {mod.establecimiento.edificio?.cui || mod.establecimiento.establecimiento_cabecera}
+                                                        </span>
+                                                    </>
+                                                ) : (
+                                                    <span className="text-[10px] font-black text-brand-orange leading-tight">
+                                                        CUI: {mod.establecimiento.edificio?.cui || mod.establecimiento.establecimiento_cabecera || 'S/D'}
+                                                    </span>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
@@ -115,8 +181,9 @@ export default function Index({ modalidades, stats, filters, options }) {
                                             <button 
                                                 onClick={() => { setSelectedMod(mod); setShowStatusModal(true); }}
                                                 className="p-2.5 rounded-xl bg-orange-50 text-brand-orange hover:bg-brand-orange hover:text-white transition shadow-sm border border-orange-100"
+                                                title="Ver y Validar"
                                             >
-                                                <i className="fas fa-check-circle text-sm"></i>
+                                                <i className="fas fa-eye text-sm"></i>
                                             </button>
                                         </td>
                                     </tr>
@@ -208,6 +275,29 @@ function StatusUpdateModal({ show, onClose, modalidad }) {
                 </div>
 
                 <div className="space-y-6">
+                    {/* Quick Actions */}
+                    <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 border-dashed">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-brand-orange mb-3 flex items-center gap-2">
+                            <i className="fas fa-bolt"></i> Acciones Rápidas
+                        </p>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={() => { setData({ estado: 'CORRECTO', observaciones: 'Validación rápida: Correcto según EDUGE' }); }}
+                                className="flex-1 py-2 px-3 bg-white border border-green-200 text-green-700 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-green-50 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <i className="fas fa-check-double"></i> Correcto EDUGE
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => { setData({ estado: 'REVISAR', observaciones: 'A REVISAR: ' }); }}
+                                className="flex-1 py-2 px-3 bg-white border border-red-200 text-red-700 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <i className="fas fa-exclamation-triangle"></i> A Revisar
+                            </button>
+                        </div>
+                    </div>
+
                     <div>
                         <InputLabel value="Nuevo Estado de Validación" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
                         <div className="grid grid-cols-2 gap-2">

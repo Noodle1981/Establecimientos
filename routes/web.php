@@ -93,6 +93,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/trash/{type}/{id}/restore', [App\Http\Controllers\Admin\AdminController::class, 'restore'])->name('admin.trash.restore');
         Route::delete('/trash/modalidad/{id}/force', [App\Http\Controllers\Admin\AdminController::class, 'forceDelete'])->name('admin.trash.forceDelete');
     });
+
+    // Bitácora shared route (Accessible to Admin and Administrativos)
+    Route::get('/bitacora', [App\Http\Controllers\Admin\AdminController::class, 'logs'])->name('bitacora.index');
 });
 
 /**

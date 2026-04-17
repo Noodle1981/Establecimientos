@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Administrativos;
 use App\Http\Controllers\Controller;
 use App\Models\Modalidad;
 use App\Models\Edificio;
+use App\Models\Establecimiento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -17,7 +18,15 @@ class AuditoriaController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Modalidad::withTrashed()->with(['establecimiento.edificio', 'usuarioValidacion']);
+        $query = Modalidad::withTrashed()->with([
+            'establecimiento.edificio' => function($q) {
+                $q->withTrashed();
+            },
+            'establecimiento.cabecera.edificio' => function($q) {
+                $q->withTrashed();
+            },
+            'usuarioValidacion'
+        ]);
 
         // Búsqueda
         if ($search = $request->input('search')) {
@@ -60,9 +69,18 @@ class AuditoriaController extends Controller
 
         $modalidades = $query->orderBy('validado_en', 'desc')->paginate(15)->withQueryString();
 
+        // Mapa de nombres de cabeceras (CUI -> Nombre)
+        // Buscamos establecimientos que terminan en '00' o que son marcados como cabecera para dar nombre al edificio
+        $nombresEdificios = Establecimiento::where('cue', 'LIKE', '%00')
+            ->pluck('nombre', 'cue')
+            ->mapWithKeys(function ($nombre, $cue) {
+                return [substr((string)$cue, 0, 7) => $nombre];
+            });
+
         return Inertia::render('Administrativos/Auditoria/Index', [
             'modalidades' => $modalidades,
             'filters' => $request->all(),
+            'nombresEdificios' => $nombresEdificios,
             'stats' => [
                 'pendientes' => $stats['PENDIENTE'] ?? 0,
                 'correctos' => $stats['CORRECTO'] ?? 0,
@@ -87,17 +105,15 @@ class AuditoriaController extends Controller
 
         $validated = $request->validate([
             'estado' => 'required|in:PENDIENTE,CORRECTO,CORREGIDO,REVISAR,BAJA',
-            'observaciones' => 'nullable|string|min:5',
+            'observaciones' => 'nullable|string',
         ]);
 
-        $modalidad->update([
-            'estado_validacion' => $validated['estado'],
-            'observaciones' => $validated['observaciones'],
-            'validado_por' => Auth::id(),
-            'validado_en' => now(),
-            'validado' => in_array($validated['estado'], ['CORRECTO', 'CORREGIDO']),
-        ]);
+        $modalidad->cambiarEstado(
+            $validated['estado'], 
+            $validated['observaciones'], 
+            Auth::id()
+        );
 
-        return back()->with('success', 'Estado de auditoría actualizado.');
+        return back()->with('success', 'Estado de auditoría actualizado correctamente.');
     }
 }

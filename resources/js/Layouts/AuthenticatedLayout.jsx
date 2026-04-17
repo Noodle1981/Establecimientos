@@ -32,12 +32,9 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                                 </NavLinkCustom>
 
                                 {isAdmin && (
-                                    <>
-                                        <NavLinkCustom href={route('admin.dashboard')} active={route().current('admin.dashboard')} icon="fas fa-chart-line">
-                                            Dashboard
-                                        </NavLinkCustom>
-                                        {/* Agregaremos más links conforme los migremos */}
-                                    </>
+                                    <NavLinkCustom href={route('admin.dashboard')} active={route().current('admin.dashboard')} icon="fas fa-chart-line">
+                                        Dashboard
+                                    </NavLinkCustom>
                                 )}
 
                                 {isAdministrativo && (
@@ -60,13 +57,14 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                                     </>
                                 )}
 
-                                {user?.role === 'admin' && (
+                                <NavLinkCustom href={route('bitacora.index')} active={route().current('bitacora.index')} icon="fas fa-history">
+                                    Bitácora
+                                </NavLinkCustom>
+
+                                {isAdmin && (
                                     <div className="flex items-center gap-1 border-l pl-4 ml-4">
                                         <NavLinkCustom href={route('admin.users.index')} active={route().current('admin.users.*')} icon="fas fa-users-cog">
                                             Usuarios
-                                        </NavLinkCustom>
-                                        <NavLinkCustom href={route('admin.logs.index')} active={route().current('admin.logs.*')} icon="fas fa-history">
-                                            Logs
                                         </NavLinkCustom>
                                         <NavLinkCustom href={route('admin.trash.index')} active={route().current('admin.trash.*')} icon="fas fa-trash-alt">
                                             Papelera
@@ -171,6 +169,9 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                                     <ResponsiveNavLinkCustom href={route('administrativos.auditoria.index')} active={route().current('administrativos.auditoria.index')} icon="fas fa-clipboard-check">
                                         Auditoría
                                     </ResponsiveNavLinkCustom>
+                                    <ResponsiveNavLinkCustom href={route('bitacora.index')} active={route().current('bitacora.index')} icon="fas fa-history">
+                                        Bitácora
+                                    </ResponsiveNavLinkCustom>
                                 </>
                             )}
 
@@ -180,8 +181,8 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                                     <ResponsiveNavLinkCustom href={route('admin.users.index')} active={route().current('admin.users.*')} icon="fas fa-users-cog">
                                         Gestión Usuarios
                                     </ResponsiveNavLinkCustom>
-                                    <ResponsiveNavLinkCustom href={route('admin.logs.index')} active={route().current('admin.logs.*')} icon="fas fa-history">
-                                        Logs de Actividad
+                                    <ResponsiveNavLinkCustom href={route('bitacora.index')} active={route().current('bitacora.index')} icon="fas fa-history">
+                                        Bitácora de Modificaciones
                                     </ResponsiveNavLinkCustom>
                                     <ResponsiveNavLinkCustom href={route('admin.trash.index')} active={route().current('admin.trash.*')} icon="fas fa-trash-alt">
                                         Papelera de Reciclaje
