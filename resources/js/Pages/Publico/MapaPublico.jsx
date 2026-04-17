@@ -40,7 +40,8 @@ export default function MapaPublico({ edificios = [] }) {
 
     return (
         <AuthenticatedLayout
-            header={false} // Full screen map
+            header={false}
+            fullWidth={true}
         >
             <Head title="Mapa de Escuelas" />
 

@@ -1,7 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function AuthenticatedLayout({ header, children }) {
+export default function AuthenticatedLayout({ header, children, fullWidth = false }) {
     const user = usePage().props.auth.user;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [userOpen, setUserOpen] = useState(false);
@@ -12,7 +12,7 @@ export default function AuthenticatedLayout({ header, children }) {
     return (
         <div className="min-h-screen bg-white">
             <nav className="fixed w-full top-0 z-50 bg-white shadow-sm border-b" style={{ borderColor: '#FE8204' }}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className={fullWidth ? 'w-full px-6' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'}>
                     <div className="flex justify-between h-16">
                         {/* Left Side: Logo & Navigation Links */}
                         <div className="flex items-center space-x-6">
@@ -227,8 +227,8 @@ export default function AuthenticatedLayout({ header, children }) {
                 </header>
             )}
 
-            <main className="pt-1">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <main className={fullWidth ? '' : 'pt-1'}>
+                <div className={fullWidth ? 'w-full' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}>
                     {children}
                 </div>
             </main>
