@@ -1,26 +1,27 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Livewire\Admin\AdminDashboard;
-use App\Livewire\Admin\UserManagement;
-use App\Livewire\Mid\MidDashboard;
-use App\Livewire\User\UserDashboard;
+use Inertia\Inertia;
+
 /**
  * Public Routes
  */
 Route::redirect('/', '/mapa')->name('home');
 
+Route::get('/mapa', [App\Http\Controllers\Publico\MapaController::class, 'index'])->name('mapa.publico');
+
 /**
  * Authentication Routes
- * Incluye login, register, password reset, etc.
  */
 require __DIR__.'/auth.php';
 
 /**
  * Protected Routes (Require Authentication)
  */
-Route::middleware(['auth', 'password.change'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     
     /**
      * Dashboard - Redirige según rol
@@ -37,56 +38,62 @@ Route::middleware(['auth', 'password.change'])->group(function () {
         
         return redirect()->route('mapa.publico');
     })->name('dashboard');
-    
+
     /**
-     * Ruta de Perfil (Accesible por todos los autenticados)
+     * Rutas de Perfil (Inertia)
      */
-    Route::view('profile', 'profile')->name('profile');
-    
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
     /**
-     * Rutas de Administración (Solo Admin)
+     * Rutas de Administración (Inertia)
      */
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
-        Route::get('/', AdminDashboard::class)->name('admin.dashboard');
-        Route::get('/users', UserManagement::class)->name('admin.users');
-        Route::get('/activity-log', \App\Livewire\Admin\ActivityLogTable::class)->name('admin.activity-log');
-        Route::get('/papelera-admin', \App\Livewire\Admin\TrashManager::class)->name('admin.trash');
-        
-        // Gestión Compartida bajo prefijo admin
-        Route::get('/establecimientos', \App\Livewire\Administrativos\ModalidadesTable::class)->name('admin.establecimientos');
-        Route::get('/edificios/{edificio}/auditoria', \App\Livewire\Administrativos\AuditacionEdificioView::class)->name('admin.edificios.auditoria');
-        Route::get('/validacion', \App\Livewire\Administrativos\ValidacionModalidadesTable::class)->name('admin.validacion');
-        
-        // Backward compatibility (redirect old routes)
-        Route::get('/modalidades', function() { return redirect()->route('admin.establecimientos'); });
-        Route::get('/auditorias', function() { return redirect()->route('admin.validacion'); });
-        Route::get('/auditorias/nueva', function() { return redirect()->route('admin.validacion'); });
+        Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
     });
 
     /**
-     * Rutas Administrativas (Solo Administrativos)
+     * Rutas Administrativas (Inertia)
      */
     Route::middleware(['role:administrativos'])->prefix('administrativos')->group(function () {
-        Route::get('/Panel', \App\Livewire\Administrativos\AdministrativosDashboard::class)->name('administrativos.dashboard');
+        Route::get('/Panel', [App\Http\Controllers\Administrativos\DashboardController::class, 'index'])->name('administrativos.dashboard');
         
-        // Gestión Compartida bajo prefijo administrativos con nombres propios
-        Route::get('/establecimientos', \App\Livewire\Administrativos\ModalidadesTable::class)->name('administrativos.establecimientos');
-        Route::get('/edificios', \App\Livewire\Administrativos\EdificiosTable::class)->name('administrativos.edificios');
-        Route::get('/edificios/{edificio}/auditoria', \App\Livewire\Administrativos\AuditacionEdificioView::class)->name('administrativos.edificios.auditoria');
-        Route::get('/instrumentos-legales', \App\Livewire\Administrativos\InstrumentosLegalesTable::class)->name('administrativos.instrumentos-legales');
-        Route::get('/validacion', \App\Livewire\Administrativos\ValidacionModalidadesTable::class)->name('administrativos.validacion');
-        Route::get('/bitacora', \App\Livewire\Admin\ActivityLogTable::class)->name('administrativos.bitacora');
+        // Gestión de Edificios
+        Route::get('/edificios', [App\Http\Controllers\Administrativos\EdificioController::class, 'index'])->name('administrativos.edificios.index');
+        Route::post('/edificios', [App\Http\Controllers\Administrativos\EdificioController::class, 'store'])->name('administrativos.edificios.store');
+        Route::patch('/edificios/{id}', [App\Http\Controllers\Administrativos\EdificioController::class, 'update'])->name('administrativos.edificios.update');
+        Route::get('/edificios/export', [App\Http\Controllers\Administrativos\EdificioController::class, 'export'])->name('administrativos.edificios.export');
+
+        // Gestión de Establecimientos (Modalidades)
+        Route::get('/establecimientos', [App\Http\Controllers\Administrativos\ModalidadController::class, 'index'])->name('administrativos.establecimientos.index');
+        Route::post('/establecimientos', [App\Http\Controllers\Administrativos\ModalidadController::class, 'store'])->name('administrativos.establecimientos.store');
+        Route::patch('/establecimientos/{id}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'update'])->name('administrativos.establecimientos.update');
+        Route::get('/establecimientos/export', [App\Http\Controllers\Administrativos\ModalidadController::class, 'export'])->name('administrativos.establecimientos.export');
+        Route::get('/api/lookup-edificio/{cui}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'lookupEdificio'])->name('api.lookup-edificio');
+
+        // Instrumentos Legales
+        Route::get('/instrumentos', [App\Http\Controllers\Administrativos\ModalidadController::class, 'instrumentosIndex'])->name('administrativos.instrumentos.index');
+        Route::patch('/instrumentos/{id}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'instrumentosUpdate'])->name('administrativos.instrumentos.update');
+
+        // Auditoría
+        Route::get('/auditoria', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'index'])->name('administrativos.auditoria.index');
+        Route::patch('/auditoria/{id}/estado', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'updateEstado'])->name('administrativos.auditoria.updateEstado');
+    });
+
+    // --- CONSOLA ADMIN (Solo Administradores) ---
+    Route::middleware(['role:admin'])->prefix('admin')->group(function () {
+        Route::get('/users', [App\Http\Controllers\Admin\AdminController::class, 'users'])->name('admin.users.index');
+        Route::post('/users', [App\Http\Controllers\Admin\AdminController::class, 'storeUser'])->name('admin.users.store');
+        Route::post('/users/{id}/reset', [App\Http\Controllers\Admin\AdminController::class, 'resetPassword'])->name('admin.users.reset');
         
-        // Backward compatibility (redirect old routes)
-        Route::get('/auditorias', function() { return redirect()->route('administrativos.validacion'); });
-        Route::get('/auditorias/nueva', function() { return redirect()->route('administrativos.validacion'); });
+        Route::get('/logs', [App\Http\Controllers\Admin\AdminController::class, 'logs'])->name('admin.logs.index');
+        
+        Route::get('/trash', [App\Http\Controllers\Admin\AdminController::class, 'trash'])->name('admin.trash.index');
+        Route::post('/trash/{type}/{id}/restore', [App\Http\Controllers\Admin\AdminController::class, 'restore'])->name('admin.trash.restore');
+        Route::delete('/trash/modalidad/{id}/force', [App\Http\Controllers\Admin\AdminController::class, 'forceDelete'])->name('admin.trash.forceDelete');
     });
 });
-
-/**
- * Rutas Públicas del Mapa
- */
-Route::get('/mapa', \App\Livewire\Publico\MapaPublico::class)->name('mapa.publico');
 
 /**
  * API Routes
