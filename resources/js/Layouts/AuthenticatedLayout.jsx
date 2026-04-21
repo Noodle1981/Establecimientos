@@ -1,7 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 
-export default function AuthenticatedLayout({ header, children, fullWidth = false, showSidebar = true }) {
+export default function AuthenticatedLayout({ header, children, fullWidth = false, showSidebar = true, padding = true }) {
     const user = usePage().props.auth.user;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -81,7 +81,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                                 icon="fas fa-tachometer-alt" 
                                 collapsed={!sidebarOpen}
                             >
-                                Panel Principal
+                                Estadísticas
                             </SidebarLink>
                             <SidebarLink 
                                 href={route('administrativos.edificios.index')} 
@@ -191,10 +191,19 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                         <div className="flex items-center">
                             {user ? (
                                 <div className="relative">
-                                    <button 
-                                        onClick={() => setUserOpen(!userOpen)}
-                                        className="flex items-center space-x-3 p-1 rounded-xl hover:bg-gray-50 transition"
-                                    >
+                                    <div className="flex items-center gap-3">
+                                        {!showSidebar && (
+                                            <Link 
+                                                href={isAdmin ? route('admin.dashboard') : route('administrativos.dashboard')}
+                                                className="hidden sm:inline-flex items-center px-4 py-2 bg-orange-50 text-brand-orange border border-orange-100 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-brand-orange hover:text-white transition shadow-sm gap-2"
+                                            >
+                                                <i className="fas fa-th-large"></i> Entrar al Panel
+                                            </Link>
+                                        )}
+                                        <button 
+                                            onClick={() => setUserOpen(!userOpen)}
+                                            className="flex items-center space-x-3 p-1 rounded-xl hover:bg-gray-50 transition"
+                                        >
                                         <div className="flex flex-col text-right hidden sm:flex">
                                             <span className="text-xs font-black leading-none text-black">{user.name}</span>
                                             <span className="text-[9px] uppercase font-black tracking-tighter text-brand-orange">{user.role}</span>
@@ -204,7 +213,8 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                                         >
                                             {user.name.charAt(0)}
                                         </div>
-                                    </button>
+                                        </button>
+                                    </div>
                                     
                                     {userOpen && (
                                         <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl py-2 overflow-hidden border z-50 border-gray-100 animate-in fade-in slide-in-from-right-4 duration-200">
@@ -254,7 +264,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                                 <MobileNavLink href={route('mapa.publico')} active={route().current('mapa.publico')} icon="fas fa-map-marked-alt">Mapa</MobileNavLink>
                                 {isAdministrativo && (
                                     <>
-                                        <MobileNavLink href={route('administrativos.dashboard')} active={route().current('administrativos.dashboard')} icon="fas fa-tachometer-alt">Panel</MobileNavLink>
+                                        <MobileNavLink href={route('administrativos.dashboard')} active={route().current('administrativos.dashboard')} icon="fas fa-tachometer-alt">Estadísticas</MobileNavLink>
                                         <MobileNavLink href={route('administrativos.edificios.index')} active={route().current('administrativos.edificios.index')} icon="fas fa-building">Edificios</MobileNavLink>
                                         <MobileNavLink href={route('administrativos.establecimientos.index')} active={route().current('administrativos.establecimientos.index')} icon="fas fa-school">Establecimientos</MobileNavLink>
                                         <MobileNavLink href={route('administrativos.instrumentos.index')} active={route().current('administrativos.instrumentos.index')} icon="fas fa-file-contract">Instrumentos</MobileNavLink>
@@ -276,7 +286,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                             </div>
                         </div>
                     )}
-                    <div className={fullWidth ? 'p-6' : 'max-w-[1600px] mx-auto p-6 lg:p-10'}>
+                    <div className={padding ? (fullWidth ? 'p-6' : 'max-w-[1600px] mx-auto p-6 lg:p-10') : ''}>
                         {children}
                     </div>
                 </main>

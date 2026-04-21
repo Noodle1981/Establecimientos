@@ -43,7 +43,8 @@ export default function MapaPublico({ edificios = [] }) {
         <AuthenticatedLayout
             header={false}
             fullWidth={true}
-            showSidebar={!!auth.user}
+            showSidebar={false}
+            padding={false}
         >
             <Head title="Mapa de Escuelas" />
 
