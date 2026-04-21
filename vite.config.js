@@ -10,4 +10,19 @@ export default defineConfig({
         }),
         react(),
     ],
+    build: {
+        chunkSizeWarningLimit: 1600,
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        if (id.includes('leaflet')) {
+                            return 'leaflet-vendor';
+                        }
+                        return 'vendor';
+                    }
+                },
+            },
+        },
+    },
 });

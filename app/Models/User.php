@@ -68,6 +68,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is mid.
+     */
+    public function isMid(): bool
+    {
+        return $this->role === 'mid';
+    }
+
+    /**
      * Check if user is a regular user.
      */
     public function isUser(): bool

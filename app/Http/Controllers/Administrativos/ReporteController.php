@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Administrativos;
 
 use App\Http\Controllers\Controller;
 use App\Models\Reporte;
-use Illuminate\Http\Request;
+use App\Http\Requests\Administrativos\UpdateReporteRequest;
 use Inertia\Inertia;
 
 class ReporteController extends Controller
@@ -32,13 +32,9 @@ class ReporteController extends Controller
     /**
      * Update the status of a report.
      */
-    public function update(Request $request, Reporte $reporte)
+    public function update(UpdateReporteRequest $request, Reporte $reporte)
     {
-        $validated = $request->validate([
-            'estado' => 'required|in:PENDIENTE,PROCESADO,DESCARTADO',
-        ]);
-
-        $reporte->update($validated);
+        $reporte->update($request->validated());
 
         return back()->with('success', 'El estado del reporte ha sido actualizado.');
     }

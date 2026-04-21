@@ -21,5 +21,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        // Register Observers for Cache Invalidation
+        \App\Models\Edificio::observe(\App\Observers\MapaCacheObserver::class);
+        \App\Models\Establecimiento::observe(\App\Observers\MapaCacheObserver::class);
+        \App\Models\Modalidad::observe(\App\Observers\MapaCacheObserver::class);
     }
 }
