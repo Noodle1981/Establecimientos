@@ -9,7 +9,7 @@ import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 
-export default function Index({ modalidades, stats, filters, nombresEdificios = {}, options = { departamentos: [] } }) {
+export default function Index({ modalidades, stats, filters, nombresEdificios = {}, options = { departamentos: [], niveles: [] } }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         estado: '',
         observaciones: '',
@@ -64,12 +64,13 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
             <Head title="Auditoría" />
 
             {/* KPIs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8 pt-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8 pt-2">
                 <KPICard label="Avance Global" value={`${stats.porcentajeAvance}%`} icon="fas fa-percentage" color="orange" />
-                <KPICard label="Pendientes" value={stats.pendientes} icon="fas fa-clock" color="yellow" />
-                <KPICard label="Correctos" value={stats.correctos} icon="fas fa-check-double" color="orange" />
-                <KPICard label="Corregidos" value={stats.corregidos} icon="fas fa-tools" color="yellow" />
-                <KPICard label="A Revisar" value={stats.revisar} icon="fas fa-exclamation-triangle" color="red" />
+                <KPICard label="PENDIENTE" value={stats.pendientes} icon="fas fa-clock" color="amber" />
+                <KPICard label="CORRECTO" value={stats.correctos} icon="fas fa-check-double" color="emerald" />
+                <KPICard label="CORREGIDO" value={stats.corregidos} icon="fas fa-tools" color="blue" />
+                <KPICard label="REVISAR" value={stats.revisar} icon="fas fa-exclamation-triangle" color="rose" />
+                <KPICard label="BAJA" value={stats.bajas} icon="fas fa-arrow-down" color="orange" />
             </div>
 
             <div className="space-y-6">
@@ -92,10 +93,20 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                         onChange={(e) => handleFilterChange('estado', e.target.value)}
                     >
                         <option value="">Todos los Estados</option>
-                        <option value="PENDIENTE">Pendientes</option>
-                        <option value="CORRECTO">Correctos</option>
-                        <option value="CORREGIDO">Corregidos</option>
-                        <option value="REVISAR">A Revisar</option>
+                        <option value="PENDIENTE">PENDIENTE</option>
+                        <option value="CORRECTO">CORRECTO</option>
+                        <option value="CORREGIDO">CORREGIDO</option>
+                        <option value="REVISAR">REVISAR</option>
+                        <option value="BAJA">BAJA</option>
+                    </select>
+
+                    <select 
+                        className="w-full lg:w-48 border-gray-200 rounded-xl text-xs font-black uppercase text-gray-500"
+                        value={filters.nivel || ''}
+                        onChange={(e) => handleFilterChange('nivel', e.target.value)}
+                    >
+                        <option value="">Todos los Niveles</option>
+                        {options.niveles.map(n => <option key={n} value={n}>{n}</option>)}
                     </select>
 
                     <select 
@@ -204,8 +215,10 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
 function KPICard({ label, value, icon, color }) {
     const colors = {
         orange: 'bg-orange-50 text-brand-orange border-brand-orange/20',
-        yellow: 'bg-yellow-50 text-brand-orange border-brand-yellow/30',
-        red: 'bg-red-50 text-brand-red border-brand-red/20',
+        amber: 'bg-amber-50 text-amber-600 border-amber-200',
+        emerald: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+        blue: 'bg-blue-50 text-blue-600 border-blue-200',
+        rose: 'bg-rose-50 text-rose-600 border-rose-200',
     };
     return (
         <div className={`p-4 rounded-2xl border bg-white shadow-sm flex items-center gap-4`}>
@@ -222,10 +235,10 @@ function KPICard({ label, value, icon, color }) {
 
 function StatusBadge({ status }) {
     const config = {
-        PENDIENTE: 'bg-yellow-50 text-brand-orange border-brand-yellow',
-        CORRECTO: 'bg-orange-50 text-brand-orange border-brand-orange/30',
-        CORREGIDO: 'bg-orange-100 text-brand-orange border-brand-orange',
-        REVISAR: 'bg-red-50 text-brand-red border-brand-red/30',
+        PENDIENTE: 'bg-amber-50 text-amber-700 border-amber-200',
+        CORRECTO: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        CORREGIDO: 'bg-blue-50 text-blue-700 border-blue-200',
+        REVISAR: 'bg-rose-50 text-rose-700 border-rose-200',
         BAJA: 'bg-gray-100 text-black border-gray-300',
     };
     return (

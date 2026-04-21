@@ -50,6 +50,10 @@ class AuditoriaController extends Controller
             });
         }
 
+        if ($nivel = $request->input('nivel')) {
+            $query->where('nivel_educativo', $nivel);
+        }
+
         // Conteo para KPIs (sin filtro de estado para ver el total)
         $kpiQuery = Modalidad::withTrashed();
         if ($depto) {
@@ -86,6 +90,7 @@ class AuditoriaController extends Controller
                 'correctos' => $stats['CORRECTO'] ?? 0,
                 'corregidos' => $stats['CORREGIDO'] ?? 0,
                 'revisar' => $stats['REVISAR'] ?? 0,
+                'bajas' => $stats['BAJA'] ?? 0,
                 'total' => $totalCount,
                 'porcentajeAvance' => $porcentajeAvance,
             ],
