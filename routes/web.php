@@ -12,6 +12,7 @@ use Inertia\Inertia;
 Route::redirect('/', '/mapa')->name('home');
 
 Route::get('/mapa', [App\Http\Controllers\Publico\MapaController::class, 'index'])->name('mapa.publico');
+Route::post('/reportes', [App\Http\Controllers\Publico\ReporteController::class, 'store'])->name('publico.reportes.store');
 
 /**
  * Authentication Routes
@@ -79,6 +80,11 @@ Route::middleware(['auth'])->group(function () {
         // Auditoría
         Route::get('/auditoria', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'index'])->name('administrativos.auditoria.index');
         Route::patch('/auditoria/{id}/estado', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'updateEstado'])->name('administrativos.auditoria.updateEstado');
+
+        // Reportes (Bandeja de Entrada)
+        Route::get('/reportes', [App\Http\Controllers\Administrativos\ReporteController::class, 'index'])->name('administrativos.reportes.index');
+        Route::patch('/reportes/{reporte}', [App\Http\Controllers\Administrativos\ReporteController::class, 'update'])->name('administrativos.reportes.update');
+        Route::delete('/reportes/{reporte}', [App\Http\Controllers\Administrativos\ReporteController::class, 'destroy'])->name('administrativos.reportes.destroy');
     });
 
     // --- CONSOLA ADMIN (Solo Administradores) ---

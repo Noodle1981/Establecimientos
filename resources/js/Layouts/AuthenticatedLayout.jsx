@@ -115,6 +115,14 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                             >
                                 Auditoría
                             </SidebarLink>
+                            <SidebarLink 
+                                href={route('administrativos.reportes.index')} 
+                                active={route().current('administrativos.reportes.*')} 
+                                icon="fas fa-inbox" 
+                                collapsed={!sidebarOpen}
+                            >
+                                Reportes
+                            </SidebarLink>
                         </>
                     )}
 
