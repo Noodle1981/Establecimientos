@@ -32,12 +32,13 @@ class EdificioController extends Controller
     {
         $edificios = $this->queryService->getFilteredQuery($request)
             ->latest()
-            ->paginate(20)
+            ->paginate(10)
+            ->onEachSide(1)
             ->withQueryString();
 
         return Inertia::render('Administrativos/Edificios/Index', [
             'edificios' => $edificios,
-            'filters' => $request->only(['search', 'zona', 'localidad', 'ambito']),
+            'filters' => $request->only(['search', 'zona_departamento', 'localidad', 'ambito']),
             'options' => $this->queryService->getFilterOptions()
         ]);
     }

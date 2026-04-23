@@ -36,7 +36,8 @@ class ModalidadController extends Controller
     {
         $modalidades = $this->queryService->getFilteredQuery($request)
             ->latest()
-            ->paginate(15)
+            ->paginate(10)
+            ->onEachSide(1)
             ->withQueryString();
 
         $options = Cache::remember('modalidades_options_react', 3600, function () {
@@ -68,7 +69,8 @@ class ModalidadController extends Controller
     public function instrumentosIndex(Request $request): Response
     {
         $modalidades = $this->queryService->getFilteredQuery($request)
-            ->paginate(20)
+            ->paginate(10)
+            ->onEachSide(1)
             ->withQueryString();
 
         return Inertia::render('Administrativos/Instrumentos/Index', [

@@ -70,7 +70,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                         </SidebarLink>
                     )}
 
-                    {isAdministrativo && (
+                    {(isAdmin || isAdministrativo) && (
                         <>
                             <div className={`px-4 mt-6 mb-2 text-[10px] uppercase font-black tracking-widest text-white/40 ${!sidebarOpen && 'hidden'}`}>
                                 Gestión
@@ -270,13 +270,14 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                             <div className="flex-1 overflow-y-auto p-4 space-y-2">
                                 {/* Repeat similar links for mobile if needed, or unify components */}
                                 <MobileNavLink href={route('mapa.publico')} active={route().current('mapa.publico')} icon="fas fa-map-marked-alt">Mapa</MobileNavLink>
-                                {isAdministrativo && (
+                                {(isAdmin || isAdministrativo) && (
                                     <>
                                         <MobileNavLink href={route('administrativos.dashboard')} active={route().current('administrativos.dashboard')} icon="fas fa-tachometer-alt">Estadísticas</MobileNavLink>
                                         <MobileNavLink href={route('administrativos.edificios.index')} active={route().current('administrativos.edificios.index')} icon="fas fa-building">Edificios</MobileNavLink>
                                         <MobileNavLink href={route('administrativos.establecimientos.index')} active={route().current('administrativos.establecimientos.index')} icon="fas fa-school">Establecimientos</MobileNavLink>
                                         <MobileNavLink href={route('administrativos.instrumentos.index')} active={route().current('administrativos.instrumentos.index')} icon="fas fa-file-contract">Instrumentos</MobileNavLink>
                                         <MobileNavLink href={route('administrativos.auditoria.index')} active={route().current('administrativos.auditoria.index')} icon="fas fa-clipboard-check">Auditoría</MobileNavLink>
+                                        <MobileNavLink href={route('administrativos.reportes.index')} active={route().current('administrativos.reportes.*')} icon="fas fa-inbox">Reportes</MobileNavLink>
                                     </>
                                 )}
                                 <MobileNavLink href={route('bitacora.index')} active={route().current('bitacora.index')} icon="fas fa-history">Bitácora</MobileNavLink>

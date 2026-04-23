@@ -71,8 +71,8 @@ export default function Index({ edificios, filters, options }) {
                     </div>
                     
                     <select 
-                        value={filters.zona || ''}
-                        onChange={(e) => handleParamChange('zona', e.target.value)}
+                        value={filters.zona_departamento || ''}
+                        onChange={(e) => handleParamChange('zona_departamento', e.target.value)}
                         className="border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange text-sm min-w-[200px]"
                     >
                         <option value="">Departamentos (Todos)</option>
@@ -97,6 +97,10 @@ export default function Index({ edificios, filters, options }) {
                         {options.ambitos.map(a => <option key={a} value={a}>{a}</option>)}
                     </select>
 
+                    <div className="bg-gray-50 text-black px-4 py-2 rounded-xl border border-gray-100 text-sm font-black shadow-sm h-[38px] flex items-center justify-center min-w-[50px]">
+                        {edificios.total}
+                    </div>
+
                     <div className="flex gap-2 shrink-0 border-l pl-4 border-gray-100 ml-2">
                         <a 
                             href={route('administrativos.edificios.export')}
@@ -116,34 +120,34 @@ export default function Index({ edificios, filters, options }) {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-brand-orange text-[10px] uppercase font-black text-white border-b border-orange-600">
-                                    <th className="px-6 py-4">CUI / Ubicación</th>
-                                    <th className="px-6 py-4">Establecimiento Cabecera</th>
-                                    <th className="px-6 py-4">Depto / Localidad</th>
-                                    <th className="px-6 py-4 text-center">Ámbito</th>
-                                    <th className="px-6 py-4 text-right">Acciones</th>
+                                    <th className="px-6 py-2">CUI / Ubicación</th>
+                                    <th className="px-6 py-2">Establecimiento Cabecera</th>
+                                    <th className="px-6 py-2">Depto / Localidad</th>
+                                    <th className="px-6 py-2 text-center">Ámbito</th>
+                                    <th className="px-6 py-2 text-right">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {edificios.data.map((edificio) => (
                                     <tr key={edificio.id} className="hover:bg-orange-50/30 transition-colors group">
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-2">
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-black text-black group-hover:text-brand-orange">{edificio.cui}</span>
                                                 <span className="text-[10px] font-black text-black/40 uppercase tracking-tighter">{edificio.calle} {edificio.numero_puerta || 'S/N'}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-2">
                                             <span className="text-xs font-black text-black/80 uppercase leading-tight line-clamp-2">
                                                 {edificio.establecimientos[0]?.establecimiento_cabecera || edificio.establecimientos[0]?.nombre || 'Sin Cabecera'}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-2">
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-black text-black/70">{edificio.zona_departamento}</span>
                                                 <span className="text-[10px] text-black/40 font-black">{edificio.localidad}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-6 py-2 text-center">
                                             <span className={`inline-flex items-center justify-center px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors ${
                                                 getEdificioAmbito(edificio) === 'PUBLICO' 
                                                     ? 'bg-orange-50 text-brand-orange border border-orange-100' 
@@ -152,7 +156,7 @@ export default function Index({ edificios, filters, options }) {
                                                 {getEdificioAmbito(edificio)}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="px-6 py-2 text-right">
                                             <div className="flex justify-end gap-2">
                                                 <button 
                                                     onClick={() => openView(edificio)}
@@ -178,7 +182,7 @@ export default function Index({ edificios, filters, options }) {
                 </div>
 
                 {/* Pagination */}
-                <div className="flex justify-center py-4">
+                <div className="flex justify-center -mt-2">
                     <Pagination links={edificios.links} />
                 </div>
             </div>

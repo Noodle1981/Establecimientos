@@ -125,30 +125,30 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-brand-orange text-[10px] uppercase font-black text-white border-b border-orange-600">
-                                    <th className="px-6 py-4">Establecimiento / CUE</th>
-                                    <th className="px-6 py-4">Modalidad</th>
-                                    <th className="px-6 py-4">Edificio</th>
-                                    <th className="px-6 py-4">Última Validación</th>
-                                    <th className="px-6 py-4">Estado</th>
-                                    <th className="px-6 py-4">Observaciones</th>
-                                    <th className="px-6 py-4 text-right">Acciones</th>
+                                    <th className="px-6 py-2">Establecimiento / CUE</th>
+                                    <th className="px-6 py-2">Modalidad</th>
+                                    <th className="px-6 py-2">Edificio</th>
+                                    <th className="px-6 py-2">Última Validación</th>
+                                    <th className="px-6 py-2">Estado</th>
+                                    <th className="px-6 py-2">Observaciones</th>
+                                    <th className="px-6 py-2 text-right">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {modalidades.data.map((mod) => (
                                     <tr key={mod.id} className="hover:bg-orange-50/5 transition-colors group">
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-2">
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-black text-gray-900 leading-tight">{mod.establecimiento.nombre}</span>
                                                 <span className="text-[9px] font-bold text-gray-400">CUE: {mod.establecimiento.cue}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-6 py-2 whitespace-nowrap">
                                             <span className="text-[10px] font-black text-brand-orange bg-orange-50 px-2 py-1 rounded-lg border border-orange-100 uppercase tracking-tight">
                                                 {mod.nivel_educativo || 'S/D'}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-2">
                                             <div className="flex flex-col max-w-[200px]">
                                                 {/* Usamos la función de búsqueda de nombre de cabecera */}
                                                 {getNombreEdificio(mod) ? (
@@ -167,21 +167,21 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-2">
                                             <div className="flex flex-col">
                                                 <span className="text-[10px] font-black text-gray-700 uppercase">{mod.usuario_validacion?.name || 'Sistema'}</span>
                                                 <span className="text-[9px] text-gray-400 font-bold">{mod.validado_en || 'S/D'}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-2">
                                             <StatusBadge status={mod.estado_validacion} />
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-2">
                                             <p className="text-[10px] text-gray-400 line-clamp-2 italic font-medium max-w-[200px]">
                                                 {mod.observaciones || 'Sin observaciones registradas'}
                                             </p>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="px-6 py-2 text-right">
                                             <button 
                                                 onClick={() => { setSelectedMod(mod); setShowStatusModal(true); }}
                                                 className="p-2.5 rounded-xl bg-orange-50 text-brand-orange hover:bg-brand-orange hover:text-white transition shadow-sm border border-orange-100"
@@ -197,7 +197,7 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                     </div>
                 </div>
 
-                <div className="flex justify-center">
+                <div className="flex justify-center -mt-2">
                     <Pagination links={modalidades.links} />
                 </div>
             </div>

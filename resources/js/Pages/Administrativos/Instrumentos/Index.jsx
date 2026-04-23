@@ -68,32 +68,32 @@ export default function Index({ modalidades, filters }) {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-brand-orange text-[10px] uppercase font-black text-white border-b border-orange-600">
-                                    <th className="px-6 py-4">Establecimiento</th>
-                                    <th className="px-6 py-4">I.L. Radio</th>
-                                    <th className="px-6 py-4">I.L. Categoría</th>
-                                    <th className="px-6 py-4">I.L. Creación</th>
-                                    <th className="px-6 py-4 text-right">Acciones</th>
+                                    <th className="px-6 py-2">Establecimiento</th>
+                                    <th className="px-6 py-2">I.L. Radio</th>
+                                    <th className="px-6 py-2">I.L. Categoría</th>
+                                    <th className="px-6 py-2">I.L. Creación</th>
+                                    <th className="px-6 py-2 text-right">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {modalidades.data.map((mod) => (
                                     <tr key={mod.id} className="hover:bg-orange-50/30 transition-colors group">
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-2">
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-black text-black group-hover:text-brand-orange leading-tight">{mod.establecimiento.nombre}</span>
                                                 <span className="text-[9px] font-black text-black/40 uppercase">CUE: {mod.establecimiento.cue}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-2">
                                             <InstrumentBadge value={mod.inst_legal_radio} />
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-2">
                                             <InstrumentBadge value={mod.inst_legal_categoria} />
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-2">
                                             <InstrumentBadge value={mod.inst_legal_creacion} />
                                         </td>
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="px-6 py-2 text-right">
                                             <button 
                                                 onClick={() => openEdit(mod)}
                                                 className="p-2 rounded-lg bg-orange-50 text-brand-orange hover:bg-brand-orange hover:text-white transition shadow-sm"
@@ -108,7 +108,7 @@ export default function Index({ modalidades, filters }) {
                     </div>
                 </div>
 
-                <div className="flex justify-center">
+                <div className="flex justify-center -mt-2">
                     <Pagination links={modalidades.links} />
                 </div>
             </div>

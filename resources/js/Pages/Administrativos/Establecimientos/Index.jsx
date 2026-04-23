@@ -51,8 +51,8 @@ export default function Index({ modalidades, filters, options }) {
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 pt-2">
                 
-                {/* Actions & Filters Sidebar */}
-                <div className="lg:col-span-1 space-y-4">
+                {/* Actions & Filters Sidebar - Sticky */}
+                <div className="lg:col-span-1 space-y-4 sticky top-6 self-start">
                     {/* Primary Actions Area */}
                     <div className="flex flex-col gap-2 mb-6">
                         <PrimaryButton className="w-full !py-4 gap-3 !rounded-2xl" onClick={() => setShowCreateModal(true)}>
@@ -69,10 +69,15 @@ export default function Index({ modalidades, filters, options }) {
 
                     <div className="bg-white p-0 rounded-2xl shadow-sm border border-orange-100 overflow-hidden space-y-6">
                         <div className="flex justify-between items-center bg-orange-50/50 px-5 py-3 border-b border-orange-100">
-                            <h3 className="text-[10px] font-black text-brand-orange uppercase tracking-widest flex items-center gap-2">
-                                <i className="fas fa-filter"></i>
-                                Filtros
-                            </h3>
+                            <div className="flex items-center gap-3">
+                                <h3 className="text-[10px] font-black text-brand-orange uppercase tracking-widest flex items-center gap-2">
+                                    <i className="fas fa-filter"></i>
+                                    Filtros
+                                </h3>
+                                <span className="bg-gray-100 text-black text-xs font-black px-2.5 py-1 rounded-lg border border-gray-200 shadow-sm">
+                                    {modalidades.total}
+                                </span>
+                            </div>
                             <button onClick={resetFilters} className="text-[10px] font-black text-brand-orange hover:underline uppercase tracking-widest">Limpiar</button>
                         </div>
                         <div className="px-5 pb-6 space-y-6">
@@ -122,16 +127,16 @@ export default function Index({ modalidades, filters, options }) {
                             <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="bg-brand-orange text-[10px] uppercase font-black text-white border-b border-orange-600">
-                                            <th className="px-6 py-4">Establecimiento / CUE</th>
-                                            <th className="px-6 py-4">Nivel / Área</th>
-                                            <th className="px-6 py-4">Estado</th>
-                                            <th className="px-6 py-4 text-right">Acciones</th>
+                                            <th className="px-6 py-2">Establecimiento / CUE</th>
+                                            <th className="px-6 py-2">Nivel / Área</th>
+                                            <th className="px-6 py-2">Estado</th>
+                                            <th className="px-6 py-2 text-right">Acciones</th>
                                         </tr>
                                     </thead>
                                 <tbody className="divide-y divide-gray-50">
                                     {modalidades.data.map((item) => (
                                         <tr key={item.id} className="hover:bg-orange-50/30 transition-colors group">
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-2">
                                                 <div className="flex flex-col">
                                                     <span className="text-xs font-black text-black group-hover:text-brand-orange leading-tight">{item.establecimiento.nombre}</span>
                                                     <div className="flex gap-2 mt-1">
@@ -140,13 +145,13 @@ export default function Index({ modalidades, filters, options }) {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-2">
                                                 <div className="flex flex-col">
                                                     <span className="text-[10px] font-black text-black/70 uppercase tracking-tighter">{item.nivel_educativo}</span>
                                                     <span className="text-[9px] text-black/40 font-black uppercase truncate max-w-[150px]">{item.direccion_area}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-2">
                                                 <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest border ${
                                                     item.validado 
                                                         ? 'bg-orange-50 text-brand-orange border-brand-orange/20' 
@@ -156,7 +161,7 @@ export default function Index({ modalidades, filters, options }) {
                                                     {item.validado ? 'Validado' : 'Pendiente'}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-right">
+                                            <td className="px-6 py-2 text-right">
                                                 <div className="flex justify-end gap-2">
                                                     <button 
                                                         onClick={() => { setSelectedModalidad(item); setShowViewModal(true); }}
@@ -178,7 +183,7 @@ export default function Index({ modalidades, filters, options }) {
                             </table>
                         </div>
                     </div>
-                    <div className="flex justify-center">
+                    <div className="flex justify-center -mt-2">
                         <Pagination links={modalidades.links} />
                     </div>
                 </div>

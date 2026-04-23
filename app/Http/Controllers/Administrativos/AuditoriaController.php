@@ -27,7 +27,8 @@ class AuditoriaController extends Controller
     {
         $modalidades = $this->queryService->getFilteredQuery($request)
             ->orderBy('validado_en', 'desc')
-            ->paginate(15)
+            ->paginate(10)
+            ->onEachSide(1)
             ->withQueryString();
 
         return Inertia::render('Administrativos/Auditoria/Index', [

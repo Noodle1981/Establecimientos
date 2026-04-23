@@ -57,7 +57,7 @@ Route::middleware(['auth'])->group(function () {
     /**
      * Rutas Administrativas (Inertia)
      */
-    Route::middleware(['role:administrativos'])->prefix('administrativos')->group(function () {
+    Route::middleware(['role:admin,administrativos'])->prefix('administrativos')->group(function () {
         Route::get('/Panel', [App\Http\Controllers\Administrativos\DashboardController::class, 'index'])->name('administrativos.dashboard');
         
         // Gestión de Edificios

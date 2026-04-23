@@ -27,10 +27,17 @@ class ModalidadQueryService
         }
 
         // Apply filters
-        foreach (['nivel_educativo', 'ambito', 'direccion_area', 'zona', 'radio', 'sector'] as $filter) {
+        foreach (['nivel_educativo', 'ambito', 'direccion_area', 'radio', 'sector'] as $filter) {
             if ($value = $request->input($filter)) {
                 $query->where($filter, $value);
             }
+        }
+
+        // Zona / Departamento filter (from Edificio)
+        if ($zonaDepto = $request->input('zona_departamento')) {
+            $query->whereHas('establecimiento.edificio', function ($q) use ($zonaDepto) {
+                $q->where('zona_departamento', $zonaDepto);
+            });
         }
 
         // Status filter
@@ -61,7 +68,7 @@ class ModalidadQueryService
             'niveles' => Modalidad::select('nivel_educativo')->distinct()->whereNotNull('nivel_educativo')->orderBy('nivel_educativo')->pluck('nivel_educativo'),
             'ambitos' => Modalidad::select('ambito')->distinct()->whereNotNull('ambito')->pluck('ambito'),
             'areas' => Modalidad::select('direccion_area')->distinct()->whereNotNull('direccion_area')->orderBy('direccion_area')->pluck('direccion_area'),
-            'zonas' => Modalidad::select('zona')->distinct()->whereNotNull('zona')->orderBy('zona')->pluck('zona'),
+            'zonas' => \App\Models\Edificio::select('zona_departamento')->distinct()->whereNotNull('zona_departamento')->orderBy('zona_departamento')->pluck('zona_departamento'),
             'radios' => Modalidad::select('radio')->distinct()->whereNotNull('radio')->orderBy('radio')->pluck('radio'),
             'sectores' => Modalidad::select('sector')->distinct()->whereNotNull('sector')->orderBy('sector')->pluck('sector'),
         ];

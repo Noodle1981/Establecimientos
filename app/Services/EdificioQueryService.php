@@ -27,7 +27,7 @@ class EdificioQueryService
             });
         }
 
-        if ($zona = $request->input('zona')) {
+        if ($zona = $request->input('zona_departamento')) {
             $query->where('zona_departamento', $zona);
         }
 
