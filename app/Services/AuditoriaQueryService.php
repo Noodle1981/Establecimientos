@@ -81,13 +81,37 @@ class AuditoriaQueryService
     }
 
     /**
-     * Get filter options.
+     * Get dynamic filter options based on current selection.
      */
-    public function getFilterOptions(): array
+    public function getFilterOptions(Request $request): array
     {
+        $estado = $request->input('estado');
+        $depto = $request->input('departamento');
+        $nivel = $request->input('nivel');
+
+        // Niveles available for the current Estado and Departamento
+        $nivelQuery = Modalidad::distinct()->whereNotNull('nivel_educativo');
+        if ($estado) $nivelQuery->where('estado_validacion', $estado);
+        if ($depto) {
+            $nivelQuery->whereHas('establecimiento.edificio', function ($q) use ($depto) {
+                $q->where('zona_departamento', $depto);
+            });
+        }
+        $nivelesDisponibles = $nivelQuery->orderBy('nivel_educativo')->pluck('nivel_educativo');
+
+        // Departamentos available for the current Estado and Nivel
+        $deptoQuery = Edificio::distinct()->whereNotNull('zona_departamento');
+        if ($estado || $nivel) {
+            $deptoQuery->whereHas('establecimientos.modalidades', function ($q) use ($estado, $nivel) {
+                if ($estado) $q->where('estado_validacion', $estado);
+                if ($nivel) $q->where('nivel_educativo', $nivel);
+            });
+        }
+        $deptosDisponibles = $deptoQuery->orderBy('zona_departamento')->pluck('zona_departamento');
+
         return [
-            'departamentos' => Edificio::distinct()->whereNotNull('zona_departamento')->orderBy('zona_departamento')->pluck('zona_departamento'),
-            'niveles' => Modalidad::distinct()->whereNotNull('nivel_educativo')->orderBy('nivel_educativo')->pluck('nivel_educativo'),
+            'departamentos' => $deptosDisponibles,
+            'niveles' => $nivelesDisponibles,
         ];
     }
 

@@ -30,10 +30,11 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                 return mod.establecimiento.edificio.nombre;
             }
             
-            // 2. Prioridad: Cabecera
+            // 2. Prioridad: Cabecera (Nombre o Código)
             const cab = mod.establecimiento.establecimiento_cabecera;
-            if (cab && mapa[cab]) {
-                return mapa[cab];
+            if (cab) {
+                if (mapa[cab]) return mapa[cab]; // Si es un código que está en el mapa
+                if (isNaN(cab)) return cab; // Si es directamente un nombre (texto)
             }
 
             // 3. Fallback: CUI del edificio propio
