@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class RequirePasswordChange
 {
@@ -16,11 +17,11 @@ class RequirePasswordChange
     public function handle(Request $request, Closure $next): Response
     {
         // Skip if user is not authenticated
-        if (!auth()->check()) {
+        if (!Auth::check()) {
             return $next($request);
         }
 
-        $user = auth()->user();
+        $user = Auth::user();
 
         // Skip if already on the change password page
         if ($request->routeIs('auth.change-password')) {

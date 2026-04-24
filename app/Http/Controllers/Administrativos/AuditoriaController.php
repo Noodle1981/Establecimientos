@@ -70,6 +70,7 @@ class AuditoriaController extends Controller
                 ->get();
 
             foreach ($vinculados as $v) {
+                /** @var \App\Models\Modalidad $v */
                 // Para los vinculados, mantenemos sus campos específicos actuales 
                 // y solo actualizamos/sincronizamos los campos de edificio (compartidos)
                 $camposActuales = $v->campos_auditados ?? [];

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Modalidad extends Model
 {
@@ -107,7 +108,7 @@ class Modalidad extends Model
         // Actualizar estado
         $this->estado_validacion = $nuevoEstado;
         $this->validado = true; // Asegurar que pase a ser considerado validado
-        $this->validado_por_user_id = $userId ?? auth()->id();
+        $this->validado_por_user_id = $userId ?? Auth::id();
         $this->validado_en = now();
         $this->observaciones = $observaciones; // Persistir observaciones en la modalidad
         $this->campos_auditados = $camposAuditados;
@@ -115,7 +116,7 @@ class Modalidad extends Model
         
         // Registrar en historial
         $this->historialEstados()->create([
-            'user_id' => $userId ?? auth()->id(),
+            'user_id' => $userId ?? Auth::id(),
             'estado_anterior' => $estadoAnterior,
             'estado_nuevo' => $nuevoEstado,
             'observaciones' => $observaciones,
