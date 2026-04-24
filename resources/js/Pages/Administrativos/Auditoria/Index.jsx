@@ -48,14 +48,20 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
     };
 
     const handleSearch = (query) => {
-        router.get(route('administrativos.auditoria.index'), { ...filters, search: query }, { 
+        const newFilters = { ...filters, search: query };
+        delete newFilters.page;
+        router.get(route('administrativos.auditoria.index'), newFilters, { 
             preserveState: true, 
             replace: true
         });
     };
 
     const handleFilterChange = (key, value) => {
-        router.get(route('administrativos.auditoria.index'), { ...filters, [key]: value }, {
+        const newFilters = { ...filters, [key]: value };
+        if (key !== 'page') {
+            delete newFilters.page;
+        }
+        router.get(route('administrativos.auditoria.index'), newFilters, {
             preserveState: true, replace: true
         });
     };
@@ -83,7 +89,14 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                             placeholder="Buscar por Nombre, CUE o CUI..."
                             className="w-full pl-10 pr-4 py-2.5 border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange transition-all text-sm font-medium"
                             defaultValue={filters.search}
-                            onChange={(e) => handleFilterChange('search', e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                // Debounce simple manual
+                                clearTimeout(window.searchTimeout);
+                                window.searchTimeout = setTimeout(() => {
+                                    handleFilterChange('search', val);
+                                }, 300);
+                            }}
                         />
                         <i className="fas fa-search absolute left-3.5 top-3.5 text-gray-300"></i>
                     </div>
@@ -137,76 +150,92 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
-                                {modalidades.data.map((mod) => (
-                                    <tr key={mod.id} className="hover:bg-orange-50/5 transition-colors group">
-                                        <td className="px-6 py-2">
-                                            <div className="flex flex-col">
-                                                <span className="text-xs font-black text-gray-900 leading-tight">{mod.establecimiento.nombre}</span>
-                                                <span className="text-[9px] font-bold text-gray-400">CUE: {mod.establecimiento.cue}</span>
+                                {modalidades.data.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="8" className="px-6 py-12 text-center">
+                                            <div className="flex flex-col items-center justify-center py-4">
+                                                <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-brand-orange mb-4">
+                                                    <i className="fas fa-search text-2xl opacity-50"></i>
+                                                </div>
+                                                <p className="text-sm font-black text-gray-900 uppercase tracking-widest">No se encontraron resultados</p>
+                                                <p className="text-[10px] text-gray-400 font-bold uppercase mt-2 tracking-tighter">
+                                                    Prueba ajustando los filtros o el término de búsqueda
+                                                </p>
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-2 whitespace-nowrap">
-                                            <span className="text-[10px] font-black text-brand-orange bg-orange-50 px-2 py-1 rounded-lg border border-orange-100 uppercase tracking-tight">
-                                                {mod.nivel_educativo || 'S/D'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-2">
-                                            <div className="flex flex-col max-w-[200px]">
-                                                {/* Usamos la función de búsqueda de nombre de cabecera */}
-                                                {getNombreEdificio(mod) ? (
-                                                    <>
-                                                        <span className="text-[10px] font-black text-gray-900 leading-tight" title={getNombreEdificio(mod)}>
-                                                            {getNombreEdificio(mod)}
-                                                        </span>
-                                                        <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">
-                                                            CUI: {mod.establecimiento.edificio?.cui || mod.establecimiento.establecimiento_cabecera}
-                                                        </span>
-                                                    </>
-                                                ) : (
-                                                    <span className="text-[10px] font-black text-brand-orange leading-tight">
-                                                        CUI: {mod.establecimiento.edificio?.cui || mod.establecimiento.establecimiento_cabecera || 'S/D'}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-2">
-                                            <div className="flex flex-col">
-                                                <span className="text-[10px] font-black text-gray-700 uppercase">{mod.usuario_validacion?.name || 'Sistema'}</span>
-                                                <span className="text-[9px] text-gray-400 font-bold">{mod.validado_en || 'S/D'}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-2">
-                                            <StatusBadge status={mod.estado_validacion} />
-                                        </td>
-                                        <td className="px-6 py-2">
-                                            <div className="flex flex-wrap gap-1 max-w-[150px]">
-                                                {mod.campos_auditados && mod.campos_auditados.length > 0 ? (
-                                                    mod.campos_auditados.map(campo => (
-                                                        <span key={campo} className="px-1.5 py-0.5 rounded bg-orange-50 text-brand-orange text-[8px] font-black uppercase border border-orange-100">
-                                                            {campo}
-                                                        </span>
-                                                    ))
-                                                ) : (
-                                                    <span className="text-[9px] text-gray-400 font-medium italic">Sin cambios</span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-2">
-                                            <p className="text-[10px] text-gray-400 line-clamp-2 italic font-medium max-w-[200px]">
-                                                {mod.observaciones || '-'}
-                                            </p>
-                                        </td>
-                                        <td className="px-6 py-2 text-right">
-                                            <button 
-                                                onClick={() => { setSelectedMod(mod); setShowStatusModal(true); }}
-                                                className="p-2.5 rounded-xl bg-orange-50 text-brand-orange hover:bg-brand-orange hover:text-white transition shadow-sm border border-orange-100"
-                                                title="Ver y Validar"
-                                            >
-                                                <i className="fas fa-eye text-sm"></i>
-                                            </button>
                                         </td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    modalidades.data.map((mod) => (
+                                        <tr key={mod.id} className="hover:bg-orange-50/5 transition-colors group">
+                                            <td className="px-6 py-2">
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-black text-gray-900 leading-tight">{mod.establecimiento.nombre}</span>
+                                                    <span className="text-[9px] font-bold text-gray-400">CUE: {mod.establecimiento.cue}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-2 whitespace-nowrap">
+                                                <span className="text-[10px] font-black text-brand-orange bg-orange-50 px-2 py-1 rounded-lg border border-orange-100 uppercase tracking-tight">
+                                                    {mod.nivel_educativo || 'S/D'}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-2">
+                                                <div className="flex flex-col max-w-[200px]">
+                                                    {/* Usamos la función de búsqueda de nombre de cabecera */}
+                                                    {getNombreEdificio(mod) ? (
+                                                        <>
+                                                            <span className="text-[10px] font-black text-gray-900 leading-tight" title={getNombreEdificio(mod)}>
+                                                                {getNombreEdificio(mod)}
+                                                            </span>
+                                                            <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">
+                                                                CUI: {mod.establecimiento.edificio?.cui || mod.establecimiento.establecimiento_cabecera}
+                                                            </span>
+                                                        </>
+                                                    ) : (
+                                                        <span className="text-[10px] font-black text-brand-orange leading-tight">
+                                                            CUI: {mod.establecimiento.edificio?.cui || mod.establecimiento.establecimiento_cabecera || 'S/D'}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-2">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-black text-gray-700 uppercase">{mod.usuario_validacion?.name || 'Sistema'}</span>
+                                                    <span className="text-[9px] text-gray-400 font-bold">{mod.validado_en || 'S/D'}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-2">
+                                                <StatusBadge status={mod.estado_validacion} />
+                                            </td>
+                                            <td className="px-6 py-2">
+                                                <div className="flex flex-wrap gap-1 max-w-[150px]">
+                                                    {mod.campos_auditados && mod.campos_auditados.length > 0 ? (
+                                                        mod.campos_auditados.map(campo => (
+                                                            <span key={campo} className="px-1.5 py-0.5 rounded bg-orange-50 text-brand-orange text-[8px] font-black uppercase border border-orange-100">
+                                                                {campo}
+                                                            </span>
+                                                        ))
+                                                    ) : (
+                                                        <span className="text-[9px] text-gray-400 font-medium italic">Sin cambios</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-2">
+                                                <p className="text-[10px] text-gray-400 line-clamp-2 italic font-medium max-w-[200px]">
+                                                    {mod.observaciones || '-'}
+                                                </p>
+                                            </td>
+                                            <td className="px-6 py-2 text-right">
+                                                <button 
+                                                    onClick={() => { setSelectedMod(mod); setShowStatusModal(true); }}
+                                                    className="p-2.5 rounded-xl bg-orange-50 text-brand-orange hover:bg-brand-orange hover:text-white transition shadow-sm border border-orange-100"
+                                                    title="Ver y Validar"
+                                                >
+                                                    <i className="fas fa-eye text-sm"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -268,12 +297,10 @@ const CAMPOS_AUDITORIA = [
 ];
 
 function StatusUpdateModal({ show, onClose, modalidad }) {
-    if (!modalidad) return null;
-
     const { data, setData, patch, processing, errors, reset } = useForm({
-        estado: modalidad.estado_validacion || 'PENDIENTE',
-        observaciones: modalidad.observaciones || '',
-        campos_auditados: modalidad.campos_auditados || [],
+        estado: modalidad?.estado_validacion || 'PENDIENTE',
+        observaciones: modalidad?.observaciones || '',
+        campos_auditados: modalidad?.campos_auditados || [],
     });
 
     // Sincronizar el formulario cuando cambia la modalidad seleccionada o se abre el modal
@@ -286,6 +313,8 @@ function StatusUpdateModal({ show, onClose, modalidad }) {
             });
         }
     }, [modalidad?.id, show]);
+
+    if (!modalidad) return null;
 
     const toggleCampo = (campo) => {
         const current = data.campos_auditados || [];
