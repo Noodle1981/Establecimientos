@@ -50,7 +50,8 @@ class AuditoriaController extends Controller
         $modalidad->cambiarEstado(
             $request->estado, 
             $request->observaciones, 
-            Auth::id()
+            Auth::id(),
+            $request->campos_auditados
         );
 
         return back()->with('success', 'Estado de auditoría actualizado correctamente.');

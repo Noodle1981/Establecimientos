@@ -30,12 +30,14 @@ class Modalidad extends Model
         'estado_validacion',
         'validado_por_user_id',
         'validado_en',
+        'campos_auditados',
     ];
 
     protected $casts = [
         'sector' => 'integer',
         'validado' => 'boolean',
         'validado_en' => 'datetime',
+        'campos_auditados' => 'array',
     ];
 
     public function establecimiento(): BelongsTo
@@ -98,7 +100,7 @@ class Modalidad extends Model
     /**
      * Cambiar estado de validación y registrar en historial
      */
-    public function cambiarEstado(string $nuevoEstado, ?string $observaciones = null, ?int $userId = null)
+    public function cambiarEstado(string $nuevoEstado, ?string $observaciones = null, ?int $userId = null, ?array $camposAuditados = null)
     {
         $estadoAnterior = $this->estado_validacion;
         
@@ -108,6 +110,7 @@ class Modalidad extends Model
         $this->validado_por_user_id = $userId ?? auth()->id();
         $this->validado_en = now();
         $this->observaciones = $observaciones; // Persistir observaciones en la modalidad
+        $this->campos_auditados = $camposAuditados;
         $this->save();
         
         // Registrar en historial
@@ -116,6 +119,7 @@ class Modalidad extends Model
             'estado_anterior' => $estadoAnterior,
             'estado_nuevo' => $nuevoEstado,
             'observaciones' => $observaciones,
+            'campos_auditados' => $camposAuditados,
         ]);
         
         return $this;

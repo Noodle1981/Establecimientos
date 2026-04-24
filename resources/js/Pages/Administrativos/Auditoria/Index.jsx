@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Pagination from '@/Components/Pagination';
 import Modal from '@/Components/Modal';
 import TextInput from '@/Components/TextInput';
@@ -131,6 +131,7 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                                     <th className="px-6 py-2">Edificio</th>
                                     <th className="px-6 py-2">Última Validación</th>
                                     <th className="px-6 py-2">Estado</th>
+                                    <th className="px-6 py-2">Modificaciones</th>
                                     <th className="px-6 py-2">Observaciones</th>
                                     <th className="px-6 py-2 text-right">Acciones</th>
                                 </tr>
@@ -178,8 +179,21 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                                             <StatusBadge status={mod.estado_validacion} />
                                         </td>
                                         <td className="px-6 py-2">
+                                            <div className="flex flex-wrap gap-1 max-w-[150px]">
+                                                {mod.campos_auditados && mod.campos_auditados.length > 0 ? (
+                                                    mod.campos_auditados.map(campo => (
+                                                        <span key={campo} className="px-1.5 py-0.5 rounded bg-orange-50 text-brand-orange text-[8px] font-black uppercase border border-orange-100">
+                                                            {campo}
+                                                        </span>
+                                                    ))
+                                                ) : (
+                                                    <span className="text-[9px] text-gray-400 font-medium italic">Sin cambios</span>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-2">
                                             <p className="text-[10px] text-gray-400 line-clamp-2 italic font-medium max-w-[200px]">
-                                                {mod.observaciones || 'Sin observaciones registradas'}
+                                                {mod.observaciones || '-'}
                                             </p>
                                         </td>
                                         <td className="px-6 py-2 text-right">
@@ -249,13 +263,38 @@ function StatusBadge({ status }) {
     );
 }
 
+const CAMPOS_AUDITORIA = [
+    'Nombre', 'Dirección', 'Edificio', 'CUI', 'CUE', 'GPS', 'RADIO', 'SECTOR', 'MODALIDAD'
+];
+
 function StatusUpdateModal({ show, onClose, modalidad }) {
     if (!modalidad) return null;
 
-    const { data, setData, patch, processing, errors } = useForm({
+    const { data, setData, patch, processing, errors, reset } = useForm({
         estado: modalidad.estado_validacion || 'PENDIENTE',
         observaciones: modalidad.observaciones || '',
+        campos_auditados: modalidad.campos_auditados || [],
     });
+
+    // Sincronizar el formulario cuando cambia la modalidad seleccionada o se abre el modal
+    useEffect(() => {
+        if (modalidad && show) {
+            setData({
+                estado: modalidad.estado_validacion || 'PENDIENTE',
+                observaciones: modalidad.observaciones || '',
+                campos_auditados: modalidad.campos_auditados || [],
+            });
+        }
+    }, [modalidad?.id, show]);
+
+    const toggleCampo = (campo) => {
+        const current = data.campos_auditados || [];
+        if (current.includes(campo)) {
+            setData('campos_auditados', current.filter(c => c !== campo));
+        } else {
+            setData('campos_auditados', [...current, campo]);
+        }
+    };
 
     const submit = (e) => {
         e.preventDefault();
@@ -288,18 +327,51 @@ function StatusUpdateModal({ show, onClose, modalidad }) {
                         <div className="flex gap-2">
                             <button
                                 type="button"
-                                onClick={() => { setData({ estado: 'CORRECTO', observaciones: 'Validación rápida: Correcto según EDUGE' }); }}
+                                onClick={() => { 
+                                    setData({ 
+                                        ...data,
+                                        estado: 'CORRECTO', 
+                                        campos_auditados: CAMPOS_AUDITORIA 
+                                    }); 
+                                }}
                                 className="flex-1 py-2 px-3 bg-white border border-green-200 text-green-700 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-green-50 transition-colors flex items-center justify-center gap-2"
                             >
-                                <i className="fas fa-check-double"></i> Correcto EDUGE
+                                <i className="fas fa-check-double"></i> Todo Correcto
                             </button>
                             <button
                                 type="button"
-                                onClick={() => { setData({ estado: 'REVISAR', observaciones: 'A REVISAR: ' }); }}
+                                onClick={() => { 
+                                    setData({ 
+                                        ...data,
+                                        estado: 'REVISAR'
+                                    }); 
+                                }}
                                 className="flex-1 py-2 px-3 bg-white border border-red-200 text-red-700 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
                             >
                                 <i className="fas fa-exclamation-triangle"></i> A Revisar
                             </button>
+                        </div>
+                    </div>
+
+                    {/* Checkboxes de Campos Auditados */}
+                    <div>
+                        <InputLabel value="Campos Auditados (Verificados)" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3" />
+                        <div className="grid grid-cols-3 gap-2">
+                            {CAMPOS_AUDITORIA.map(campo => (
+                                <button
+                                    key={campo}
+                                    type="button"
+                                    onClick={() => toggleCampo(campo)}
+                                    className={`py-2 px-3 rounded-lg border text-[10px] font-bold uppercase transition-all flex items-center gap-2 ${
+                                        data.campos_auditados?.includes(campo)
+                                            ? 'bg-brand-orange text-white border-brand-orange shadow-sm'
+                                            : 'bg-white text-gray-400 border-gray-100 hover:border-orange-200'
+                                    }`}
+                                >
+                                    <i className={`fas ${data.campos_auditados?.includes(campo) ? 'fa-check-square' : 'fa-square'} text-[12px]`}></i>
+                                    {campo}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
@@ -326,10 +398,10 @@ function StatusUpdateModal({ show, onClose, modalidad }) {
                     </div>
 
                     <div>
-                        <InputLabel value="Observaciones y Comentarios" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+                        <InputLabel value="Observaciones Adicionales" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
                         <textarea 
-                            className="w-full h-32 rounded-xl border-gray-200 focus:border-brand-orange focus:ring-brand-orange text-sm font-medium"
-                            placeholder="Escribe detalles sobre la validación o inconsistencias encontradas..."
+                            className="w-full h-24 rounded-xl border-gray-200 focus:border-brand-orange focus:ring-brand-orange text-sm font-medium"
+                            placeholder="Detalles adicionales sobre la validación..."
                             value={data.observaciones}
                             onChange={e => setData('observaciones', e.target.value)}
                         ></textarea>

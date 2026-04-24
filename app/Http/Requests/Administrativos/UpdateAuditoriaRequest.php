@@ -22,6 +22,7 @@ class UpdateAuditoriaRequest extends FormRequest
         return [
             'estado' => 'required|in:PENDIENTE,CORRECTO,CORREGIDO,REVISAR,BAJA',
             'observaciones' => 'nullable|string',
+            'campos_auditados' => 'nullable|array',
         ];
     }
 }

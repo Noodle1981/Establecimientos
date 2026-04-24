@@ -15,6 +15,11 @@ class HistorialEstadoModalidad extends Model
         'estado_anterior',
         'estado_nuevo',
         'observaciones',
+        'campos_auditados',
+    ];
+
+    protected $casts = [
+        'campos_auditados' => 'array',
     ];
 
     /**
