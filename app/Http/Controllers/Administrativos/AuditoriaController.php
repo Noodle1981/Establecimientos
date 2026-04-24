@@ -47,6 +47,7 @@ class AuditoriaController extends Controller
     {
         $modalidad = Modalidad::withTrashed()->findOrFail($id);
 
+        // Actualizar la modalidad principal
         $modalidad->cambiarEstado(
             $request->estado, 
             $request->observaciones, 
@@ -54,6 +55,56 @@ class AuditoriaController extends Controller
             $request->campos_auditados
         );
 
+        // Propagar al edificio si se solicita de forma consciente
+        if ($request->propagar_al_edificio) {
+            $camposCompartidos = ['Dirección', 'Edificio', 'CUI', 'GPS'];
+            
+            // Extraer solo los campos compartidos que se marcaron en esta validación
+            $auditoriaCompartida = array_intersect($request->campos_auditados ?? [], $camposCompartidos);
+
+            $vinculados = Modalidad::withTrashed()
+                ->whereHas('establecimiento', function ($q) use ($modalidad) {
+                    $q->where('edificio_id', $modalidad->establecimiento->edificio_id);
+                })
+                ->where('id', '!=', $id)
+                ->get();
+
+            foreach ($vinculados as $v) {
+                // Para los vinculados, mantenemos sus campos específicos actuales 
+                // y solo actualizamos/sincronizamos los campos de edificio (compartidos)
+                $camposActuales = $v->campos_auditados ?? [];
+                
+                // Quitamos los compartidos viejos y ponemos los nuevos
+                $camposLimpios = array_diff($camposActuales, $camposCompartidos);
+                $nuevosCampos = array_unique(array_merge($camposLimpios, $auditoriaCompartida));
+
+                $v->cambiarEstado(
+                    $request->estado,
+                    $v->observaciones, // Mantener la observación individual de cada escuela
+                    Auth::id(),
+                    $nuevosCampos
+                );
+            }
+        }
+
         return back()->with('success', 'Estado de auditoría actualizado correctamente.');
+    }
+
+    /**
+     * Get other establishments in the same building.
+     */
+    public function vinculados($id)
+    {
+        $modalidad = Modalidad::withTrashed()->with('establecimiento')->findOrFail($id);
+        
+        $vinculados = Modalidad::withTrashed()
+            ->whereHas('establecimiento', function ($q) use ($modalidad) {
+                $q->where('edificio_id', $modalidad->establecimiento->edificio_id);
+            })
+            ->where('id', '!=', $id)
+            ->with(['establecimiento', 'usuarioValidacion'])
+            ->get();
+            
+        return response()->json($vinculados);
     }
 }

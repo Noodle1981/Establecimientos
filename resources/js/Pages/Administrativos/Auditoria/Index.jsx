@@ -301,7 +301,11 @@ function StatusUpdateModal({ show, onClose, modalidad }) {
         estado: modalidad?.estado_validacion || 'PENDIENTE',
         observaciones: modalidad?.observaciones || '',
         campos_auditados: modalidad?.campos_auditados || [],
+        propagar_al_edificio: false,
     });
+
+    const [vinculados, setVinculados] = useState([]);
+    const [loadingVinculados, setLoadingVinculados] = useState(false);
 
     // Sincronizar el formulario cuando cambia la modalidad seleccionada o se abre el modal
     useEffect(() => {
@@ -310,11 +314,31 @@ function StatusUpdateModal({ show, onClose, modalidad }) {
                 estado: modalidad.estado_validacion || 'PENDIENTE',
                 observaciones: modalidad.observaciones || '',
                 campos_auditados: modalidad.campos_auditados || [],
+                propagar_al_edificio: false,
             });
+
+            // Cargar establecimientos vinculados (mismo edificio)
+            setLoadingVinculados(true);
+            fetch(route('administrativos.auditoria.vinculados', modalidad.id))
+                .then(res => res.json())
+                .then(resData => {
+                    setVinculados(resData);
+                    setLoadingVinculados(false);
+                })
+                .catch(err => {
+                    console.error("Error cargando vinculados:", err);
+                    setLoadingVinculados(false);
+                });
         }
     }, [modalidad?.id, show]);
 
     if (!modalidad) return null;
+
+    // Detectar discrepancias
+    const tieneDiscrepancias = vinculados.some(v => 
+        v.estado_validacion !== data.estado || 
+        JSON.stringify(v.campos_auditados || []) !== JSON.stringify(data.campos_auditados || [])
+    );
 
     const toggleCampo = (campo) => {
         const current = data.campos_auditados || [];
@@ -335,17 +359,47 @@ function StatusUpdateModal({ show, onClose, modalidad }) {
     return (
         <Modal show={show} onClose={onClose} maxWidth="lg">
             <form onSubmit={submit} className="p-6">
-                <div className="flex items-center gap-4 mb-8">
+                <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 rounded-2xl bg-orange-50 text-brand-orange flex items-center justify-center text-2xl shadow-sm border border-orange-100">
                         <i className="fas fa-tasks"></i>
                     </div>
-                    <div>
+                    <div className="flex-1">
                         <h3 className="text-xl font-black text-gray-900 leading-none">Validación de Datos</h3>
                         <p className="text-[10px] font-bold text-gray-400 uppercase mt-1 tracking-widest">
                             {modalidad.establecimiento.nombre}
                         </p>
                     </div>
+                    {vinculados.length > 0 && (
+                        <div className="text-right">
+                            <span className="text-[8px] font-black uppercase text-gray-400 block mb-1">Edificio compartido</span>
+                            <div className="flex -space-x-2 justify-end">
+                                {vinculados.slice(0, 3).map((v, i) => (
+                                    <div key={i} title={v.establecimiento.nombre} className="w-6 h-6 rounded-full bg-orange-100 border-2 border-white flex items-center justify-center text-[8px] font-bold text-brand-orange">
+                                        {v.nivel_educativo?.substring(0,1)}
+                                    </div>
+                                ))}
+                                {vinculados.length > 3 && (
+                                    <div className="w-6 h-6 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-[8px] font-bold text-gray-500">
+                                        +{vinculados.length - 3}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
+
+                {/* Warning de Discrepancias */}
+                {vinculados.length > 0 && tieneDiscrepancias && !data.propagar_al_edificio && (
+                    <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3 animate-pulse">
+                        <i className="fas fa-exclamation-triangle text-amber-500 mt-0.5"></i>
+                        <div>
+                            <p className="text-[10px] font-black text-amber-800 uppercase tracking-tight leading-tight">Inconsistencia detectada en el edificio</p>
+                            <p className="text-[9px] text-amber-600 font-medium mt-0.5">
+                                Hay {vinculados.length} establecimientos vinculados con estados o verificaciones diferentes.
+                            </p>
+                        </div>
+                    </div>
+                )}
 
                 <div className="space-y-6">
                     {/* Quick Actions */}
@@ -436,6 +490,28 @@ function StatusUpdateModal({ show, onClose, modalidad }) {
                         ></textarea>
                         <InputError message={errors.observaciones} />
                     </div>
+                    {vinculados.length > 0 && (
+                        <div className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 ${
+                            data.propagar_al_edificio 
+                                ? 'bg-brand-orange border-brand-orange text-white shadow-lg' 
+                                : 'bg-gray-50 border-gray-100 text-gray-500 hover:border-orange-200'
+                        }`}
+                        onClick={() => setData('propagar_al_edificio', !data.propagar_al_edificio)}
+                        >
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${data.propagar_al_edificio ? 'bg-white/20' : 'bg-white shadow-sm text-gray-300'}`}>
+                                <i className={`fas ${data.propagar_al_edificio ? 'fa-check-double' : 'fa-link'}`}></i>
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Unificar Edificio</p>
+                                <p className={`text-[9px] font-bold ${data.propagar_al_edificio ? 'text-white/80' : 'text-gray-400'}`}>
+                                    Aplicar esta validación a los {vinculados.length} establecimientos vinculados
+                                </p>
+                            </div>
+                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${data.propagar_al_edificio ? 'border-white bg-white text-brand-orange' : 'border-gray-200 bg-white'}`}>
+                                {data.propagar_al_edificio && <i className="fas fa-check text-[10px]"></i>}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <div className="mt-8 flex justify-end gap-3 border-t pt-6">
