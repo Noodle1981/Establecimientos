@@ -1,0 +1,11 @@
+"Actúa como un experto en SQL y ortografía. Necesito un script para normalizar los nombres de las escuelas en mi base SQLite.
+REGLAS GENERALES:
+Usa formato Title Case (Mayúscula al inicio).
+Elimina espacios dobles o innecesarios al inicio/final.
+Corrige tildes según la RAE (ej: MARTÍN -> Martín).
+Normaliza el símbolo de número a Nº.
+EXCEPCIONES (Mantener siempre en MAYÚSCULAS):
+E.N.I., J.I.N.Z., E.P.E.T., C.E.N.S., E.E.E., EMER, C.U.E., C.U.I., A.R.A.
+FILTRO DE EJECUCIÓN:
+Solo trabaja sobre escuelas de gestión pública en los departamento de SARMIENTO, VALLE FERTIL ZONDA Y ULLUM
+Antes de ejecutar el UPDATE, muéstrame una tabla comparativa con: Nombre Original | Nombre Propuesto para validar."

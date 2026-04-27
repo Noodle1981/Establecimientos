@@ -38,7 +38,6 @@ class UpdateModalidadRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'nombre_establecimiento' => strtoupper($this->nombre_establecimiento),
             'cui' => strtoupper($this->cui),
         ]);
     }

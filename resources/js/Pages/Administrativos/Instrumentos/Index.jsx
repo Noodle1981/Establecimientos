@@ -157,7 +157,7 @@ function EditModal({ show, onClose, modalidad }) {
                     </div>
                     <div>
                         <h3 className="text-lg font-black text-gray-900 leading-none">Editar Instrumentos</h3>
-                        <p className="text-[9px] font-bold text-gray-400 uppercase mt-1 tracking-widest">{modalidad.establecimiento.nombre}</p>
+                        <p className="text-[9px] font-bold text-gray-400 mt-1 tracking-widest">{modalidad.establecimiento.nombre}</p>
                     </div>
                 </div>
 

@@ -183,7 +183,7 @@ export default function MapaPublico({ edificios = [] }) {
                                                 onClick={() => handleSelectSchool(edificio)}
                                                 className="p-3 hover:bg-orange-50 cursor-pointer border-b border-gray-50 last:border-0 group"
                                             >
-                                                <p className="text-[10px] font-black text-gray-900 uppercase truncate group-hover:text-brand-orange transition-colors">
+                                                <p className="text-[10px] font-black text-gray-900 truncate group-hover:text-brand-orange transition-colors">
                                                     {edificio.establecimientos[0]?.nombre}
                                                 </p>
                                                 <p className="text-[8px] font-bold text-gray-400">CUE: {edificio.establecimientos[0]?.cue}</p>
@@ -318,7 +318,7 @@ export default function MapaPublico({ edificios = [] }) {
                                                 <i className="fas fa-school"></i>
                                             </div>
                                             <div>
-                                                <h5 className="text-xs font-black uppercase text-gray-900 leading-tight">{edificio.localidad}</h5>
+                                                <h5 className="text-xs font-black text-gray-900 leading-tight">{edificio.localidad}</h5>
                                                 <p className="text-[10px] text-gray-400 font-bold">{edificio.calle} {edificio.numero_puerta}</p>
                                             </div>
                                         </div>
@@ -326,15 +326,15 @@ export default function MapaPublico({ edificios = [] }) {
                                         <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
                                             {edificio.establecimientos.map((est, i) => (
                                                 <div key={i} className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                                    <p className="text-[11px] font-black text-gray-800 uppercase mb-2">{est.nombre}</p>
+                                                    <p className="text-[11px] font-black text-gray-800 mb-2">{est.nombre}</p>
                                                     <div className="space-y-1.5">
                                                         {est.modalidades.map((mod, j) => (
                                                             <div key={j} className="p-2 bg-white rounded-lg border border-gray-100">
                                                                 <div className="flex gap-1.5 flex-wrap">
-                                                                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-50 text-brand-orange border border-orange-100 uppercase">
+                                                                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-50 text-brand-orange border border-orange-100">
                                                                         {mod.nivel}
                                                                     </span>
-                                                                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-50 text-gray-500 border border-gray-100 uppercase truncate max-w-[150px]">
+                                                                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-50 text-gray-500 border border-gray-100 truncate max-w-[150px]">
                                                                         {mod.area}
                                                                     </span>
                                                                 </div>

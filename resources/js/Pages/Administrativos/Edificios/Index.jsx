@@ -137,7 +137,7 @@ export default function Index({ edificios, filters, options }) {
                                             </div>
                                         </td>
                                         <td className="px-6 py-2">
-                                            <span className="text-xs font-black text-black/80 uppercase leading-tight line-clamp-2">
+                                            <span className="text-xs font-black text-black/80 leading-tight line-clamp-2">
                                                 {edificio.establecimientos[0]?.establecimiento_cabecera || edificio.establecimientos[0]?.nombre || 'Sin Cabecera'}
                                             </span>
                                         </td>
@@ -362,7 +362,7 @@ function ViewEdificioModal({ show, onClose, edificio }) {
                         {edificio.establecimientos.map(est => (
                             <div key={est.id} className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex justify-between items-center group hover:border-brand-orange transition-colors">
                                 <div>
-                                    <p className="text-xs font-black text-gray-800 uppercase leading-none mb-1">{est.nombre}</p>
+                                    <p className="text-xs font-black text-gray-800 leading-none mb-1">{est.nombre}</p>
                                     <p className="text-[10px] font-bold text-gray-400 uppercase">CUE: {est.cue}</p>
                                 </div>
                                 <i className="fas fa-chevron-right text-gray-200 group-hover:text-brand-orange transition-colors"></i>

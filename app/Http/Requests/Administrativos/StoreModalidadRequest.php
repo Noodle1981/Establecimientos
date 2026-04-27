@@ -44,14 +44,8 @@ class StoreModalidadRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'nombre_establecimiento' => strtoupper($this->nombre_establecimiento),
-            'calle' => strtoupper($this->calle),
-            'localidad' => strtoupper($this->localidad),
-            'zona_departamento' => strtoupper($this->zona_departamento),
             'latitud' => $this->latitud ?? null,
             'longitud' => $this->longitud ?? null,
-            'establecimiento_cabecera' => strtoupper($this->establecimiento_cabecera),
-            'zona' => strtoupper($this->zona ?? ''),
         ]);
     }
 }

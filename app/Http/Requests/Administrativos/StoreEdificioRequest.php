@@ -39,9 +39,6 @@ class StoreEdificioRequest extends FormRequest
     {
         $this->merge([
             'cui' => strtoupper(trim($this->cui)),
-            'calle' => strtoupper(trim($this->calle)),
-            'localidad' => strtoupper(trim($this->localidad)),
-            'zona_departamento' => strtoupper(trim($this->zona_departamento)),
         ]);
     }
 }

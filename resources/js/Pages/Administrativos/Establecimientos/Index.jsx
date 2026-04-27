@@ -20,7 +20,9 @@ export default function Index({ modalidades, filters, options }) {
     // Filter handling
     const applyFilters = useCallback(
         debounce((query) => {
-            router.get(route('administrativos.establecimientos.index'), { ...filters, search: query }, {
+            const newFilters = { ...filters, search: query };
+            delete newFilters.page;
+            router.get(route('administrativos.establecimientos.index'), newFilters, {
                 preserveState: true,
                 preserveScroll: true,
                 replace: true
@@ -35,7 +37,9 @@ export default function Index({ modalidades, filters, options }) {
     };
 
     const handleParamChange = (key, value) => {
-        router.get(route('administrativos.establecimientos.index'), { ...filters, [key]: value }, {
+        const newFilters = { ...filters, [key]: value };
+        delete newFilters.page;
+        router.get(route('administrativos.establecimientos.index'), newFilters, {
             preserveState: true,
             preserveScroll: true
         });
@@ -179,6 +183,27 @@ export default function Index({ modalidades, filters, options }) {
                                             </td>
                                         </tr>
                                     ))}
+                                    {modalidades.data.length === 0 && (
+                                        <tr>
+                                            <td colSpan="4" className="px-6 py-20 text-center">
+                                                <div className="flex flex-col items-center gap-3">
+                                                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 mb-2">
+                                                        <i className="fas fa-search text-2xl"></i>
+                                                    </div>
+                                                    <h4 className="text-sm font-black text-gray-900 uppercase tracking-tight">No se encontraron resultados</h4>
+                                                    <p className="text-xs text-gray-400 font-medium max-w-[250px] mx-auto">
+                                                        Intenta ajustar los filtros o la búsqueda para encontrar lo que necesitas.
+                                                    </p>
+                                                    <button 
+                                                        onClick={resetFilters}
+                                                        className="mt-4 px-4 py-2 bg-orange-50 text-brand-orange rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-orange hover:text-white transition-all shadow-sm border border-orange-100"
+                                                    >
+                                                        Limpiar todos los filtros
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -227,7 +252,7 @@ function ViewModalidadModal({ show, onClose, modalidad }) {
                             <i className={`fas ${modalidad.validado ? 'fa-school' : 'fa-clock'}`}></i>
                         </div>
                         <div>
-                            <h3 className="text-xl font-black text-gray-900 leading-tight uppercase">{modalidad.establecimiento.nombre}</h3>
+                            <h3 className="text-xl font-black text-gray-900 leading-tight">{modalidad.establecimiento.nombre}</h3>
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">CUE: {modalidad.establecimiento.cue}</p>
                         </div>
                     </div>
@@ -267,6 +292,22 @@ function EditModalidadModal({ show, onClose, modalidad, options }) {
         sector: modalidad.sector || '',
         validado: !!modalidad.validado,
     });
+
+    useEffect(() => {
+        if (show && modalidad) {
+            setData({
+                cui: modalidad.establecimiento.edificio.cui || '',
+                cue: modalidad.establecimiento.cue || '',
+                nombre_establecimiento: modalidad.establecimiento.nombre || '',
+                nivel_educativo: modalidad.nivel_educativo || '',
+                direccion_area: modalidad.direccion_area || '',
+                ambito: modalidad.ambito || '',
+                radio: modalidad.radio || '',
+                sector: modalidad.sector || '',
+                validado: !!modalidad.validado,
+            });
+        }
+    }, [modalidad, show]);
 
     const submit = (e) => {
         e.preventDefault();

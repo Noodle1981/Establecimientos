@@ -1,0 +1,19 @@
+resolver y normalizar escuelas secundarias ambito publico
+lo encontrarás en dirección de areas de SECUNDARIO.
+
+
+La escuela tiene que quedar asi - ejemplo de lo están bien
+
+Escuela Secundaria Mar Argentino
+
+
+
+Es decir que si le falta secundaria como Secundaria Capitán De Fragata Hipólito Buchardo, debe estar como 
+Escuela Secundaria Capitán De Fragata Hipólito Buchardo
+
+Excepto las que tengan Comercio, Normal Superior Colegio, Experimental, Nivel Medio y Centro
+
+
+Tambíen encontraras Escuela De Educación Secundaria, quitar De, tambien las escuelas que encuentres con
+abreviaturas completarlas como Dr. por Doctor, Ing. por Ingeniero, Gral. por General, etc, 
+si encuentras B° cambiarlo a Barrio
