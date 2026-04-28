@@ -29,6 +29,8 @@ class UpdateEdificioRequest extends FormRequest
             'longitud'         => 'nullable|numeric',
             'letra_zona'       => 'nullable|string|max:1',
             'zona_departamento'=> 'required|string|max:255',
+            'orientacion'      => 'nullable|string|max:50',
+            'te_voip'          => 'nullable|string|max:50',
         ];
     }
 

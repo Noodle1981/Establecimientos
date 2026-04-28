@@ -29,6 +29,8 @@ class StoreEdificioRequest extends FormRequest
             'latitud'          => 'nullable|numeric',
             'longitud'         => 'nullable|numeric',
             'letra_zona'       => 'nullable|string|max:1',
+            'orientacion'      => 'nullable|string|max:50',
+            'te_voip'          => 'nullable|string|max:50',
         ];
     }
 

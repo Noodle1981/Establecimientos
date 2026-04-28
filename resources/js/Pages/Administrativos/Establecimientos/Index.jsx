@@ -10,7 +10,34 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import debounce from 'lodash/debounce';
 
-export default function Index({ modalidades, filters, options }) {
+// Función para obtener el nombre descriptivo del edificio
+const getNombreEdificio = (item, mapa = {}) => {
+    try {
+        if (!item || !item.establecimiento) return null;
+        
+        // 1. Prioridad: Nombre directo del edificio
+        if (item.establecimiento.edificio && item.establecimiento.edificio.nombre) {
+            return item.establecimiento.edificio.nombre;
+        }
+        
+        // 2. Prioridad: Cabecera (Nombre o Código)
+        const cab = item.establecimiento.establecimiento_cabecera;
+        if (cab) {
+            if (mapa[cab]) return mapa[cab];
+            if (isNaN(cab)) return cab;
+        }
+
+        // 3. Fallback: CUI
+        if (item.establecimiento.edificio && item.establecimiento.edificio.cui && mapa[item.establecimiento.edificio.cui]) {
+            return mapa[item.establecimiento.edificio.cui];
+        }
+    } catch (e) {
+        console.error("Error en getNombreEdificio:", e);
+    }
+    return null;
+};
+
+export default function Index({ modalidades, filters, options, nombresEdificios = {} }) {
     const [search, setSearch] = useState(filters.search || '');
     const [selectedModalidad, setSelectedModalidad] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -132,6 +159,7 @@ export default function Index({ modalidades, filters, options }) {
                                     <thead>
                                         <tr className="bg-brand-orange text-[10px] uppercase font-black text-white border-b border-orange-600">
                                             <th className="px-6 py-2">Establecimiento / CUE</th>
+                                            <th className="px-6 py-2">Edificio</th>
                                             <th className="px-6 py-2">Nivel / Área</th>
                                             <th className="px-6 py-2">Estado</th>
                                             <th className="px-6 py-2 text-right">Acciones</th>
@@ -143,10 +171,25 @@ export default function Index({ modalidades, filters, options }) {
                                             <td className="px-6 py-2">
                                                 <div className="flex flex-col">
                                                     <span className="text-xs font-black text-black group-hover:text-brand-orange leading-tight">{item.establecimiento.nombre}</span>
-                                                    <div className="flex gap-2 mt-1">
-                                                        <span className="text-[9px] font-black text-black/40 uppercase">CUE: {item.establecimiento.cue}</span>
-                                                        <span className="text-[9px] font-black text-brand-orange uppercase bg-orange-50 px-1 rounded">CUI: {item.establecimiento.edificio.cui}</span>
-                                                    </div>
+                                                    <span className="text-[9px] font-black text-black/40 uppercase mt-1">CUE: {item.establecimiento.cue}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-2">
+                                                <div className="flex flex-col max-w-[200px]">
+                                                    {getNombreEdificio(item, nombresEdificios) ? (
+                                                        <>
+                                                            <span className="text-[10px] font-black text-gray-900 leading-tight" title={getNombreEdificio(item, nombresEdificios)}>
+                                                                {getNombreEdificio(item, nombresEdificios)}
+                                                            </span>
+                                                            <span className="text-[9px] text-brand-orange font-black uppercase tracking-tighter">
+                                                                CUI: {item.establecimiento.edificio?.cui}
+                                                            </span>
+                                                        </>
+                                                    ) : (
+                                                        <span className="text-[10px] font-black text-brand-orange leading-tight">
+                                                            CUI: {item.establecimiento.edificio?.cui || 'S/D'}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-2">
@@ -185,7 +228,7 @@ export default function Index({ modalidades, filters, options }) {
                                     ))}
                                     {modalidades.data.length === 0 && (
                                         <tr>
-                                            <td colSpan="4" className="px-6 py-20 text-center">
+                                            <td colSpan="5" className="px-6 py-20 text-center">
                                                 <div className="flex flex-col items-center gap-3">
                                                     <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 mb-2">
                                                         <i className="fas fa-search text-2xl"></i>
@@ -215,7 +258,7 @@ export default function Index({ modalidades, filters, options }) {
             </div>
 
             {/* Modals */}
-            <ViewModalidadModal show={showViewModal} onClose={() => setShowViewModal(false)} modalidad={selectedModalidad} />
+            <ViewModalidadModal show={showViewModal} onClose={() => setShowViewModal(false)} modalidad={selectedModalidad} nombresEdificios={nombresEdificios} />
             <EditModalidadModal show={showEditModal} onClose={() => setShowEditModal(false)} modalidad={selectedModalidad} options={options} />
             <CreateModalidadModal show={showCreateModal} onClose={() => setShowCreateModal(false)} options={options} />
 
@@ -239,7 +282,7 @@ function FilterSelect({ label, value, options, onChange }) {
     );
 }
 
-function ViewModalidadModal({ show, onClose, modalidad }) {
+function ViewModalidadModal({ show, onClose, modalidad, nombresEdificios }) {
     if (!modalidad) return null;
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl">
@@ -260,6 +303,7 @@ function ViewModalidadModal({ show, onClose, modalidad }) {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <DetailItem icon="fas fa-building" label="Edificio" value={getNombreEdificio(modalidad, nombresEdificios) || 'Sin Nombre'} />
                     <DetailItem icon="fas fa-id-card" label="CUI Edificio" value={modalidad.establecimiento.edificio.cui} />
                     <DetailItem icon="fas fa-map-marker-alt" label="Dirección" value={`${modalidad.establecimiento.edificio.calle} ${modalidad.establecimiento.edificio.numero_puerta || 'S/N'}`} />
                     <DetailItem icon="fas fa-graduation-cap" label="Nivel Educativo" value={modalidad.nivel_educativo} />

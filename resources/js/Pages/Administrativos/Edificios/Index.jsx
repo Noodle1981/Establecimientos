@@ -207,6 +207,8 @@ function CreateEdificioModal({ show, onClose }) {
         latitud: '',
         longitud: '',
         letra_zona: '',
+        orientacion: '',
+        te_voip: '',
     });
 
     const submit = (e) => {
@@ -318,6 +320,50 @@ function CreateEdificioModal({ show, onClose }) {
                             onChange={(e) => setData('longitud', e.target.value)}
                         />
                     </div>
+
+                    <div className="col-span-2 md:col-span-2 border-t pt-4">
+                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Otros Datos</h4>
+                    </div>
+
+                    <div className="col-span-2 md:col-span-1">
+                        <InputLabel htmlFor="cp" value="Código Postal" />
+                        <TextInput
+                            id="cp"
+                            className="mt-1 block w-full"
+                            value={data.codigo_postal}
+                            onChange={(e) => setData('codigo_postal', e.target.value)}
+                        />
+                    </div>
+
+                    <div className="col-span-2 md:col-span-1">
+                        <InputLabel htmlFor="orientacion" value="Orientación" />
+                        <TextInput
+                            id="orientacion"
+                            className="mt-1 block w-full"
+                            value={data.orientacion}
+                            onChange={(e) => setData('orientacion', e.target.value)}
+                        />
+                    </div>
+
+                    <div className="col-span-2 md:col-span-1">
+                        <InputLabel htmlFor="te_voip" value="Teléfono VoIP" />
+                        <TextInput
+                            id="te_voip"
+                            className="mt-1 block w-full"
+                            value={data.te_voip}
+                            onChange={(e) => setData('te_voip', e.target.value)}
+                        />
+                    </div>
+
+                    <div className="col-span-2 md:col-span-1">
+                        <InputLabel htmlFor="letra_zona" value="Letra Zona" />
+                        <TextInput
+                            id="letra_zona"
+                            className="mt-1 block w-full"
+                            value={data.letra_zona}
+                            onChange={(e) => setData('letra_zona', e.target.value)}
+                        />
+                    </div>
                 </div>
 
                 <div className="mt-10 flex justify-end gap-3 border-t pt-6">
@@ -392,6 +438,8 @@ function EditEdificioModal({ show, onClose, edificio }) {
         latitud: edificio.latitud || '',
         longitud: edificio.longitud || '',
         letra_zona: edificio.letra_zona || '',
+        orientacion: edificio.orientacion || '',
+        te_voip: edificio.te_voip || '',
     });
 
     const submit = (e) => {
@@ -483,9 +531,9 @@ function EditEdificioModal({ show, onClose, edificio }) {
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
-                        <InputLabel htmlFor="lat" value="Latitud" />
+                        <InputLabel htmlFor="lat_edit" value="Latitud" />
                         <TextInput
-                            id="lat"
+                            id="lat_edit"
                             className="mt-1 block w-full"
                             value={data.latitud}
                             onChange={(e) => setData('latitud', e.target.value)}
@@ -493,12 +541,56 @@ function EditEdificioModal({ show, onClose, edificio }) {
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
-                        <InputLabel htmlFor="lng" value="Longitud" />
+                        <InputLabel htmlFor="lng_edit" value="Longitud" />
                         <TextInput
-                            id="lng"
+                            id="lng_edit"
                             className="mt-1 block w-full"
                             value={data.longitud}
                             onChange={(e) => setData('longitud', e.target.value)}
+                        />
+                    </div>
+
+                    <div className="col-span-2 md:col-span-2 border-t pt-4">
+                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Otros Datos</h4>
+                    </div>
+
+                    <div className="col-span-2 md:col-span-1">
+                        <InputLabel htmlFor="cp_edit" value="Código Postal" />
+                        <TextInput
+                            id="cp_edit"
+                            className="mt-1 block w-full"
+                            value={data.codigo_postal}
+                            onChange={(e) => setData('codigo_postal', e.target.value)}
+                        />
+                    </div>
+
+                    <div className="col-span-2 md:col-span-1">
+                        <InputLabel htmlFor="orientacion_edit" value="Orientación" />
+                        <TextInput
+                            id="orientacion_edit"
+                            className="mt-1 block w-full"
+                            value={data.orientacion}
+                            onChange={(e) => setData('orientacion', e.target.value)}
+                        />
+                    </div>
+
+                    <div className="col-span-2 md:col-span-1">
+                        <InputLabel htmlFor="te_voip_edit" value="Teléfono VoIP" />
+                        <TextInput
+                            id="te_voip_edit"
+                            className="mt-1 block w-full"
+                            value={data.te_voip}
+                            onChange={(e) => setData('te_voip', e.target.value)}
+                        />
+                    </div>
+
+                    <div className="col-span-2 md:col-span-1">
+                        <InputLabel htmlFor="letra_zona_edit" value="Letra Zona" />
+                        <TextInput
+                            id="letra_zona_edit"
+                            className="mt-1 block w-full"
+                            value={data.letra_zona}
+                            onChange={(e) => setData('letra_zona', e.target.value)}
                         />
                     </div>
                 </div>

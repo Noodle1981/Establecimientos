@@ -47,7 +47,8 @@ class ModalidadController extends Controller
         return Inertia::render('Administrativos/Establecimientos/Index', [
             'modalidades' => $modalidades,
             'filters' => $request->all(),
-            'options' => $options
+            'options' => $options,
+            'nombresEdificios' => $this->queryService->getBuildingNamesMap(),
         ]);
     }
 

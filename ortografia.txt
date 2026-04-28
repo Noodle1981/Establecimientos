@@ -5,7 +5,8 @@ Elimina espacios dobles o innecesarios al inicio/final.
 Corrige tildes según la RAE (ej: MARTÍN -> Martín).
 Normaliza el símbolo de número a Nº.
 EXCEPCIONES (Mantener siempre en MAYÚSCULAS):
-E.N.I., J.I.N.Z., E.P.E.T., C.E.N.S., E.E.E., EMER, C.U.E., C.U.I., A.R.A.
+E.N.I., J.I.N.Z., E.P.E.T., C.E.N.S., E.E.E., EMER, C.U.E., C.U.I., A.R.A. U.E.P.A
+
 FILTRO DE EJECUCIÓN:
-Solo trabaja sobre escuelas de gestión pública en los departamento de SARMIENTO, VALLE FERTIL ZONDA Y ULLUM
+Solo trabaja sobre escuelas de gestión PRIVADA en los departamentos de SARMIENTO, ULLUM, VALLE FERTIL Y ZONDA
 Antes de ejecutar el UPDATE, muéstrame una tabla comparativa con: Nombre Original | Nombre Propuesto para validar."
