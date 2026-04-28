@@ -41,6 +41,18 @@ export default function Index({ edificios, filters, options }) {
         });
     };
 
+    const handleSort = (field) => {
+        const direction = filters.sort_by === field && filters.sort_dir === 'asc' ? 'desc' : 'asc';
+        router.get(route('administrativos.edificios.index'), { 
+            ...filters, 
+            sort_by: field, 
+            sort_dir: direction 
+        }, {
+            preserveState: true,
+            preserveScroll: true
+        });
+    };
+
     // Modal Handlers
     const openEdit = (edificio) => {
         setSelectedEdificio(edificio);
@@ -120,9 +132,19 @@ export default function Index({ edificios, filters, options }) {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-brand-orange text-[10px] uppercase font-black text-white border-b border-orange-600">
-                                    <th className="px-6 py-2">CUI / Ubicación</th>
+                                    <th className="px-6 py-2 cursor-pointer hover:bg-orange-600 transition-colors group" onClick={() => handleSort('cui')}>
+                                        <div className="flex items-center gap-2">
+                                            CUI / Ubicación
+                                            <i className={`fas fa-sort${filters.sort_by === 'cui' ? (filters.sort_dir === 'asc' ? '-up' : '-down') : ''} opacity-50 group-hover:opacity-100`}></i>
+                                        </div>
+                                    </th>
                                     <th className="px-6 py-2">Establecimiento Cabecera</th>
-                                    <th className="px-6 py-2">Depto / Localidad</th>
+                                    <th className="px-6 py-2 cursor-pointer hover:bg-orange-600 transition-colors group" onClick={() => handleSort('zona_departamento')}>
+                                        <div className="flex items-center gap-2">
+                                            Depto / Localidad
+                                            <i className={`fas fa-sort${filters.sort_by === 'zona_departamento' ? (filters.sort_dir === 'asc' ? '-up' : '-down') : ''} opacity-50 group-hover:opacity-100`}></i>
+                                        </div>
+                                    </th>
                                     <th className="px-6 py-2 text-center">Ámbito</th>
                                     <th className="px-6 py-2 text-right">Acciones</th>
                                 </tr>
@@ -440,6 +462,7 @@ function EditEdificioModal({ show, onClose, edificio }) {
         letra_zona: edificio.letra_zona || '',
         orientacion: edificio.orientacion || '',
         te_voip: edificio.te_voip || '',
+        cue_cabecera: edificio.establecimientos?.find(e => e.nombre === e.establecimiento_cabecera)?.cue || edificio.establecimientos?.[0]?.cue || '',
     });
 
     const submit = (e) => {
@@ -476,6 +499,27 @@ function EditEdificioModal({ show, onClose, edificio }) {
                             required
                         />
                         <InputError message={errors.cui} className="mt-2" />
+                    </div>
+
+                    <div className="col-span-2 md:col-span-1">
+                        <InputLabel htmlFor="cue_cabecera" value="CUE de la Cabecera" />
+                        <TextInput
+                            id="cue_cabecera"
+                            className="mt-1 block w-full bg-orange-50 border-orange-200 font-black text-brand-orange"
+                            placeholder="Ingrese CUE para actualizar nombre"
+                            value={data.cue_cabecera}
+                            onChange={(e) => setData('cue_cabecera', e.target.value)}
+                        />
+                        <div className="mt-2 p-2 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 leading-none">Nombre Detectado:</p>
+                            <p className="text-xs font-black text-gray-800 uppercase leading-tight">
+                                {edificio.establecimientos?.find(e => String(e.cue) === String(data.cue_cabecera))?.nombre || 'No se encontró en este edificio'}
+                            </p>
+                        </div>
+                        <p className="text-[9px] text-gray-400 mt-1 uppercase font-bold italic">
+                            * Cambiará el nombre de cabecera en todos los establecimientos vinculados.
+                        </p>
+                        <InputError message={errors.cue_cabecera} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-2 border-t pt-4">

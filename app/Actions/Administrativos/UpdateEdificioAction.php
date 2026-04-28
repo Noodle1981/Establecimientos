@@ -16,6 +16,20 @@ class UpdateEdificioAction
 
     public function execute(Edificio $edificio, array $data): void
     {
+        // Handle Cabecera Name Sync if cue_cabecera is provided
+        if (!empty($data['cue_cabecera'])) {
+            $cabecera = \App\Models\Establecimiento::where('cue', $data['cue_cabecera'])->first();
+            if ($cabecera) {
+                \App\Models\Establecimiento::where('edificio_id', $edificio->id)
+                    ->update(['establecimiento_cabecera' => $cabecera->nombre]);
+                
+                $this->activityLogger->logUpdate($edificio, "Actualización de Cabecera", [
+                    'new_cabecera' => $cabecera->nombre,
+                    'cue' => $data['cue_cabecera']
+                ]);
+            }
+        }
+
         $edificio->fill($data);
 
         if ($edificio->isDirty()) {

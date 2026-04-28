@@ -31,6 +31,7 @@ class UpdateEdificioRequest extends FormRequest
             'zona_departamento'=> 'required|string|max:255',
             'orientacion'      => 'nullable|string|max:50',
             'te_voip'          => 'nullable|string|max:50',
+            'cue_cabecera'     => 'nullable|exists:establecimientos,cue',
         ];
     }
 

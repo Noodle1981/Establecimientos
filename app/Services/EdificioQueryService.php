@@ -41,6 +41,15 @@ class EdificioQueryService
             });
         }
 
+        // Sorting
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortDir = $request->input('sort_dir', 'desc');
+        
+        $allowedSorts = ['cui', 'calle', 'localidad', 'zona_departamento', 'created_at'];
+        if (in_array($sortBy, $allowedSorts)) {
+            $query->orderBy($sortBy, $sortDir);
+        }
+
         return $query;
     }
 

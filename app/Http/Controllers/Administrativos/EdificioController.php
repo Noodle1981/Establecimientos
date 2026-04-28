@@ -31,7 +31,6 @@ class EdificioController extends Controller
     public function index(Request $request): Response
     {
         $edificios = $this->queryService->getFilteredQuery($request)
-            ->latest()
             ->paginate(10)
             ->onEachSide(1)
             ->withQueryString();

@@ -45,6 +45,10 @@ class AuditoriaQueryService
             $query->where('nivel_educativo', $nivel);
         }
 
+        if ($ambito = $request->input('ambito')) {
+            $query->where('ambito', $ambito);
+        }
+
         return $query;
     }
 
@@ -112,6 +116,7 @@ class AuditoriaQueryService
         return [
             'departamentos' => $deptosDisponibles,
             'niveles' => $nivelesDisponibles,
+            'ambitos' => ['PUBLICO', 'PRIVADO'],
         ];
     }
 

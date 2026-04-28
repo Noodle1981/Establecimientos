@@ -145,7 +145,30 @@ export default function Index({ modalidades, filters, options, nombresEdificios 
                             </select>
                         </div>
 
-                        <FilterSelect label="Radio" value={filters.radio} options={options.radios} onChange={v => handleParamChange('radio', v)} />
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                                <InputLabel value="Radio" />
+                                <input 
+                                    type="text"
+                                    placeholder="Radio..."
+                                    className="w-full border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange text-xs font-bold"
+                                    defaultValue={filters.radio || ''}
+                                    onBlur={(e) => handleParamChange('radio', e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleParamChange('radio', e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <InputLabel value="Sector" />
+                                <input 
+                                    type="text"
+                                    placeholder="Sector..."
+                                    className="w-full border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange text-xs font-bold"
+                                    defaultValue={filters.sector || ''}
+                                    onBlur={(e) => handleParamChange('sector', e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleParamChange('sector', e.target.value)}
+                                />
+                            </div>
+                        </div>
                         <FilterSelect label="Zona / Departamento" value={filters.zona_departamento} options={options.zonas} onChange={v => handleParamChange('zona_departamento', v)} />
                         </div>
                     </div>
@@ -306,6 +329,7 @@ function ViewModalidadModal({ show, onClose, modalidad, nombresEdificios }) {
                     <DetailItem icon="fas fa-building" label="Edificio" value={getNombreEdificio(modalidad, nombresEdificios) || 'Sin Nombre'} />
                     <DetailItem icon="fas fa-id-card" label="CUI Edificio" value={modalidad.establecimiento.edificio.cui} />
                     <DetailItem icon="fas fa-map-marker-alt" label="Dirección" value={`${modalidad.establecimiento.edificio.calle} ${modalidad.establecimiento.edificio.numero_puerta || 'S/N'}`} />
+                    <DetailItem icon="fas fa-city" label="Departamento" value={modalidad.establecimiento.edificio.zona_departamento} />
                     <DetailItem icon="fas fa-graduation-cap" label="Nivel Educativo" value={modalidad.nivel_educativo} />
                     <DetailItem icon="fas fa-university" label="Dirección de Área" value={modalidad.direccion_area} />
                     <DetailItem icon="fas fa-landmark" label="Ámbito" value={modalidad.ambito} />

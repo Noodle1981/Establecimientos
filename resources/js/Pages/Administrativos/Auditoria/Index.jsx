@@ -131,6 +131,25 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                         <option value="">Todos los Deptos</option>
                         {options.departamentos.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
+
+                    <select 
+                        className="w-full lg:w-48 border-gray-200 rounded-xl text-xs font-black uppercase text-gray-500"
+                        value={filters.ambito || ''}
+                        onChange={(e) => handleFilterChange('ambito', e.target.value)}
+                    >
+                        <option value="">Todos los Ámbitos</option>
+                        {options.ambitos.map(a => <option key={a} value={a}>{a}</option>)}
+                    </select>
+
+                    <div className="flex gap-2 w-full lg:w-auto shrink-0 border-l pl-4 border-orange-50 ml-2">
+                        <a 
+                            href={route('administrativos.auditoria.exportPdf', filters)}
+                            target="_blank"
+                            className="w-full lg:w-auto inline-flex items-center justify-center px-4 py-2 bg-red-600 border border-transparent rounded-xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-red-700 transition shadow-sm gap-2"
+                        >
+                            <i className="fas fa-file-pdf"></i> Exportar PDF
+                        </a>
+                    </div>
                 </div>
 
                 {/* Table */}
@@ -174,9 +193,14 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                                                 </div>
                                             </td>
                                             <td className="px-6 py-2 whitespace-nowrap">
-                                                <span className="text-[10px] font-black text-brand-orange bg-orange-50 px-2 py-1 rounded-lg border border-orange-100 uppercase tracking-tight">
-                                                    {mod.nivel_educativo || 'S/D'}
-                                                </span>
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-[10px] font-black text-brand-orange bg-orange-50 px-2 py-1 rounded-lg border border-orange-100 uppercase tracking-tight w-fit">
+                                                        {mod.nivel_educativo || 'S/D'}
+                                                    </span>
+                                                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">
+                                                        R:{mod.radio || '-'} | S:{mod.sector || '-'} | C:{mod.categoria || '-'}
+                                                    </span>
+                                                </div>
                                             </td>
                                             <td className="px-6 py-2">
                                                 <div className="flex flex-col max-w-[200px]">
@@ -357,167 +381,136 @@ function StatusUpdateModal({ show, onClose, modalidad }) {
     };
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="lg">
+        <Modal show={show} onClose={onClose} maxWidth="2xl">
             <form onSubmit={submit} className="p-6">
-                <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-2xl bg-orange-50 text-brand-orange flex items-center justify-center text-2xl shadow-sm border border-orange-100">
+                <div className="flex items-center gap-4 mb-6 border-b pb-4">
+                    <div className="w-12 h-12 rounded-xl bg-orange-50 text-brand-orange flex items-center justify-center text-xl shadow-sm border border-orange-100">
                         <i className="fas fa-tasks"></i>
                     </div>
                     <div className="flex-1">
-                        <h3 className="text-xl font-black text-gray-900 leading-none">Validación de Datos</h3>
+                        <h3 className="text-lg font-black text-gray-900 leading-none uppercase tracking-tight">Validación de Datos</h3>
                         <p className="text-[10px] font-bold text-gray-400 uppercase mt-1 tracking-widest">
                             {modalidad.establecimiento.nombre}
                         </p>
                     </div>
-                    {vinculados.length > 0 && (
-                        <div className="text-right">
-                            <span className="text-[8px] font-black uppercase text-gray-400 block mb-1">Edificio compartido</span>
-                            <div className="flex -space-x-2 justify-end">
-                                {vinculados.slice(0, 3).map((v, i) => (
-                                    <div key={i} title={v.establecimiento.nombre} className="w-6 h-6 rounded-full bg-orange-100 border-2 border-white flex items-center justify-center text-[8px] font-bold text-brand-orange">
-                                        {v.nivel_educativo?.substring(0,1)}
-                                    </div>
-                                ))}
-                                {vinculados.length > 3 && (
-                                    <div className="w-6 h-6 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-[8px] font-bold text-gray-500">
-                                        +{vinculados.length - 3}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
+                    <button onClick={onClose} type="button" className="text-gray-400 hover:text-brand-orange transition-colors">
+                        <i className="fas fa-times text-xl"></i>
+                    </button>
                 </div>
 
-                {/* Warning de Discrepancias */}
-                {vinculados.length > 0 && tieneDiscrepancias && !data.propagar_al_edificio && (
-                    <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3 animate-pulse">
-                        <i className="fas fa-exclamation-triangle text-amber-500 mt-0.5"></i>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Columna Izquierda: Detalles e Información */}
+                    <div className="space-y-6">
                         <div>
-                            <p className="text-[10px] font-black text-amber-800 uppercase tracking-tight leading-tight">Inconsistencia detectada en el edificio</p>
-                            <p className="text-[9px] text-amber-600 font-medium mt-0.5">
-                                Hay {vinculados.length} establecimientos vinculados con estados o verificaciones diferentes.
-                            </p>
+                            <InputLabel value="Información del Edificio" className="text-[10px] font-black uppercase tracking-widest text-brand-orange mb-3" />
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100 col-span-2">
+                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1 tracking-widest">Dirección Física</p>
+                                    <p className="text-[11px] font-black text-gray-800 uppercase">
+                                        {modalidad.establecimiento.edificio?.calle} {modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}
+                                    </p>
+                                </div>
+                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Radio</p>
+                                    <p className="text-xs font-black text-gray-800">{modalidad.radio || '-'}</p>
+                                </div>
+                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Sector</p>
+                                    <p className="text-xs font-black text-gray-800">{modalidad.sector || '-'}</p>
+                                </div>
+                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Categoría</p>
+                                    <p className="text-xs font-black text-gray-800">{modalidad.categoria || '-'}</p>
+                                </div>
+                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1">GPS</p>
+                                    <p className="text-[10px] font-black text-brand-orange">
+                                        {modalidad.establecimiento.edificio?.latitud}, {modalidad.establecimiento.edificio?.longitud}
+                                    </p>
+                                </div>
+                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 col-span-2">
+                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1 tracking-widest">Depto / Localidad</p>
+                                    <p className="text-[10px] font-bold text-gray-700 uppercase">
+                                        {modalidad.establecimiento.edificio?.zona_departamento} - {modalidad.establecimiento.edificio?.localidad}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <InputLabel value="Nuevo Estado de Validación" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+                            <div className="grid grid-cols-2 gap-2">
+                                {['PENDIENTE', 'CORRECTO', 'CORREGIDO', 'REVISAR'].map(s => (
+                                    <button
+                                        key={s} type="button" onClick={() => setData('estado', s)}
+                                        className={`py-3 px-2 rounded-xl border-2 text-[10px] font-black uppercase tracking-widest transition-all ${
+                                            data.estado === s 
+                                                ? 'border-brand-orange bg-orange-50 text-brand-orange' 
+                                                : 'border-gray-100 text-gray-400 hover:border-orange-100'
+                                        }`}
+                                    >
+                                        {s}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                )}
 
-                <div className="space-y-6">
-                    {/* Quick Actions */}
-                    <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 border-dashed">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-brand-orange mb-3 flex items-center gap-2">
-                            <i className="fas fa-bolt"></i> Acciones Rápidas
-                        </p>
-                        <div className="flex gap-2">
-                            <button
-                                type="button"
-                                onClick={() => { 
-                                    setData({ 
-                                        ...data,
-                                        estado: 'CORRECTO', 
-                                        campos_auditados: CAMPOS_AUDITORIA 
-                                    }); 
-                                }}
-                                className="flex-1 py-2 px-3 bg-white border border-green-200 text-green-700 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-green-50 transition-colors flex items-center justify-center gap-2"
+                    {/* Columna Derecha: Verificación y Auditoría */}
+                    <div className="space-y-6">
+                        <div>
+                            <div className="flex justify-between items-center mb-3">
+                                <InputLabel value="Campos Verificados" className="text-[10px] font-black uppercase tracking-widest text-gray-400" />
+                                <button type="button" onClick={() => setData('campos_auditados', CAMPOS_AUDITORIA)} className="text-[9px] font-black text-brand-orange uppercase hover:underline">Marcar Todo</button>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                                {CAMPOS_AUDITORIA.map(campo => (
+                                    <button
+                                        key={campo} type="button" onClick={() => toggleCampo(campo)}
+                                        className={`py-2 px-1 rounded-lg border text-[9px] font-bold uppercase transition-all ${
+                                            data.campos_auditados?.includes(campo)
+                                                ? 'bg-brand-orange text-white border-brand-orange shadow-sm'
+                                                : 'bg-white text-gray-400 border-gray-100'
+                                        }`}
+                                    >
+                                        {campo}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <InputLabel value="Observaciones" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+                            <textarea 
+                                className="w-full h-32 rounded-xl border-gray-200 focus:border-brand-orange focus:ring-brand-orange text-sm font-medium p-3 bg-gray-50/20"
+                                placeholder="Escribe aquí las observaciones..."
+                                value={data.observaciones}
+                                onChange={e => setData('observaciones', e.target.value)}
+                            ></textarea>
+                        </div>
+
+                        {vinculados.length > 0 && (
+                            <div className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-3 ${
+                                data.propagar_al_edificio 
+                                    ? 'bg-brand-orange border-brand-orange text-white shadow-md' 
+                                    : 'bg-gray-50 border-gray-100 text-gray-500'
+                            }`}
+                            onClick={() => setData('propagar_al_edificio', !data.propagar_al_edificio)}
                             >
-                                <i className="fas fa-check-double"></i> Todo Correcto
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => { 
-                                    setData({ 
-                                        ...data,
-                                        estado: 'REVISAR'
-                                    }); 
-                                }}
-                                className="flex-1 py-2 px-3 bg-white border border-red-200 text-red-700 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <i className="fas fa-exclamation-triangle"></i> A Revisar
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Checkboxes de Campos Auditados */}
-                    <div>
-                        <InputLabel value="Campos Auditados (Verificados)" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3" />
-                        <div className="grid grid-cols-3 gap-2">
-                            {CAMPOS_AUDITORIA.map(campo => (
-                                <button
-                                    key={campo}
-                                    type="button"
-                                    onClick={() => toggleCampo(campo)}
-                                    className={`py-2 px-3 rounded-lg border text-[10px] font-bold uppercase transition-all flex items-center gap-2 ${
-                                        data.campos_auditados?.includes(campo)
-                                            ? 'bg-brand-orange text-white border-brand-orange shadow-sm'
-                                            : 'bg-white text-gray-400 border-gray-100 hover:border-orange-200'
-                                    }`}
-                                >
-                                    <i className={`fas ${data.campos_auditados?.includes(campo) ? 'fa-check-square' : 'fa-square'} text-[12px]`}></i>
-                                    {campo}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div>
-                        <InputLabel value="Nuevo Estado de Validación" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
-                        <div className="grid grid-cols-2 gap-2">
-                            {['PENDIENTE', 'CORRECTO', 'CORREGIDO', 'REVISAR'].map(s => (
-                                <button
-                                    key={s}
-                                    type="button"
-                                    onClick={() => setData('estado', s)}
-                                    className={`py-3 px-4 rounded-xl border-2 text-[10px] font-black uppercase tracking-widest transition-all ${
-                                        data.estado === s 
-                                            ? 'border-brand-orange bg-orange-50 text-brand-orange' 
-                                            : 'border-gray-100 text-gray-400 hover:border-orange-100'
-                                    }`}
-                                >
-                                    {s === 'CORRECTO' && <i className="fas fa-check-circle mr-2 text-green-500"></i>}
-                                    {s === 'REVISAR' && <i className="fas fa-exclamation-circle mr-2 text-red-500"></i>}
-                                    {s}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div>
-                        <InputLabel value="Observaciones Adicionales" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
-                        <textarea 
-                            className="w-full h-24 rounded-xl border-gray-200 focus:border-brand-orange focus:ring-brand-orange text-sm font-medium"
-                            placeholder="Detalles adicionales sobre la validación..."
-                            value={data.observaciones}
-                            onChange={e => setData('observaciones', e.target.value)}
-                        ></textarea>
-                        <InputError message={errors.observaciones} />
-                    </div>
-                    {vinculados.length > 0 && (
-                        <div className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 ${
-                            data.propagar_al_edificio 
-                                ? 'bg-brand-orange border-brand-orange text-white shadow-lg' 
-                                : 'bg-gray-50 border-gray-100 text-gray-500 hover:border-orange-200'
-                        }`}
-                        onClick={() => setData('propagar_al_edificio', !data.propagar_al_edificio)}
-                        >
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${data.propagar_al_edificio ? 'bg-white/20' : 'bg-white shadow-sm text-gray-300'}`}>
-                                <i className={`fas ${data.propagar_al_edificio ? 'fa-check-double' : 'fa-link'}`}></i>
+                                <i className={`fas ${data.propagar_al_edificio ? 'fa-check-double' : 'fa-link'} text-xl`}></i>
+                                <div className="flex-1">
+                                    <p className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Sincronizar Edificio ({vinculados.length})</p>
+                                    <p className={`text-[8px] font-bold ${data.propagar_al_edificio ? 'text-white/80' : 'text-gray-400'}`}>Aplicar validación a todo el CUI</p>
+                                </div>
                             </div>
-                            <div className="flex-1">
-                                <p className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Unificar Edificio</p>
-                                <p className={`text-[9px] font-bold ${data.propagar_al_edificio ? 'text-white/80' : 'text-gray-400'}`}>
-                                    Aplicar esta validación a los {vinculados.length} establecimientos vinculados
-                                </p>
-                            </div>
-                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${data.propagar_al_edificio ? 'border-white bg-white text-brand-orange' : 'border-gray-200 bg-white'}`}>
-                                {data.propagar_al_edificio && <i className="fas fa-check text-[10px]"></i>}
-                            </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
 
                 <div className="mt-8 flex justify-end gap-3 border-t pt-6">
-                    <SecondaryButton onClick={onClose}>Cancelar</SecondaryButton>
-                    <PrimaryButton className="px-10" disabled={processing}>
-                        {processing ? 'Procesando...' : 'Aplicar Validación'}
+                    <SecondaryButton onClick={onClose} className="px-6 py-2.5">Cancelar</SecondaryButton>
+                    <PrimaryButton className="px-12 py-2.5" disabled={processing}>
+                        {processing ? 'Guardando...' : 'Confirmar Validación'}
                     </PrimaryButton>
                 </div>
             </form>

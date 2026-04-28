@@ -8,6 +8,7 @@ use App\Services\AuditoriaQueryService;
 use App\Http\Requests\Administrativos\UpdateAuditoriaRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -107,5 +108,26 @@ class AuditoriaController extends Controller
             ->get();
             
         return response()->json($vinculados);
+    }
+
+    /**
+     * Export audit report to PDF.
+     */
+    public function exportPdf(Request $request)
+    {
+        // Obtener los datos filtrados (sin paginación para el PDF)
+        $modalidades = $this->queryService->getFilteredQuery($request)
+            ->orderBy('validado_en', 'desc')
+            ->get();
+
+        $nombresEdificios = $this->queryService->getBuildingNamesMap();
+
+        $pdf = Pdf::loadView('pdf.auditoria_reporte', [
+            'modalidades' => $modalidades,
+            'nombresEdificios' => $nombresEdificios,
+            'filtros' => $request->all()
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download('reporte_auditoria_' . date('Y-m-d') . '.pdf');
     }
 }
