@@ -14,7 +14,7 @@ use Inertia\Response;
 
 class AuditoriaController extends Controller
 {
-    protected $queryService;
+    protected AuditoriaQueryService $queryService;
 
     public function __construct(AuditoriaQueryService $queryService)
     {
@@ -44,7 +44,7 @@ class AuditoriaController extends Controller
     /**
      * Update validation status for a modality.
      */
-    public function updateEstado(UpdateAuditoriaRequest $request, $id)
+    public function updateEstado(UpdateAuditoriaRequest $request, int $id)
     {
         $modalidad = Modalidad::withTrashed()->findOrFail($id);
 
@@ -95,7 +95,7 @@ class AuditoriaController extends Controller
     /**
      * Get other establishments in the same building.
      */
-    public function vinculados($id)
+    public function vinculados(int $id)
     {
         $modalidad = Modalidad::withTrashed()->with('establecimiento')->findOrFail($id);
         

@@ -7,7 +7,7 @@ use App\Services\ActivityLogService;
 
 class UpdateEdificioAction
 {
-    protected $activityLogger;
+    protected ActivityLogService $activityLogger;
 
     public function __construct(ActivityLogService $activityLogger)
     {

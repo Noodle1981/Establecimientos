@@ -16,8 +16,8 @@ use Inertia\Response;
 
 class EdificioController extends Controller
 {
-    protected $queryService;
-    protected $exportService;
+    protected EdificioQueryService $queryService;
+    protected ExcelExportService $exportService;
 
     public function __construct(EdificioQueryService $queryService, ExcelExportService $exportService)
     {
@@ -55,7 +55,7 @@ class EdificioController extends Controller
     /**
      * Update the specified building in storage.
      */
-    public function update(UpdateEdificioRequest $request, $id, UpdateEdificioAction $action)
+    public function update(UpdateEdificioRequest $request, int $id, UpdateEdificioAction $action)
     {
         $edificio = Edificio::findOrFail($id);
         

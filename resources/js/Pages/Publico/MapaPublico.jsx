@@ -43,18 +43,23 @@ export default function MapaPublico({ edificios = [] }) {
     // Filter Logic
     const filteredEdificios = useMemo(() => {
         return edificios.filter(edificio => {
-            const matchesSearch = !searchQuery || 
-                edificio.localidad.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                edificio.calle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                edificio.cui.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            const matchesSearch = (edificio.localidad?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+                (edificio.calle?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+                (edificio.cui?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
                 edificio.establecimientos.some(est => 
-                    est.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    est.cue.toString().toLowerCase().includes(searchQuery.toLowerCase())
+                    (est.nombre?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+                    (est.cue?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase())
                 );
             
             const matchesType = (edificio.ambito === 'PUBLICO' && activeFilters.publico) ||
                                 (edificio.ambito === 'PRIVADO' && activeFilters.privado);
-            
+
+            // If user is actively searching: Search Match + Scope Match (ignores Nivel/Depto)
+            if (searchQuery.length >= 2) {
+                return matchesSearch && matchesType;
+            }
+
+            // Otherwise, apply all filters
             const matchesNivel = filterNivel === 'TODOS' || 
                                 edificio.establecimientos.some(est => 
                                     est.modalidades.some(m => m.nivel === filterNivel)
@@ -62,7 +67,7 @@ export default function MapaPublico({ edificios = [] }) {
 
             const matchesDepto = filterDepto === 'TODOS' || edificio.zona_departamento === filterDepto;
 
-            return matchesSearch && matchesType && matchesNivel && matchesDepto;
+            return matchesType && matchesNivel && matchesDepto;
         });
     }, [edificios, searchQuery, activeFilters, filterNivel, filterDepto]);
 
@@ -88,17 +93,32 @@ export default function MapaPublico({ edificios = [] }) {
 
     const searchResults = useMemo(() => {
         if (!searchQuery || searchQuery.length < 2) return [];
-        return edificios.filter(edificio => 
-            edificio.cui.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            edificio.establecimientos.some(est => 
-                est.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                est.cue.toString().toLowerCase().includes(searchQuery.toLowerCase())
-            )
-        ).slice(0, 5); // Limit to top 5 results
+        const results = [];
+        edificios.forEach(edificio => {
+            edificio.establecimientos.forEach(est => {
+                const matchesName = (est.nombre?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase());
+                const matchesCue = (est.cue?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase());
+                const matchesCui = (edificio.cui?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase());
+                
+                if (matchesName || matchesCue || matchesCui) {
+                    results.push({
+                        ...est,
+                        edificio: edificio // Keep reference to the building for map centering
+                    });
+                }
+            });
+        });
+        return results.slice(0, 10); // Show up to 10 specific establishments
     }, [edificios, searchQuery]);
 
     const toggleFilter = (type) => {
-        setActiveFilters(prev => ({ ...prev, [type]: !prev[type] }));
+        setActiveFilters(prev => {
+            // Prevent disabling both filters
+            if (prev[type] && !prev[type === 'publico' ? 'privado' : 'publico']) {
+                return prev;
+            }
+            return { ...prev, [type]: !prev[type] };
+        });
     };
 
     const clearFilters = () => {
@@ -177,16 +197,20 @@ export default function MapaPublico({ edificios = [] }) {
                                 {/* Autocomplete Dropdown */}
                                 {isSearching && searchResults.length > 0 && (
                                     <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-orange-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                                        {searchResults.map(edificio => (
+                                        {searchResults.map((result, idx) => (
                                             <div 
-                                                key={edificio.id}
-                                                onClick={() => handleSelectSchool(edificio)}
+                                                key={`${result.id}-${idx}`}
+                                                onClick={() => handleSelectSchool(result.edificio)}
                                                 className="p-3 hover:bg-orange-50 cursor-pointer border-b border-gray-50 last:border-0 group"
                                             >
                                                 <p className="text-[10px] font-black text-gray-900 truncate group-hover:text-brand-orange transition-colors">
-                                                    {edificio.establecimientos[0]?.nombre}
+                                                    {result.nombre}
                                                 </p>
-                                                <p className="text-[8px] font-bold text-gray-400">CUE: {edificio.establecimientos[0]?.cue}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className="text-[8px] font-bold text-gray-400">CUE: {result.cue}</p>
+                                                    <span className="text-[8px] font-black text-brand-orange/40">•</span>
+                                                    <p className="text-[8px] font-bold text-gray-400">{result.edificio.localidad}</p>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
@@ -294,6 +318,51 @@ export default function MapaPublico({ edificios = [] }) {
                         />
                         <MapController selected={selectedEdificio} onReset={() => setSelectedEdificio(null)} sidebarOpen={sidebarOpen} />
                         
+                        {/* Independent Popup for selected building - Opens automatically only if it has data */}
+                        {selectedEdificio && selectedEdificio.establecimientos && (
+                            <Popup 
+                                position={[selectedEdificio.latitud, selectedEdificio.longitud]}
+                                onClose={() => setSelectedEdificio(null)}
+                                className="custom-popup"
+                                maxWidth={300}
+                                minWidth={280}
+                            >
+                                <div className="p-2 text-black">
+                                    <div className="flex items-center gap-2 mb-3 border-b pb-2">
+                                        <div className={`p-2 rounded-lg ${selectedEdificio.ambito === 'PUBLICO' ? 'bg-orange-50 text-brand-orange' : 'bg-blue-50 text-blue-600'}`}>
+                                            <i className="fas fa-school"></i>
+                                        </div>
+                                        <div>
+                                            <h5 className="text-xs font-black text-gray-900 leading-tight uppercase">{selectedEdificio.localidad}</h5>
+                                            <p className="text-[10px] text-gray-400 font-bold">{selectedEdificio.calle} {selectedEdificio.numero_puerta}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="space-y-3 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
+                                        {selectedEdificio.establecimientos?.map((est, i) => (
+                                            <div key={i} className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                                <p className="text-[11px] font-black text-gray-800 mb-2">{est.nombre}</p>
+                                                <div className="space-y-1.5">
+                                                    {est.modalidades?.map((mod, j) => (
+                                                        <div key={j} className="p-2 bg-white rounded-lg border border-gray-100">
+                                                            <div className="flex gap-1.5 flex-wrap">
+                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-50 text-brand-orange border border-orange-100">
+                                                                    {mod.nivel}
+                                                                </span>
+                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-50 text-gray-500 border border-gray-100 truncate max-w-[150px]">
+                                                                    {mod.area}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </Popup>
+                        )}
+
                         {filteredEdificios.map(edificio => (
                             <CircleMarker 
                                 key={edificio.id}
@@ -310,50 +379,17 @@ export default function MapaPublico({ edificios = [] }) {
                                     mouseover: () => setHoveredEdificioId(edificio.id),
                                     mouseout: () => setHoveredEdificioId(null),
                                 }}
-                            >
-                                <Popup className="custom-popup">
-                                    <div className="p-2 min-w-[250px] text-black">
-                                        <div className="flex items-center gap-2 mb-3 border-b pb-2">
-                                            <div className={`p-2 rounded-lg ${edificio.ambito === 'PUBLICO' ? 'bg-orange-50 text-brand-orange' : 'bg-blue-50 text-blue-600'}`}>
-                                                <i className="fas fa-school"></i>
-                                            </div>
-                                            <div>
-                                                <h5 className="text-xs font-black text-gray-900 leading-tight">{edificio.localidad}</h5>
-                                                <p className="text-[10px] text-gray-400 font-bold">{edificio.calle} {edificio.numero_puerta}</p>
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
-                                            {edificio.establecimientos.map((est, i) => (
-                                                <div key={i} className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                                    <p className="text-[11px] font-black text-gray-800 mb-2">{est.nombre}</p>
-                                                    <div className="space-y-1.5">
-                                                        {est.modalidades.map((mod, j) => (
-                                                            <div key={j} className="p-2 bg-white rounded-lg border border-gray-100">
-                                                                <div className="flex gap-1.5 flex-wrap">
-                                                                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-50 text-brand-orange border border-orange-100">
-                                                                        {mod.nivel}
-                                                                    </span>
-                                                                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-50 text-gray-500 border border-gray-100 truncate max-w-[150px]">
-                                                                        {mod.area}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </Popup>
-                            </CircleMarker>
+                            />
                         ))}
                     </MapContainer>
 
                     {/* Map Buttons */}
                     <div className="absolute top-6 right-6 z-[1001] flex flex-col gap-3">
                         <button 
-                            onClick={() => setSelectedEdificio({ latitud: -31.5375, longitud: -68.5364, zoom: 11 })}
+                            onClick={() => {
+                                setSelectedEdificio(null); // Clear selection
+                                setSelectedEdificio({ latitud: -31.5375, longitud: -68.5364, zoom: 11, _isCenter: true });
+                            }}
                             className="w-12 h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center text-gray-500 hover:text-brand-orange transition-all border border-orange-50 group"
                             title="Recentrar Mapa"
                         >

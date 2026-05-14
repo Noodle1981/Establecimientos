@@ -20,8 +20,8 @@ use Inertia\Response;
 
 class ModalidadController extends Controller
 {
-    protected $queryService;
-    protected $exportService;
+    protected ModalidadQueryService $queryService;
+    protected ExcelExportService $exportService;
 
     public function __construct(ModalidadQueryService $queryService, ExcelExportService $exportService)
     {
@@ -83,7 +83,7 @@ class ModalidadController extends Controller
     /**
      * Update legal instruments for a modality.
      */
-    public function instrumentosUpdate(UpdateInstrumentosRequest $request, $id)
+    public function instrumentosUpdate(UpdateInstrumentosRequest $request, int $id)
     {
         $modalidad = Modalidad::findOrFail($id);
         $modalidad->update($request->validated());
@@ -94,7 +94,7 @@ class ModalidadController extends Controller
     /**
      * Update modality and sync buildings/establishments.
      */
-    public function update(UpdateModalidadRequest $request, $id, UpdateModalidadAction $action)
+    public function update(UpdateModalidadRequest $request, int $id, UpdateModalidadAction $action)
     {
         $modalidad = Modalidad::with('establecimiento.edificio')->findOrFail($id);
         
@@ -132,7 +132,7 @@ class ModalidadController extends Controller
     /**
      * API for CUI lookup.
      */
-    public function lookupEdificio($cui)
+    public function lookupEdificio(string $cui)
     {
         $edificio = Edificio::where('cui', $cui)->first();
         if (!$edificio) return response()->json(null);
