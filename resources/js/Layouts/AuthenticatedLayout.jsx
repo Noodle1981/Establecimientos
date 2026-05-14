@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
+import logoMinisterio from '../../images/logoMinisterio.png';
 
 export default function AuthenticatedLayout({ header, children, fullWidth = false, showSidebar = true, padding = true }) {
     const user = usePage().props.auth.user;
@@ -12,16 +13,26 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
 
     // Handle mobile responsiveness for sidebar
     useEffect(() => {
+        let frameId;
         const handleResize = () => {
-            if (window.innerWidth < 1024) {
-                setSidebarOpen(false);
-            } else {
-                setSidebarOpen(true);
-            }
+            // Use requestAnimationFrame to avoid forced reflows during layout cycles
+            cancelAnimationFrame(frameId);
+            frameId = requestAnimationFrame(() => {
+                if (window.innerWidth < 1024) {
+                    setSidebarOpen(false);
+                } else {
+                    setSidebarOpen(true);
+                }
+            });
         };
+
         window.addEventListener('resize', handleResize);
-        handleResize();
-        return () => window.removeEventListener('resize', handleResize);
+        handleResize(); // Initial check
+        
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            cancelAnimationFrame(frameId);
+        };
     }, []);
 
     return (
@@ -191,7 +202,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                                 </button>
                             )}
                             <Link href="/">
-                                <img src="/images/logoMinisterio.png" alt="M.E." className="h-10 w-auto" />
+                                <img src={logoMinisterio} alt="M.E." className="h-10 w-auto" />
                             </Link>
                         </div>
 

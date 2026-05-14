@@ -1,11 +1,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
-import { useState, useEffect, useMemo, useRef } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import debounce from 'lodash/debounce';
+import { useState, useMemo, lazy, Suspense } from 'react';
 import Modal from '@/Components/Modal';
 import { useForm } from '@inertiajs/react';
+
+// Lazy-load the heavy map component (Leaflet + react-leaflet) — split into its own chunk
+const MapView = lazy(() => import('./MapView'));
 
 export default function MapaPublico({ edificios = [] }) {
     const { auth } = usePage().props;
@@ -305,83 +305,24 @@ export default function MapaPublico({ edificios = [] }) {
 
                 {/* Map Area */}
                 <div className="flex-1 relative z-0">
-                    <MapContainer 
-                        center={[-31.5375, -68.5364]} 
-                        zoom={11} 
-                        style={{ height: '100%', width: '100%' }}
-                        zoomControl={false}
-                    >
-                        <TileLayer 
-                            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" 
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                            subdomains='abcd'
+                    {/* Map Loading Skeleton */}
+                    <Suspense fallback={
+                        <div className="w-full h-full flex items-center justify-center bg-orange-50/30">
+                            <div className="flex flex-col items-center gap-4 text-brand-orange">
+                                <div className="w-12 h-12 border-4 border-brand-orange/20 border-t-brand-orange rounded-full animate-spin"></div>
+                                <p className="text-xs font-black uppercase tracking-widest text-gray-400">Cargando Mapa...</p>
+                            </div>
+                        </div>
+                    }>
+                        <MapView
+                            filteredEdificios={filteredEdificios}
+                            selectedEdificio={selectedEdificio}
+                            setSelectedEdificio={setSelectedEdificio}
+                            hoveredEdificioId={hoveredEdificioId}
+                            setHoveredEdificioId={setHoveredEdificioId}
+                            sidebarOpen={sidebarOpen}
                         />
-                        <MapController selected={selectedEdificio} onReset={() => setSelectedEdificio(null)} sidebarOpen={sidebarOpen} />
-                        
-                        {/* Independent Popup for selected building - Opens automatically only if it has data */}
-                        {selectedEdificio && selectedEdificio.establecimientos && (
-                            <Popup 
-                                position={[selectedEdificio.latitud, selectedEdificio.longitud]}
-                                onClose={() => setSelectedEdificio(null)}
-                                className="custom-popup"
-                                maxWidth={300}
-                                minWidth={280}
-                            >
-                                <div className="p-2 text-black">
-                                    <div className="flex items-center gap-2 mb-3 border-b pb-2">
-                                        <div className={`p-2 rounded-lg ${selectedEdificio.ambito === 'PUBLICO' ? 'bg-orange-50 text-brand-orange' : 'bg-blue-50 text-blue-600'}`}>
-                                            <i className="fas fa-school"></i>
-                                        </div>
-                                        <div>
-                                            <h5 className="text-xs font-black text-gray-900 leading-tight uppercase">{selectedEdificio.localidad}</h5>
-                                            <p className="text-[10px] text-gray-400 font-bold">{selectedEdificio.calle} {selectedEdificio.numero_puerta}</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="space-y-3 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
-                                        {selectedEdificio.establecimientos?.map((est, i) => (
-                                            <div key={i} className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                                <p className="text-[11px] font-black text-gray-800 mb-2">{est.nombre}</p>
-                                                <div className="space-y-1.5">
-                                                    {est.modalidades?.map((mod, j) => (
-                                                        <div key={j} className="p-2 bg-white rounded-lg border border-gray-100">
-                                                            <div className="flex gap-1.5 flex-wrap">
-                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-50 text-brand-orange border border-orange-100">
-                                                                    {mod.nivel}
-                                                                </span>
-                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-50 text-gray-500 border border-gray-100 truncate max-w-[150px]">
-                                                                    {mod.area}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </Popup>
-                        )}
-
-                        {filteredEdificios.map(edificio => (
-                            <CircleMarker 
-                                key={edificio.id}
-                                center={[edificio.latitud, edificio.longitud]}
-                                radius={hoveredEdificioId === edificio.id || selectedEdificio?.id === edificio.id ? 14 : 9}
-                                pathOptions={{
-                                    fillColor: edificio.ambito === 'PUBLICO' ? '#FE8204' : '#3B82F6',
-                                    color: 'white',
-                                    weight: hoveredEdificioId === edificio.id || selectedEdificio?.id === edificio.id ? 4 : 2,
-                                    fillOpacity: hoveredEdificioId === edificio.id || selectedEdificio?.id === edificio.id ? 1 : 0.8
-                                }}
-                                eventHandlers={{
-                                    click: () => setSelectedEdificio(edificio),
-                                    mouseover: () => setHoveredEdificioId(edificio.id),
-                                    mouseout: () => setHoveredEdificioId(null),
-                                }}
-                            />
-                        ))}
-                    </MapContainer>
+                    </Suspense>
 
                     {/* Map Buttons */}
                     <div className="absolute top-6 right-6 z-[1001] flex flex-col gap-3">
@@ -525,28 +466,6 @@ export default function MapaPublico({ edificios = [] }) {
             `}</style>
         </AuthenticatedLayout>
     );
-}
-
-function MapController({ selected, onReset, sidebarOpen }) {
-    const map = useMap();
-    
-    // Fix map size when sidebar toggles
-    useEffect(() => {
-        setTimeout(() => {
-            map.invalidateSize({ animate: true });
-        }, 500); // Match sidebar transition duration
-    }, [sidebarOpen, map]);
-
-    useEffect(() => {
-        if (selected) {
-            const zoom = selected.zoom || 16;
-            map.flyTo([selected.latitud, selected.longitud], zoom, { 
-                animate: true, 
-                duration: 2 
-            });
-        }
-    }, [selected, map]);
-    return null;
 }
 
 function FilterBtn({ active, onClick, label, color }) {

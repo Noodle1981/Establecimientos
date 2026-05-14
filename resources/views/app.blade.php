@@ -6,16 +6,28 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
+        <!-- Fonts & CDNs (Non-blocking) -->
+        <!-- Fonts & CDNs (Optimized) -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+        <link rel="preconnect" href="https://a.basemaps.cartocdn.com">
+        <link rel="dns-prefetch" href="https://b.basemaps.cartocdn.com">
+        <link rel="dns-prefetch" href="https://c.basemaps.cartocdn.com">
+        <link rel="dns-prefetch" href="https://d.basemaps.cartocdn.com">
+        
+        <link rel="preload" href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        
+        <noscript>
+            <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
+        </noscript>
 
         <!-- Scripts -->
         @routes
         @viteReactRefresh
         @vite(['resources/js/app.jsx'])
+
+        <!-- Preload Map Tile for LCP -->
+        <link rel="preload" href="https://a.basemaps.cartocdn.com/rastertiles/voyager/11/634/1213@2x.png" as="image" fetchpriority="high">
+
         @inertiaHead
     </head>
     <body class="font-sans antialiased">
