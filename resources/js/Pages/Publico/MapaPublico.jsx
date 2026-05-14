@@ -157,7 +157,10 @@ export default function MapaPublico({ edificios = [] }) {
             showSidebar={false}
             padding={false}
         >
-            <Head title="Mapa de Escuelas" />
+            <Head>
+                <title>Mapa de Escuelas - San Juan</title>
+                <meta name="description" content="Explora el Mapa Escolar de San Juan. Encuentra establecimientos educativos públicos y privados, consulta niveles, modalidades y ubicaciones exactas de todas las escuelas de la provincia." />
+            </Head>
 
             <div className="relative h-[calc(100vh-64px)] w-full overflow-hidden flex bg-white">
                 
@@ -185,8 +188,10 @@ export default function MapaPublico({ edificios = [] }) {
                             {/* Search */}
                             <div className="relative mb-4">
                                 <input 
+                                    id="search-input"
                                     type="text"
                                     placeholder="Buscar CUE, CUI o Nombre..."
+                                    aria-label="Buscar establecimientos por CUE, CUI o Nombre"
                                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border-orange-100 focus:border-brand-orange transition-all text-sm font-medium"
                                     value={searchQuery}
                                     onChange={(e) => handleSearch(e.target.value)}
@@ -246,11 +251,15 @@ export default function MapaPublico({ edificios = [] }) {
 
                             {/* Departamento Section */}
                             <section>
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-2">
+                                <label 
+                                    htmlFor="depto-select"
+                                    className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-2 cursor-pointer"
+                                >
                                     <i className="fas fa-map-marked-alt text-brand-orange"></i> Departamento
-                                </h3>
+                                </label>
                                 <div className="relative">
                                     <select 
+                                        id="depto-select"
                                         value={filterDepto}
                                         onChange={(e) => setFilterDepto(e.target.value)}
                                         className="w-full pl-4 pr-10 py-3 rounded-xl bg-gray-50 border-gray-100 focus:border-brand-orange focus:ring-brand-orange transition-all text-xs font-black uppercase text-gray-700 appearance-none shadow-sm"
@@ -264,11 +273,15 @@ export default function MapaPublico({ edificios = [] }) {
 
                             {/* Nivel Section */}
                             <section>
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-2">
+                                <label 
+                                    htmlFor="nivel-select"
+                                    className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-2 cursor-pointer"
+                                >
                                     <i className="fas fa-graduation-cap text-brand-orange"></i> Nivel Educativo
-                                </h3>
+                                </label>
                                 <div className="relative">
                                     <select 
+                                        id="nivel-select"
                                         value={filterNivel}
                                         onChange={(e) => setFilterNivel(e.target.value)}
                                         className="w-full pl-4 pr-10 py-3 rounded-xl bg-gray-50 border-gray-100 focus:border-brand-orange focus:ring-brand-orange transition-all text-xs font-black uppercase text-gray-700 appearance-none shadow-sm"
@@ -296,6 +309,7 @@ export default function MapaPublico({ edificios = [] }) {
                 {/* Map Toggle Button */}
                 <button 
                     onClick={() => setSidebarOpen(!sidebarOpen)}
+                    aria-label={sidebarOpen ? "Cerrar panel lateral" : "Abrir panel lateral"}
                     className={`absolute top-6 z-[1002] transition-all duration-300 bg-white border shadow-xl rounded-r-xl p-3 flex items-center justify-center text-brand-orange hover:bg-orange-50 ${
                         sidebarOpen ? 'left-80' : 'left-0'
                     }`}
@@ -331,6 +345,7 @@ export default function MapaPublico({ edificios = [] }) {
                                 setSelectedEdificio(null); // Clear selection
                                 setSelectedEdificio({ latitud: -31.5375, longitud: -68.5364, zoom: 11, _isCenter: true });
                             }}
+                            aria-label="Recentrar mapa en San Juan"
                             className="w-12 h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center text-gray-500 hover:text-brand-orange transition-all border border-orange-50 group"
                             title="Recentrar Mapa"
                         >
@@ -371,10 +386,14 @@ export default function MapaPublico({ edificios = [] }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Tipo de Reporte */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase text-gray-400 tracking-wider flex items-center gap-2">
+                                <label 
+                                    htmlFor="tipo-reporte"
+                                    className="text-[10px] font-black uppercase text-gray-400 tracking-wider flex items-center gap-2 cursor-pointer"
+                                >
                                     <i className="fas fa-tag text-red-400"></i> Motivo del Reporte
                                 </label>
                                 <select 
+                                    id="tipo-reporte"
                                     className="w-full p-3 rounded-xl bg-gray-50 border-gray-100 focus:border-red-500 focus:ring-red-500 text-sm font-bold text-gray-700"
                                     value={data.tipo}
                                     onChange={e => setData('tipo', e.target.value)}
@@ -389,10 +408,14 @@ export default function MapaPublico({ edificios = [] }) {
 
                             {/* Email Remitente */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase text-gray-400 tracking-wider flex items-center gap-2">
+                                <label 
+                                    htmlFor="email-reporte"
+                                    className="text-[10px] font-black uppercase text-gray-400 tracking-wider flex items-center gap-2 cursor-pointer"
+                                >
                                     <i className="fas fa-envelope text-red-400"></i> Tu Correo (Opcional)
                                 </label>
                                 <input 
+                                    id="email-reporte"
                                     type="email"
                                     placeholder="ejemplo@correo.com"
                                     className="w-full p-3 rounded-xl bg-gray-50 border-gray-100 focus:border-red-500 focus:ring-red-500 text-sm font-bold"
@@ -404,10 +427,14 @@ export default function MapaPublico({ edificios = [] }) {
 
                         {/* Descripción */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase text-gray-400 tracking-wider flex items-center gap-2">
+                            <label 
+                                htmlFor="desc-reporte"
+                                className="text-[10px] font-black uppercase text-gray-400 tracking-wider flex items-center gap-2 cursor-pointer"
+                            >
                                 <i className="fas fa-comment-alt text-red-400"></i> Descripción detallada
                             </label>
                             <textarea 
+                                id="desc-reporte"
                                 rows="4"
                                 placeholder="Describe el error lo más detallado posible..."
                                 className="w-full p-4 rounded-2xl bg-gray-50 border-gray-100 focus:border-red-500 focus:ring-red-500 text-sm font-bold"
@@ -473,6 +500,7 @@ function FilterBtn({ active, onClick, label, color }) {
     return (
         <button 
             onClick={onClick}
+            aria-pressed={active}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all border ${
                 active ? activeClass : 'bg-gray-50 text-gray-400 border-gray-100 grayscale'
             }`}

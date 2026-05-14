@@ -202,7 +202,13 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                                 </button>
                             )}
                             <Link href="/">
-                                <img src={logoMinisterio} alt="M.E." className="h-10 w-auto" />
+                                <img 
+                                    src={logoMinisterio} 
+                                    alt="M.E." 
+                                    className="h-10 w-auto" 
+                                    width="160" 
+                                    height="40"
+                                />
                             </Link>
                         </div>
 

@@ -25,9 +25,6 @@
         @viteReactRefresh
         @vite(['resources/js/app.jsx'])
 
-        <!-- Preload Map Tile for LCP -->
-        <link rel="preload" href="https://a.basemaps.cartocdn.com/rastertiles/voyager/11/634/1213@2x.png" as="image" fetchpriority="high">
-
         @inertiaHead
     </head>
     <body class="font-sans antialiased">
