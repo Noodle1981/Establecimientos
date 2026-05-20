@@ -1,0 +1,40 @@
+# Reglas de Contexto para Agentes de IA en Establecimientos (M.E. San Juan)
+
+Como asistente de IA o agente inteligente en este repositorio, debes seguir estrictamente las siguientes directrices y comprender el contexto actual del proyecto.
+
+## 📌 Contexto Técnico Crítico
+
+1. **Stack Tecnológico Real:**
+   - **Backend:** Laravel 12.x
+   - **Frontend:** React 18+ con Inertia.js 2.x (usando componentes `.jsx` en `resources/js/Pages/`)
+   - **Base de Datos:** SQLite (desarrollo y auditoría)
+   - **Estilos:** Tailwind CSS 3.x
+
+2. **Arquitectura y Modelado de Datos (Jerarquía de 3 Niveles):**
+   - **Nivel 1: Edificio (Inmueble) -> Modelo `Edificio` (`edificios`):** Identificado por **CUI** único. Almacena dirección física, coordenadas GPS (lat/long) y zona/departamento.
+   - **Nivel 2: Establecimiento -> Modelo `Establecimiento` (`establecimientos`):** Identificado por **CUE** único. Vincula una institución a un edificio.
+   - **Nivel 3: Modalidad -> Modelo `Modalidad` (`modalidades`):** Representa cada nivel educativo/orientación (ej. Adultos, Primario, Secundario, Inicial) dentro de un establecimiento. **Aquí es donde se almacenan el 90% de los datos y atributos legales (ámbito, categoría, radio, etc.) y los estados de validación de la auditoría.**
+
+3. **Sistema de Validación y Auditoría (Fase 4):**
+   - Los datos importados desde el Excel original pasan por un flujo de estados en la tabla `modalidades`:
+     - `PENDIENTE`: Estado inicial post-importación.
+     - `CORRECTO` / `CORREGIDO`: Cuando los datos han sido validados por un administrativo.
+     - `BAJA` / `ELIMINADO`: Para dar de baja temporal o definitiva.
+   - Cada cambio de estado de validación debe registrarse automáticamente en la tabla `historial_estados_modalidad` a través del método `$modalidad->cambiarEstado()`.
+
+## 🎨 Sistema de Diseño Estricto
+
+Sigue estrictamente las directrices del Ministerio de Educación de San Juan especificadas en `.agent/workflows/design-system.md`:
+- **Primario (Naranja):** `#FE8204` (`text-brand-orange`, `bg-brand-orange`)
+- **Secundario (Rojo):** `#E43C2F` (`text-brand-red`, `bg-brand-red`)
+- **Acento (Amarillo):** `#FADC3C` (`text-brand-yellow`, `bg-brand-yellow`)
+- **Fondo:** Siempre blanco puro (`#FFFFFF`, `bg-white`)
+- **Texto:** Siempre negro puro (`#000000`, `text-black`) para máxima accesibilidad y contraste. No uses escalas de grises intermedias para texto primario.
+
+## 📂 Archivos de Referencia Obligatoria
+
+Antes de proponer o escribir cualquier código, lee y comprende los siguientes archivos:
+- **Contexto del Proyecto:** [.agent/workflows/context.md](file:///b:/Establecimientos/.agent/workflows/context.md) (Esquemas de BD reales, lógica de negocio y arquitectura)
+- **Sistema de Diseño:** [.agent/workflows/design-system.md](file:///b:/Establecimientos/.agent/workflows/design-system.md) (Colores y convenciones visuales)
+- **Especificación de Datos:** [doc/Lógica del Diseño/especificacion-datos-excel.md](file:///b:/Establecimientos/doc/L%C3%B3gica%20del%20Dise%C3%B1o/especificacion-datos-excel.md) (Procesamiento de columnas del Excel)
+- **Roadmap y Calidad:** [doc/Roadmap/auditoria_calidad_2026.md](file:///b:/Establecimientos/doc/Roadmap/auditoria_calidad_2026.md) (Objetivos de calidad y performance)

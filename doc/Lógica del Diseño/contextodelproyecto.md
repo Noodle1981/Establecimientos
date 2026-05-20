@@ -1,17 +1,26 @@
-Este proyecto 3 objetivos:
-1. Auditoria de datos
-2. Control de datos cargados en una plataforma web de una empresa privada, que se llama EDUGE, la idea es ver si los datos coinciden con los datos de la base de datos, es decir si hay 1000 escuelas en la base de datos, se debe verificar si hay 1000 escuelas en la plataforma web, a modo de ejemplo
-3. armar una estructura pública que permita que los usuarios puedan ver todos los datos, por medios de un mapa, para que los pueda usar distintas areas, oficinas, etc. del ministerio de Educación de la Provincia de San Juan.
-4. Será tanto para privada y publicas (pero llamaremos estatales a las publicas para no entrar en confusion con rutas publicas)
-5. Debera tener roles de usuario, admin, administrativos, y usuarios publicos
-6. Debera tener un sistema de login y registro
-7. Debera tener un sistema de permisos, preferiblementes rutas como /admin, /administrativos, /publicos
-8. El archivos es un excel que despues se lo pondremos
-9. usar el sidebar top
-10. usar componentes livewire
-11. usar tailwind 
-12. usar sqlite 
-13. actualizar readme.mp para poner en contecto a la ia en .agent
-14. diseñar roadmap 
-15. hacer auditoria de mejoras, testing, seguridad, etc.
-16. aplicar testin
+# Contexto Original del Proyecto
+
+> [!WARNING]
+> **Actualización Crítica de Arquitectura (2026):**
+> Aunque este documento original contemplaba la utilización de *Livewire* (punto 10), el proyecto fue migrado y completado exitosamente utilizando **React 18 + Inertia.js 2.x**. Cualquier desarrollo actual debe realizarse utilizando componentes React (.jsx) en `resources/js/Pages/` y no con Livewire/Blade.
+
+Este proyecto tiene 3 objetivos principales:
+
+1. **Auditoría de Datos:** Validación y limpieza profunda de la base de datos de establecimientos educativos del Ministerio de Educación de la Provincia de San Juan.
+2. **Control EDUGE:** Cruzar y auditar los datos cargados en la plataforma web externa de la empresa privada (EDÚGE) para verificar que coincidan plenamente con los datos locales del sistema (ej. si hay 1160 escuelas en el sistema, debe haber el mismo número en EDÚGE).
+3. **Estructura Pública (Mapa):** Diseñar un visor de mapas interactivo georreferenciado público que permita a los ciudadanos y distintas áreas u oficinas ministeriales consultar y filtrar las ubicaciones escolares y datos básicos.
+
+## Reglas y Directrices Generales:
+
+4. **Ámbitos:** Cubrirá escuelas tanto de gestión Estatal (públicas) como Privada. Se usará el término "Estatales" para evitar confusiones con rutas o accesos públicos de la aplicación.
+5. **Roles de Usuario:** Contemplar roles para `admin`, `administrativos` (gestores) y usuarios públicos sin login.
+6. **Autenticación:** Sistema seguro de inicio de sesión y registro de usuarios.
+7. **Sistema de Permisos:** Estructurar rutas seguras bajo prefijos según rol (`/admin` y `/administrativos`), redirigiendo a los usuarios según corresponda.
+8. **Origen de Datos:** La base de datos se alimentará inicialmente de la importación guiada de una planilla Excel (`Establecimientos_Publicos.xlsx`).
+9. **Diseño:** Usar el sidebar top/lateral como layout de navegación.
+10. **Frontend:** Usar componentes **React 18 + Inertia.js 2.x** (Actualizado).
+11. **Estilos:** Aplicar **Tailwind CSS 3.x** bajo las directrices estrictas de marca del Ministerio.
+12. **Base de Datos:** Usar **SQLite** estructurado relacionalmente.
+13. **Contexto:** Mantener actualizados los archivos de contexto en `.agent/` para guiar correctamente al asistente inteligente de IA.
+14. **Roadmap:** Diseñar y seguir el cronograma de fases de desarrollo.
+15. **Auditoría y Testing:** Realizar auditorías de seguridad, velocidad y aplicar suite de testing automatizada.

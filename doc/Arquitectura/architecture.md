@@ -1,285 +1,207 @@
-# Arquitectura del Laravel Boilerplate Starter Kit
+# Arquitectura de la Aplicación (Laravel 12 + React + Inertia.js)
 
-Este documento describe la arquitectura y estructura del boilerplate.
-
-## Stack Tecnológico
-
-### Backend
-- **Laravel 12.x** - Framework PHP
-- **PHP 8.2+** - Lenguaje de programación
-- **MySQL/PostgreSQL/SQLite** - Base de datos
-
-### Frontend
-- **Livewire 3** - Framework reactivo para Laravel
-- **Alpine.js** - Framework JS minimalista (incluido con Livewire)
-- **Tailwind CSS 3** - Framework CSS utility-first
-
-### Testing
-- **PHPUnit** - Framework de testing para PHP
-- **Laravel Testing Utilities** - Helpers para testing
-
-### Autenticación
-- **Laravel Breeze** - Starter kit de autenticación con Livewire
-
-## Estructura del Proyecto
-
-```
-base_laravel/
-├── app/
-│   ├── Http/
-│   │   ├── Middleware/
-│   │   │   └── CheckRole.php              # Middleware de roles
-│   │   └── Controllers/
-│   ├── Livewire/
-│   │   ├── Admin/
-│   │   │   └── AdminDashboard.php         # Componente dashboard admin
-│   │   ├── Mid/
-│   │   │   └── MidDashboard.php           # Componente dashboard mid
-│   │   └── User/
-│   │       └── UserDashboard.php          # Componente dashboard user
-│   └── Models/
-│       └── User.php                        # Modelo con roles y helpers
-│
-├── bootstrap/
-│   └── app.php                             # Registro de middleware
-│
-├── database/
-│   ├── factories/
-│   │   └── UserFactory.php                 # Factory con soporte de roles
-│   ├── migrations/
-│   │   └── *_add_role_to_users_table.php   # Migración de roles
-│   └── seeders/
-│       ├── DatabaseSeeder.php              # Seeder principal
-│       └── RoleUsersSeeder.php             # Seeder de usuarios de prueba
-│
-├── resources/
-│   ├── css/
-│   │   └── app.css                         # Estilos Tailwind
-│   ├── js/
-│   │   └── app.js                          # JavaScript y Livewire
-│   └── views/
-│       ├── components/
-│       │   └── layouts/
-│       │       └── app.blade.php           # Layout base
-│       ├── layouts/
-│       │   ├── app.blade.php               # Layout de aplicación
-│       │   └── guest.blade.php             # Layout para invitados
-│       ├── livewire/
-│       │   ├── admin/
-│       │   │   └── admin-dashboard.blade.php
-│       │   ├── mid/
-│       │   │   └── mid-dashboard.blade.php
-│       │   └── user/
-│       │       └── user-dashboard.blade.php
-│       └── welcome.blade.php               # Página de inicio
-│
-├── routes/
-│   └── web.php                             # Rutas con middleware de roles
-│
-├── tests/
-│   └── Feature/
-│       └── RoleAuthorizationTest.php       # Tests de autorización
-│
-├── .agent/
-│   └── workflows/
-│       └── context.md                      # Contexto para IA
-│
-└── doc/
-    ├── architecture.md                     # Este documento
-    ├── setup.md                            # Guía de instalación
-    ├── roles-system.md                     # Sistema de roles
-    └── testing-guide.md                    # Guía de testing
-```
-
-## Sistema de Roles
-
-### Diseño
-
-El sistema de roles está implementado de forma simple pero efectiva:
-
-- **Campo `role`** en la tabla `users` con tipo ENUM
-- **Valores posibles:** 'admin', 'mid', 'user'
-- **Default:** 'user'
-
-### Jerarquía de Acceso
-
-```
-admin    →  /admin, /mid, /dashboard
-  ↓
-mid      →  /mid, /dashboard
-  ↓
-user     →  /dashboard
-```
-
-### Componentes del Sistema
-
-#### 1. Migración (`add_role_to_users_table`)
-
-```php
-Schema::table('users', function (Blueprint $table) {
-    $table->enum('role', ['admin', 'mid', 'user'])
-          ->default('user')
-          ->after('email');
-});
-```
-
-#### 2. Modelo User (Helpers)
-
-```php
-public function isAdmin(): bool
-public function isMid(): bool
-public function isUser(): bool
-public function hasRole(string|array $roles): bool
-```
-
-#### 3. Middleware CheckRole
-
-Ubicación: `app/Http/Middleware/CheckRole.php`
-
-- Verifica autenticación
-- Comprueba que el usuario tenga uno de los roles requeridos
-- Regresa 403 si no tiene permiso
-- Redirige a login si no está autenticado
-
-#### 4. Registro del Middleware
-
-En `bootstrap/app.php`:
-
-```php
-$middleware->alias([
-    'role' => \App\Http\Middleware\CheckRole::class,
-]);
-```
-
-## Rutas y Protección
-
-### Rutas Públicas
-
-```php
-Route::view('/', 'welcome')->name('home');
-```
-
-### Rutas Autenticadas
-
-```php
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', UserDashboard::class)->name('dashboard');
-    // ...
-});
-```
-
-### Rutas con Roles
-
-```php
-// Solo mid y admin
-Route::middleware(['role:mid,admin'])->group(function () {
-    Route::get('/mid', MidDashboard::class)->name('mid.dashboard');
-});
-
-// Solo admin
-Route::middleware(['role:admin'])->group(function () {
-    Route::get('/admin', AdminDashboard::class)->name('admin.dashboard');
-});
-```
-
-## Componentes Livewire
-
-### Estructura de un Componente
-
-Cada componente Livewire consta de dos partes:
-
-1. **Clase PHP** (`app/Livewire/.../*.php`)
-   - Lógica del componente
-   - Propiedades reactivas
-   - Métodos de acción
-
-2. **Vista Blade** (`resources/views/livewire/.../*.blade.php`)
-   - Template HTML con Tailwind
-   - Directivas Livewire
-   - Directivas Alpine.js
-
-### Dashboards Implementados
-
-- **AdminDashboard**: Estadísticas de usuarios, acciones administrativas
-- **MidDashboard**: Proyectos, tareas, actividad reciente
-- **UserDashboard**: Perfil personal, actividad, accesos rápidos
-
-## Flujo de Autenticación
-
-```
-1. Usuario visita /login
-2. Laravel Breeze muestra formulario (Livewire)
-3. Usuario envía credenciales
-4. Breeze valida y autentica
-5. Middleware 'auth' permite el acceso
-6. Middleware 'role' verifica permisos
-7. Usuario accede al dashboard correspondiente
-```
-
-## Flujo de Autorización
-
-```
-Request → auth middleware → verified middleware → role middleware → Controller/Livewire
-           ↓                 ↓                      ↓
-       ¿Autenticado?    ¿Email verificado?    ¿Rol correcto?
-           ↓                 ↓                      ↓
-        Login           Verify Email           403 Forbidden
-```
-
-## Testing
-
-### Estrategia de Testing
-
-1. **Tests de Autorización**: Verifican que el middleware bloquea accesos no autorizados
-2. **Tests de Roles**: Verifican que cada rol acceda solo a sus rutas permitidas
-3. **Tests de Helpers**: Verifican los métodos helper del modelo User
-
-### Cobertura
-
-- ✅ Redirección de usuarios no autenticados
-- ✅ Acceso correcto según rol
-- ✅ Bloqueo de acceso no autorizado
-- ✅ Métodos helper del modelo
-
-## Configuración de Tailwind
-
-### Archivos Relevantes
-
-- `tailwind.config.js`: Configuración de Tailwind
-- `resources/css/app.css`: Importaciones de Tailwind
-- `vite.config.js`: Configuración de Vite para compilar
-
-### Dark Mode
-
-El boilerplate incluye soporte completo para dark mode usando la clase `dark:` de Tailwind.
-
-## Próximas Extensiones Recomendadas
-
-### Gestión de Usuarios (Admin Panel)
-
-- Crear, editar, eliminar usuarios
-- Cambiar roles
-- Suspender cuentas
-
-### Permisos Granulares
-
-Si necesitas control más fino, considera migrar a:
-- Spatie Laravel Permission
-- Laravel Bouncer
-
-### API con Sanctum
-
-Para crear una API:
-- Instalar Laravel Sanctum
-- Crear tokens de API
-- Proteger rutas de API con roles
-
-### Logs y Auditoría
-
-- Laravel Activity Log (spatie/laravel-activitylog)
-- Registrar acciones importantes
-- Dashboard de logs para admin
+Este documento detalla la arquitectura, estructura de archivos y flujos de datos del proyecto **Establecimientos**.
 
 ---
 
-**Nota:** Esta arquitectura está diseñada para ser **simple y extensible**. Puedes agregar funcionalidades sin romper la estructura base.
+## 🛠️ Stack Tecnológico Real
+
+La plataforma prescinde de complejas APIs públicas o de microservicios, optando por una arquitectura monolítica híbrida de alto rendimiento:
+
+### Backend
+*   **Laravel 12.x:** Framework PHP de última generación.
+*   **PHP 8.2+:** Entorno de ejecución optimizado.
+*   **SQLite:** Base de datos compacta y veloz con indexación de filtros.
+
+### Frontend
+*   **React 18+:** Biblioteca declarativa para la construcción de interfaces de usuario interactivas.
+*   **Inertia.js 2.x:** El "pegamento" que conecta Laravel y React. Permite crear una Single Page Application (SPA) usando rutas tradicionales de Laravel y controladores que retornan vistas de React directamente.
+*   **Tailwind CSS 3.x:** Framework de estilos utilitarios con colores institucionales predefinidos.
+
+### Reportes y Testing
+*   **Barryvdh/Laravel-DomPDF:** Motor para la compilación y exportación de informes PDF.
+*   **PHPUnit / Pest PHP:** Frameworks de testing integrados para validar flujos críticos.
+
+---
+
+## 📂 Estructura del Proyecto Real
+
+La estructura de directorios sigue estrictamente los estándares de Laravel con un frontend moderno en React:
+
+```
+Establecimientos/
+├── app/
+│   ├── Console/
+│   │   └── Commands/
+│   │       ├── ImportEstablecimientos.php  # Comando Artisan para importación
+│   │       └── ImportZonas.php              # Comando para sincronización de zonas
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Admin/                       # Controladores de Consola Admin (React/Inertia)
+│   │   │   │   └── AdminController.php
+│   │   │   ├── Administrativos/             # Controladores ABM y Validación (React/Inertia)
+│   │   │   │   ├── AuditoriaController.php
+│   │   │   │   ├── DashboardController.php
+│   │   │   │   ├── EdificioController.php
+│   │   │   │   └── ModalidadController.php
+│   │   │   ├── Publico/                     # Controladores Públicos y de Mapa
+│   │   │   │   ├── MapaController.php
+│   │   │   │   └── ReporteController.php
+│   │   │   └── Api/                         # Endpoints throttleados de mapa
+│   │   │       └── EdificiosMapaController.php
+│   │   ├── Middleware/
+│   │   │   ├── CheckRole.php                # Middleware de autorización granular
+│   │   │   └── HandleInertiaRequests.php    # Middleware de hidratación de estados Inertia
+│   │   └── Requests/                        # Validación de formularios
+│   ├── Models/
+│   │   ├── Edificio.php                     # Inmueble (CUI único)
+│   │   ├── Establecimiento.php              # Escuela (CUE único)
+│   │   ├── Modalidad.php                    # Oferta educativa y validación (Fila de Excel)
+│   │   ├── HistorialEstadoModalidad.php     # Logs detallados de cambio de estado
+│   │   ├── AuditoriaEduge.php               # Logs de conciliación con EDÚGE
+│   │   ├── Reporte.php                      # Reportes de inconsistencias ciudadanas
+│   │   └── User.php                         # Usuarios de plataforma con roles
+│   ├── Observers/                           # Observadores de Modelos (e.g. Auditoría)
+│   └── Services/                            # Capa de Lógica de Negocio
+│       ├── ExcelImportService.php           # Importación y normalización
+│       └── AuditoriaQueryService.php        # Queries complejas para auditoría
+│
+├── bootstrap/
+│   └── app.php                              # Registro de middlewares y excepciones
+│
+├── config/                                  # Archivos de configuración de Laravel
+│
+├── database/
+│   ├── migrations/                          # Definición de tablas relacionales e índices
+│   └── seeders/                             # Inicialización de usuarios de prueba
+│
+├── resources/
+│   ├── css/
+│   │   └── app.css                          # Directivas y clases personalizadas de Tailwind
+│   ├── js/
+│   │   ├── app.jsx                          # Punto de entrada de React e Inertia
+│   │   ├── Components/                      # Componentes comunes (Botones, Modales, Badges)
+│   │   ├── Layouts/                         # Contenedores (AuthenticatedLayout.jsx)
+│   │   └── Pages/                           # Páginas React correspondientes a vistas
+│   │       ├── Admin/                       # Vistas de Administrador (React)
+│   │       ├── Administrativos/             # Vistas ABM y Validación (React)
+│   │       ├── Auth/                        # Formularios de Login, Reset y Registro
+│   │       └── Publico/                     # Mapa Público y Geolocalización
+│   └── views/
+│       ├── app.blade.php                    # Layout HTML base para montar la SPA de Inertia
+│       └── pdf/                             # Plantillas Blade para renderizar PDF
+│
+├── routes/
+│   ├── web.php                              # Rutas web unificadas con roles
+│   └── auth.php                             # Rutas de autenticación Breeze
+│
+├── tailwind.config.js                       # Configuración de colores de marca y fuentes
+└── vite.config.js                           # Compilador de bundles de React
+```
+
+---
+
+## 👥 Sistema de Roles y Seguridad
+
+### Roles Soportados:
+1.  **`admin`:** Control total, alta de usuarios, purga de papelera y monitoreo general.
+2.  **`administrativo`:** Carga de datos, corrección de inmuebles, conciliación EDUGE e informes.
+3.  **`user`:** Rol estándar por defecto, de acceso limitado (o redirigido según caso).
+
+### Jerarquía y Protección:
+La protección de rutas se define mediante middleware de roles combinando el control de autenticación:
+
+```php
+// En routes/web.php:
+
+// Común para Admin y Administrativos
+Route::middleware(['auth', 'role:admin,administrativos'])->prefix('administrativos')->group(function () {
+    Route::get('/Panel', [DashboardController::class, 'index'])->name('administrativos.dashboard');
+    Route::get('/establecimientos', [ModalidadController::class, 'index'])->name('administrativos.establecimientos.index');
+});
+
+// Exclusivo para Administradores
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/users', [AdminController::class, 'users'])->name('admin.users.index');
+});
+```
+
+---
+
+## 🔄 Flujo de Renderizado e Hidratación de Datos (Inertia.js)
+
+Inertia.js elimina la necesidad de crear APIs REST complejas (con JSON y Axios en cada vista). El flujo funciona de la siguiente manera:
+
+```
+[Usuario hace clic en Ruta] 
+          ↓
+[Ruta en web.php captura petición]
+          ↓
+[Controller carga datos relacionales con Eloquent]
+          ↓
+[Controller retorna Inertia::render('Folder/Component', [datos])]
+          ↓
+[Inertia intercepta y actualiza el DOM hidratando el componente React]
+```
+
+### Ejemplo de Controlador React/Inertia:
+```php
+public function index(Request $request): Response
+{
+    $modalidades = $this->queryService->getFilteredQuery($request)
+        ->paginate(10);
+
+    // Retorna directamente el componente React en resources/js/Pages/Administrativos/Auditoria/Index.jsx
+    return Inertia::render('Administrativos/Auditoria/Index', [
+        'modalidades' => $modalidades,
+        'filters' => $request->all(),
+    ]);
+}
+```
+
+---
+
+## 📐 Estructura del Modelo de Relaciones (3 Niveles)
+
+Las tablas relacionales SQLite están mapeadas a través de modelos Eloquent con relaciones óptimas (`with` para evitar consultas N+1):
+
+```mermaid
+classDiagram
+    class Edificio {
+        cui: bigint
+        calle: string
+        latitud: decimal
+        longitud: decimal
+    }
+    class Establecimiento {
+        cue: bigint
+        nombre: string
+    }
+    class Modalidad {
+        direccion_area: string
+        nivel_educativo: string
+        estado_validacion: enum
+    }
+    class HistorialEstadoModalidad {
+        estado_anterior: string
+        estado_nuevo: string
+        observaciones: text
+    }
+
+    Edificio "1" --> "*" Establecimiento : contiene
+    Establecimiento "1" --> "*" Modalidad : ofrece
+    Modalidad "1" --> "*" HistorialEstadoModalidad : registra_cambios
+```
+
+### Relaciones en Código Eloquent:
+*   **Edificio:** `hasMany(Establecimiento::class)`
+*   **Establecimiento:** `belongsTo(Edificio::class)`, `hasMany(Modalidad::class)`
+*   **Modalidad:** `belongsTo(Establecimiento::class)`, `hasOneThrough(Edificio::class, Establecimiento::class)`, `hasMany(HistorialEstadoModalidad::class)`
+
+---
+
+## 🔒 Consideraciones de Seguridad y Auditoría
+
+1.  **Bitácora:** Toda acción de cambio de estado de validación en una modalidad (`estado_validacion` cambia de `PENDIENTE` a `CORRECTO`/`CORREGIDO`) se escribe automáticamente en `historial_estados_modalidad` capturando el `user_id` del validador y las `observaciones`.
+2.  **CSRF & SQL Injection:** Totalmente protegidos por la seguridad nativa del motor de routing y ORM Eloquent de Laravel 12.
+3.  **Sanitización de Coordenadas:** Las lat/long importadas del Excel se normalizan en la capa de servicios garantizando que cumplan el formato de punto flotante compatible con los visores del mapa Leaflet.
