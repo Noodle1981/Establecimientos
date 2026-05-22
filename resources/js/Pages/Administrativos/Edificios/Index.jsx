@@ -510,10 +510,32 @@ function EditEdificioModal({ show, onClose, edificio }) {
                             value={data.cue_cabecera}
                             onChange={(e) => setData('cue_cabecera', e.target.value)}
                         />
-                        <div className="mt-2 p-2 bg-gray-50 rounded-lg border border-dashed border-gray-200">
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 leading-none">Nombre Detectado:</p>
-                            <p className="text-xs font-black text-gray-800 uppercase leading-tight">
-                                {edificio.establecimientos?.find(e => String(e.cue) === String(data.cue_cabecera))?.nombre || 'No se encontró en este edificio'}
+                        <div className="mt-2 p-2.5 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 leading-none">Nombre Detectado:</p>
+                            <p className="text-xs font-black uppercase leading-normal">
+                                {(() => {
+                                    const est = edificio.establecimientos?.find(e => String(e.cue) === String(data.cue_cabecera));
+                                    if (est) {
+                                        return (
+                                            <span className="text-green-600 font-extrabold flex items-center gap-1.5">
+                                                <i className="fas fa-check-circle"></i> {est.nombre}
+                                            </span>
+                                        );
+                                    }
+                                    if (!data.cue_cabecera) {
+                                        return <span className="text-gray-400 normal-case font-medium">Ingrese un CUE de cabecera</span>;
+                                    }
+                                    return (
+                                        <span className="text-red-600 font-bold flex flex-col gap-1">
+                                            <span className="flex items-center gap-1 text-[11px] leading-tight">
+                                                <i className="fas fa-exclamation-triangle"></i> CUE no vinculado a este edificio (CUI {edificio.cui})
+                                            </span>
+                                            <span className="text-[9px] text-red-500/80 font-medium normal-case leading-tight">
+                                                * Para solucionarlo administrativamente, reasigne el establecimiento a este edificio en la base de datos.
+                                            </span>
+                                        </span>
+                                    );
+                                })()}
                             </p>
                         </div>
                         <p className="text-[9px] text-gray-400 mt-1 uppercase font-bold italic">

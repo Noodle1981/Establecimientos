@@ -22,7 +22,8 @@ class EdificioQueryService
                   ->orWhere('zona_departamento', 'like', '%' . $search . '%')
                   ->orWhereHas('establecimientos', function ($qEst) use ($search) {
                       $qEst->where('establecimiento_cabecera', 'like', '%' . $search . '%')
-                           ->orWhere('nombre', 'like', '%' . $search . '%');
+                           ->orWhere('nombre', 'like', '%' . $search . '%')
+                           ->orWhere('cue', 'like', '%' . $search . '%');
                   });
             });
         }
