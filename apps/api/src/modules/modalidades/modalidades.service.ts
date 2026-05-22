@@ -299,6 +299,164 @@ export class ModalidadesService {
     });
   }
 
+  async update(id: number, dto: any) {
+    const {
+      nombre_establecimiento,
+      cue,
+      cui,
+      establecimiento_cabecera,
+      nivel_educativo,
+      direccion_area,
+      sector,
+      radio,
+      zona,
+      observaciones,
+      categoria,
+      ambito,
+      zona_departamento,
+      localidad,
+      calle,
+      numero_puerta,
+      validado,
+      latitud,
+      longitud,
+    } = dto;
+
+    if (cue && !/^\d{9}$|^PROV.*$/.test(cue)) {
+      throw new BadRequestException('El CUE debe tener 9 dígitos o iniciar con "PROV"');
+    }
+    if (cui && !/^\d{7}$|^PROV.*$/.test(cui)) {
+      throw new BadRequestException('El CUI debe tener 7 dígitos o iniciar con "PROV"');
+    }
+
+    const parsedCue = cue ? BigInt(cue) : undefined;
+
+    return this.prisma.$transaction(async (tx: any) => {
+      // Find current modality
+      const modality = await tx.modalidad.findFirst({
+        where: { id: BigInt(id) },
+        include: { establecimiento: { include: { edificio: true } } }
+      });
+
+      if (!modality) {
+        throw new NotFoundException(`Modalidad with ID ${id} not found.`);
+      }
+
+      // 1. Update Edificio
+      const edificioUpdate: any = {};
+      if (calle) edificioUpdate.calle = calle.toUpperCase();
+      if (numero_puerta !== undefined) edificioUpdate.numeroPuerta = numero_puerta || 'S/N';
+      if (localidad) edificioUpdate.localidad = localidad.toUpperCase();
+      if (zona_departamento) edificioUpdate.zonaDepartamento = zona_departamento.toUpperCase();
+      if (latitud !== undefined) edificioUpdate.latitud = latitud ? new Prisma.Decimal(latitud) : 0;
+      if (longitud !== undefined) edificioUpdate.longitud = longitud ? new Prisma.Decimal(longitud) : 0;
+      if (cui) edificioUpdate.cui = cui;
+
+      await tx.edificio.update({
+        where: { id: modality.establecimiento.edificio.id },
+        data: edificioUpdate,
+      });
+
+      // 2. Update Establecimiento
+      const establecimientoUpdate: any = {};
+      if (nombre_establecimiento) establecimientoUpdate.nombre = nombre_establecimiento.toUpperCase();
+      if (parsedCue) establecimientoUpdate.cue = parsedCue;
+      if (establecimiento_cabecera !== undefined) {
+        establecimientoUpdate.establecimientoCabecera = establecimiento_cabecera ? establecimiento_cabecera.toUpperCase() : null;
+      }
+
+      await tx.establecimiento.update({
+        where: { id: modality.establecimiento.id },
+        data: establecimientoUpdate,
+      });
+
+      // 3. Update Modalidad
+      const modalityUpdate: any = {};
+      if (direccion_area) modalityUpdate.direccionArea = direccion_area;
+      if (nivel_educativo) modalityUpdate.nivelEducativo = nivel_educativo;
+      if (sector !== undefined) modalityUpdate.sector = sector ? parseInt(sector, 10) : 1;
+      if (radio !== undefined) modalityUpdate.radio = radio ? new Prisma.Decimal(radio) : null;
+      if (zona !== undefined) modalityUpdate.zona = zona ? zona.toUpperCase() : null;
+      if (categoria !== undefined) modalityUpdate.categoria = categoria ? categoria.toUpperCase() : null;
+      if (ambito) modalityUpdate.ambito = (ambito || 'PUBLICO') as any;
+      if (validado !== undefined) {
+        modalityUpdate.validado = !!validado;
+        modalityUpdate.estadoValidacion = validado ? 'CORRECTO' : 'PENDIENTE';
+      }
+      if (observaciones !== undefined) modalityUpdate.observaciones = observaciones || null;
+
+      // Log to Historial if status or validation changes
+      const statusChanged = validado !== undefined && !!validado !== modality.validado;
+      if (statusChanged) {
+        await tx.historialEstadoModalidad.create({
+          data: {
+            modalidadId: modality.id,
+            estadoAnterior: modality.estadoValidacion,
+            estadoNuevo: validado ? 'CORRECTO' : 'PENDIENTE',
+            observaciones: observaciones || 'Estado de validación actualizado',
+            userId: 1, // Fallback to system admin user
+          }
+        });
+      }
+
+      return tx.modalidad.update({
+        where: { id: modality.id },
+        data: modalityUpdate,
+      });
+    });
+  }
+
+  async getDashboardStats() {
+    const totalEdificios = await this.prisma.edificio.count({
+      where: { deleted_at: null },
+    });
+
+    const totalEstablecimientos = await this.prisma.establecimiento.count();
+
+    const totalModalidades = await this.prisma.modalidad.count({
+      where: { deletedAt: null },
+    });
+
+    const validados = await this.prisma.modalidad.count({
+      where: { deletedAt: null, validado: true },
+    });
+
+    const pendientes = await this.prisma.modalidad.count({
+      where: { deletedAt: null, validado: false },
+    });
+
+    const recent = await this.prisma.historialEstadoModalidad.findMany({
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        modalidad: {
+          include: {
+            establecimiento: true,
+          },
+        },
+        user: true,
+      },
+    });
+
+    const recentLogs = recent.map((item: any) => ({
+      id: Number(item.id),
+      user: item.user?.name || 'Sistema',
+      action: `Auditación: ${item.estadoNuevo}`,
+      details: `${item.modalidad?.establecimiento?.nombre || 'Establecimiento'} (CUE ${item.modalidad?.establecimiento?.cue || 'N/A'}) - ${item.observaciones || 'Cotejo registrado'}`,
+      time: new Date(item.createdAt).toLocaleDateString() + ' ' + new Date(item.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+      ip: '192.168.1.1'
+    }));
+
+    return {
+      totalEdificios,
+      totalEstablecimientos,
+      totalModalidades,
+      validados,
+      pendientes,
+      recentLogs,
+    };
+  }
+
   async exportExcel(res: any, queryParams: any) {
     const { data } = await this.findAll({ ...queryParams, take: 50000 }); // Large limit for export
 

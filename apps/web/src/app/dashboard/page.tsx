@@ -17,60 +17,69 @@ import {
   LogOut,
   MapPin,
   ClipboardCheck,
-  LayoutDashboard
+  LayoutDashboard,
+  Loader2
 } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const [selectedPeriod, setSelectedPeriod] = useState('Semana');
+  const [stats, setStats] = useState<any>({
+    totalEdificios: 0,
+    totalEstablecimientos: 0,
+    totalModalidades: 0,
+    validados: 0,
+    pendientes: 0
+  });
+  const [recentLogs, setRecentLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/modalidades/dashboard/stats');
+        if (!response.ok) throw new Error('Error al cargar analíticas reales');
+        const data = await response.json();
+        setStats({
+          totalEdificios: data.totalEdificios,
+          totalEstablecimientos: data.totalEstablecimientos,
+          totalModalidades: data.totalModalidades,
+          validados: data.validados,
+          pendientes: data.pendientes
+        });
+        setRecentLogs(data.recentLogs || []);
+      } catch (err) {
+        console.error('Error fetching dashboard stats:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, []);
 
   const handleLogout = () => {
     logout();
     router.push('/auth/login');
   };
 
-  // Mock analytics statistics matching Supabase records
-  const stats = {
-    totalEdificios: 1240,
-    totalEstablecimientos: 1845,
-    totalModalidades: 2650,
-    validados: 1890,
-    pendientes: 760,
-  };
-
-  // Mock activity logs matching Prisma ActivityLog and HistorialEstadoModalidad schema
-  const recentLogs = [
-    {
-      id: 1,
-      user: "Administrador Sistema",
-      action: "Validó Edificio",
-      details: "CUI 7001234 - Validado como CORRECTO",
-      time: "Hace 5 minutos",
-      ip: "192.168.1.42"
-    },
-    {
-      id: 2,
-      user: "Auditor de Modalidades",
-      action: "Modificó Categoría",
-      details: "CUE 700098765 - Categoría a '1ra'",
-      time: "Hace 12 minutos",
-      ip: "192.168.1.105"
-    },
-    {
-      id: 3,
-      user: "Auditor de Modalidades",
-      action: "Cambió Estado",
-      details: "CUE 700055555 - Estado a 'REVISAR'",
-      time: "Hace 1 hora",
-      ip: "192.168.1.105"
-    }
-  ];
-
   // Calculate percentages for SVG graphics
-  const totalModalidades = stats.totalModalidades;
+  const totalModalidades = stats.totalModalidades || 1;
   const validationRate = Math.round((stats.validados / totalModalidades) * 100);
   const pendingRate = 100 - validationRate;
+
+  if (loading) {
+    return (
+      <div className="flex h-screen w-screen flex-col items-center justify-center bg-[#07090e] gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest animate-pulse">
+          Obteniendo Auditorías y Métricas en Tiempo Real...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50/50 flex">
@@ -108,6 +117,14 @@ export default function DashboardPage() {
             >
               <ClipboardCheck className="h-4 w-4 text-slate-500" />
               <span>Validaciones</span>
+            </button>
+
+            <button 
+              onClick={() => router.push('/dashboard/modalidades')}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 text-slate-400 hover:text-slate-200 text-xs font-extrabold uppercase tracking-wider transition-all"
+            >
+              <FileCheck2 className="h-4 w-4 text-slate-500" />
+              <span>Establecimientos</span>
             </button>
 
             <button 

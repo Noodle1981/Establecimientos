@@ -18,8 +18,14 @@ import {
   MessageSquare,
   School,
   ArrowLeft,
-  X
+  X,
+  LayoutDashboard,
+  ClipboardCheck,
+  FileCheck2,
+  Map,
+  LogOut
 } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
 
 // Sample mock audited modalities matching introspected Prisma schema
 const MOCK_VALIDACIONES = [
@@ -102,6 +108,13 @@ const ESTADOS_METADATA: Record<string, { label: string; color: string; bg: strin
 
 export default function ValidationPage() {
   const router = useRouter();
+  const { user, logout } = useAuthStore();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/auth/login');
+  };
+
   const [data, setData] = useState(MOCK_VALIDACIONES);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEstadoFilter, setSelectedEstadoFilter] = useState('');
@@ -159,42 +172,118 @@ export default function ValidationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 flex flex-col">
-      {/* Top Banner Branding */}
-      <div className="bg-gradient-to-r from-[#0d1321] to-[#151f38] text-white py-6 px-8 flex items-center justify-between border-b border-orange-500/15 shadow-md">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => router.push('/mapa')}
-            className="p-2 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 transition-colors text-slate-300"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-          <div>
-            <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-primary">
-              <Sparkles className="h-3 w-3" />
-              <span>Portal de Auditorías</span>
+    <div className="min-h-screen bg-slate-50/50 flex">
+      {/* Sidebar Panel */}
+      <aside className="w-64 bg-[#0d1321] text-white flex flex-col justify-between p-6 border-r border-orange-500/15 flex-shrink-0">
+        <div className="space-y-8">
+          {/* Logo and Brand */}
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-primary">
+              <School className="h-6 w-6" />
             </div>
-            <h1 className="text-xl font-black font-outfit uppercase tracking-tight">
-              Control de <span className="text-primary">Validaciones</span>
-            </h1>
+            <div>
+              <h2 className="text-sm font-black font-outfit uppercase tracking-wider leading-none text-white">
+                SUE <span className="text-primary">AUDITORÍA</span>
+              </h2>
+              <span className="text-[8px] text-slate-400 font-extrabold uppercase tracking-widest mt-1 block">San Juan</span>
+            </div>
           </div>
+
+          {/* Navigation Links */}
+          <nav className="space-y-2">
+            <div className="text-[8px] text-slate-500 font-black uppercase tracking-widest px-3 mb-3">Navegación</div>
+            
+            <button 
+              onClick={() => router.push('/dashboard')}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 text-slate-400 hover:text-slate-200 text-xs font-extrabold uppercase tracking-wider transition-all"
+            >
+              <LayoutDashboard className="h-4 w-4 text-slate-500" />
+              <span>Resumen</span>
+            </button>
+
+            <button 
+              onClick={() => router.push('/dashboard/validacion')}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary text-white text-xs font-black uppercase tracking-wider transition-all"
+            >
+              <ClipboardCheck className="h-4 w-4" />
+              <span>Validaciones</span>
+            </button>
+
+            <button 
+              onClick={() => router.push('/dashboard/modalidades')}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 text-slate-400 hover:text-slate-200 text-xs font-extrabold uppercase tracking-wider transition-all"
+            >
+              <FileCheck2 className="h-4 w-4 text-slate-500" />
+              <span>Establecimientos</span>
+            </button>
+
+            <button 
+              onClick={() => router.push('/mapa')}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 text-slate-400 hover:text-slate-200 text-xs font-extrabold uppercase tracking-wider transition-all"
+            >
+              <Map className="h-4 w-4 text-slate-500" />
+              <span>Mapa Público</span>
+            </button>
+          </nav>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <div className="p-3 bg-orange-500/10 border border-orange-500/25 rounded-2xl flex items-center gap-3">
-            <ClipboardList className="h-6 w-6 text-primary animate-pulse" />
-            <div className="text-right">
-              <span className="text-[8px] text-slate-400 font-extrabold uppercase leading-none block">Pendientes de Cotejo</span>
-              <span className="text-lg font-black text-white leading-tight">
-                {data.filter(x => x.estadoValidacion === 'PENDIENTE').length} escuelas
+        {/* User Session Info Card */}
+        <div className="space-y-4 pt-6 border-t border-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700/50 flex items-center justify-center font-bold text-sm text-primary uppercase shadow-inner">
+              {user?.name ? user.name[0] : 'A'}
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-black text-white truncate leading-none uppercase">{user?.name || 'Invitado'}</p>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wide mt-1 block">
+                {user?.role === 'admin' ? 'Administrador' : 'Operador'}
               </span>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Main Grid Content */}
-      <div className="flex-1 p-8 max-w-7xl w-full mx-auto space-y-6">
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-white/5 hover:border-red-500/20 hover:bg-red-500/5 text-slate-400 hover:text-red-400 text-[10px] font-black uppercase tracking-wider transition-all"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            <span>Cerrar Sesión</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
+        {/* Top Header navbar */}
+        <header className="bg-white border-b border-slate-100 py-5 px-8 flex items-center justify-between shadow-sm flex-shrink-0">
+          <div className="flex items-center gap-2.5">
+            <Sparkles className="h-5 w-5 text-primary animate-pulse" />
+            <div>
+              <nav className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-primary leading-none mb-1">
+                <span>Portal de Auditorías</span>
+                <span>•</span>
+                <span>Cotejo de Inconsistencias</span>
+              </nav>
+              <h1 className="text-lg font-black text-slate-800 uppercase tracking-tight font-outfit">
+                Control de <span className="text-primary">Validaciones</span>
+              </h1>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <div className="p-3 bg-orange-50 border border-orange-100 rounded-2xl flex items-center gap-3">
+              <ClipboardList className="h-6 w-6 text-primary animate-pulse" />
+              <div className="text-right">
+                <span className="text-[8px] text-slate-400 font-extrabold uppercase leading-none block">Pendientes de Cotejo</span>
+                <span className="text-sm font-black text-slate-700 leading-tight">
+                  {data.filter(x => x.estadoValidacion === 'PENDIENTE').length} escuelas
+                </span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Scrollable Container */}
+        <div className="p-8 space-y-6 flex-1 overflow-y-auto custom-scrollbar">
         {/* Search & Filter bar */}
         <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="relative w-full md:w-96 flex items-center">
@@ -318,6 +407,8 @@ export default function ValidationPage() {
           </div>
         </div>
       </div>
+
+      </main>
 
       {/* Audit Observation Prompt Modal */}
       {editingItem && (

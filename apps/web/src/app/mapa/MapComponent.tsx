@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import { 
   Search, 
@@ -11,78 +11,14 @@ import {
   Plus, 
   Minus, 
   Bug, 
-  RotateCcw,
   Sparkles,
-  BookOpen
+  User,
+  LogOut,
+  LayoutDashboard,
+  Loader2
 } from 'lucide-react';
-import L from 'leaflet';
-
-// Sample mock geodata structure matching our API model
-// In production, this is loaded from `/api/edificios/mapa`
-const MOCK_EDIFICIOS = [
-  {
-    id: 1,
-    cui: "7001234",
-    latitud: -31.5375,
-    longitud: -68.5364,
-    localidad: "San Juan Capital",
-    calle: "Av. Libertador General San Martín",
-    numeroPuerta: "150 Oeste",
-    zonaDepartamento: "CAPITAL",
-    ambito: "PUBLICO",
-    establecimientos: [
-      {
-        nombre: "COLEGIO NACIONAL MONSEÑOR PABLO CABRERA",
-        cue: "700012345",
-        modalidades: [
-          { nivel: "SECUNDARIO", area: "SECUNDARIA", radio: "1", categoria: "1ra" },
-          { nivel: "ADULTOS", area: "ADULTOS", radio: "1", categoria: "2da" }
-        ]
-      }
-    ]
-  },
-  {
-    id: 2,
-    cui: "7009876",
-    latitud: -31.5420,
-    longitud: -68.5250,
-    localidad: "Santa Lucía",
-    calle: "Calle Sarmiento",
-    numeroPuerta: "450",
-    zonaDepartamento: "SANTA LUCIA",
-    ambito: "PRIVADO",
-    establecimientos: [
-      {
-        nombre: "COLEGIO NUESTRA SEÑORA DE LA CONSOLACIÓN",
-        cue: "700098765",
-        modalidades: [
-          { nivel: "INICIAL", area: "INICIAL", radio: "Urbano", categoria: "Super" },
-          { nivel: "PRIMARIO", area: "PRIMARIA", radio: "Urbano", categoria: "1ra" }
-        ]
-      }
-    ]
-  },
-  {
-    id: 3,
-    cui: "7005555",
-    latitud: -31.5800,
-    longitud: -68.5900,
-    localidad: "Villa Krause",
-    calle: "Mendoza Sur",
-    numeroPuerta: "2200",
-    zonaDepartamento: "RAWSON",
-    ambito: "PUBLICO",
-    establecimientos: [
-      {
-        nombre: "ESCUELA PROVINCIA DE TUCUMÁN",
-        cue: "700055555",
-        modalidades: [
-          { nivel: "PRIMARIO", area: "PRIMARIA", radio: "2", categoria: "1ra" }
-        ]
-      }
-    ]
-  }
-];
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
 
 // Helper component to control zoom level from custom UI buttons
 function MapController({ triggerZoom, setTriggerZoom, centerTarget }: { 
@@ -112,6 +48,9 @@ function MapController({ triggerZoom, setTriggerZoom, centerTarget }: {
 }
 
 export default function MapComponent() {
+  const router = useRouter();
+  const { isAuthenticated, logout } = useAuthStore();
+  
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showPublic, setShowPublic] = useState(true);
@@ -121,10 +60,73 @@ export default function MapComponent() {
   const [centerTarget, setCenterTarget] = useState<[number, number] | null>(null);
   const [selectedEdificioId, setSelectedEdificioId] = useState<number | null>(null);
 
+  // API State
+  const [edificios, setEdificios] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch buildings from actual NestJS API
+  useEffect(() => {
+    async function fetchEdificios() {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/edificios');
+        if (!response.ok) {
+          throw new Error('Incapaz de cargar los datos de infraestructura escolar.');
+        }
+        const data = await response.json();
+        
+        // Map and parse Decimal coordinates & dynamic building Ambito (predominant sector)
+        const parsedData = data
+          .filter((ed: any) => ed.latitud !== null && ed.longitud !== null)
+          .map((ed: any) => {
+            // Determine predominant sector / Ambito: if at least one modality is PRIVADO or sector == 2
+            const esPrivado = ed.establecimientos?.some((est: any) => 
+              est.modalidades?.some((mod: any) => 
+                mod.sector === 2 || 
+                (mod.ambito && String(mod.ambito).toUpperCase().includes('PRIVADO'))
+              )
+            );
+            const computedAmbito = esPrivado ? 'PRIVADO' : 'PUBLICO';
+
+            return {
+              ...ed,
+              id: Number(ed.id),
+              latitud: parseFloat(ed.latitud),
+              longitud: parseFloat(ed.longitud),
+              ambito: computedAmbito,
+              establecimientos: (ed.establecimientos || []).map((est: any) => ({
+                ...est,
+                id: Number(est.id),
+                cue: est.cue.toString(),
+                modalidades: (est.modalidades || []).map((mod: any) => ({
+                  ...mod,
+                  id: Number(mod.id),
+                  nivel: mod.nivelEducativo,
+                  area: mod.direccionArea,
+                  radio: mod.radio ? parseFloat(mod.radio).toString() : 'N/A',
+                  categoria: mod.categoria || 'N/A'
+                }))
+              }))
+            };
+          });
+
+        setEdificios(parsedData);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || 'Error al conectar con la base de datos.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchEdificios();
+  }, []);
+
   // Filter buildings & nested establishments
   const filteredEdificios = useMemo(() => {
-    return MOCK_EDIFICIOS.filter((edificio) => {
-      // Type matching
+    return edificios.filter((edificio) => {
+      // Sector filter matching
       if (edificio.ambito === 'PUBLICO' && !showPublic) return false;
       if (edificio.ambito === 'PRIVADO' && !showPrivate) return false;
 
@@ -132,23 +134,23 @@ export default function MapComponent() {
       const query = searchQuery.toLowerCase();
 
       return (
-        edificio.localidad.toLowerCase().includes(query) ||
-        edificio.calle.toLowerCase().includes(query) ||
-        edificio.cui.includes(query) ||
+        (edificio.localidad || '').toLowerCase().includes(query) ||
+        (edificio.calle || '').toLowerCase().includes(query) ||
+        String(edificio.cui).includes(query) ||
         edificio.establecimientos.some(
-          (est) =>
-            est.nombre.toLowerCase().includes(query) ||
-            est.cue.includes(query)
+          (est: any) =>
+            (est.nombre || '').toLowerCase().includes(query) ||
+            String(est.cue).includes(query)
         )
       );
     });
-  }, [searchQuery, showPublic, showPrivate]);
+  }, [edificios, searchQuery, showPublic, showPrivate]);
 
   // Flattened list of establishments for easy listing in sidebar
   const establishmentsList = useMemo(() => {
     const list: any[] = [];
     filteredEdificios.forEach((edificio) => {
-      edificio.establecimientos.forEach((est) => {
+      edificio.establecimientos.forEach((est: any) => {
         list.push({
           ...est,
           edificio,
@@ -158,13 +160,24 @@ export default function MapComponent() {
     return list;
   }, [filteredEdificios]);
 
-  const handleCardClick = (edificio: typeof MOCK_EDIFICIOS[0]) => {
+  const handleCardClick = (edificio: any) => {
     setSelectedEdificioId(edificio.id);
     setCenterTarget([edificio.latitud, edificio.longitud]);
   };
 
+  if (loading) {
+    return (
+      <div className="flex h-screen w-screen flex-col items-center justify-center bg-[#07090e] gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest animate-pulse">
+          Conectando a Base de Datos de SUE...
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-slate-100 flex">
+    <div className="relative h-screen w-screen overflow-hidden bg-slate-100 flex select-none">
       {/* Map (Fills the entire background) */}
       <div className="absolute inset-0 z-0">
         <MapContainer 
@@ -219,7 +232,7 @@ export default function MapComponent() {
                           {edificio.localidad || 'Edificio Educativo'}
                         </h3>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
-                          {edificio.calle} {edificio.numeroPuerta}
+                          {edificio.calle} {edificio.numeroPuerta || 'S/N'}
                         </p>
                       </div>
                     </div>
@@ -229,7 +242,7 @@ export default function MapComponent() {
                         Establecimientos vinculados:
                       </p>
 
-                      {edificio.establecimientos.map((est, i) => (
+                      {edificio.establecimientos.map((est: any, i: number) => (
                         <div key={i} className="p-3 bg-slate-50/70 rounded-xl border border-slate-100/80 hover:border-orange-200 transition-colors">
                           <p className="text-[11px] font-black text-slate-800 leading-snug uppercase mb-2">
                             {est.nombre}
@@ -240,7 +253,7 @@ export default function MapComponent() {
                           </div>
                           
                           <div className="space-y-2">
-                            {est.modalidades.map((mod, j) => (
+                            {est.modalidades.map((mod: any, j: number) => (
                               <div key={j} className="p-2 bg-white border border-slate-100 rounded-lg">
                                 <span className="text-[8px] text-slate-400 font-bold uppercase block mb-0.5">Nivel / Área</span>
                                 <div className="flex flex-wrap gap-1">
@@ -327,7 +340,7 @@ export default function MapComponent() {
                 <div 
                   key={i}
                   onClick={() => handleCardClick(est.edificio)}
-                  className="group relative p-4 rounded-2xl bg-white border border-slate-100/80 hover:border-primary hover:shadow-lg hover:shadow-orange-500/5 hover:-translate-y-0.5 transition-all cursor-pointer flex gap-3.5 text-slate-800"
+                  className="group relative p-4 rounded-2xl bg-white border border-slate-100/80 hover:border-primary hover:shadow-lg hover:shadow-orange-500/5 hover:-translate-y-0.5 transition-all cursor-pointer flex gap-3.5 text-slate-800 animate-fade-in"
                 >
                   <div className={`w-1 h-12 rounded-full flex-shrink-0 ${isPublic ? 'bg-primary' : 'bg-blue-500'}`} />
                   <div className="flex-1 min-w-0">
@@ -348,7 +361,7 @@ export default function MapComponent() {
                     </div>
                     <p className="text-[10px] text-slate-500 truncate flex items-center gap-1">
                       <MapPin className="h-3 w-3 text-slate-300" />
-                      <span>{est.edificio.calle} {est.edificio.numeroPuerta}</span>
+                      <span>{est.edificio.calle} {est.edificio.numeroPuerta || 'S/N'}</span>
                     </p>
                   </div>
                   <ChevronRight className="h-4 w-4 text-slate-300 self-center opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
@@ -400,6 +413,39 @@ export default function MapComponent() {
           <ChevronRight className="h-4 w-4 text-primary" />
         )}
       </button>
+
+      {/* Acceso Administrativo (Top Right) */}
+      <div className="absolute top-6 right-6 z-20 flex gap-3">
+        {isAuthenticated ? (
+          <div className="flex gap-2">
+            <button 
+              onClick={() => router.push('/dashboard')}
+              className="bg-white/95 backdrop-blur-md rounded-xl px-5 py-3 shadow-xl hover:bg-orange-50 hover:scale-105 transition-all text-primary border border-slate-100 font-extrabold text-xs uppercase tracking-widest flex items-center gap-2"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              <span>Panel de Control</span>
+            </button>
+            <button 
+              onClick={() => {
+                logout();
+                router.refresh();
+              }}
+              className="bg-white/95 backdrop-blur-md rounded-xl px-4 py-3 shadow-xl hover:bg-red-50 hover:scale-105 transition-all text-red-500 border border-slate-100 font-extrabold text-xs uppercase tracking-widest flex items-center justify-center"
+              title="Cerrar Sesión"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <button 
+            onClick={() => router.push('/auth/login')}
+            className="bg-white/95 backdrop-blur-md rounded-xl px-5 py-3 shadow-xl hover:bg-orange-50 hover:scale-105 transition-all text-primary border border-slate-100 font-extrabold text-xs uppercase tracking-widest flex items-center gap-2 group"
+          >
+            <User className="h-4 w-4 transition-transform group-hover:rotate-12" />
+            <span>Acceso Administrativo</span>
+          </button>
+        )}
+      </div>
 
       {/* Floating Action Controls (Bottom Right) */}
       <div className="absolute bottom-6 right-6 z-20 flex flex-col gap-3">

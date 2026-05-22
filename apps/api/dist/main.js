@@ -828,6 +828,9 @@ let ModalidadesController = class ModalidadesController {
             showDeleted,
         });
     }
+    async getDashboardStats() {
+        return this.service.getDashboardStats();
+    }
     async exportExcel(res, query) {
         const sectorFilter = query.sectorFilter ? parseInt(query.sectorFilter, 10) : undefined;
         const conObservacionesFilter = query.conObservacionesFilter === 'true';
@@ -856,6 +859,9 @@ let ModalidadesController = class ModalidadesController {
     async create(dto) {
         return this.service.create(dto);
     }
+    async update(id, dto) {
+        return this.service.update(id, dto);
+    }
     async softDelete(id) {
         return this.service.softDelete(id);
     }
@@ -871,6 +877,12 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], ModalidadesController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('dashboard/stats'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ModalidadesController.prototype, "getDashboardStats", null);
 __decorate([
     (0, common_1.Get)('export'),
     __param(0, (0, common_1.Res)()),
@@ -900,6 +912,14 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], ModalidadesController.prototype, "create", null);
+__decorate([
+    (0, common_1.Put)(':id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], ModalidadesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
@@ -1175,6 +1195,136 @@ let ModalidadesService = class ModalidadesService {
             where: { id: BigInt(id) },
             data: { deletedAt: null, estadoValidacion: 'PENDIENTE' },
         });
+    }
+    async update(id, dto) {
+        const { nombre_establecimiento, cue, cui, establecimiento_cabecera, nivel_educativo, direccion_area, sector, radio, zona, observaciones, categoria, ambito, zona_departamento, localidad, calle, numero_puerta, validado, latitud, longitud, } = dto;
+        if (cue && !/^\d{9}$|^PROV.*$/.test(cue)) {
+            throw new common_1.BadRequestException('El CUE debe tener 9 dígitos o iniciar con "PROV"');
+        }
+        if (cui && !/^\d{7}$|^PROV.*$/.test(cui)) {
+            throw new common_1.BadRequestException('El CUI debe tener 7 dígitos o iniciar con "PROV"');
+        }
+        const parsedCue = cue ? BigInt(cue) : undefined;
+        return this.prisma.$transaction(async (tx) => {
+            const modality = await tx.modalidad.findFirst({
+                where: { id: BigInt(id) },
+                include: { establecimiento: { include: { edificio: true } } }
+            });
+            if (!modality) {
+                throw new common_1.NotFoundException(`Modalidad with ID ${id} not found.`);
+            }
+            const edificioUpdate = {};
+            if (calle)
+                edificioUpdate.calle = calle.toUpperCase();
+            if (numero_puerta !== undefined)
+                edificioUpdate.numeroPuerta = numero_puerta || 'S/N';
+            if (localidad)
+                edificioUpdate.localidad = localidad.toUpperCase();
+            if (zona_departamento)
+                edificioUpdate.zonaDepartamento = zona_departamento.toUpperCase();
+            if (latitud !== undefined)
+                edificioUpdate.latitud = latitud ? new database_1.Prisma.Decimal(latitud) : 0;
+            if (longitud !== undefined)
+                edificioUpdate.longitud = longitud ? new database_1.Prisma.Decimal(longitud) : 0;
+            if (cui)
+                edificioUpdate.cui = cui;
+            await tx.edificio.update({
+                where: { id: modality.establecimiento.edificio.id },
+                data: edificioUpdate,
+            });
+            const establecimientoUpdate = {};
+            if (nombre_establecimiento)
+                establecimientoUpdate.nombre = nombre_establecimiento.toUpperCase();
+            if (parsedCue)
+                establecimientoUpdate.cue = parsedCue;
+            if (establecimiento_cabecera !== undefined) {
+                establecimientoUpdate.establecimientoCabecera = establecimiento_cabecera ? establecimiento_cabecera.toUpperCase() : null;
+            }
+            await tx.establecimiento.update({
+                where: { id: modality.establecimiento.id },
+                data: establecimientoUpdate,
+            });
+            const modalityUpdate = {};
+            if (direccion_area)
+                modalityUpdate.direccionArea = direccion_area;
+            if (nivel_educativo)
+                modalityUpdate.nivelEducativo = nivel_educativo;
+            if (sector !== undefined)
+                modalityUpdate.sector = sector ? parseInt(sector, 10) : 1;
+            if (radio !== undefined)
+                modalityUpdate.radio = radio ? new database_1.Prisma.Decimal(radio) : null;
+            if (zona !== undefined)
+                modalityUpdate.zona = zona ? zona.toUpperCase() : null;
+            if (categoria !== undefined)
+                modalityUpdate.categoria = categoria ? categoria.toUpperCase() : null;
+            if (ambito)
+                modalityUpdate.ambito = (ambito || 'PUBLICO');
+            if (validado !== undefined) {
+                modalityUpdate.validado = !!validado;
+                modalityUpdate.estadoValidacion = validado ? 'CORRECTO' : 'PENDIENTE';
+            }
+            if (observaciones !== undefined)
+                modalityUpdate.observaciones = observaciones || null;
+            const statusChanged = validado !== undefined && !!validado !== modality.validado;
+            if (statusChanged) {
+                await tx.historialEstadoModalidad.create({
+                    data: {
+                        modalidadId: modality.id,
+                        estadoAnterior: modality.estadoValidacion,
+                        estadoNuevo: validado ? 'CORRECTO' : 'PENDIENTE',
+                        observaciones: observaciones || 'Estado de validación actualizado',
+                        userId: 1,
+                    }
+                });
+            }
+            return tx.modalidad.update({
+                where: { id: modality.id },
+                data: modalityUpdate,
+            });
+        });
+    }
+    async getDashboardStats() {
+        const totalEdificios = await this.prisma.edificio.count({
+            where: { deleted_at: null },
+        });
+        const totalEstablecimientos = await this.prisma.establecimiento.count();
+        const totalModalidades = await this.prisma.modalidad.count({
+            where: { deletedAt: null },
+        });
+        const validados = await this.prisma.modalidad.count({
+            where: { deletedAt: null, validado: true },
+        });
+        const pendientes = await this.prisma.modalidad.count({
+            where: { deletedAt: null, validado: false },
+        });
+        const recent = await this.prisma.historialEstadoModalidad.findMany({
+            take: 5,
+            orderBy: { createdAt: 'desc' },
+            include: {
+                modalidad: {
+                    include: {
+                        establecimiento: true,
+                    },
+                },
+                user: true,
+            },
+        });
+        const recentLogs = recent.map((item) => ({
+            id: Number(item.id),
+            user: item.user?.name || 'Sistema',
+            action: `Auditación: ${item.estadoNuevo}`,
+            details: `${item.modalidad?.establecimiento?.nombre || 'Establecimiento'} (CUE ${item.modalidad?.establecimiento?.cue || 'N/A'}) - ${item.observaciones || 'Cotejo registrado'}`,
+            time: new Date(item.createdAt).toLocaleDateString() + ' ' + new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            ip: '192.168.1.1'
+        }));
+        return {
+            totalEdificios,
+            totalEstablecimientos,
+            totalModalidades,
+            validados,
+            pendientes,
+            recentLogs,
+        };
     }
     async exportExcel(res, queryParams) {
         const { data } = await this.findAll({ ...queryParams, take: 50000 });
@@ -1639,6 +1789,16 @@ module.exports = require("cookie-parser");
 
 /***/ }),
 
+/***/ "dotenv":
+/*!*************************!*\
+  !*** external "dotenv" ***!
+  \*************************/
+/***/ ((module) => {
+
+module.exports = require("dotenv");
+
+/***/ }),
+
 /***/ "exceljs":
 /*!**************************!*\
   !*** external "exceljs" ***!
@@ -1656,6 +1816,26 @@ module.exports = require("exceljs");
 /***/ ((module) => {
 
 module.exports = require("passport-jwt");
+
+/***/ }),
+
+/***/ "fs":
+/*!*********************!*\
+  !*** external "fs" ***!
+  \*********************/
+/***/ ((module) => {
+
+module.exports = require("fs");
+
+/***/ }),
+
+/***/ "path":
+/*!***********************!*\
+  !*** external "path" ***!
+  \***********************/
+/***/ ((module) => {
+
+module.exports = require("path");
 
 /***/ })
 
@@ -1695,6 +1875,18 @@ var exports = __webpack_exports__;
   \*********************/
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+const dotenv = __webpack_require__(/*! dotenv */ "dotenv");
+const fs = __webpack_require__(/*! fs */ "fs");
+const path = __webpack_require__(/*! path */ "path");
+let currentDir = __dirname;
+while (currentDir !== path.parse(currentDir).root) {
+    const envPath = path.join(currentDir, '.env');
+    if (fs.existsSync(envPath)) {
+        dotenv.config({ path: envPath });
+        break;
+    }
+    currentDir = path.dirname(currentDir);
+}
 const core_1 = __webpack_require__(/*! @nestjs/core */ "@nestjs/core");
 const app_module_1 = __webpack_require__(/*! ./app.module */ "./src/app.module.ts");
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");

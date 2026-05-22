@@ -44,6 +44,11 @@ export class ModalidadesController {
     });
   }
 
+  @Get('dashboard/stats')
+  async getDashboardStats() {
+    return this.service.getDashboardStats();
+  }
+
   @Get('export')
   async exportExcel(@Res() res: any, @Query() query: any) {
     const sectorFilter = query.sectorFilter ? parseInt(query.sectorFilter, 10) : undefined;
@@ -79,6 +84,11 @@ export class ModalidadesController {
   @Post()
   async create(@Body() dto: any) {
     return this.service.create(dto);
+  }
+
+  @Put(':id')
+  async update(@Param('id', ParseIntPipe) id: number, @Body() dto: any) {
+    return this.service.update(id, dto);
   }
 
   @Delete(':id')

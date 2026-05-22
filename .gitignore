@@ -1,24 +1,44 @@
+# Dependencias del Monorepo
+node_modules/
+**/node_modules/
+
+# Compilaciones y Cachés Temporales de Next.js
+.next/
+**/ .next/
+out/
+
+# Compilaciones y Cachés Temporales de NestJS
+dist/
+**/dist/
+
+# Cachés de Turborepo
+.turbo/
+**/.turbo/
+
+# Archivos de Registro e Historial
 *.log
-.DS_Store
+logs/
+*.log.*
+pnpm-debug.log*
+
+# Entornos y Credenciales Privadas
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .env.backup
-.env.production
-.phpactor.json
-.phpunit.result.cache
-/.fleet
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
-/auth.json
-/node_modules
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
-/vendor
-Homestead.json
-Homestead.yaml
+
+# Archivos de Sistemas Operativos
+.DS_Store
 Thumbs.db
+Desktop.ini
+
+# Editores de Código e IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

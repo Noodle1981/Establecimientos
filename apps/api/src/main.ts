@@ -1,3 +1,18 @@
+import * as dotenv from 'dotenv';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Bulletproof .env resolver moving upwards from __dirname
+let currentDir = __dirname;
+while (currentDir !== path.parse(currentDir).root) {
+  const envPath = path.join(currentDir, '.env');
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+    break;
+  }
+  currentDir = path.dirname(currentDir);
+}
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
