@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                BigInt                     @id @default(autoincrement())
+  name              String
+  email             String                     @unique
+  emailVerifiedAt   DateTime?                  @map("email_verified_at")
+  password          String
+  role              Role                       @default(user)
+  passwordChangedAt DateTime?                  @map("password_changed_at")
+  rememberToken     String?                    @map("remember_token")
+  createdAt         DateTime?                  @default(now()) @map("created_at")
+  updatedAt         DateTime?                  @updatedAt @map("updated_at")
+  activityLogs      ActivityLog[]
+  auditorias        AuditoriaEduge[]
+  historialEstados  HistorialEstadoModalidad[]
+  validaciones      Modalidad[]                @relation("Validador")
+
+  @@map("users")
+}
+
+model Edificio {
+  id               BigInt            @id @default(autoincrement())
+  cui              String            @unique
+  calle            String
+  numeroPuerta     String?           @map("numero_puerta")
+  orientacion      String?
+  codigoPostal     Int?              @map("codigo_postal")
+  localidad        String
+  latitud          Decimal
+  longitud         Decimal
+  letraZona        String?           @map("letra_zona")
+  zonaDepartamento String            @map("zona_departamento")
+  teVoip           String?           @map("te_voip")
+  createdAt        DateTime?         @default(now()) @map("created_at")
+  updatedAt        DateTime?         @updatedAt @map("updated_at")
+  deleted_at       DateTime?
+  establecimientos Establecimiento[]
+  reportes         reportes[]
+
+  @@map("edificios")
+}
+
+model Establecimiento {
+  id                      BigInt           @id @default(autoincrement())
+  edificioId              BigInt           @map("edificio_id")
+  cue                     BigInt           @unique
+  cueEdificioPrincipal    BigInt           @map("cue_edificio_principal")
+  nombre                  String
+  establecimientoCabecera String?          @map("establecimiento_cabecera")
+  createdAt               DateTime?        @default(now()) @map("created_at")
+  updatedAt               DateTime?        @updatedAt @map("updated_at")
+  deletedAt               DateTime?        @map("deleted_at")
+  auditorias              AuditoriaEduge[]
+  edificio                Edificio         @relation(fields: [edificioId], references: [id], onDelete: Cascade)
+  modalidades             Modalidad[]
+
+  @@map("establecimientos")
+}
+
+model Modalidad {
+  id                    BigInt                     @id @default(autoincrement())
+  establecimientoId     BigInt                     @map("establecimiento_id")
+  direccionArea         String                     @map("direccion_area")
+  nivelEducativo        String                     @map("nivel_educativo")
+  sector                Int?
+  categoria             String?
+  instLegalCategoria    String?                    @map("inst_legal_categoria")
+  radio                 Decimal?                   @db.Decimal(8, 2)
+  instLegalRadio        String?                    @map("inst_legal_radio")
+  instLegalCategoriaBis String?                    @map("inst_legal_categoria_bis")
+  instLegalCreacion     String?                    @map("inst_legal_creacion")
+  ambito                Ambito                     @default(PUBLICO)
+  validado              Boolean                    @default(false)
+  estadoValidacion      String                     @default("PENDIENTE") @map("estado_validacion")
+  validadoPorUserId     BigInt?                    @map("validado_por_user_id")
+  validadoEn            DateTime?                  @map("validado_en")
+  observaciones         String?
+  zona                  String?
+  createdAt             DateTime?                  @default(now()) @map("created_at")
+  updatedAt             DateTime?                  @updatedAt @map("updated_at")
+  deletedAt             DateTime?                  @map("deleted_at")
+  campos_auditados      Json?
+  historialEstados      HistorialEstadoModalidad[]
+  establecimiento       Establecimiento            @relation(fields: [establecimientoId], references: [id], onDelete: Cascade)
+  usuarioValidacion     User?                      @relation("Validador", fields: [validadoPorUserId], references: [id])
+
+  @@map("modalidades")
+}
+
+model AuditoriaEduge {
+  id                 BigInt          @id @default(autoincrement())
+  establecimientoId  BigInt          @map("establecimiento_id")
+  userId             BigInt          @map("user_id")
+  fechaVisita        DateTime        @map("fecha_visita")
+  cambios            Json            @map("cambios")
+  observaciones      String?
+  tipoCotejo         String?         @map("tipo_cotejo")
+  identificadorEduge String?         @map("identificador_eduge")
+  createdAt          DateTime?       @default(now()) @map("created_at")
+  updatedAt          DateTime?       @updatedAt @map("updated_at")
+  deletedAt          DateTime?       @map("deleted_at")
+  establecimiento    Establecimiento @relation(fields: [establecimientoId], references: [id], onDelete: Cascade)
+  user               User            @relation(fields: [userId], references: [id])
+
+  @@map("auditorias_eduge")
+}
+
+model HistorialEstadoModalidad {
+  id               BigInt    @id @default(autoincrement())
+  modalidadId      BigInt    @map("modalidad_id")
+  userId           BigInt    @map("user_id")
+  estadoAnterior   String    @map("estado_anterior")
+  estadoNuevo      String    @map("estado_nuevo")
+  observaciones    String?
+  createdAt        DateTime? @default(now()) @map("created_at")
+  updatedAt        DateTime? @updatedAt @map("updated_at")
+  campos_auditados Json?
+  modalidad        Modalidad @relation(fields: [modalidadId], references: [id], onDelete: Cascade)
+  user             User      @relation(fields: [userId], references: [id])
+
+  @@map("historial_estados_modalidad")
+}
+
+model ActivityLog {
+  id          BigInt    @id @default(autoincrement())
+  userId      BigInt?   @map("user_id")
+  action      String
+  modelType   String    @map("model_type")
+  modelId     BigInt    @map("model_id")
+  description String
+  changes     Json?
+  ipAddress   String?   @map("ip_address")
+  userAgent   String?   @map("user_agent")
+  createdAt   DateTime? @default(now()) @map("created_at")
+  updated_at  DateTime?
+  user        User?     @relation(fields: [userId], references: [id])
+
+  @@map("activity_logs")
+}
+
+model reportes {
+  id               BigInt    @id @default(autoincrement())
+  edificio_id      BigInt?
+  tipo             String
+  descripcion      String
+  nombre_remitente String?
+  email_remitente  String?
+  estado           String
+  created_at       DateTime? @default(now())
+  updated_at       DateTime?
+  edificios        Edificio? @relation(fields: [edificio_id], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  admin
+  administrativos
+  mid
+  user
+}
+
+enum Ambito {
+  PUBLICO
+  PRIVADO
+}
