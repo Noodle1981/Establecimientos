@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "line_name": "Línea RedTulum 401 - Chimbas / Capital",
+    "origin": "Barrio Santo Domingo (Chimbas)",
+    "destination": "Terminal de Ómnibus (Capital)",
+    "stops_count": 22,
+    "frequency_mins": 12,
+    "connected_schools": ["Normal Sarmiento", "Colegio Pablo Cabrera", "Industrial Sarmiento"],
+    "status": "Operativo"
+  },
+  {
+    "id": 2,
+    "line_name": "Línea RedTulum 120 - Santa Lucía",
+    "origin": "Alto de Sierra (Santa Lucía)",
+    "destination": "Plaza 25 de Mayo (Capital)",
+    "stops_count": 18,
+    "frequency_mins": 15,
+    "connected_schools": ["Colegio Luján", "Parroquial de Santa Lucía"],
+    "status": "Operativo"
+  },
+  {
+    "id": 3,
+    "line_name": "Línea RedTulum 500 - Jáchal Expreso",
+    "origin": "San José de Jáchal",
+    "destination": "Terminal de Ómnibus (Capital)",
+    "stops_count": 8,
+    "frequency_mins": 120,
+    "connected_schools": ["Escuela Técnica de Jáchal", "Colegio Fronteras Argentinas"],
+    "status": "Retrasado (Zonda)"
+  }
+]

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { 
@@ -18,13 +18,17 @@ import {
   Loader2,
   Filter,
   RotateCcw,
-  BookOpen
+  BookOpen,
+  Layers
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 
 // Import Leaflet core styles directly on the client side
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
 // Pre-defined pastel colors mapping for San Juan's 19 official departments to match a political/government map
 const DEPARTMENT_COLORS: { [key: string]: string } = {
@@ -78,10 +82,10 @@ function MapController({
   useEffect(() => {
     if (!map) return;
 
-    // Create background department pane with a low zIndex
+    // Create background department pane with a zIndex of 300
     if (!map.getPane('departments')) {
       const deptPane = map.createPane('departments');
-      deptPane.style.zIndex = '200';
+      deptPane.style.zIndex = '300';
     }
 
     // Create a special middle overlay labels pane for street names
@@ -91,11 +95,20 @@ function MapController({
       labelsPane.style.pointerEvents = 'none'; // Labels do not block clicks
     }
 
-    // Creación de Pane personalizado 'escuelasPane' con z-index 650 para prioridad absoluta de clics
-    if (!map.getPane('escuelasPane')) {
-      const markerPane = map.createPane('escuelasPane');
-      markerPane.style.zIndex = '650';
+    // Creación de Pane personalizado 'schools' con z-index 900 para prioridad absoluta de clics
+    if (!map.getPane('schools')) {
+      const schoolsPane = map.createPane('schools');
+      schoolsPane.style.zIndex = '900';
     }
+
+    // Create a special tooltip pane with zIndex 1000 to keep tooltips on top
+    if (!map.getPane('tooltips')) {
+      const tooltipsPane = map.createPane('tooltips');
+      tooltipsPane.style.zIndex = '1000';
+    }
+
+    // Visual debugging to inspect all active map panes and z-indexes
+    console.log("Map panes:", map.getPanes());
 
     // Fit map bounds initially to perfectly show San Juan without cutting off the North
     map.fitBounds(maxBounds, {
@@ -104,6 +117,43 @@ function MapController({
       animate: false
     });
   }, [map, maxBounds]);
+
+  // Listen to zoom level to programmatically disable department interaction when zoomed in (Requerimiento 4)
+  useEffect(() => {
+    if (!map) return;
+
+    const handleZoomEnd = () => {
+      const zoom = map.getZoom();
+      console.log("zoom:", zoom);
+      
+      // Query the marker cluster group layer on the map to find active layers
+      let markerCount = 0;
+      map.eachLayer((layer: any) => {
+        if (layer.getLayers && typeof layer.getLayers === 'function') {
+          if (layer.options && layer.options.clusterPane === 'schools') {
+            markerCount = layer.getLayers().length;
+          }
+        }
+      });
+      console.log("markers:", markerCount);
+
+      const deptPane = map.getPane('departments');
+      if (deptPane) {
+        if (zoom > 13) {
+          deptPane.style.pointerEvents = 'none';
+        } else {
+          deptPane.style.pointerEvents = 'auto';
+        }
+      }
+    };
+
+    map.on('zoomend', handleZoomEnd);
+    handleZoomEnd(); // Check initial state
+
+    return () => {
+      map.off('zoomend', handleZoomEnd);
+    };
+  }, [map]);
 
   useEffect(() => {
     if (!map) return;
@@ -130,7 +180,7 @@ function MapController({
   return null;
 }
 
-// School Markers component utilizing L.circleMarker exactly like the legacy Laravel implementation
+// School Markers component utilizing high-quality Leaflet Marker Clustering and custom school icons (Requerimiento 1, 2, 6, 7)
 function SchoolMarkers({ 
   clusterData, 
   onMarkerClick,
@@ -141,34 +191,100 @@ function SchoolMarkers({
   selectedEdificioId: number | null;
 }) {
   const map = useMap();
-  const markersRef = useRef<{ [key: number]: L.CircleMarker }>({});
+  const markerClusterGroupRef = useRef<L.MarkerClusterGroup | null>(null);
+  const markersRef = useRef<{ [key: number]: L.Marker }>({});
 
   useEffect(() => {
     if (!map) return;
 
-    // Clear existing markers from map on data change
-    const currentMarkers = markersRef.current;
-    Object.values(currentMarkers).forEach(m => map.removeLayer(m));
+    // Create marker cluster group with sleek transition options and custom color dominant logic
+    const mcg = L.markerClusterGroup({
+      animate: true,
+      animateAddingMarkers: true,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      disableClusteringAtZoom: 16, // Separates into individual markers when zooming close (>= 16)
+      zoomToBoundsOnClick: true,
+      removeOutsideVisibleBounds: false, // Essential to prevent markers from disappearing on high zoom/pan
+      chunkedLoading: true,
+      iconCreateFunction: (cluster) => {
+        const childMarkers = cluster.getAllChildMarkers();
+        let publicCount = 0;
+        let privateCount = 0;
+
+        childMarkers.forEach((marker: any) => {
+          if (marker.options.ambito === 'PUBLICO') {
+            publicCount++;
+          } else if (marker.options.ambito === 'PRIVADO') {
+            privateCount++;
+          }
+        });
+
+        const count = childMarkers.length;
+        const isPublicDominant = publicCount >= privateCount;
+        const dominantColorClass = isPublicDominant ? 'bg-[#FE8204]' : 'bg-[#3B82F6]';
+        const glowColor = isPublicDominant ? 'rgba(254, 130, 4, 0.35)' : 'rgba(59, 130, 246, 0.35)';
+
+        return L.divIcon({
+          html: `
+            <div class="flex items-center justify-center w-9 h-9 rounded-full ${dominantColorClass} text-white font-extrabold text-xs border-[3px] border-white shadow-md transition-transform duration-200 hover:scale-110" 
+                 style="box-shadow: 0 0 0 4px ${glowColor}, 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);">
+              <span>${count}</span>
+            </div>
+          `,
+          className: 'custom-cluster-icon',
+          iconSize: L.point(36, 36),
+          iconAnchor: [18, 18]
+        });
+      }
+    });
+
+    map.addLayer(mcg);
+    markerClusterGroupRef.current = mcg;
+
+    return () => {
+      map.removeLayer(mcg);
+    };
+  }, [map]);
+
+  useEffect(() => {
+    const mcg = markerClusterGroupRef.current;
+    if (!mcg || !map) return;
+
+    // Clear existing markers from group on data change
+    mcg.clearLayers();
     markersRef.current = {};
 
     if (!clusterData.length) return;
 
+    // Load custom pins style SVG icons
+    const publicSchoolIcon = L.icon({
+      iconUrl: '/icons/public-school.svg',
+      iconSize: [26, 26],
+      iconAnchor: [13, 26],
+      popupAnchor: [0, -26]
+    });
+
+    const privateSchoolIcon = L.icon({
+      iconUrl: '/icons/private-school.svg',
+      iconSize: [26, 26],
+      iconAnchor: [13, 26],
+      popupAnchor: [0, -26]
+    });
+
     // Render individual school markers cleanly (filtered before render by parent filteredEdificios)
     clusterData.forEach((edificio) => {
       const isPublic = edificio.ambito === 'PUBLICO';
-      const color = isPublic ? '#FE8204' : '#3B82F6';
+      const icon = isPublic ? publicSchoolIcon : privateSchoolIcon;
       
-      // Exact circleMarker styling from legacy Laravel code
-      const marker = L.circleMarker([edificio.latitud, edificio.longitud], {
-        radius: 12,
-        fillColor: color,
-        color: '#ffffff',
-        weight: 4,
-        opacity: 1,
-        fillOpacity: 0.9,
-        className: 'marker-pulse',
-        pane: 'escuelasPane' // Utiliza el pane de escuelasPane con zIndex 650 para prioridad de clic absoluta
-      });
+      const marker = L.marker([edificio.latitud, edificio.longitud], {
+        icon: icon,
+        riseOnHover: true,
+        zIndexOffset: 9999, // Elevate z-index to maximum to keep them above everything
+        // Save metadata on options for cluster creation color dominance
+        ambito: edificio.ambito,
+        edificioId: edificio.id
+      } as any);
 
       // HTML template matching SUE visual specs
       const establishmentsHTML = edificio.establecimientos.map((est: any) => `
@@ -229,24 +345,62 @@ function SchoolMarkers({
         className: 'custom-popup'
       });
 
+      // Bind premium, clear hover tooltip containing school information (Requerimiento 7)
+      const tooltipContent = `
+        <div class="p-2 font-outfit max-w-[280px]">
+          ${edificio.establecimientos.map((est: any) => `
+            <div class="mb-2 last:mb-0">
+              <h4 class="font-black text-slate-800 text-[11px] leading-snug uppercase mb-0.5">${est.nombre}</h4>
+              <div class="flex gap-1.5 flex-wrap items-center mt-1">
+                ${est.modalidades.map((mod: any) => `
+                  <span class="px-1.5 py-0.5 rounded bg-orange-50 border border-orange-100 text-[8px] font-black text-primary uppercase leading-none">
+                    ${mod.nivel}
+                  </span>
+                `).join('')}
+                <span class="text-[8px] font-black px-1.5 py-0.5 rounded border uppercase leading-none ${
+                  isPublic 
+                    ? 'bg-orange-50 text-primary border-orange-100' 
+                    : 'bg-blue-50 text-blue-600 border-blue-100'
+                }">
+                  ${isPublic ? 'Pública' : 'Privada'}
+                </span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      marker.bindTooltip(tooltipContent, {
+        permanent: false,
+        sticky: true,
+        direction: 'top',
+        className: 'school-tooltip',
+        pane: 'tooltips' // Render school tooltip inside the tooltips pane at zIndex 1000
+      });
+
       marker.on('popupopen', () => {
         onMarkerClick(edificio);
       });
 
-      marker.addTo(map);
+      mcg.addLayer(marker);
       markersRef.current[edificio.id] = marker;
     });
 
-    return () => {
-      const currentMarkers = markersRef.current;
-      Object.values(currentMarkers).forEach(m => map.removeLayer(m));
-    };
   }, [map, clusterData, onMarkerClick]);
 
-  // Automatically trigger openPopup when selectedEdificioId changes (Exact legacy behavior)
+  // Automatically trigger openPopup when selectedEdificioId changes, unclustering dynamically if needed
   useEffect(() => {
     if (selectedEdificioId && markersRef.current[selectedEdificioId]) {
-      markersRef.current[selectedEdificioId].openPopup();
+      const marker = markersRef.current[selectedEdificioId];
+      const mcg = markerClusterGroupRef.current;
+      
+      if (mcg && !mcg.hasLayer(marker)) {
+        mcg.zoomToShowLayer(marker, () => {
+          marker.openPopup();
+        });
+      } else {
+        marker.openPopup();
+      }
     }
   }, [selectedEdificioId]);
 
@@ -274,6 +428,14 @@ export default function MapComponent() {
   const [triggerZoom, setTriggerZoom] = useState<'in' | 'out' | null>(null);
   const [centerTarget, setCenterTarget] = useState<[number, number] | null>(null);
   const [selectedEdificioId, setSelectedEdificioId] = useState<number | null>(null);
+
+  // Premium Layer visibility toggles (Requerimiento Extra)
+  const [showDepartments, setShowDepartments] = useState(true);
+  const [showSchools, setShowSchools] = useState(true);
+  const [layersPanelOpen, setLayersPanelOpen] = useState(false);
+
+  // GeoJSON component ref to toggle pointer-events on high zoom levels
+  const geojsonRef = useRef<any>(null);
 
   // API State
   const [edificios, setEdificios] = useState<any[]>([]);
@@ -462,9 +624,9 @@ export default function MapComponent() {
     setCenterTarget([edificio.latitud, edificio.longitud]);
   };
 
-  const handleMarkerClick = (edificio: any) => {
+  const handleMarkerClick = useCallback((edificio: any) => {
     setSelectedEdificioId(edificio.id);
-  };
+  }, []);
 
   // Toggle multi-select management filter
   const handleToggleGestion = (type: string) => {
@@ -489,7 +651,7 @@ export default function MapComponent() {
     };
   };
 
-  // Interactividad y Resaltado Hover del contorno
+  // Interactividad y Resaltado Hover del contorno (Requerimiento 5, 8)
   const onEachDepartmentFeature = (feature: any, layer: any) => {
     const deptName = (
       feature.properties.NAM || 
@@ -502,7 +664,8 @@ export default function MapComponent() {
       permanent: false,
       sticky: true,
       direction: "center",
-      className: "dept-tooltip"
+      className: "dept-tooltip",
+      pane: 'tooltips' // Render tooltip inside the tooltips pane at zIndex 1000
     });
 
     layer.on({
@@ -512,10 +675,10 @@ export default function MapComponent() {
           weight: 2.5,
           color: '#F27405', // Naranja institucional al hacer hover
           dashArray: '', // Quitar temporalmente el dashArray
-          fillOpacity: 0,
-          fillColor: 'transparent'
+          fillOpacity: 0.15, // Subtle light background hover
+          fillColor: '#F27405'
         });
-        target.bringToFront();
+        // Removed bringToFront() to prevent hover from sticking due to mouseout event drops
       },
       mouseout: (e: any) => {
         const target = e.target;
@@ -523,8 +686,11 @@ export default function MapComponent() {
       },
       click: (e: any) => {
         const map = e.target._map;
-        // Fly smoothly to bounds without rendering any rectangular selector outlines
-        map.flyToBounds(e.target.getBounds(), { padding: [40, 40] });
+        // Intelligent flyToBounds with maximum zoom restraint to prevent excessive zooming (Requerimiento 8)
+        map.flyToBounds(e.target.getBounds(), { 
+          padding: [80, 80],
+          maxZoom: 12
+        });
       },
       dblclick: (e: any) => {
         setSelectedDept(deptName);
@@ -557,23 +723,23 @@ export default function MapComponent() {
           outline: none !important;
         }
 
-        /* Configuración de click-through absoluto en custom pane layers */
-        .leaflet-pane.leaflet-escuelasPane-pane {
-          z-index: 650 !important;
+        /* Configuración de click-through absoluto en custom pane layers (Requerimiento 3) */
+        .leaflet-pane.leaflet-schools-pane {
+          z-index: 900 !important;
           pointer-events: none !important;
         }
-        .leaflet-pane.leaflet-escuelasPane-pane .leaflet-interactive,
-        .leaflet-pane.leaflet-escuelasPane-pane .leaflet-marker-icon,
-        .leaflet-pane.leaflet-escuelasPane-pane path {
+        .leaflet-pane.leaflet-schools-pane .leaflet-interactive,
+        .leaflet-pane.leaflet-schools-pane .leaflet-marker-icon,
+        .leaflet-pane.leaflet-schools-pane path {
           pointer-events: auto !important; /* Habilita capturar clics en marcadores HTML e individuales */
         }
         
         .leaflet-pane.leaflet-departments-pane {
-          z-index: 200 !important;
+          z-index: 300 !important;
           pointer-events: none !important;
         }
-        .leaflet-pane.leaflet-departments-pane .leaflet-interactive {
-          pointer-events: auto !important; /* Habilita capturar clics directamente en polígonos GeoJSON */
+        .leaflet-pane.leaflet-departments-pane path {
+          pointer-events: stroke !important; /* Capture hover/click ONLY on boundaries stroke, NOT transparent fill */
         }
 
         .dept-tooltip {
@@ -587,16 +753,16 @@ export default function MapComponent() {
           box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
         }
 
-        /* Marker Pulse Animation from Legacy Laravel view */
-        .marker-pulse {
-          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-          transform-origin: center !important;
-          transform-box: fill-box !important;
+        /* School premium tooltips (Requerimiento 7) */
+        .school-tooltip {
+          background: white !important;
+          border: 1px solid #f1f5f9 !important;
+          border-radius: 16px !important;
+          padding: 10px 14px !important;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05) !important;
         }
-        .marker-pulse:hover {
-          transform: scale(1.3) !important;
-          filter: drop-shadow(0 0 10px rgba(254, 130, 4, 0.6)) !important;
-          cursor: pointer !important;
+        .school-tooltip::before {
+          border-top-color: white !important;
         }
       `}</style>
 
@@ -610,6 +776,9 @@ export default function MapComponent() {
           maxBounds={maxBounds}
           maxBoundsViscosity={0.6} // Smooth non-aggressive bounds bouncing
           zoomSnap={0.25} // Support non-integer zooms to fit all viewport sizes
+          zoomAnimation={true}
+          markerZoomAnimation={true}
+          fadeAnimation={true}
         >
           {/* SANDWICH TILE LAYERING STRUCTURE */}
           
@@ -627,9 +796,10 @@ export default function MapComponent() {
             maxBounds={maxBounds}
           />
 
-          {/* 2. Middle Layer: Official Department Vector Polygons */}
-          {geojsonFeatures && (
+          {/* 2. Middle Layer: Official Department Vector Polygons (Requerimiento 3, 4) */}
+          {showDepartments && geojsonFeatures && (
             <GeoJSON 
+              ref={geojsonRef}
               data={geojsonFeatures} 
               style={departmentStyle}
               onEachFeature={onEachDepartmentFeature}
@@ -645,12 +815,14 @@ export default function MapComponent() {
             pane="streetlabels"
           />
 
-          {/* 4. Top Layer: School Circle Markers (Filtered dynamically based on multi-select state before render) */}
-          <SchoolMarkers 
-            clusterData={filteredEdificios}
-            onMarkerClick={(ed) => handleMarkerClick(ed)}
-            selectedEdificioId={selectedEdificioId}
-          />
+          {/* 4. Top Layer: School Markers utilizing Cluster Grouping (Requerimiento 1, 2, 6) */}
+          {showSchools && (
+            <SchoolMarkers 
+              clusterData={filteredEdificios}
+              onMarkerClick={handleMarkerClick}
+              selectedEdificioId={selectedEdificioId}
+            />
+          )}
         </MapContainer>
       </div>
 
@@ -895,12 +1067,98 @@ export default function MapComponent() {
           </div>
         ) : (
           <button 
-            onClick={() => router.push('/auth/login')}
+            onClick={() => router.push('/sue-admin')}
             className="bg-white/95 backdrop-blur-md rounded-xl px-5 py-3 shadow-xl hover:bg-orange-50 hover:scale-105 transition-all text-primary border border-slate-100 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 group"
           >
             <User className="h-4 w-4 transition-transform group-hover:rotate-12" />
             <span>Acceso Administrativo</span>
           </button>
+        )}
+      </div>
+
+      {/* Premium Layers Selector (Top Right, Below Access Control) (Requerimiento Extra) */}
+      <div className="absolute top-24 right-6 z-20 flex flex-col items-end gap-2 font-outfit">
+        <button
+          onClick={() => setLayersPanelOpen(!layersPanelOpen)}
+          className={`flex items-center justify-center p-3 rounded-2xl bg-white/95 backdrop-blur-md shadow-xl border border-slate-100 hover:bg-orange-50/20 hover:scale-105 transition-all text-primary ${
+            layersPanelOpen ? 'ring-2 ring-primary/20' : ''
+          }`}
+          title="Capas del Mapa"
+        >
+          <Layers className="h-4.5 w-4.5" />
+        </button>
+
+        {layersPanelOpen && (
+          <div className="w-64 bg-white/95 backdrop-blur-md border border-slate-100 rounded-3xl p-5 shadow-2xl animate-fade-in flex flex-col gap-4">
+            <div>
+              <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest leading-none">
+                Capas del Mapa
+              </h3>
+              <p className="text-[9px] text-slate-400 font-extrabold uppercase tracking-tight mt-1.5">
+                Configura la visualización
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {/* Departamentos Toggle */}
+              <label className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-slate-50/50 cursor-pointer transition-colors border border-transparent hover:border-slate-100">
+                <div className="flex items-center gap-2.5">
+                  <div className={`p-1.5 rounded-lg ${showDepartments ? 'bg-orange-50 text-primary' : 'bg-slate-50 text-slate-400'} border ${showDepartments ? 'border-orange-100' : 'border-slate-100'} transition-colors`}>
+                    <MapPin className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-xs font-extrabold text-slate-700">Departamentos</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={showDepartments}
+                  onChange={(e) => setShowDepartments(e.target.checked)}
+                  className="w-4 h-4 rounded text-primary border-slate-200 focus:ring-primary/20 cursor-pointer accent-primary"
+                />
+              </label>
+
+              {/* Escuelas Toggle */}
+              <label className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-slate-50/50 cursor-pointer transition-colors border border-transparent hover:border-slate-100">
+                <div className="flex items-center gap-2.5">
+                  <div className={`p-1.5 rounded-lg ${showSchools ? 'bg-orange-50 text-primary' : 'bg-slate-50 text-slate-400'} border ${showSchools ? 'border-orange-100' : 'border-slate-100'} transition-colors`}>
+                    <School className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-xs font-extrabold text-slate-700">Escuelas</span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={showSchools}
+                  onChange={(e) => setShowSchools(e.target.checked)}
+                  className="w-4 h-4 rounded text-primary border-slate-200 focus:ring-primary/20 cursor-pointer accent-primary"
+                />
+              </label>
+
+              {/* Transporte (Soon) */}
+              <div className="flex items-center justify-between p-2.5 rounded-2xl opacity-60 border border-dashed border-slate-200 select-none">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-slate-50 text-slate-400 border border-slate-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-bus"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9C2 11.3 2 11.6 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M2 12h20"/><path d="M8 12v-3.5c0-.8.7-1.5 1.5-1.5h1.5"/></svg>
+                  </div>
+                  <div>
+                    <span className="text-xs font-extrabold text-slate-500 truncate w-32 inline-block">Transporte</span>
+                    <span className="block text-[7px] font-black tracking-widest text-primary uppercase mt-0.5">Próximamente</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Densidad de Escuelas (Soon) */}
+              <div className="flex items-center justify-between p-2.5 rounded-2xl opacity-60 border border-dashed border-slate-200 select-none">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-slate-50 text-slate-400 border border-slate-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-flame"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                  </div>
+                  <div>
+                    <span className="text-xs font-extrabold text-slate-500 truncate w-32 inline-block">Densidad (Calor)</span>
+                    <span className="block text-[7px] font-black tracking-widest text-primary uppercase mt-0.5">Próximamente</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 

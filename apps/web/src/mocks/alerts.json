@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "title": "Corte de Fibra Óptica en Calingasta",
+    "description": "El Colegio Secundario de Barreal reporta interrupción en el enlace troncal oficial. Soporte técnico de ARSAT e ISP San Juan en camino.",
+    "severity": "Alta",
+    "category": "Conectividad",
+    "timestamp": "2026-05-22T08:15:00Z",
+    "department": "Calingasta",
+    "status": "En Proceso"
+  },
+  {
+    "id": 2,
+    "title": "Alerta por Zonda Severo en Iglesia y Jáchal",
+    "description": "Se prevén ráfagas superiores a los 90 km/h. Se sugiere suspender actividades presenciales a partir de las 14:00 hs según recomendación de Protección Civil.",
+    "severity": "Crítica",
+    "category": "Clima",
+    "timestamp": "2026-05-22T10:30:00Z",
+    "department": "Iglesia",
+    "status": "Activa"
+  },
+  {
+    "id": 3,
+    "title": "Reporte de Calefacción Central Dañada",
+    "description": "Escuela Normal Sarmiento informa falla en caldera principal. Se solicita cotización urgente para el service técnico.",
+    "severity": "Media",
+    "category": "Infraestructura",
+    "timestamp": "2026-05-22T07:45:00Z",
+    "department": "Capital",
+    "status": "Abierta"
+  },
+  {
+    "id": 4,
+    "title": "Baja Tensión Eléctrica en 25 de Mayo",
+    "description": "Se detectan fluctuaciones severas que impiden encender los servidores locales del laboratorio de informática.",
+    "severity": "Media",
+    "category": "Energía",
+    "timestamp": "2026-05-21T18:20:00Z",
+    "department": "25 de Mayo",
+    "status": "Resuelta"
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "name": "Colegio Nacional Monseñor Pablo Cabrera",
+    "cue": "700012300",
+    "department": "Capital",
+    "level": "Secundario",
+    "type": "Público",
+    "students_count": 850,
+    "teachers_count": 64,
+    "status": "Activa"
+  },
+  {
+    "id": 2,
+    "name": "Escuela Industrial Domingo Faustino Sarmiento",
+    "cue": "700045600",
+    "department": "Capital",
+    "level": "Técnico",
+    "type": "Público",
+    "students_count": 1200,
+    "teachers_count": 95,
+    "status": "Activa"
+  },
+  {
+    "id": 3,
+    "name": "Escuela Normal Superior Sarmiento",
+    "cue": "700078900",
+    "department": "Capital",
+    "level": "Primario/Secundario",
+    "type": "Público",
+    "students_count": 1400,
+    "teachers_count": 110,
+    "status": "Activa"
+  },
+  {
+    "id": 4,
+    "name": "Colegio Luján",
+    "cue": "700010100",
+    "department": "Santa Lucía",
+    "level": "Secundario",
+    "type": "Privado",
+    "students_count": 620,
+    "teachers_count": 48,
+    "status": "Activa"
+  },
+  {
+    "id": 5,
+    "name": "Escuela de Comercio Libertador Gral. San Martín",
+    "cue": "700030200",
+    "department": "Capital",
+    "level": "Secundario",
+    "type": "Público",
+    "students_count": 980,
+    "teachers_count": 76,
+    "status": "Activa"
+  },
+  {
+    "id": 6,
+    "name": "Colegio Parroquial de Santa Lucía",
+    "cue": "700050400",
+    "department": "Santa Lucía",
+    "level": "Secundario",
+    "type": "Privado",
+    "students_count": 540,
+    "teachers_count": 40,
+    "status": "Activa"
+  }
+]

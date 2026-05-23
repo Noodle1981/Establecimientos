@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "dni": "45.123.456",
+    "name": "Valentino Castro Gil",
+    "school_id": 2,
+    "school_name": "Escuela Industrial Domingo Faustino Sarmiento",
+    "parent_name": "Guillermo Castro",
+    "parent_email": "guillermo.castro@gmail.com",
+    "grade": "4° Año - Construcciones",
+    "performance": "Excelente",
+    "average_grade": 9.4,
+    "attendance_rate": "97%",
+    "badges": ["Constructor Junior", "Asistencia Perfecta", "Compañero de Oro"],
+    "status": "Regular"
+  },
+  {
+    "id": 2,
+    "dni": "46.789.012",
+    "name": "Martina Lucía Espinoza",
+    "school_id": 1,
+    "school_name": "Colegio Nacional Monseñor Pablo Cabrera",
+    "parent_name": "Laura Espinoza",
+    "parent_email": "laura.espi@hotmail.com",
+    "grade": "2° Año - Turno Mañana",
+    "performance": "Muy Bueno",
+    "average_grade": 8.7,
+    "attendance_rate": "95%",
+    "badges": ["Cerebrito", "Mente Matemática"],
+    "status": "Regular"
+  },
+  {
+    "id": 3,
+    "dni": "48.345.678",
+    "name": "Agustín Benjamín Benítez",
+    "school_id": 4,
+    "school_name": "Colegio Luján",
+    "parent_name": "Mariana Benítez",
+    "parent_email": "mariana.b@yahoo.com",
+    "grade": "1° Año - Turno Tarde",
+    "performance": "Regular",
+    "average_grade": 6.8,
+    "attendance_rate": "89%",
+    "badges": ["Esfuerzo Extra"],
+    "status": "Regular"
+  },
+  {
+    "id": 4,
+    "dni": "47.901.234",
+    "name": "Sofía Valentina Rodríguez",
+    "school_id": 3,
+    "school_name": "Escuela Normal Superior Sarmiento",
+    "parent_name": "Héctor Rodríguez",
+    "parent_email": "hector.rod@outlook.com",
+    "grade": "6° Grado - Primario",
+    "performance": "Excelente",
+    "average_grade": 9.8,
+    "attendance_rate": "100%",
+    "badges": ["Líder Científica", "Estrella Sarmiento", "Bilingüe"],
+    "status": "Regular"
+  }
+]

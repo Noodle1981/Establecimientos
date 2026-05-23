@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "dni": "28.345.678",
+    "name": "Prof. Ana María Espinoza",
+    "school_id": 1,
+    "school_name": "Colegio Nacional Monseñor Pablo Cabrera",
+    "position": "Matemática y Álgebra",
+    "email": "ana.espinoza@sue.sanjuan.edu.ar",
+    "attendance_rate": "98.5%",
+    "status": "Activo"
+  },
+  {
+    "id": 2,
+    "dni": "30.123.456",
+    "name": "Prof. Carlos Javier Castro",
+    "school_id": 2,
+    "school_name": "Escuela Industrial Domingo Faustino Sarmiento",
+    "position": "Electrotecnia General",
+    "email": "carlos.castro@sue.sanjuan.edu.ar",
+    "attendance_rate": "96.2%",
+    "status": "Activo"
+  },
+  {
+    "id": 3,
+    "dni": "32.789.012",
+    "name": "Dra. Patricia Inés Gil",
+    "school_id": 3,
+    "school_name": "Escuela Normal Superior Sarmiento",
+    "position": "Biología General",
+    "email": "patricia.gil@sue.sanjuan.edu.ar",
+    "attendance_rate": "100%",
+    "status": "Activo"
+  },
+  {
+    "id": 4,
+    "dni": "26.456.789",
+    "name": "Prof. Juan Carlos Rodríguez",
+    "school_id": 1,
+    "school_name": "Colegio Nacional Monseñor Pablo Cabrera",
+    "position": "Física y Química",
+    "email": "juan.rodriguez@sue.sanjuan.edu.ar",
+    "attendance_rate": "94.8%",
+    "status": "Licencia"
+  },
+  {
+    "id": 5,
+    "dni": "35.890.123",
+    "name": "Prof. Gabriela Estela Benítez",
+    "school_id": 4,
+    "school_name": "Colegio Luján",
+    "position": "Historia y Geografía",
+    "email": "gabriela.benitez@sue.sanjuan.edu.ar",
+    "attendance_rate": "99.1%",
+    "status": "Activo"
+  }
+]
