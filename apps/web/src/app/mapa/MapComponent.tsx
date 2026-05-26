@@ -739,7 +739,7 @@ export default function MapComponent() {
           pointer-events: none !important;
         }
         .leaflet-pane.leaflet-departments-pane path {
-          pointer-events: stroke !important; /* Capture hover/click ONLY on boundaries stroke, NOT transparent fill */
+          pointer-events: all !important; /* Capture hover/click on both boundaries stroke and transparent fill */
         }
 
         .dept-tooltip {
@@ -881,7 +881,7 @@ export default function MapComponent() {
                   placeholder="Nombre, CUE, CUI, Calle..."
                   className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-100 text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all text-slate-800 placeholder-slate-400 font-medium"
                 />
-                <Search className="absolute left-3 h-3.5 w-3.5 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
               </div>
 
               {/* Department Dropdown */}
@@ -912,21 +912,6 @@ export default function MapComponent() {
                     <option key={i} value={nivel}>{nivel}</option>
                   ))}
                 </select>
-              </div>
-
-              {/* Modality Search */}
-              <div className="space-y-1">
-                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Modalidad / Área</label>
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    value={modalidadQuery}
-                    onChange={(e) => setModalidadQuery(e.target.value)}
-                    placeholder="Ejem: Secundaria, Inicial..."
-                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-100 text-xs bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all text-slate-800 placeholder-slate-400 font-medium"
-                  />
-                  <BookOpen className="absolute left-3 h-3.5 w-3.5 text-slate-400" />
-                </div>
               </div>
 
               {/* Reset Filters Trigger */}
