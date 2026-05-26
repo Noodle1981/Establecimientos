@@ -1,6 +1,7 @@
 # Dependencias del Monorepo
 node_modules/
 **/node_modules/
+packages/database/src/generated/
 
 # Compilaciones y Cachés Temporales de Next.js
 .next/
