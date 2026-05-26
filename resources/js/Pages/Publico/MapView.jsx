@@ -9,7 +9,7 @@ import 'leaflet/dist/leaflet.css';
 
 // --- Internal sub-components ---
 
-function MapController({ selected, sidebarOpen }) {
+function MapController({ selected, sidebarOpen, filterDepto, geojsonData }) {
     const map = useMap();
 
     // Fix map size when sidebar toggles
@@ -29,6 +29,29 @@ function MapController({ selected, sidebarOpen }) {
             });
         }
     }, [selected, map]);
+
+    // Fit bounds of selected department
+    useEffect(() => {
+        if (filterDepto && filterDepto !== 'TODOS' && geojsonData) {
+            const feature = geojsonData.features.find(f => 
+                f.properties && 
+                f.properties.departamento && 
+                f.properties.departamento.toUpperCase() === filterDepto.toUpperCase()
+            );
+
+            if (feature) {
+                try {
+                    const tempLayer = L.geoJSON(feature);
+                    const bounds = tempLayer.getBounds();
+                    if (bounds.isValid()) {
+                        map.fitBounds(bounds, { padding: [50, 50], animate: true, duration: 1.5 });
+                    }
+                } catch (err) {
+                    console.error("Error zooming to department bounds:", err);
+                }
+            }
+        }
+    }, [filterDepto, geojsonData, map]);
 
     return null;
 }
@@ -64,6 +87,7 @@ export default function MapView({
     setHoveredEdificioId,
     sidebarOpen,
     showDeptoBorders = true,
+    filterDepto = 'TODOS',
 }) {
     const [geojsonData, setGeojsonData] = useState(null);
 
@@ -129,7 +153,12 @@ export default function MapView({
                 updateWhenZooming={false}
             />
 
-            <MapController selected={selectedEdificio} sidebarOpen={sidebarOpen} />
+            <MapController 
+                selected={selectedEdificio} 
+                sidebarOpen={sidebarOpen} 
+                filterDepto={filterDepto}
+                geojsonData={geojsonData}
+            />
 
             {showDeptoBorders && geojsonData && (
                 <GeoJSON

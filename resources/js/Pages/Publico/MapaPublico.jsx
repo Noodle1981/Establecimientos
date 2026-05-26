@@ -358,6 +358,7 @@ export default function MapaPublico({ edificios = [] }) {
                             setHoveredEdificioId={setHoveredEdificioId}
                             sidebarOpen={sidebarOpen}
                             showDeptoBorders={showDeptoBorders}
+                            filterDepto={filterDepto}
                         />
                     </Suspense>
 
