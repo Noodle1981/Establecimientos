@@ -88,6 +88,31 @@ export default function SUEAdminPortal() {
   const [selectedRole, setSelectedRole] = useState<'MINISTERIO' | 'DIRECTIVO' | 'DOCENTE' | 'PADRE' | 'ALUMNO'>('MINISTERIO');
   const [activeTab, setActiveTab] = useState<string>('overview');
 
+  // Authentication State (Mockup)
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
+  // Mock credentials for each role
+  const mockCredentials = useMemo(() => ({
+    MINISTERIO: { email: 'ministerio@sue.sanjuan.edu.ar', password: 'password123' },
+    DIRECTIVO: { email: 'directivo.normal@sue.sanjuan.edu.ar', password: 'password123' },
+    DOCENTE: { email: 'gabriela.quiroga@sanjuan.edu.ar', password: 'password123' },
+    PADRE: { email: 'carlos.castro@sue.sanjuan.edu.ar', password: 'password123' },
+    ALUMNO: { email: 'thiago.castro@sue.sanjuan.edu.ar', password: 'password123' }
+  }), []);
+
+  // Helper to select role and show login screen
+  const handleSelectPortal = useCallback((role: 'MINISTERIO' | 'DIRECTIVO' | 'DOCENTE' | 'PADRE' | 'ALUMNO') => {
+    setSelectedRole(role);
+    setLoginEmail(mockCredentials[role].email);
+    setLoginPassword(mockCredentials[role].password);
+    setLoginError('');
+    setShowLogin(true);
+  }, [mockCredentials]);
+
   // Animated KPI Counter states
   const [schoolsCount, setSchoolsCount] = useState(0);
   const [teachersCount, setTeachersCount] = useState(0);
@@ -164,28 +189,55 @@ export default function SUEAdminPortal() {
   const [selectedDepartmentMin, setSelectedDepartmentMin] = useState('Capital');
   const [isSincronizandoMin, setIsSincronizandoMin] = useState(false);
 
-  // Counter Animation on Mount
+  // Counter Animation on Mount with Real Database Counts
   useEffect(() => {
-    let start = 0;
-    const duration = 1500; // 1.5s
-    const steps = 60;
-    const intervalTime = duration / steps;
-
-    const timer = setInterval(() => {
-      start += 1;
-      const progress = start / steps;
-
-      setSchoolsCount(Math.min(Math.floor(782 * progress), 782));
-      setTeachersCount(Math.min(Math.floor(18420 * progress), 18420));
-      setStudentsCount(Math.min(Math.floor(142500 * progress), 142500));
-      setDeptsCount(Math.min(Math.floor(19 * progress), 19));
-
-      if (start >= steps) {
-        clearInterval(timer);
+    // Helper to animate count
+    const animateCount = (target: number, setter: React.Dispatch<React.SetStateAction<number>>) => {
+      if (target <= 0) {
+        setter(0);
+        return;
       }
-    }, intervalTime);
+      let start = 0;
+      const duration = 1200; // 1.2s
+      const steps = 40;
+      const intervalTime = duration / steps;
+      
+      const timer = setInterval(() => {
+        start += 1;
+        const progress = start / steps;
+        setter(Math.min(Math.floor(target * progress), target));
+        if (start >= steps) {
+          clearInterval(timer);
+        }
+      }, intervalTime);
+    };
 
-    return () => clearInterval(timer);
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/modalidades/dashboard/stats');
+        if (res.ok) {
+          const data = await res.json();
+          const realSchools = data.totalEstablecimientos || 0;
+          const realEdificios = data.totalEdificios || 0;
+
+          animateCount(realSchools, setSchoolsCount);
+          animateCount(realEdificios, setDeptsCount);
+        } else {
+          setSchoolsCount(0);
+          setDeptsCount(0);
+        }
+      } catch (err) {
+        console.error('Error fetching database stats:', err);
+        setSchoolsCount(0);
+        setDeptsCount(0);
+      }
+    }
+
+    loadStats();
+    
+    // Docentes and Alumnos counts stay at 0
+    setTeachersCount(0);
+    setStudentsCount(0);
   }, []);
 
   // Reset activeTab to overview when selectedRole changes
@@ -411,7 +463,7 @@ export default function SUEAdminPortal() {
       if (textClean.includes('puntaje') || textClean.includes('juntas')) {
         reply = 'El puntaje de Juntas consolidado de 38.120 Ptos se calcula en base a tu título docente base (9.00 Ptos), tu promedio homologado (8.45 Ptos), tus 12 años de trayectoria y antigüedad (12.00 Ptos) y cursos acreditados homologados (8.67 Ptos).';
       } else if (textClean.includes('art') || textClean.includes('licencia') || textClean.includes('24')) {
-        reply = 'El Artículo 24 contempla licencias justificadas por cuidado de familiar enfermo de primer grado de consanguinidad, otorgando hasta 20 días hábiles justificados anuales mediante certificado digital oficial homologado.';
+reply = 'El Artículo 24 contempla licencias justificadas por cuidado de familiar enfermo de primer grado de consanguinidad, otorgando hasta 20 días hábiles justificados anuales mediante certificado digital oficial homologado.';
       } else {
         reply = 'Hola Prof. Gabriela, he revisado sus antecedentes en el Ministerio de Educación de San Juan. Todo su legajo civil y títulos están completamente regularizados (94% auditoría completada). ¿Desea consultar algo específico sobre cursos para sumar puntaje?';
       }
@@ -422,8 +474,185 @@ export default function SUEAdminPortal() {
   }, [aiLegajoInput]);
 
   // ==========================================
-  // --- RENDER DEDICATED FULLSCREEN DOCENTE ---
+  // --- MOCKUP LOGIN SCREEN (WHITE & ORANGE) ---
   // ==========================================
+  if (!isLoggedIn && showLogin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-[#fffcf9] to-orange-50/20 text-slate-700 font-sans select-none overflow-x-hidden relative flex flex-col justify-between">
+        
+        {/* Decorative Ambient Soft Orbs */}
+        <div className="absolute top-10 left-10 w-96 h-96 bg-orange-500/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-amber-500/5 rounded-full blur-[150px] pointer-events-none" />
+        
+        {/* Floating Toast Notification overlay */}
+        {toastMessage && (
+          <div className="fixed bottom-6 right-6 z-50 animate-bounce bg-[#fe8204] text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 font-black text-xs border border-orange-600/30">
+            <CheckCircle2 className="h-5 w-5 text-white" />
+            <span>{toastMessage}</span>
+          </div>
+        )}
+
+        {/* Top Navbar */}
+        <header className="w-full px-8 py-5 border-b border-slate-200 bg-white/80 backdrop-blur-md flex items-center justify-between z-10">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-orange-500/10 border border-[#fe8204]/20 text-[#fe8204]">
+              <School className="h-5.5 w-5.5" />
+            </div>
+            <div>
+              <h1 className="text-xs font-black uppercase tracking-[0.2em] text-[#fe8204] leading-none">
+                Ministerio de Educación
+              </h1>
+              <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-widest block mt-1">
+                Ecosistema Integrado SUE
+              </span>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setShowLogin(false)}
+            className="px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 rounded-xl text-slate-500 hover:text-slate-700 text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-2"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>Volver a Portales</span>
+          </button>
+        </header>
+
+        {/* Main Section */}
+        <main className="flex-1 max-w-4xl w-full mx-auto px-6 py-12 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 z-10">
+          
+          {/* Left Column: Premium pitch */}
+          <div className="flex-1 space-y-5 text-center md:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 text-[#fe8204] border border-[#fe8204]/20 text-[9px] font-black uppercase tracking-widest leading-none">
+              <Activity className="h-3 w-3 text-[#fe8204] animate-pulse" />
+              <span>Acceso de Seguridad SUE</span>
+            </div>
+
+            <h2 className="text-2xl sm:text-4xl font-black uppercase leading-tight tracking-tight text-slate-800">
+              Portal {selectedRole === 'MINISTERIO' ? 'Ministerio' :
+                       selectedRole === 'DIRECTIVO' ? 'Directivos' :
+                       selectedRole === 'DOCENTE' ? 'Docentes' :
+                       selectedRole === 'PADRE' ? 'Padres y Tutores' : 'Alumnos'}
+            </h2>
+
+            <p className="text-slate-500 font-medium text-xs leading-relaxed max-w-sm mx-auto md:mx-0">
+              Para ingresar al panel de {selectedRole.toLowerCase()} simulado, valide su clave única con firma digital autorizada por la Junta de Clasificación.
+            </p>
+
+            <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-white border border-slate-200 w-fit mx-auto md:mx-0 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[9.5px] font-black text-slate-500 uppercase tracking-wider">Conexión de Seguridad Activa</span>
+            </div>
+          </div>
+
+          {/* Right Column: White and Orange Login Form Card */}
+          <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 shadow-xl shadow-slate-200/50 space-y-6 relative overflow-hidden">
+            
+            {/* Login Header */}
+            <div className="space-y-1.5 text-center sm:text-left">
+              <span className="text-[#fe8204] text-[9px] font-black uppercase tracking-[0.25em] block">
+                INICIO DE SESIÓN MOCKUP
+              </span>
+              <h3 className="text-xl font-black uppercase tracking-tight text-slate-800">
+                ¡Logueate!
+              </h3>
+              <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider">
+                Ingresa tus credenciales oficiales de {selectedRole.toLowerCase()}.
+              </p>
+            </div>
+
+            {/* Inputs Block */}
+            <div className="space-y-4">
+              {loginError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-[10px] font-bold">
+                  {loginError}
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block pl-1">
+                  Email Institucional:
+                </label>
+                <input
+                  type="email"
+                  value={loginEmail}
+                  onChange={(e) => {
+                    setLoginEmail(e.target.value);
+                    setLoginError('');
+                  }}
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 focus:border-[#fe8204] focus:ring-1 focus:ring-[#fe8204]/30 focus:outline-none text-xs font-bold text-slate-800 transition-all placeholder-slate-400"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block pl-1">
+                  Clave de Acceso Único:
+                </label>
+                <input
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => {
+                    setLoginPassword(e.target.value);
+                    setLoginError('');
+                  }}
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 focus:border-[#fe8204] focus:ring-1 focus:ring-[#fe8204]/30 focus:outline-none text-xs font-bold text-slate-800 transition-all placeholder-slate-400"
+                />
+              </div>
+            </div>
+
+            {/* Aux Actions */}
+            <div className="flex items-center justify-between text-[9px] font-bold uppercase text-slate-400 px-1">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  defaultChecked
+                  className="accent-[#fe8204] rounded border-slate-200"
+                />
+                <span>Recordar mi firma</span>
+              </label>
+              <span className="hover:text-slate-650 transition-all cursor-pointer">¿Ayuda?</span>
+            </div>
+
+            {/* Login Action Button */}
+            <button
+              onClick={() => {
+                if (!loginEmail || !loginPassword) {
+                  setLoginError('⚠️ Por favor completa el email institucional y la clave.');
+                  return;
+                }
+                setIsLoggedIn(true);
+                showToast(`🔑 Bienvenido al Ecosistema SUE: Sesión iniciada como ${selectedRole}`);
+              }}
+              className="w-full bg-[#fe8204] hover:bg-orange-600 text-white font-black text-[10px] py-4 rounded-2xl uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 shadow-md shadow-[#fe8204]/10 cursor-pointer"
+            >
+              <Lock className="h-4 w-4 text-white" />
+              <span>Iniciar Sesión en SUE</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowLogin(false)}
+              className="w-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-700 font-black text-[9px] py-3 rounded-2xl uppercase tracking-widest transition-all flex items-center justify-center gap-1.5"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span>Cambiar de Portal</span>
+            </button>
+          </div>
+        </main>
+
+        {/* Footer Branding */}
+        <footer className="w-full border-t border-slate-200 bg-white py-6 text-center text-slate-400 text-[9px] font-bold uppercase tracking-widest z-10 px-6">
+          <div className="flex justify-center items-center gap-2 text-[#fe8204]">
+            <School className="h-4 w-4" />
+            <span>SUE - Gobierno de la Provincia de San Juan</span>
+          </div>
+        </footer>
+
+      </div>
+    );
+  }
+
+  // ==========================================
+  // --- RENDER DEDICATED FULLSCREEN DOCENTE ---
   const isDocente = (selectedRole as string) === 'DOCENTE';
   if (isDocente) {
     return (
@@ -447,11 +676,14 @@ export default function SUEAdminPortal() {
           </div>
           
           <button 
-            onClick={() => setSelectedRole('MINISTERIO')} 
+            onClick={() => {
+              setIsLoggedIn(false);
+              showToast('👋 Sesión cerrada correctamente');
+            }} 
             className="text-red-500 hover:text-red-600 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all hover:scale-105"
           >
             <LogOut className="h-4 w-4" />
-            <span>[→ Salir de docente</span>
+            <span>Cerrar Sesión</span>
           </button>
         </header>
 
@@ -1653,57 +1885,70 @@ export default function SUEAdminPortal() {
           </div>
         </div>
 
-        {/* Unified Profile Switcher Pills */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-50 border border-slate-200">
+        {/* Unified Profile Switcher Pills + Cerrar Sesión */}
+        <div className="flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-1.5 p-1 rounded-xl bg-slate-50 border border-slate-200">
+            <button 
+              onClick={() => setSelectedRole('MINISTERIO')}
+              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+                selectedRole === 'MINISTERIO' 
+                  ? 'bg-[#fe8204] text-white shadow-sm' 
+                  : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              Ministerio
+            </button>
+            <button 
+              onClick={() => setSelectedRole('DIRECTIVO')}
+              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+                selectedRole === 'DIRECTIVO' 
+                  ? 'bg-[#fe8204] text-white shadow-sm' 
+                  : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              Directivo
+            </button>
+            <button 
+              onClick={() => setSelectedRole('DOCENTE')}
+              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+                selectedRole === 'DOCENTE' 
+                  ? 'bg-[#fe8204] text-white shadow-sm' 
+                  : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              Docente
+            </button>
+            <button 
+              onClick={() => setSelectedRole('PADRE')}
+              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+                selectedRole === 'PADRE' 
+                  ? 'bg-[#fe8204] text-white shadow-sm' 
+                  : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              Padres
+            </button>
+            <button 
+              onClick={() => setSelectedRole('ALUMNO')}
+              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+                selectedRole === 'ALUMNO' 
+                  ? 'bg-[#fe8204] text-white shadow-sm' 
+                  : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              Alumnos
+            </button>
+          </div>
+
           <button 
-            onClick={() => setSelectedRole('MINISTERIO')}
-            className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
-              selectedRole === 'MINISTERIO' 
-                ? 'bg-[#fe8204] text-white shadow-sm' 
-                : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
-            }`}
+            onClick={() => {
+              setIsLoggedIn(false);
+              showToast('👋 Sesión cerrada correctamente');
+            }}
+            className="bg-red-50 hover:bg-red-100 text-red-500 rounded-xl px-4 py-2.5 border border-red-100 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 transition-all hover:scale-105 shadow-sm"
           >
-            Ministerio
-          </button>
-          <button 
-            onClick={() => setSelectedRole('DIRECTIVO')}
-            className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
-              selectedRole === 'DIRECTIVO' 
-                ? 'bg-[#fe8204] text-white shadow-sm' 
-                : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
-            }`}
-          >
-            Directivo
-          </button>
-          <button 
-            onClick={() => setSelectedRole('DOCENTE')}
-            className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
-              selectedRole === 'DOCENTE' 
-                ? 'bg-[#fe8204] text-white shadow-sm' 
-                : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
-            }`}
-          >
-            Docente
-          </button>
-          <button 
-            onClick={() => setSelectedRole('PADRE')}
-            className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
-              selectedRole === 'PADRE' 
-                ? 'bg-[#fe8204] text-white shadow-sm' 
-                : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
-            }`}
-          >
-            Padres
-          </button>
-          <button 
-            onClick={() => setSelectedRole('ALUMNO')}
-            className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
-              selectedRole === 'ALUMNO' 
-                ? 'bg-[#fe8204] text-white shadow-sm' 
-                : 'text-slate-400 hover:text-slate-700 hover:bg-slate-200'
-            }`}
-          >
-            Alumnos
+            <LogOut className="h-4 w-4" />
+            <span>Cerrar Sesión</span>
           </button>
         </div>
       </header>
@@ -1759,7 +2004,7 @@ export default function SUEAdminPortal() {
           </div>
 
           <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-4 relative overflow-hidden group">
-            <div className="p-3.5 rounded-2xl bg-orange-500/10 text-[#fe8204] border border-orange-500/10">
+<div className="p-3.5 rounded-2xl bg-orange-500/10 text-[#fe8204] border border-orange-500/10">
               <UserCheck className="h-6 w-6" />
             </div>
             <div>
@@ -1774,14 +2019,14 @@ export default function SUEAdminPortal() {
 
           <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-4 relative overflow-hidden group">
             <div className="p-3.5 rounded-2xl bg-orange-500/10 text-[#fe8204] border border-orange-500/10">
-              <MapIcon className="h-6 w-6" />
+              <Home className="h-6 w-6" />
             </div>
             <div>
               <span className="text-[20px] font-black text-slate-800 leading-none block">
-                {deptsCount} / 19
+                {deptsCount}
               </span>
               <span className="text-[9px] text-slate-400 uppercase tracking-widest font-black mt-1 block">
-                Departamentos Conectados
+                Edificios Escolares
               </span>
             </div>
           </div>
@@ -1804,7 +2049,7 @@ export default function SUEAdminPortal() {
             
             {/* Docente Card */}
             <button 
-              onClick={() => setSelectedRole('DOCENTE')}
+              onClick={() => handleSelectPortal('DOCENTE')}
               className="bg-white p-5 rounded-3xl text-left transition-all hover:border-[#fe8204] hover:shadow-md flex flex-col justify-between h-44 border border-slate-200"
             >
               <div className="p-2.5 rounded-xl bg-orange-500/10 text-[#fe8204] border border-orange-500/20 w-fit">
@@ -1821,7 +2066,7 @@ export default function SUEAdminPortal() {
 
             {/* Alumno Card */}
             <button 
-              onClick={() => setSelectedRole('ALUMNO')}
+              onClick={() => handleSelectPortal('ALUMNO')}
               className="bg-white p-5 rounded-3xl text-left transition-all hover:border-[#fe8204] hover:shadow-md flex flex-col justify-between h-44 border border-slate-200"
             >
               <div className="p-2.5 rounded-xl bg-orange-500/10 text-[#fe8204] border border-orange-500/20 w-fit">
@@ -1838,7 +2083,7 @@ export default function SUEAdminPortal() {
 
             {/* Padres Card */}
             <button 
-              onClick={() => setSelectedRole('PADRE')}
+              onClick={() => handleSelectPortal('PADRE')}
               className="bg-white p-5 rounded-3xl text-left transition-all hover:border-[#fe8204] hover:shadow-md flex flex-col justify-between h-44 border border-slate-200"
             >
               <div className="p-2.5 rounded-xl bg-orange-500/10 text-[#fe8204] border border-orange-500/20 w-fit">
@@ -1855,7 +2100,7 @@ export default function SUEAdminPortal() {
 
             {/* Directivos Card */}
             <button 
-              onClick={() => setSelectedRole('DIRECTIVO')}
+              onClick={() => handleSelectPortal('DIRECTIVO')}
               className="bg-white p-5 rounded-3xl text-left transition-all hover:border-[#fe8204] hover:shadow-md flex flex-col justify-between h-44 border border-slate-200"
             >
               <div className="p-2.5 rounded-xl bg-orange-500/10 text-[#fe8204] border border-orange-500/20 w-fit">
@@ -1872,7 +2117,7 @@ export default function SUEAdminPortal() {
 
             {/* Ministerio Card */}
             <button 
-              onClick={() => setSelectedRole('MINISTERIO')}
+              onClick={() => handleSelectPortal('MINISTERIO')}
               className="bg-white p-5 rounded-3xl text-left transition-all hover:border-[#fe8204] hover:shadow-md flex flex-col justify-between h-44 border border-slate-200"
             >
               <div className="p-2.5 rounded-xl bg-orange-500/10 text-[#fe8204] border border-orange-500/20 w-fit">
@@ -1891,7 +2136,8 @@ export default function SUEAdminPortal() {
         </section>
 
         {/* 4. Active Role Portal Dynamic Dashboard Workspace (Ministerio/Directivo/Padre/Alumno) */}
-        <section className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm">
+        {isLoggedIn ? (
+          <section className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm">
           
           {/* Workspace Title Bar */}
           <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
@@ -3479,7 +3725,20 @@ export default function SUEAdminPortal() {
 
           </div>
 
-        </section>
+          </section>
+        ) : (
+          <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-4 shadow-sm">
+            <div className="w-16 h-16 bg-orange-500/10 text-[#fe8204] border border-orange-500/20 rounded-full flex items-center justify-center mx-auto animate-pulse">
+              <School className="h-7 w-7" />
+            </div>
+            <div className="space-y-1.5">
+              <h4 className="text-sm font-black uppercase text-slate-800 tracking-wider">Acceso Restringido al Ecosistema</h4>
+              <p className="text-[10px] text-slate-400 font-bold max-w-sm mx-auto leading-relaxed uppercase">
+                Selecciona uno de los 5 portales de acceso de arriba para loguearte y visualizar el panel interactivo en tiempo real.
+              </p>
+            </div>
+          </div>
+        )}
 
       </main>
 
