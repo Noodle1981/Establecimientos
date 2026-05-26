@@ -3,8 +3,8 @@
  * Heavy map component — loaded lazily via React.lazy to keep the main bundle lean.
  * All react-leaflet and leaflet imports live here so they are split into a separate chunk.
  */
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
-import { useEffect } from 'react';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap, GeoJSON } from 'react-leaflet';
+import { useEffect, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 
 // --- Internal sub-components ---
@@ -63,7 +63,56 @@ export default function MapView({
     hoveredEdificioId,
     setHoveredEdificioId,
     sidebarOpen,
+    showDeptoBorders = true,
 }) {
+    const [geojsonData, setGeojsonData] = useState(null);
+
+    useEffect(() => {
+        fetch('/geojson/departamentos-san_juan.json')
+            .then(res => res.json())
+            .then(data => setGeojsonData(data))
+            .catch(err => console.error("Error loading GeoJSON:", err));
+    }, []);
+
+    const onEachFeature = (feature, layer) => {
+        if (feature.properties && feature.properties.departamento) {
+            // Bind tooltips beautifully
+            layer.bindTooltip(feature.properties.departamento.toUpperCase(), {
+                sticky: true,
+                className: 'custom-depto-tooltip font-bold text-xs bg-white text-gray-800 px-2.5 py-1 rounded-xl shadow-md border border-orange-100',
+            });
+
+            layer.on({
+                mouseover: (e) => {
+                    const l = e.target;
+                    l.setStyle({
+                        fillOpacity: 0.12,
+                        weight: 2.5,
+                        color: '#FE8204',
+                    });
+                },
+                mouseout: (e) => {
+                    const l = e.target;
+                    l.setStyle({
+                        fillOpacity: 0.03,
+                        weight: 1.5,
+                        color: '#FE8204',
+                    });
+                },
+                click: (e) => {
+                    const map = e.target._map;
+                    if (map && typeof e.target.getBounds === 'function') {
+                        try {
+                            map.fitBounds(e.target.getBounds(), { padding: [50, 50] });
+                        } catch (err) {
+                            console.error(err);
+                        }
+                    }
+                }
+            });
+        }
+    };
+
     return (
         <MapContainer
             center={[-31.5375, -68.5364]}
@@ -81,6 +130,20 @@ export default function MapView({
             />
 
             <MapController selected={selectedEdificio} sidebarOpen={sidebarOpen} />
+
+            {showDeptoBorders && geojsonData && (
+                <GeoJSON
+                    data={geojsonData}
+                    style={{
+                        color: '#FE8204',
+                        weight: 1.5,
+                        fillColor: '#FE8204',
+                        fillOpacity: 0.03,
+                        dashArray: '3',
+                    }}
+                    onEachFeature={onEachFeature}
+                />
+            )}
 
             {/* Standalone Popup for selected building — opens automatically */}
             {selectedEdificio && selectedEdificio.establecimientos && (

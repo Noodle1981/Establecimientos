@@ -18,6 +18,7 @@ export default function MapaPublico({ edificios = [] }) {
     const [hoveredEdificioId, setHoveredEdificioId] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [showDeptoBorders, setShowDeptoBorders] = useState(true);
 
     const { data, setData, post, processing, reset, errors } = useForm({
         edificio_id: '',
@@ -292,6 +293,27 @@ export default function MapaPublico({ edificios = [] }) {
                                     <i className="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none"></i>
                                 </div>
                             </section>
+
+                            {/* Opciones de Capa Section */}
+                            <section className="border-t border-orange-50 pt-6">
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-2">
+                                    <i className="fas fa-cog text-brand-orange"></i> Opciones de Capa
+                                </h3>
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                    <span className="text-xs font-bold text-gray-700 flex items-center gap-2">
+                                        <i className="fas fa-map text-brand-orange/60"></i> Límites de Departamentos
+                                    </span>
+                                    <label className="relative inline-flex items-center cursor-pointer select-none">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={showDeptoBorders}
+                                            onChange={() => setShowDeptoBorders(!showDeptoBorders)}
+                                            className="sr-only peer"
+                                        />
+                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-orange"></div>
+                                    </label>
+                                </div>
+                            </section>
                         </div>
 
                         {/* Footer Actions */}
@@ -335,6 +357,7 @@ export default function MapaPublico({ edificios = [] }) {
                             hoveredEdificioId={hoveredEdificioId}
                             setHoveredEdificioId={setHoveredEdificioId}
                             sidebarOpen={sidebarOpen}
+                            showDeptoBorders={showDeptoBorders}
                         />
                     </Suspense>
 
