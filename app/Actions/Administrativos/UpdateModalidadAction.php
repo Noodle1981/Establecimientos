@@ -29,6 +29,7 @@ class UpdateModalidadAction
             $modalidad->establecimiento->update([
                 'cue' => $data['cue'],
                 'nombre' => $data['nombre_establecimiento'],
+                'observaciones' => $data['observaciones'] ?? null,
             ]);
 
             // Sync Modalidad
@@ -36,8 +37,8 @@ class UpdateModalidadAction
                 'nivel_educativo' => $data['nivel_educativo'],
                 'direccion_area' => $data['direccion_area'],
                 'validado' => $data['validado'],
-                'radio' => $data['radio'],
-                'sector' => $data['sector'],
+                'radio' => $data['radio'] ?? null,
+                'sector' => $data['sector'] ?? null,
                 'ambito' => $data['ambito'],
             ]);
         });

@@ -64,12 +64,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/edificios', [App\Http\Controllers\Administrativos\EdificioController::class, 'index'])->name('administrativos.edificios.index');
         Route::post('/edificios', [App\Http\Controllers\Administrativos\EdificioController::class, 'store'])->name('administrativos.edificios.store');
         Route::patch('/edificios/{id}', [App\Http\Controllers\Administrativos\EdificioController::class, 'update'])->name('administrativos.edificios.update');
+        Route::delete('/edificios/{id}', [App\Http\Controllers\Administrativos\EdificioController::class, 'destroy'])->name('administrativos.edificios.destroy');
         Route::get('/edificios/export', [App\Http\Controllers\Administrativos\EdificioController::class, 'export'])->name('administrativos.edificios.export');
 
         // Gestión de Establecimientos (Modalidades)
         Route::get('/establecimientos', [App\Http\Controllers\Administrativos\ModalidadController::class, 'index'])->name('administrativos.establecimientos.index');
         Route::post('/establecimientos', [App\Http\Controllers\Administrativos\ModalidadController::class, 'store'])->name('administrativos.establecimientos.store');
         Route::patch('/establecimientos/{id}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'update'])->name('administrativos.establecimientos.update');
+        Route::delete('/establecimientos/{id}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'destroy'])->name('administrativos.establecimientos.destroy');
         Route::get('/establecimientos/export', [App\Http\Controllers\Administrativos\ModalidadController::class, 'export'])->name('administrativos.establecimientos.export');
         Route::get('/api/lookup-edificio/{cui}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'lookupEdificio'])->name('api.lookup-edificio');
 

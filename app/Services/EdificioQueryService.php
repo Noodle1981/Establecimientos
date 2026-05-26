@@ -13,7 +13,7 @@ class EdificioQueryService
      */
     public function getFilteredQuery(Request $request): Builder
     {
-        $query = Edificio::with(['establecimientos.modalidades']);
+        $query = Edificio::with(['establecimientos.modalidades', 'establecimientos.cabecera']);
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {

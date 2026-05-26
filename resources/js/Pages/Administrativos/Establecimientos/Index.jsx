@@ -76,6 +76,19 @@ export default function Index({ modalidades, filters, options, nombresEdificios 
         router.get(route('administrativos.establecimientos.index'), {});
     };
 
+    const handleDelete = (item) => {
+        const hasOnlyOneModalidad = item.establecimiento?.modalidades_count === 1;
+        
+        let confirmMessage = '¿Está seguro de que desea dar de baja esta modalidad escolar? Se trasladará a la papelera de reciclaje.';
+        if (hasOnlyOneModalidad) {
+            confirmMessage = '⚠️ ¡ATENCIÓN! Esta es la ÚLTIMA modalidad activa de este establecimiento. Si la elimina, el ESTABLECIMIENTO COMPLETO (CUE: ' + item.establecimiento.cue + ') se dará de baja automáticamente. ¿Desea continuar?';
+        }
+
+        if (confirm(confirmMessage)) {
+            router.delete(route('administrativos.establecimientos.destroy', item.id));
+        }
+    };
+
     return (
         <AuthenticatedLayout header={null}>
             <Head title="Establecimientos" />
@@ -245,6 +258,13 @@ export default function Index({ modalidades, filters, options, nombresEdificios 
                                                     >
                                                         <i className="fas fa-edit text-xs"></i>
                                                     </button>
+                                                    <button 
+                                                        onClick={() => handleDelete(item)}
+                                                        className="p-2 rounded-lg bg-red-50 text-brand-red border border-brand-red/20 hover:bg-brand-red hover:text-white transition shadow-sm"
+                                                        title="Dar de baja modalidad"
+                                                    >
+                                                        <i className="fas fa-trash text-xs"></i>
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -338,6 +358,21 @@ function ViewModalidadModal({ show, onClose, modalidad, nombresEdificios }) {
                     <DetailItem icon="fas fa-check-circle" label="Estado Validación" value={modalidad.validado ? 'CONSOLIDADO' : 'PENDIENTE DE REVISIÓN'} />
                 </div>
 
+                <div className="border-t pt-4 mt-6">
+                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                        <i className="fas fa-comment-alt text-brand-orange"></i> Observaciones del Establecimiento (CUE)
+                    </h4>
+                    {modalidad.establecimiento.observaciones ? (
+                        <div className="p-4 bg-orange-50/30 border border-orange-100/50 rounded-2xl">
+                            <p className="text-xs font-semibold text-gray-700 leading-relaxed whitespace-pre-wrap">
+                                {modalidad.establecimiento.observaciones}
+                            </p>
+                        </div>
+                    ) : (
+                        <p className="text-xs text-gray-400 font-medium italic">Sin observaciones registradas para este CUE.</p>
+                    )}
+                </div>
+
                 <div className="mt-8 flex justify-end">
                     <SecondaryButton onClick={onClose}>Cerrar Panel</SecondaryButton>
                 </div>
@@ -347,18 +382,17 @@ function ViewModalidadModal({ show, onClose, modalidad, nombresEdificios }) {
 }
 
 function EditModalidadModal({ show, onClose, modalidad, options }) {
-    if (!modalidad) return null;
-
     const { data, setData, patch, processing, errors, reset } = useForm({
-        cui: modalidad.establecimiento.edificio.cui || '',
-        cue: modalidad.establecimiento.cue || '',
-        nombre_establecimiento: modalidad.establecimiento.nombre || '',
-        nivel_educativo: modalidad.nivel_educativo || '',
-        direccion_area: modalidad.direccion_area || '',
-        ambito: modalidad.ambito || '',
-        radio: modalidad.radio || '',
-        sector: modalidad.sector || '',
-        validado: !!modalidad.validado,
+        cui: '',
+        cue: '',
+        nombre_establecimiento: '',
+        nivel_educativo: '',
+        direccion_area: '',
+        ambito: '',
+        radio: '',
+        sector: '',
+        validado: false,
+        observaciones: '',
     });
 
     useEffect(() => {
@@ -373,9 +407,12 @@ function EditModalidadModal({ show, onClose, modalidad, options }) {
                 radio: modalidad.radio || '',
                 sector: modalidad.sector || '',
                 validado: !!modalidad.validado,
+                observaciones: modalidad.establecimiento.observaciones || '',
             });
         }
     }, [modalidad, show]);
+
+    if (!modalidad) return null;
 
     const submit = (e) => {
         e.preventDefault();
@@ -423,6 +460,17 @@ function EditModalidadModal({ show, onClose, modalidad, options }) {
 
                     <div className="col-span-1">
                         <ModalInput label="Nivel Educativo" value={data.nivel_educativo} onChange={v => setData('nivel_educativo', v)} error={errors.nivel_educativo} />
+                    </div>
+
+                    <div className="col-span-2 border-t pt-4 mt-2">
+                        <InputLabel value="Comentarios / Observaciones del Establecimiento (CUE)" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+                        <textarea
+                            placeholder="Escriba aquí las observaciones específicas de esta escuela (CUE)..."
+                            value={data.observaciones}
+                            onChange={e => setData('observaciones', e.target.value)}
+                            className="w-full rounded-xl border-gray-300 min-h-[100px] text-sm focus:border-brand-orange focus:ring-brand-orange"
+                        />
+                        {errors.observaciones && <InputError message={errors.observaciones} />}
                     </div>
                 </div>
 

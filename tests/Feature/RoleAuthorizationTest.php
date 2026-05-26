@@ -19,8 +19,8 @@ class RoleAuthorizationTest extends TestCase
         $response = $this->get('/dashboard');
         $response->assertRedirect('/login');
 
-        // Intentar acceder a ruta mid
-        $response = $this->get('/mid');
+        // Intentar acceder a ruta administrativa
+        $response = $this->get('/administrativos/Panel');
         $response->assertRedirect('/login');
 
         // Intentar acceder a ruta admin
@@ -29,33 +29,33 @@ class RoleAuthorizationTest extends TestCase
     }
 
     /**
-     * Test que un usuario con rol 'user' puede acceder a /dashboard
+     * Test que un usuario con rol 'user' es redirigido del dashboard al mapa público
      */
-    public function test_user_can_access_dashboard(): void
+    public function test_user_is_redirected_to_public_map(): void
     {
         $user = User::factory()->create([
             'role' => 'user',
         ]);
 
         $response = $this->actingAs($user)->get('/dashboard');
-        $response->assertStatus(200);
+        $response->assertRedirect(route('mapa.publico'));
     }
 
     /**
-     * Test que un usuario con rol 'user' NO puede acceder a /mid
+     * Test que un usuario con rol 'user' NO puede acceder a rutas administrativas
      */
-    public function test_user_cannot_access_mid_dashboard(): void
+    public function test_user_cannot_access_administrative_dashboard(): void
     {
         $user = User::factory()->create([
             'role' => 'user',
         ]);
 
-        $response = $this->actingAs($user)->get('/mid');
+        $response = $this->actingAs($user)->get('/administrativos/Panel');
         $response->assertStatus(403);
     }
 
     /**
-     * Test que un usuario con rol 'user' NO puede acceder a /admin
+     * Test que un usuario con rol 'user' NO puede acceder a consola admin
      */
     public function test_user_cannot_access_admin_dashboard(): void
     {
@@ -68,38 +68,38 @@ class RoleAuthorizationTest extends TestCase
     }
 
     /**
-     * Test que un usuario con rol 'mid' puede acceder a /mid
+     * Test que un usuario con rol 'administrativos' puede acceder al panel administrativo
      */
-    public function test_mid_can_access_mid_dashboard(): void
+    public function test_administrativo_can_access_administrative_dashboard(): void
     {
         $user = User::factory()->create([
-            'role' => 'mid',
+            'role' => 'administrativos',
         ]);
 
-        $response = $this->actingAs($user)->get('/mid');
+        $response = $this->actingAs($user)->get('/administrativos/Panel');
         $response->assertStatus(200);
     }
 
     /**
-     * Test que un usuario con rol 'mid' puede acceder a /dashboard
+     * Test que un administrativo es redirigido del dashboard a su panel
      */
-    public function test_mid_can_access_dashboard(): void
+    public function test_administrativo_is_redirected_from_dashboard(): void
     {
         $user = User::factory()->create([
-            'role' => 'mid',
+            'role' => 'administrativos',
         ]);
 
         $response = $this->actingAs($user)->get('/dashboard');
-        $response->assertStatus(200);
+        $response->assertRedirect(route('administrativos.dashboard'));
     }
 
     /**
-     * Test que un usuario con rol 'mid' NO puede acceder a /admin
+     * Test que un administrativo NO puede acceder a la consola admin
      */
-    public function test_mid_cannot_access_admin_dashboard(): void
+    public function test_administrativo_cannot_access_admin_dashboard(): void
     {
         $user = User::factory()->create([
-            'role' => 'mid',
+            'role' => 'administrativos',
         ]);
 
         $response = $this->actingAs($user)->get('/admin');
@@ -107,7 +107,7 @@ class RoleAuthorizationTest extends TestCase
     }
 
     /**
-     * Test que un usuario con rol 'admin' puede acceder a /admin
+     * Test que un usuario con rol 'admin' puede acceder a consola admin
      */
     public function test_admin_can_access_admin_dashboard(): void
     {
@@ -120,28 +120,28 @@ class RoleAuthorizationTest extends TestCase
     }
 
     /**
-     * Test que un usuario con rol 'admin' puede acceder a /mid
+     * Test que un admin es redirigido del dashboard a su consola
      */
-    public function test_admin_can_access_mid_dashboard(): void
-    {
-        $user = User::factory()->create([
-            'role' => 'admin',
-        ]);
-
-        $response = $this->actingAs($user)->get('/mid');
-        $response->assertStatus(200);
-    }
-
-    /**
-     * Test que un usuario con rol 'admin' puede acceder a /dashboard
-     */
-    public function test_admin_can_access_dashboard(): void
+    public function test_admin_is_redirected_from_dashboard(): void
     {
         $user = User::factory()->create([
             'role' => 'admin',
         ]);
 
         $response = $this->actingAs($user)->get('/dashboard');
+        $response->assertRedirect(route('admin.dashboard'));
+    }
+
+    /**
+     * Test que un admin puede acceder a rutas de administrativos
+     */
+    public function test_admin_can_access_administrative_dashboard(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $response = $this->actingAs($user)->get('/administrativos/Panel');
         $response->assertStatus(200);
     }
 
@@ -151,27 +151,27 @@ class RoleAuthorizationTest extends TestCase
     public function test_user_role_helper_methods(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $mid = User::factory()->create(['role' => 'mid']);
+        $administrativo = User::factory()->create(['role' => 'administrativos']);
         $user = User::factory()->create(['role' => 'user']);
 
         // Test isAdmin()
         $this->assertTrue($admin->isAdmin());
-        $this->assertFalse($mid->isAdmin());
+        $this->assertFalse($administrativo->isAdmin());
         $this->assertFalse($user->isAdmin());
 
-        // Test isMid()
-        $this->assertFalse($admin->isMid());
-        $this->assertTrue($mid->isMid());
-        $this->assertFalse($user->isMid());
+        // Test isAdministrativo()
+        $this->assertFalse($admin->isAdministrativo());
+        $this->assertTrue($administrativo->isAdministrativo());
+        $this->assertFalse($user->isAdministrativo());
 
         // Test isUser()
         $this->assertFalse($admin->isUser());
-        $this->assertFalse($mid->isUser());
+        $this->assertFalse($administrativo->isUser());
         $this->assertTrue($user->isUser());
 
         // Test hasRole()
         $this->assertTrue($admin->hasRole('admin'));
-        $this->assertTrue($admin->hasRole(['admin', 'mid']));
-        $this->assertFalse($user->hasRole(['admin', 'mid']));
+        $this->assertTrue($admin->hasRole(['admin', 'administrativos']));
+        $this->assertFalse($user->hasRole(['admin', 'administrativos']));
     }
 }

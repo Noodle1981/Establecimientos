@@ -25,21 +25,31 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
             
             const mapa = nombresEdificios || {};
             
-            // 1. Prioridad: Nombre directo
+            // 1. Prioridad: Nombre de la relación cabecera (Eloquent)
+            if (mod.establecimiento.cabecera && mod.establecimiento.cabecera.nombre) {
+                return mod.establecimiento.cabecera.nombre;
+            }
+            
+            // 2. Prioridad: Nombre directo del edificio
             if (mod.establecimiento.edificio && mod.establecimiento.edificio.nombre) {
                 return mod.establecimiento.edificio.nombre;
             }
             
-            // 2. Prioridad: Cabecera (Nombre o Código)
+            // 3. Prioridad: Cabecera (Nombre o Código en mapa)
             const cab = mod.establecimiento.establecimiento_cabecera;
             if (cab) {
-                if (mapa[cab]) return mapa[cab]; // Si es un código que está en el mapa
+                const shortCab = typeof cab === 'string' || typeof cab === 'number' ? String(cab).substring(0, 7) : '';
+                if (mapa[cab]) return mapa[cab];
+                if (mapa[shortCab]) return mapa[shortCab];
                 if (isNaN(cab)) return cab; // Si es directamente un nombre (texto)
             }
 
-            // 3. Fallback: CUI del edificio propio
-            if (mod.establecimiento.edificio && mod.establecimiento.edificio.cui && mapa[mod.establecimiento.edificio.cui]) {
-                return mapa[mod.establecimiento.edificio.cui];
+            // 4. Fallback: CUI del edificio propio en el mapa
+            if (mod.establecimiento.edificio && mod.establecimiento.edificio.cui) {
+                const cui = mod.establecimiento.edificio.cui;
+                const shortCui = typeof cui === 'string' || typeof cui === 'number' ? String(cui).substring(0, 7) : '';
+                if (mapa[cui]) return mapa[cui];
+                if (mapa[shortCui]) return mapa[shortCui];
             }
         } catch (e) {
             console.error("Error en getNombreEdificio:", e);

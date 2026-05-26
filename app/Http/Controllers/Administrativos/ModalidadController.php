@@ -130,6 +130,33 @@ class ModalidadController extends Controller
     }
 
     /**
+     * Remove a modality (soft-delete).
+     */
+    public function destroy(int $id, ActivityLogService $activityLogger)
+    {
+        \Illuminate\Support\Facades\DB::transaction(function () use ($id, $activityLogger) {
+            $modalidad = Modalidad::findOrFail($id);
+            $establecimiento = $modalidad->establecimiento;
+            
+            // 1. Cambiar estado a ELIMINADO para la bitácora
+            $modalidad->cambiarEstado('ELIMINADO', 'Baja por administrativo', auth()->id());
+            
+            // 2. Soft-delete de la modalidad
+            $modalidad->delete();
+
+            // 3. Cascada automática si es la última modalidad activa del establecimiento
+            if ($establecimiento && $establecimiento->modalidades()->count() === 0) {
+                $establecimiento->delete();
+                $activityLogger->logDelete($establecimiento, "Baja atómica de establecimiento por quedarse sin modalidades: CUE " . $establecimiento->cue);
+            } else {
+                $activityLogger->logDelete($modalidad, "Baja de modalidad individual: CUE " . ($establecimiento->cue ?? 'S/D'));
+            }
+        });
+
+        return back()->with('success', 'Establecimiento/Modalidad enviado a la papelera correctamente.');
+    }
+
+    /**
      * API for CUI lookup.
      */
     public function lookupEdificio(string $cui)

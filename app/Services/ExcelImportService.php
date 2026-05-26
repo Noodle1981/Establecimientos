@@ -21,6 +21,7 @@ class ExcelImportService
             'edificios' => 0,
             'establecimientos' => 0,
             'modalidades' => 0,
+            'omitidos' => 0,
             'errores' => []
         ];
         
@@ -122,6 +123,42 @@ class ExcelImportService
                 }
             }
             
+            // Resolviendo nombres de cabecera a CUEs
+            DB::statement("
+                UPDATE establecimientos 
+                SET establecimiento_cabecera = (
+                    SELECT cue 
+                    FROM establecimientos AS e 
+                    WHERE e.nombre = establecimientos.establecimiento_cabecera 
+                    LIMIT 1
+                )
+                WHERE establecimiento_cabecera IS NOT NULL 
+                  AND establecimiento_cabecera != ''
+                  AND establecimiento_cabecera NOT IN (SELECT cue FROM establecimientos);
+            ");
+
+            DB::statement("
+                UPDATE establecimientos
+                SET establecimiento_cabecera = (
+                    SELECT cue 
+                    FROM establecimientos AS e
+                    WHERE e.edificio_id = establecimientos.edificio_id
+                    ORDER BY (e.cue % 100 = 0) DESC, e.cue ASC
+                    LIMIT 1
+                )
+                WHERE establecimiento_cabecera IS NOT NULL 
+                  AND establecimiento_cabecera != ''
+                  AND establecimiento_cabecera NOT IN (SELECT cue FROM establecimientos);
+            ");
+
+            DB::statement("
+                UPDATE establecimientos
+                SET establecimiento_cabecera = cue
+                WHERE establecimiento_cabecera IS NULL 
+                   OR establecimiento_cabecera = ''
+                   OR establecimiento_cabecera NOT IN (SELECT cue FROM establecimientos);
+            ");
+            
             DB::commit();
             
         } catch (\Exception $e) {
@@ -130,6 +167,7 @@ class ExcelImportService
             Log::error("Error general en importación", ['error' => $e->getMessage()]);
         }
         
+        $stats['omitidos'] = $skippedCount;
         return $stats;
     }
     

@@ -23,7 +23,7 @@ class StoreModalidadRequest extends FormRequest
             'nombre_establecimiento' => 'required|string',
             'cue' => ['required', 'regex:/^(\d{9}|PROV.*)$/'],
             'cui' => ['required', 'regex:/^(\d{7}|PROV.*)$/'],
-            'establecimiento_cabecera' => 'required|string',
+            'establecimiento_cabecera' => ['required', 'regex:/^(\d{9}|PROV.*)$/'],
             'nivel_educativo' => 'required',
             'direccion_area' => 'required',
             'ambito' => 'required',

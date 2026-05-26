@@ -26,9 +26,9 @@ class StoreEdificioRequest extends FormRequest
             'localidad'        => 'required|string|max:255',
             'zona_departamento'=> 'required|string|max:255',
             'codigo_postal'    => 'nullable|numeric',
-            'latitud'          => 'nullable|numeric|not_in:0',
-            'longitud'         => 'nullable|numeric|not_in:0',
-            'letra_zona'       => 'nullable|string|max:1',
+            'latitud'          => 'nullable|numeric',
+            'longitud'         => 'nullable|numeric',
+            'letra_zona'       => 'nullable|string|max:10',
             'orientacion'      => 'nullable|string|max:50',
             'te_voip'          => 'nullable|string|max:50',
         ];

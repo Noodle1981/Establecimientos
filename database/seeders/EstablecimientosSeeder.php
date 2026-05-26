@@ -152,6 +152,47 @@ class EstablecimientosSeeder extends Seeder
                 $this->command->error("❌ Error en fila " . ($index + 2) . ": " . $e->getMessage());
             }
         }
+
+        $this->command->info('🔄 Resolviendo nombres de cabecera a CUEs...');
+        DB::transaction(function () {
+            // 1. Resolver por coincidencia exacta de nombre
+            DB::statement("
+                UPDATE establecimientos 
+                SET establecimiento_cabecera = (
+                    SELECT cue 
+                    FROM establecimientos AS e 
+                    WHERE e.nombre = establecimientos.establecimiento_cabecera 
+                    LIMIT 1
+                )
+                WHERE establecimiento_cabecera IS NOT NULL 
+                  AND establecimiento_cabecera != ''
+                  AND establecimiento_cabecera NOT IN (SELECT cue FROM establecimientos);
+            ");
+
+            // 2. Fallback por CUI (Edificio)
+            DB::statement("
+                UPDATE establecimientos
+                SET establecimiento_cabecera = (
+                    SELECT cue 
+                    FROM establecimientos AS e
+                    WHERE e.edificio_id = establecimientos.edificio_id
+                    ORDER BY (e.cue % 100 = 0) DESC, e.cue ASC
+                    LIMIT 1
+                )
+                WHERE establecimiento_cabecera IS NOT NULL 
+                  AND establecimiento_cabecera != ''
+                  AND establecimiento_cabecera NOT IN (SELECT cue FROM establecimientos);
+            ");
+
+            // 3. Autorreferencial
+            DB::statement("
+                UPDATE establecimientos
+                SET establecimiento_cabecera = cue
+                WHERE establecimiento_cabecera IS NULL 
+                   OR establecimiento_cabecera = ''
+                   OR establecimiento_cabecera NOT IN (SELECT cue FROM establecimientos);
+            ");
+        });
         
         $this->command->info('✨ Importación completada!');
         $this->command->info('📊 Edificios: ' . Edificio::count());

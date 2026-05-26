@@ -64,6 +64,18 @@ export default function Index({ edificios, filters, options }) {
         setShowViewModal(true);
     };
 
+    const handleDelete = (id) => {
+        if (confirm('¿Está seguro de que desea eliminar este edificio? Se trasladará a la papelera de reciclaje.')) {
+            router.delete(route('administrativos.edificios.destroy', id), {
+                onError: (errors) => {
+                    if (errors.error) {
+                        alert(errors.error);
+                    }
+                }
+            });
+        }
+    };
+
     return (
         <AuthenticatedLayout header={null}>
             <Head title="Edificios" />
@@ -160,7 +172,7 @@ export default function Index({ edificios, filters, options }) {
                                         </td>
                                         <td className="px-6 py-2">
                                             <span className="text-xs font-black text-black/80 leading-tight line-clamp-2">
-                                                {edificio.establecimientos[0]?.establecimiento_cabecera || edificio.establecimientos[0]?.nombre || 'Sin Cabecera'}
+                                                {edificio.establecimientos[0]?.cabecera?.nombre || edificio.establecimientos[0]?.nombre || 'Sin Cabecera'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-2">
@@ -193,6 +205,13 @@ export default function Index({ edificios, filters, options }) {
                                                     title="Editar edificio"
                                                 >
                                                     <i className="fas fa-edit text-xs"></i>
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleDelete(edificio.id)}
+                                                    className="p-2 rounded-lg bg-red-50 text-brand-red border border-brand-red/20 hover:bg-brand-red hover:text-white transition shadow-sm"
+                                                    title="Eliminar edificio"
+                                                >
+                                                    <i className="fas fa-trash text-xs"></i>
                                                 </button>
                                             </div>
                                         </td>
@@ -293,6 +312,7 @@ function CreateEdificioModal({ show, onClose }) {
                             value={data.numero_puerta}
                             onChange={(e) => setData('numero_puerta', e.target.value)}
                         />
+                        <InputError message={errors.numero_puerta} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -331,6 +351,7 @@ function CreateEdificioModal({ show, onClose }) {
                             value={data.latitud}
                             onChange={(e) => setData('latitud', e.target.value)}
                         />
+                        <InputError message={errors.latitud} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -341,6 +362,7 @@ function CreateEdificioModal({ show, onClose }) {
                             value={data.longitud}
                             onChange={(e) => setData('longitud', e.target.value)}
                         />
+                        <InputError message={errors.longitud} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-2 border-t pt-4">
@@ -355,6 +377,7 @@ function CreateEdificioModal({ show, onClose }) {
                             value={data.codigo_postal}
                             onChange={(e) => setData('codigo_postal', e.target.value)}
                         />
+                        <InputError message={errors.codigo_postal} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -365,6 +388,7 @@ function CreateEdificioModal({ show, onClose }) {
                             value={data.orientacion}
                             onChange={(e) => setData('orientacion', e.target.value)}
                         />
+                        <InputError message={errors.orientacion} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -375,6 +399,7 @@ function CreateEdificioModal({ show, onClose }) {
                             value={data.te_voip}
                             onChange={(e) => setData('te_voip', e.target.value)}
                         />
+                        <InputError message={errors.te_voip} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -385,6 +410,7 @@ function CreateEdificioModal({ show, onClose }) {
                             value={data.letra_zona}
                             onChange={(e) => setData('letra_zona', e.target.value)}
                         />
+                        <InputError message={errors.letra_zona} className="mt-2" />
                     </div>
                 </div>
 
@@ -462,7 +488,7 @@ function EditEdificioModal({ show, onClose, edificio }) {
         letra_zona: edificio.letra_zona || '',
         orientacion: edificio.orientacion || '',
         te_voip: edificio.te_voip || '',
-        cue_cabecera: edificio.establecimientos?.find(e => e.nombre === e.establecimiento_cabecera)?.cue || edificio.establecimientos?.[0]?.cue || '',
+        cue_cabecera: edificio.establecimientos?.[0]?.establecimiento_cabecera || edificio.establecimientos?.[0]?.cue || '',
     });
 
     const submit = (e) => {
@@ -568,6 +594,7 @@ function EditEdificioModal({ show, onClose, edificio }) {
                             value={data.numero_puerta}
                             onChange={(e) => setData('numero_puerta', e.target.value)}
                         />
+                        <InputError message={errors.numero_puerta} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -579,6 +606,7 @@ function EditEdificioModal({ show, onClose, edificio }) {
                             onChange={(e) => setData('localidad', e.target.value)}
                             required
                         />
+                        <InputError message={errors.localidad} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -590,6 +618,7 @@ function EditEdificioModal({ show, onClose, edificio }) {
                             onChange={(e) => setData('zona_departamento', e.target.value)}
                             required
                         />
+                        <InputError message={errors.zona_departamento} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-2 border-t pt-4">
@@ -604,6 +633,7 @@ function EditEdificioModal({ show, onClose, edificio }) {
                             value={data.latitud}
                             onChange={(e) => setData('latitud', e.target.value)}
                         />
+                        <InputError message={errors.latitud} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -614,6 +644,7 @@ function EditEdificioModal({ show, onClose, edificio }) {
                             value={data.longitud}
                             onChange={(e) => setData('longitud', e.target.value)}
                         />
+                        <InputError message={errors.longitud} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-2 border-t pt-4">
@@ -628,6 +659,7 @@ function EditEdificioModal({ show, onClose, edificio }) {
                             value={data.codigo_postal}
                             onChange={(e) => setData('codigo_postal', e.target.value)}
                         />
+                        <InputError message={errors.codigo_postal} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -638,6 +670,7 @@ function EditEdificioModal({ show, onClose, edificio }) {
                             value={data.orientacion}
                             onChange={(e) => setData('orientacion', e.target.value)}
                         />
+                        <InputError message={errors.orientacion} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -648,6 +681,7 @@ function EditEdificioModal({ show, onClose, edificio }) {
                             value={data.te_voip}
                             onChange={(e) => setData('te_voip', e.target.value)}
                         />
+                        <InputError message={errors.te_voip} className="mt-2" />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -658,6 +692,7 @@ function EditEdificioModal({ show, onClose, edificio }) {
                             value={data.letra_zona}
                             onChange={(e) => setData('letra_zona', e.target.value)}
                         />
+                        <InputError message={errors.letra_zona} className="mt-2" />
                     </div>
                 </div>
 

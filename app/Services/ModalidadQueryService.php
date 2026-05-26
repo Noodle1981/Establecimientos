@@ -13,9 +13,12 @@ class ModalidadQueryService
      */
     public function getFilteredQuery(Request $request): Builder
     {
-        $query = Modalidad::with(['establecimiento.edificio']);
-
-        // Search logic
+        $query = Modalidad::with([
+            'establecimiento' => function($q) {
+                $q->withCount('modalidades');
+            },
+            'establecimiento.edificio'
+        ]);
         if ($search = $request->input('search')) {
             $query->whereHas('establecimiento', function ($q) use ($search) {
                 $q->where('nombre', 'like', '%' . $search . '%')

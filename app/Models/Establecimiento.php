@@ -17,11 +17,26 @@ class Establecimiento extends Model
         'cue_edificio_principal',
         'nombre',
         'establecimiento_cabecera',
+        'observaciones',
     ];
 
     protected $casts = [
         // 'cue' and 'cue_edificio_principal' left as strings to preserve leading zeros
     ];
+
+    protected static function booted()
+    {
+        static::updating(function ($establecimiento) {
+            if ($establecimiento->isDirty('cue')) {
+                $oldCue = $establecimiento->getOriginal('cue');
+                $newCue = $establecimiento->cue;
+
+                // Propagar en cascada para evitar enlaces rotos de cabecera
+                static::where('establecimiento_cabecera', $oldCue)
+                    ->update(['establecimiento_cabecera' => $newCue]);
+            }
+        });
+    }
 
     public function edificio(): BelongsTo
     {

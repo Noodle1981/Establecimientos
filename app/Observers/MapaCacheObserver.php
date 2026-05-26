@@ -11,7 +11,16 @@ class MapaCacheObserver
      */
     private function clearCache(): void
     {
+        // Limpiar caché de mapa público
         Cache::forget('public-mapa-edificios-react');
+
+        // Limpiar caché estático y dinámico de Dashboard
+        Cache::forget('dashboard-departamentos');
+        Cache::forget('modalidades_options_react');
+        
+        foreach (['TODOS', 'PUBLICO', 'PRIVADO'] as $ambito) {
+            Cache::forget('dashboard-direcciones-' . md5($ambito));
+        }
     }
 
     public function saved(): void

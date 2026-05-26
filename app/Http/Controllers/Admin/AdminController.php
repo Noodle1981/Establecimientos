@@ -103,14 +103,30 @@ class AdminController extends Controller
 
     public function restore($type, $id)
     {
-        $model = $type === 'modalidad' ? Modalidad::onlyTrashed() : Edificio::onlyTrashed();
-        $model->findOrFail($id)->restore();
+        \Illuminate\Support\Facades\DB::transaction(function () use ($type, $id) {
+            $model = $type === 'modalidad' ? Modalidad::onlyTrashed() : Edificio::onlyTrashed();
+            $record = $model->findOrFail($id);
+            $record->restore();
+
+            // Restauración inversa en cascada
+            if ($type === 'modalidad') {
+                $est = $record->establecimiento()->onlyTrashed()->first();
+                if ($est) {
+                    $est->restore();
+                }
+            }
+        });
+
         return back()->with('success', 'Registro recuperado.');
     }
 
     public function forceDelete($id, ActivityLogService $logger)
     {
-        $mod = Modalidad::withTrashed()->with('establecimiento.modalidades')->findOrFail($id);
+        $mod = Modalidad::withTrashed()->with([
+            'establecimiento' => function($q) { $q->withTrashed(); },
+            'establecimiento.modalidades' => function($q) { $q->withTrashed(); }
+        ])->findOrFail($id);
+        
         $est = $mod->establecimiento;
 
         $name = $est->nombre;

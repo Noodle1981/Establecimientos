@@ -21,7 +21,7 @@ class UpdateEdificioAction
             $cabecera = \App\Models\Establecimiento::where('cue', $data['cue_cabecera'])->first();
             if ($cabecera) {
                 \App\Models\Establecimiento::where('edificio_id', $edificio->id)
-                    ->update(['establecimiento_cabecera' => $cabecera->nombre]);
+                    ->update(['establecimiento_cabecera' => $cabecera->cue]);
                 
                 $this->activityLogger->logUpdate($edificio, "Actualización de Cabecera", [
                     'new_cabecera' => $cabecera->nombre,

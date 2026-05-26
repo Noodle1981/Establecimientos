@@ -32,6 +32,7 @@ class ImportEstablecimientos extends Command
                 ['Edificios creados', $stats['edificios']],
                 ['Establecimientos creados', $stats['establecimientos']],
                 ['Modalidades creadas', $stats['modalidades']],
+                ['Modalidades de adultos omitidas', $stats['omitidos']],
                 ['Errores', count($stats['errores'])],
             ]
         );

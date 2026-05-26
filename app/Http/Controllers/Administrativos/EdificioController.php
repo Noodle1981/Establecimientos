@@ -65,6 +65,25 @@ class EdificioController extends Controller
     }
 
     /**
+     * Remove the specified building from storage (soft delete).
+     */
+    public function destroy(int $id, \App\Services\ActivityLogService $activityLogger)
+    {
+        $edificio = Edificio::findOrFail($id);
+
+        // Impedir el borrado si tiene escuelas activas asociadas
+        if ($edificio->establecimientos()->count() > 0) {
+            return back()->withErrors(['error' => 'No se puede eliminar un edificio que alberga establecimientos activos. Relocalice o elimine las escuelas primero.']);
+        }
+
+        $edificio->delete();
+
+        $activityLogger->logDelete($edificio, "Baja del edificio/inmueble CUI: " . $edificio->cui);
+
+        return back()->with('success', 'Edificio enviado a la papelera correctamente.');
+    }
+
+    /**
      * Export buildings to Excel.
      */
     public function export(Request $request)
