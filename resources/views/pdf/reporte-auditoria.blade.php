@@ -4,8 +4,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Reporte de Auditoría de Establecimientos</title>
     <style>
+        /* DejaVu Sans: única fuente de DOMPDF con soporte completo de ñ, tildes y ° */
         body {
-            font-family: sans-serif;
+            font-family: 'DejaVu Sans', sans-serif;
             color: #333;
             line-height: 1.5;
             font-size: 12px;

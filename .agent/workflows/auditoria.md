@@ -1,89 +1,22 @@
 ---
-description: Auditar inconsistencias con EDÚGE, validar estados de modalidades y propagar información compartida a nivel de edificio.
+description: Auditar 
 ---
 
-# 🛡️ Workflow de Auditoría y Validación de Estados (Fase 4)
+1. Auditoría de Seguridad (Backend y Rutas)
 
-Este workflow detalla la lógica de negocio y los flujos técnicos para auditar, conciliar y certificar la validez de los datos de establecimientos educativos del Ministerio de Educación.
+"Actuá como un experto en ciberseguridad y auditoría de código en Laravel 12. Analizá el siguiente controlador y archivo de rutas buscando vulnerabilidades. Prestá especial atención a:Verificación estricta de políticas de acceso (Policies/Gates) en cada método.Validación de datos de entrada (Form Requests) para prevenir Inyección SQL (especialmente con SQLite).Uso correcto de Middlewares de autenticación y protección contra Mass Assignment.Filtrado de datos sensibles antes de enviarlos a Inertia.
 
----
+2. Optimización y Concurrencia (SQLite)
 
-## ⚙️ Máquina de Estados de Validación
+"Actuá como un Administrador de Bases de Datos especializado en SQLite para producción. Analizá mis migraciones y consultas Eloquent. SQLite maneja bloqueos a nivel de base de datos en escritura; optimizá el código considerando:Estrategias para evitar el error 'Database is locked' bajo concurrencia.Uso correcto de transacciones (DB::transaction) para mantener la integridad relacional.Verificación de que las columnas clave tengan índices ($table->index()) para acelerar búsquedas en mapas (Leaflet) y gráficos (Chart.js)."
 
-Cada modalidad educativa (`modalidades`) atraviesa un ciclo de vida gobernado por estados:
+3. Rendimiento en la capa Inertia.js 2.x y React
 
-1.  **`PENDIENTE`:** (Por defecto) Los datos fueron importados del Excel original pero no han sido revisados. Se muestra con badge **amarillo**.
-2.  **`CORRECTO`:** El administrativo ha auditado la información y verificado que coincide plenamente con los registros físicos y ministeriales. Se muestra con badge **naranja**.
-3.  **`CORREGIDO`:** El administrativo detectó errores en los datos originales (ej: dirección, nombre) y los ha corregido activamente en el sistema antes de validar. Se muestra con badge **azul/naranja**.
-4.  **`BAJA`:** Establecimiento inactivo temporalmente o en proceso de cierre.
-5.  **`ELIMINADO`:** Registro nulo, duplicado, o con error insalvable. Se muestra con badge **rojo** y tiene soporte de soft deletes.
+"Actuá como un Ingeniero de Rendimiento Web senior. Analizá este componente de React 18 y cómo recibe los datos desde el controlador de Laravel a través de Inertia.js 2. Buscá ineficiencias en:Uso de Lazy Props en Inertia para no precargar datos pesados innecesariamente (ej. datos de mapas o gráficos).Problemas de re-renderizado en React al procesar coordenadas de Leaflet o datasets de ApexCharts.Evitar el problema de consultas N+1 al pasar colecciones Eloquent al frontend.
 
----
+4. Robustez en Reportes (DOMPDF)
 
-## 🔄 Ejecución de Cambios de Estado y Bitácora Activa
+"Actuá como desarrollador backend experto en Laravel. Analizá el siguiente código encargado de generar un reporte horizontal con barryvdh/laravel-dompdf. Evaluá y corregí:Consumo de memoria RAM al procesar grandes volúmenes de datos de auditoría (uso de chunk() o lazy()).Estilos CSS compatibles con DOMPDF para evitar desbordamientos en la vista horizontal (landscape).Tiempos de ejecución para prevenir un 'Maximum execution time exceeded'.Aquí está el código del controlador y la vista Blade del reporte: [Pegar código]"5. Generación de Estrategia de Testing (QA)"Actuá como un Ingeniero de QA automatizado. Diseñá la estructura de pruebas unitarias y de integración para este flujo específico en Laravel 12 (Pest/PHPUnit) e Inertia. Generame:Casos de prueba para verificar que los gráficos y mapas reciban la estructura de datos correcta (assertInertia).Tests de integración que simulen usuarios con diferentes roles interactuando con las rutas.Tests específicos para la descarga exitosa del PDF."
 
-Cualquier cambio de estado debe realizarse exclusivamente a través del método `cambiarEstado()` del modelo `Modalidad`. Está prohibido actualizar directamente la columna `estado_validacion` con `save()` plano, ya que se rompería el registro histórico de trazabilidad.
 
-### Flujo de Código del Cambio de Estado:
-```php
-// En app/Models/Modalidad.php:
-public function cambiarEstado(string $nuevoEstado, ?string $observaciones = null, ?int $userId = null, ?array $camposAuditados = null)
-{
-    $estadoAnterior = $this->estado_validacion;
-    
-    // 1. Actualizar el registro principal
-    $this->estado_validacion = $nuevoEstado;
-    $this->validado = true; // Pasa a ser validado
-    $this->validado_por_user_id = $userId ?? Auth::id();
-    $this->validado_en = now();
-    $this->observaciones = $observaciones;
-    $this->campos_auditados = $camposAuditados; // Array de campos chequeados
-    $this->save();
-    
-    // 2. Registrar en la bitácora de historial
-    $this->historialEstados()->create([
-        'user_id' => $userId ?? Auth::id(),
-        'estado_anterior' => $estadoAnterior,
-        'estado_nuevo' => $nuevoEstado,
-        'observaciones' => $observaciones,
-        'campos_auditados' => $camposAuditados,
-    ]);
-}
-```
-
----
-
-## 🏢 Lógica Relacional de Propagación al Edificio
-
-Un edificio físico (CUI único) alberga típicamente múltiples establecimientos (CUE) y modalidades. Cuando un administrativo corrige o valida datos del edificio físico en una modalidad (ej. Calle, Número, CP, Localidad, Latitud, Longitud), el sistema ofrece la opción **"Propagar al Edificio"**.
-
-### Reglas de Negocio para Propagación:
-1.  **Campos Compartidos (Edificio):** `['Dirección', 'Edificio', 'CUI', 'GPS']`.
-2.  **Lógica:** Al marcarse la propagación, el sistema busca todas las otras modalidades de establecimientos que compartan el mismo `edificio_id`.
-3.  **Acción:** Para cada una de las otras modalidades vinculadas:
-    *   Mantiene intactos sus campos específicos individuales (ej. Radio, Categoría).
-    *   Sincroniza y sobrescribe únicamente los campos de infraestructura compartidos que fueron auditados en esta validación.
-    *   Registra de manera individual un cambio de estado en `historial_estados_modalidad` para cada una de las escuelas vinculadas, asegurando la auditoría de todo el edificio escolar de forma atómica.
-
----
-
-## 📄 Generación de Informes y Exportación PDF
-
-La plataforma permite descargar reportes completos del estado de auditoría en formato PDF.
-
-*   **Motor:** `barryvdh/laravel-dompdf`.
-*   **Orientación:** Apaisado (Landscape) para una óptima lectura de columnas de datos.
-*   **Lógica en el Controlador (`AuditoriaController.php`):**
-    *   Obtiene la query filtrada desde el `AuditoriaQueryService`.
-    *   Carga la vista Blade de impresión: `resources/views/pdf/auditoria_reporte.blade.php`.
-    *   Compila y retorna el stream de descarga de forma optimizada.
-
----
-
-## 📝 Lista de Verificación (Checklist) para Auditoría
-
-*   [ ] Al actualizar un estado, ¿se utilizó la función `$modalidad->cambiarEstado()` para escribir en la bitácora?
-*   [ ] ¿Se está validando que el usuario que ejecuta la acción tiene rol de `admin` o `administrativo`?
-*   [ ] En caso de propagación al edificio, ¿se recuperaron correctamente las modalidades vinculadas mediante `whereHas('establecimiento')` excluyendo el ID actual?
-*   [ ] ¿Se envuelven las operaciones de propagación en una transacción (`DB::transaction`) para evitar corrupción si falla a mitad de camino?
-*   [ ] ¿El PDF carga las relaciones `establecimiento.edificio` con eager loading para evitar problemas N+1 en bases de datos con cientos de filas?
+hacer un reporte nuevo llamado implementacion_mejoras_producción.md en la carpeta worklows

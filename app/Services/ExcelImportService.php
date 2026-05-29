@@ -171,35 +171,47 @@ class ExcelImportService
         return $stats;
     }
     
+    private function sanitizeString(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        // Force conversion to UTF-8 to handle special chars properly
+        $value = mb_convert_encoding($value, 'UTF-8', 'UTF-8, ISO-8859-1, WINDOWS-1252');
+        // Remove non-breaking spaces and trim
+        $value = str_replace("\xC2\xA0", ' ', $value);
+        return trim($value) === '' ? null : trim($value);
+    }
+
     private function mapRowData(array $data): array
     {
         return [
-            'direccion_area' => $data[0] ?? null,
-            'nivel_educativo' => $data[1] ?? null,
-            'nombre' => $data[2] ?? null,
-            'sector' => $data[3] ?? null,
-            'cue' => $data[4] ?? null,
-            'cue_edificio_principal' => $data[5] ?? null,
-            'establecimiento_cabecera' => $data[6] ?? null,
-            'cui' => $data[7] ?? null,
-            'calle' => $data[8] ?? null,
-            'numero_puerta' => $data[9] ?? 'S/N',
-            'orientacion' => $data[10] ?? null,
-            'codigo_postal' => $data[11] ?? null,
-            'localidad' => $data[12] ?? null,
-            'latitud' => $data[13] ?? null,
-            'longitud' => $data[14] ?? null,
-            'categoria' => $data[15] ?? null,
-            'inst_legal_categoria' => $data[16] ?? null,
-            'radio' => $data[17] ?? null,
-            'inst_legal_radio' => $data[18] ?? null,
-            'inst_legal_categoria_bis' => $data[19] ?? null,
-            'inst_legal_creacion' => $data[20] ?? null,
-            'letra_zona' => $data[21] ?? null,
-            'zona_departamento' => $data[22] ?? null,
-            'te_voip' => $data[23] ?? null,
-            'ambito' => $data[24] ?? 'PUBLICO',
-            'validado' => $data[25] ?? null,
+            'direccion_area' => $this->sanitizeString($data[0] ?? null),
+            'nivel_educativo' => $this->sanitizeString($data[1] ?? null),
+            'nombre' => $this->sanitizeString($data[2] ?? null),
+            'sector' => $this->sanitizeString($data[3] ?? null),
+            'cue' => $this->sanitizeString($data[4] ?? null),
+            'cue_edificio_principal' => $this->sanitizeString($data[5] ?? null),
+            'establecimiento_cabecera' => $this->sanitizeString($data[6] ?? null),
+            'cui' => $this->sanitizeString($data[7] ?? null),
+            'calle' => $this->sanitizeString($data[8] ?? null),
+            'numero_puerta' => $this->sanitizeString($data[9] ?? 'S/N'),
+            'orientacion' => $this->sanitizeString($data[10] ?? null),
+            'codigo_postal' => $this->sanitizeString($data[11] ?? null),
+            'localidad' => $this->sanitizeString($data[12] ?? null),
+            'latitud' => $this->sanitizeString($data[13] ?? null),
+            'longitud' => $this->sanitizeString($data[14] ?? null),
+            'categoria' => $this->sanitizeString($data[15] ?? null),
+            'inst_legal_categoria' => $this->sanitizeString($data[16] ?? null),
+            'radio' => $this->sanitizeString($data[17] ?? null),
+            'inst_legal_radio' => $this->sanitizeString($data[18] ?? null),
+            'inst_legal_categoria_bis' => $this->sanitizeString($data[19] ?? null),
+            'inst_legal_creacion' => $this->sanitizeString($data[20] ?? null),
+            'letra_zona' => $this->sanitizeString($data[21] ?? null),
+            'zona_departamento' => $this->sanitizeString($data[22] ?? null),
+            'te_voip' => $this->sanitizeString($data[23] ?? null),
+            'ambito' => $this->sanitizeString($data[24] ?? 'PUBLICO') ?: 'PUBLICO',
+            'validado' => $this->sanitizeString($data[25] ?? null),
         ];
     }
     

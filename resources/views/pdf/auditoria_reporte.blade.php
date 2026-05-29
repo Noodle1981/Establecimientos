@@ -2,10 +2,12 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Reporte de Auditoría EDUGE</title>
     <style>
         @page { margin: 1cm; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; color: #333; font-size: 9pt; line-height: 1.2; }
+        /* DejaVu Sans: única fuente de DOMPDF con soporte completo de ñ, tildes y ° */
+        body { font-family: 'DejaVu Sans', sans-serif; color: #333; font-size: 9pt; line-height: 1.2; }
         .header { text-align: center; border-bottom: 3px solid #FF8200; padding-bottom: 10px; margin-bottom: 15px; }
         .logo-text { font-size: 24px; font-weight: 900; color: #000; letter-spacing: -1px; }
         .logo-subtext { font-size: 10px; font-weight: bold; color: #FF8200; text-transform: uppercase; letter-spacing: 2px; }

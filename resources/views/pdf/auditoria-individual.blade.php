@@ -2,10 +2,12 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Informe de Auditoría EDUGE</title>
     <style>
+        /* DejaVu Sans: única fuente de DOMPDF con soporte completo de ñ, tildes y ° */
         body {
-            font-family: 'Helvetica', sans-serif;
+            font-family: 'DejaVu Sans', sans-serif;
             color: #333;
             line-height: 1.6;
         }

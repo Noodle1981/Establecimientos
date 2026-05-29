@@ -2,9 +2,11 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Informe General de Auditorías EDUGE</title>
     <style>
-        body { font-family: 'Helvetica', sans-serif; color: #333; font-size: 12px; }
+        /* DejaVu Sans: única fuente de DOMPDF con soporte completo de ñ, tildes y ° */
+        body { font-family: 'DejaVu Sans', sans-serif; color: #333; font-size: 12px; }
         .header { text-align: center; border-bottom: 2px solid #FF8200; padding-bottom: 10px; margin-bottom: 20px; }
         .title { font-size: 20px; font-weight: bold; }
         .date-range { color: #666; margin-top: 5px; }
