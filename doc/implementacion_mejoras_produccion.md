@@ -595,5 +595,5 @@ it('genera un PDF general con filtro de fechas', function () {
 | 16 | Índice `role` en tabla `users`                           | Nueva migración             | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
 | 17 | `React.memo` en `SchoolCard`                             | `MapView.jsx`               | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
 | 18 | ActivityLog en `UpdateModalidadAction`                   | `UpdateModalidadAction.php` | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
-| 19 | Tests de seguridad y roles (Pest)                        | `tests/Feature/`            | 🟢 Baja                     | Media        |
-| 20 | Tests de integración mapa (assertInertia)                | `tests/Feature/Publico/`    | 🟢 Baja                     | Media        |
+| 19 | Tests de seguridad y roles (Pest)                        | `tests/Feature/`            | ✅ IMPLEMENTADO - CORREGIDO | Media        |
+| 20 | Tests de integración mapa (assertInertia)                | `tests/Feature/Publico/`    | ✅ IMPLEMENTADO - CORREGIDO | Media        |
