@@ -495,24 +495,139 @@ export default function MapaPublico({ edificios = [] }) {
             </Modal>
 
             <style>{`
-                .custom-popup .leaflet-popup-content-wrapper {
-                    background: rgba(255, 255, 255, 0.98);
-                    border-radius: 20px;
-                    border: 1px solid rgba(254, 130, 4, 0.1);
-                    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-                    padding: 4px;
-                }
-                .custom-popup .leaflet-popup-tip { background: white; }
+                /* ── Scrollbars ─────────────────────────────────────── */
                 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
                 .custom-scrollbar::-webkit-scrollbar-thumb { background: #FE820430; border-radius: 10px; }
                 .no-scrollbar::-webkit-scrollbar { display: none; }
                 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-                
-                /* Pulse animation for selected/hovered markers */
-                @keyframes marker-pulse {
-                    0% { transform: scale(1); opacity: 1; }
-                    50% { transform: scale(1.2); opacity: 0.8; }
-                    100% { transform: scale(1); opacity: 1; }
+
+                /* ── Remove focus ring on SVG paths (department borders) */
+                path.leaflet-interactive:focus {
+                    outline: none !important;
+                    box-shadow: none !important;
+                }
+
+                /* ── School Card Overlay ─────────────────────────────── */
+                .school-card {
+                    position: absolute;
+                    bottom: 32px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 320px;
+                    max-width: calc(100vw - 32px);
+                    z-index: 1000;
+                    background: rgba(255,255,255,0.98);
+                    border-radius: 20px;
+                    border: 1px solid rgba(254,130,4,0.12);
+                    box-shadow: 0 12px 48px rgba(0,0,0,0.18);
+                    overflow: hidden;
+                    animation: card-in 0.2s cubic-bezier(0.34,1.56,0.64,1) both;
+                    pointer-events: all;
+                }
+                @keyframes card-in {
+                    from { opacity: 0; transform: translateX(-50%) translateY(16px) scale(0.96); }
+                    to   { opacity: 1; transform: translateX(-50%) translateY(0)    scale(1);    }
+                }
+
+                .school-card__header {
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: space-between;
+                    gap: 8px;
+                    padding: 14px 14px 10px;
+                    border-bottom: 1px solid rgba(254,130,4,0.08);
+                    background: rgba(254,130,4,0.02);
+                }
+                .school-card__header-left {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 10px;
+                    flex: 1;
+                    min-width: 0;
+                }
+                .school-card__icon {
+                    flex-shrink: 0;
+                    width: 34px; height: 34px;
+                    border-radius: 10px;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 14px;
+                }
+                .school-card__icon--orange { background: #FFF7ED; color: #FE8204; }
+                .school-card__icon--blue   { background: #EFF6FF; color: #3B82F6; }
+
+                .school-card__depto {
+                    font-size: 10px; font-weight: 900;
+                    color: #FE8204; text-transform: uppercase;
+                    letter-spacing: 0.05em; line-height: 1.2;
+                    margin: 0 0 2px;
+                }
+                .school-card__localidad {
+                    font-size: 10px; font-weight: 900;
+                    color: #111827; text-transform: uppercase;
+                    line-height: 1.2; margin: 0 0 2px;
+                    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                }
+                .school-card__address {
+                    font-size: 9px; font-weight: 700;
+                    color: #9CA3AF; margin: 0;
+                }
+
+                .school-card__actions {
+                    display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+                }
+                .school-card__maps-btn {
+                    display: flex; align-items: center; gap: 5px;
+                    padding: 6px 10px; border-radius: 10px;
+                    background: #F0FDF4; color: #16A34A;
+                    border: 1px solid #DCFCE7;
+                    font-size: 9px; font-weight: 900;
+                    text-transform: uppercase; text-decoration: none;
+                    transition: background 0.2s, color 0.2s;
+                }
+                .school-card__maps-btn:hover { background: #16A34A; color: white; }
+
+                .school-card__close-btn {
+                    width: 28px; height: 28px; border-radius: 8px;
+                    border: 1px solid #F3F4F6; background: white;
+                    color: #9CA3AF; cursor: pointer;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 11px;
+                    transition: background 0.15s, color 0.15s;
+                }
+                .school-card__close-btn:hover { background: #FEE2E2; color: #EF4444; border-color: #FECACA; }
+
+                .school-card__body {
+                    padding: 10px 12px;
+                    max-height: 220px;
+                    overflow-y: auto;
+                    display: flex; flex-direction: column; gap: 8px;
+                }
+                .school-card__est {
+                    padding: 10px 12px;
+                    background: #F9FAFB;
+                    border-radius: 12px;
+                    border: 1px solid #F3F4F6;
+                }
+                .school-card__est-name {
+                    font-size: 11px; font-weight: 900;
+                    color: #1F2937; margin: 0 0 6px;
+                }
+                .school-card__modalidades {
+                    display: flex; flex-direction: column; gap: 4px;
+                }
+                .school-card__modalidad {
+                    display: flex; gap: 4px; flex-wrap: wrap;
+                }
+                .school-card__tag {
+                    font-size: 9px; font-weight: 700;
+                    padding: 2px 6px; border-radius: 5px;
+                }
+                .school-card__tag--nivel {
+                    background: #FFF7ED; color: #FE8204; border: 1px solid #FFEDD5;
+                }
+                .school-card__tag--area {
+                    background: #F9FAFB; color: #6B7280; border: 1px solid #F3F4F6;
+                    max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
                 }
             `}</style>
         </AuthenticatedLayout>
