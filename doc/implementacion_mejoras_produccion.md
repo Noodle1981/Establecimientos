@@ -587,7 +587,7 @@ it('genera un PDF general con filtro de fechas', function () {
 | 8  | Validar rango de fechas en `downloadGeneral()`           | `PDFController.php`         | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
 | 9  | `authorize()` incluir rol `admin` en Form Requests       | `Requests/Administrativos/` | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
 | 10 | Cache unificada en `DashboardController`                 | `DashboardController.php`   | ✅ IMPLEMENTADO - CORREGIDO | Media        |
-| 11 | `chunk()` en build de caché del mapa                     | `MapaController.php`        | 🟡 Media                    | Media        |
+| 11 | `chunk()` en build de caché del mapa                     | `MapaController.php`        | ✅ IMPLEMENTADO - CORREGIDO | Media        |
 | 12 | Lazy Props para datos del mapa en Inertia                | `MapaController.php`        | 🟡 Media                    | Media        |
 | 13 | `useCallback` en handlers de `MapaPublico.jsx`           | `MapaPublico.jsx`           | 🟡 Media                    | Baja         |
 | 14 | `ini_set memory_limit` + `set_time_limit` en PDF general | `PDFController.php`         | 🟡 Media                    | Baja         |
