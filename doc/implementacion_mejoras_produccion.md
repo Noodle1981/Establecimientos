@@ -589,7 +589,7 @@ it('genera un PDF general con filtro de fechas', function () {
 | 10 | Cache unificada en `DashboardController`                 | `DashboardController.php`   | ✅ IMPLEMENTADO - CORREGIDO | Media        |
 | 11 | `chunk()` en build de caché del mapa                     | `MapaController.php`        | ✅ IMPLEMENTADO - CORREGIDO | Media        |
 | 12 | Lazy Props para datos del mapa en Inertia                | `MapaController.php`        | ✅ IMPLEMENTADO - CORREGIDO | Media        |
-| 13 | `useCallback` en handlers de `MapaPublico.jsx`           | `MapaPublico.jsx`           | 🟡 Media                    | Baja         |
+| 13 | `useCallback` en handlers de `MapaPublico.jsx`           | `MapaPublico.jsx`           | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
 | 14 | `ini_set memory_limit` + `set_time_limit` en PDF general | `PDFController.php`         | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
 | 15 | Fuente DejaVu Sans en vistas Blade PDF                   | `pdf/*.blade.php`           | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
 | 16 | Índice `role` en tabla `users`                           | Nueva migración             | 🟢 Baja                     | Baja         |

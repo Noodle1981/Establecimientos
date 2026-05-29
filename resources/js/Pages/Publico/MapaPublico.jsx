@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
-import { useState, useMemo, lazy, Suspense } from 'react';
+import { useState, useMemo, useCallback, lazy, Suspense } from 'react';
 import Modal from '@/Components/Modal';
 import { useForm } from '@inertiajs/react';
 
@@ -82,16 +82,16 @@ export default function MapaPublico({ edificios = [] }) {
         return { totalEdificios, totalEstablecimientos, publicos, privados };
     }, [filteredEdificios]);
 
-    const handleSearch = (query) => {
+    const handleSearch = useCallback((query) => {
         setSearchQuery(query);
         setIsSearching(query.length > 0);
-    };
+    }, []);
 
-    const handleSelectSchool = (edificio) => {
+    const handleSelectSchool = useCallback((edificio) => {
         setSelectedEdificio(edificio);
         setIsSearching(false);
         setSearchQuery('');
-    };
+    }, []);
 
     const searchResults = useMemo(() => {
         if (!searchQuery || searchQuery.length < 2) return [];
@@ -113,7 +113,7 @@ export default function MapaPublico({ edificios = [] }) {
         return results.slice(0, 10); // Show up to 10 specific establishments
     }, [edificios, searchQuery]);
 
-    const toggleFilter = (type) => {
+    const toggleFilter = useCallback((type) => {
         setActiveFilters(prev => {
             // Prevent disabling both filters
             if (prev[type] && !prev[type === 'publico' ? 'privado' : 'publico']) {
@@ -121,17 +121,17 @@ export default function MapaPublico({ edificios = [] }) {
             }
             return { ...prev, [type]: !prev[type] };
         });
-    };
+    }, []);
 
-    const clearFilters = () => {
+    const clearFilters = useCallback(() => {
         setSearchQuery('');
         setActiveFilters({ publico: true, privado: true });
         setFilterNivel('TODOS');
         setFilterDepto('TODOS');
         setSelectedEdificio(null);
-    };
+    }, []);
 
-    const openReportModal = () => {
+    const openReportModal = useCallback(() => {
         setData(prev => ({
             ...prev,
             edificio_id: selectedEdificio?.id || '',
@@ -140,9 +140,9 @@ export default function MapaPublico({ edificios = [] }) {
                 : ''
         }));
         setIsReportModalOpen(true);
-    };
+    }, [selectedEdificio, setData]);
 
-    const submitReport = (e) => {
+    const submitReport = useCallback((e) => {
         e.preventDefault();
         post(route('publico.reportes.store'), {
             onSuccess: () => {
@@ -150,7 +150,7 @@ export default function MapaPublico({ edificios = [] }) {
                 reset();
             },
         });
-    };
+    }, [post, reset]);
 
     return (
         <AuthenticatedLayout
