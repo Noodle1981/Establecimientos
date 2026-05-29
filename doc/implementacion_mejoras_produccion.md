@@ -581,12 +581,12 @@ it('genera un PDF general con filtro de fechas', function () {
 | 2  | Rate limiting `throttle:5,1` en `POST /reportes`         | `web.php`                   | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
 | 3  | Registrar rutas de `PDFController` en grupo protegido    | `web.php`                   | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
 | 4  | PRAGMA WAL mode en SQLite                                | `AppServiceProvider.php`    | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
-| 5  | try/catch en `updateEstado()`                            | `AuditoriaController.php`   | 🟡 Media                    | Baja         |
-| 6  | Paginación en `ReporteController::index()`               | `ReporteController.php`     | 🟡 Media                    | Baja         |
-| 7  | Validar `campos_auditados.*` con whitelist               | `UpdateAuditoriaRequest.php`| 🟡 Media                    | Baja         |
-| 8  | Validar rango de fechas en `downloadGeneral()`           | `PDFController.php`         | 🟡 Media                    | Baja         |
-| 9  | `authorize()` incluir rol `admin` en Form Requests       | `Requests/Administrativos/` | 🟡 Media                    | Baja         |
-| 10 | Cache unificada en `DashboardController`                 | `DashboardController.php`   | 🟡 Media                    | Media        |
+| 5  | try/catch en `updateEstado()`                            | `AuditoriaController.php`   | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
+| 6  | Paginación en `ReporteController::index()`               | `ReporteController.php`     | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
+| 7  | Validar `campos_auditados.*` con whitelist               | `UpdateAuditoriaRequest.php`| ✅ IMPLEMENTADO - CORREGIDO | Baja         |
+| 8  | Validar rango de fechas en `downloadGeneral()`           | `PDFController.php`         | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
+| 9  | `authorize()` incluir rol `admin` en Form Requests       | `Requests/Administrativos/` | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
+| 10 | Cache unificada en `DashboardController`                 | `DashboardController.php`   | ✅ IMPLEMENTADO - CORREGIDO | Media        |
 | 11 | `chunk()` en build de caché del mapa                     | `MapaController.php`        | 🟡 Media                    | Media        |
 | 12 | Lazy Props para datos del mapa en Inertia                | `MapaController.php`        | 🟡 Media                    | Media        |
 | 13 | `useCallback` en handlers de `MapaPublico.jsx`           | `MapaPublico.jsx`           | 🟡 Media                    | Baja         |

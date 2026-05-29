@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, Link } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function ReportesIndex({ reportes, stats }) {
@@ -57,41 +57,55 @@ export default function ReportesIndex({ reportes, stats }) {
                         <div className="p-6 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
                             <h3 className="text-sm font-black uppercase tracking-widest text-gray-400">Mensajes</h3>
                             <span className="bg-brand-orange text-white text-[10px] font-black px-2 py-0.5 rounded-full">
-                                {reportes.length} Total
+                                {reportes.total} Total
                             </span>
                         </div>
                         <div className="flex-1 overflow-y-auto custom-scrollbar">
-                            {reportes.length === 0 ? (
+                            {reportes.data.length === 0 ? (
                                 <div className="p-10 text-center">
                                     <i className="fas fa-inbox text-4xl text-gray-100 mb-4"></i>
                                     <p className="text-xs font-bold text-gray-300 uppercase">Sin reportes nuevos</p>
                                 </div>
                             ) : (
-                                reportes.map(reporte => (
-                                    <button 
-                                        key={reporte.id}
-                                        onClick={() => setSelectedReporte(reporte)}
-                                        className={`w-full text-left p-6 border-b border-gray-50 transition-all hover:bg-orange-50/30 flex flex-col gap-2 relative ${selectedReporte?.id === reporte.id ? 'bg-orange-50/50 border-l-4 border-l-brand-orange' : ''}`}
-                                    >
-                                        <div className="flex justify-between items-start">
-                                            <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${
-                                                reporte.estado === 'PENDIENTE' ? 'bg-orange-100 text-brand-orange' : 
-                                                reporte.estado === 'PROCESADO' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
-                                            }`}>
-                                                {reporte.estado}
-                                            </span>
-                                            <span className="text-[10px] font-bold text-gray-300">
-                                                {new Date(reporte.created_at).toLocaleDateString()}
-                                            </span>
-                                        </div>
-                                        <p className="text-xs font-black text-gray-800 line-clamp-1 uppercase">
-                                            {reporte.edificio ? `CUI: ${reporte.edificio.cui} - ${reporte.edificio.localidad}` : 'Reporte General'}
-                                        </p>
-                                        <p className="text-[11px] text-gray-500 line-clamp-2 italic">
-                                            "{reporte.descripcion}"
-                                        </p>
-                                    </button>
-                                ))
+                                <>
+                                    {reportes.data.map(reporte => (
+                                        <button 
+                                            key={reporte.id}
+                                            onClick={() => setSelectedReporte(reporte)}
+                                            className={`w-full text-left p-6 border-b border-gray-50 transition-all hover:bg-orange-50/30 flex flex-col gap-2 relative ${selectedReporte?.id === reporte.id ? 'bg-orange-50/50 border-l-4 border-l-brand-orange' : ''}`}
+                                        >
+                                            <div className="flex justify-between items-start">
+                                                <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${
+                                                    reporte.estado === 'PENDIENTE' ? 'bg-orange-100 text-brand-orange' : 
+                                                    reporte.estado === 'PROCESADO' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+                                                }`}>
+                                                    {reporte.estado}
+                                                </span>
+                                                <span className="text-[10px] font-bold text-gray-300">
+                                                    {new Date(reporte.created_at).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <p className="text-xs font-black text-gray-800 line-clamp-1 uppercase">
+                                                {reporte.edificio ? `CUI: ${reporte.edificio.cui} - ${reporte.edificio.localidad}` : 'Reporte General'}
+                                            </p>
+                                            <p className="text-[11px] text-gray-500 line-clamp-2 italic">
+                                                "{reporte.descripcion}"
+                                            </p>
+                                        </button>
+                                    ))}
+                                    {/* Controles de Paginación */}
+                                    <div className="p-4 border-t border-gray-50 flex flex-wrap justify-center gap-1 bg-gray-50/50">
+                                        {reportes.links.map((link, k) => (
+                                            <Link 
+                                                key={k} 
+                                                href={link.url || '#'}
+                                                preserveScroll
+                                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                                className={`px-3 py-1 text-[10px] font-bold rounded-lg ${link.active ? 'bg-brand-orange text-white' : 'bg-white border text-gray-500 hover:bg-gray-50'} ${!link.url && 'opacity-50 cursor-not-allowed'}`}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
                             )}
                         </div>
                     </div>

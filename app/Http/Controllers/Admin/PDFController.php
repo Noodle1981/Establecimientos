@@ -22,6 +22,14 @@ class PDFController extends Controller
 
     public function downloadGeneral(Request $request)
     {
+        ini_set('memory_limit', '256M');
+        set_time_limit(120);
+
+        $request->validate([
+            'date_from' => 'nullable|date',
+            'date_to'   => 'nullable|date|after_or_equal:date_from',
+        ]);
+
         $query = AuditoriaEduge::with(['establecimiento', 'user'])->latest('fecha_visita');
 
         if ($request->date_from) {

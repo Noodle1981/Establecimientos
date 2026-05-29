@@ -15,7 +15,7 @@ class ReporteController extends Controller
     {
         $reportes = Reporte::with('edificio:id,cui,localidad,calle,numero_puerta')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(25);
 
         $stats = [
             'pendientes' => Reporte::where('estado', 'PENDIENTE')->count(),

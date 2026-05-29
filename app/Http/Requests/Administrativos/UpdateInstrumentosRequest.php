@@ -11,7 +11,7 @@ class UpdateInstrumentosRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->isAdministrativo();
+        return $this->user()->isAdministrativo() || $this->user()->isAdmin();
     }
 
     /**

@@ -46,54 +46,59 @@ class AuditoriaController extends Controller
      */
     public function updateEstado(UpdateAuditoriaRequest $request, int $id)
     {
-        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $id) {
-            $modalidad = Modalidad::withTrashed()
-                ->with(['establecimiento' => function($q) { $q->withTrashed(); }])
-                ->findOrFail($id);
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($request, $id) {
+                $modalidad = Modalidad::withTrashed()
+                    ->with(['establecimiento' => function($q) { $q->withTrashed(); }])
+                    ->findOrFail($id);
 
-            // Actualizar la modalidad principal
-            $modalidad->cambiarEstado(
-                $request->estado, 
-                $request->observaciones, 
-                Auth::id(),
-                $request->campos_auditados
-            );
+                // Actualizar la modalidad principal
+                $modalidad->cambiarEstado(
+                    $request->estado, 
+                    $request->observaciones, 
+                    Auth::id(),
+                    $request->campos_auditados
+                );
 
-            // Propagar al edificio si se solicita de forma consciente
-            if ($request->propagar_al_edificio && $modalidad->establecimiento) {
-                $camposCompartidos = ['Dirección', 'Edificio', 'CUI', 'GPS'];
-                
-                // Extraer solo los campos compartidos que se marcaron en esta validación
-                $auditoriaCompartida = array_intersect($request->campos_auditados ?? [], $camposCompartidos);
-
-                $vinculados = Modalidad::withTrashed()
-                    ->whereHas('establecimiento', function ($q) use ($modalidad) {
-                        $q->where('edificio_id', $modalidad->establecimiento->edificio_id);
-                    })
-                    ->where('id', '!=', $id)
-                    ->get();
-
-                foreach ($vinculados as $v) {
-                    /** @var \App\Models\Modalidad $v */
-                    // Para los vinculados, mantenemos sus campos específicos actuales 
-                    // y solo actualizamos/sincronizamos los campos de edificio (compartidos)
-                    $camposActuales = $v->campos_auditados ?? [];
+                // Propagar al edificio si se solicita de forma consciente
+                if ($request->propagar_al_edificio && $modalidad->establecimiento) {
+                    $camposCompartidos = ['Dirección', 'Edificio', 'CUI', 'GPS'];
                     
-                    // Quitamos los compartidos viejos y ponemos los nuevos
-                    $camposLimpios = array_diff($camposActuales, $camposCompartidos);
-                    $nuevosCampos = array_unique(array_merge($camposLimpios, $auditoriaCompartida));
+                    // Extraer solo los campos compartidos que se marcaron en esta validación
+                    $auditoriaCompartida = array_intersect($request->campos_auditados ?? [], $camposCompartidos);
 
-                    $v->cambiarEstado(
-                        $request->estado,
-                        $v->observaciones, // Mantener la observación individual de cada escuela
-                        Auth::id(),
-                        $nuevosCampos
-                    );
+                    $vinculados = Modalidad::withTrashed()
+                        ->whereHas('establecimiento', function ($q) use ($modalidad) {
+                            $q->where('edificio_id', $modalidad->establecimiento->edificio_id);
+                        })
+                        ->where('id', '!=', $id)
+                        ->get();
+
+                    foreach ($vinculados as $v) {
+                        /** @var \App\Models\Modalidad $v */
+                        // Para los vinculados, mantenemos sus campos específicos actuales 
+                        // y solo actualizamos/sincronizamos los campos de edificio (compartidos)
+                        $camposActuales = $v->campos_auditados ?? [];
+                        
+                        // Quitamos los compartidos viejos y ponemos los nuevos
+                        $camposLimpios = array_diff($camposActuales, $camposCompartidos);
+                        $nuevosCampos = array_unique(array_merge($camposLimpios, $auditoriaCompartida));
+
+                        $v->cambiarEstado(
+                            $request->estado,
+                            $v->observaciones, // Mantener la observación individual de cada escuela
+                            Auth::id(),
+                            $nuevosCampos
+                        );
+                    }
                 }
-            }
-        });
+            });
 
-        return back()->with('success', 'Estado de auditoría actualizado correctamente.');
+            return back()->with('success', 'Estado de auditoría actualizado correctamente.');
+        } catch (\Throwable $e) {
+            report($e);
+            return back()->with('error', 'Error al actualizar el estado de auditoría. Intente nuevamente.');
+        }
     }
 
     /**

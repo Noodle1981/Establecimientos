@@ -15,18 +15,22 @@ class DashboardController extends Controller
      */
     public function index(): Response
     {
-        $stats = [
-            'users_total' => User::count(),
-            'users_admin' => User::where('role', 'admin')->count(),
-            'users_administrativos' => User::where('role', 'administrativos')->count(),
-            'users_user' => User::where('role', 'user')->count(),
-            'users_recent' => User::where('created_at', '>=', now()->subDays(7))->count(),
-        ];
+        $stats = \Illuminate\Support\Facades\Cache::remember('admin_dashboard_stats', 300, function () {
+            return [
+                'users_total' => User::count(),
+                'users_admin' => User::where('role', 'admin')->count(),
+                'users_administrativos' => User::where('role', 'administrativos')->count(),
+                'users_user' => User::where('role', 'user')->count(),
+                'users_recent' => User::where('created_at', '>=', now()->subDays(7))->count(),
+            ];
+        });
 
-        $recentActivity = ActivityLog::with('user')
-            ->latest()
-            ->take(5)
-            ->get();
+        $recentActivity = \Illuminate\Support\Facades\Cache::remember('admin_dashboard_recent_activity', 60, function () {
+            return ActivityLog::with('user')
+                ->latest()
+                ->take(5)
+                ->get();
+        });
 
         return Inertia::render('Admin/Dashboard', [
             'stats' => $stats,
