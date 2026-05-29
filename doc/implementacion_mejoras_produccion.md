@@ -575,25 +575,25 @@ it('genera un PDF general con filtro de fechas', function () {
 
 ## Checklist de Implementación Priorizada
 
-| # | Tarea | Archivo | Prioridad | Complejidad |
-|---|-------|---------|-----------|-------------|
-| 1 | Contraseña temporal con `Str::password()` | `AdminController.php` | ✅ IMPLEMENTADO - CORREGIDO | Baja |
-| 2 | Rate limiting `throttle:5,1` en `POST /reportes` | `web.php` | ✅ IMPLEMENTADO - CORREGIDO | Baja |
-| 3 | Registrar rutas de `PDFController` en grupo protegido | `web.php` | ✅ IMPLEMENTADO - CORREGIDO | Baja |
-| 4 | PRAGMA WAL mode en SQLite | `AppServiceProvider.php` | 🟡 Media | Baja |
-| 5 | try/catch en `updateEstado()` | `AuditoriaController.php` | 🟡 Media | Baja |
-| 6 | Paginación en `ReporteController::index()` | `ReporteController.php` | 🟡 Media | Baja |
-| 7 | Validar `campos_auditados.*` con whitelist | `UpdateAuditoriaRequest.php` | 🟡 Media | Baja |
-| 8 | Validar rango de fechas en `downloadGeneral()` | `PDFController.php` | 🟡 Media | Baja |
-| 9 | `authorize()` incluir rol `admin` en Form Requests | `Requests/Administrativos/` | 🟡 Media | Baja |
-| 10 | Cache unificada en `DashboardController` | `DashboardController.php` | 🟡 Media | Media |
-| 11 | `chunk()` en build de caché del mapa | `MapaController.php` | 🟡 Media | Media |
-| 12 | Lazy Props para datos del mapa en Inertia | `MapaController.php` | 🟡 Media | Media |
-| 13 | `useCallback` en handlers de `MapaPublico.jsx` | `MapaPublico.jsx` | 🟡 Media | Baja |
-| 14 | `ini_set memory_limit` + `set_time_limit` en PDF general | `PDFController.php` | 🟡 Media | Baja |
-| 15 | Fuente DejaVu Sans en vistas Blade PDF | `pdf/*.blade.php` | ✅ IMPLEMENTADO - CORREGIDO | Baja |
-| 16 | Índice `role` en tabla `users` | Nueva migración | 🟢 Baja | Baja |
-| 17 | `React.memo` en `SchoolCard` | `MapView.jsx` | 🟢 Baja | Baja |
-| 18 | ActivityLog en `UpdateModalidadAction` | `UpdateModalidadAction.php` | 🟢 Baja | Baja |
-| 19 | Tests de seguridad y roles (Pest) | `tests/Feature/` | 🟢 Baja | Media |
-| 20 | Tests de integración mapa (assertInertia) | `tests/Feature/Publico/` | 🟢 Baja | Media |
+| #  | Tarea                                                    | Archivo                     | Prioridad                   | Complejidad  |
+|--- |----------------------------------------------------------|-----------------------------|-----------------------------|--------------|
+| 1  | Contraseña temporal con `Str::password()`                | `AdminController.php`       | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
+| 2  | Rate limiting `throttle:5,1` en `POST /reportes`         | `web.php`                   | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
+| 3  | Registrar rutas de `PDFController` en grupo protegido    | `web.php`                   | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
+| 4  | PRAGMA WAL mode en SQLite                                | `AppServiceProvider.php`    | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
+| 5  | try/catch en `updateEstado()`                            | `AuditoriaController.php`   | 🟡 Media                    | Baja         |
+| 6  | Paginación en `ReporteController::index()`               | `ReporteController.php`     | 🟡 Media                    | Baja         |
+| 7  | Validar `campos_auditados.*` con whitelist               | `UpdateAuditoriaRequest.php`| 🟡 Media                    | Baja         |
+| 8  | Validar rango de fechas en `downloadGeneral()`           | `PDFController.php`         | 🟡 Media                    | Baja         |
+| 9  | `authorize()` incluir rol `admin` en Form Requests       | `Requests/Administrativos/` | 🟡 Media                    | Baja         |
+| 10 | Cache unificada en `DashboardController`                 | `DashboardController.php`   | 🟡 Media                    | Media        |
+| 11 | `chunk()` en build de caché del mapa                     | `MapaController.php`        | 🟡 Media                    | Media        |
+| 12 | Lazy Props para datos del mapa en Inertia                | `MapaController.php`        | 🟡 Media                    | Media        |
+| 13 | `useCallback` en handlers de `MapaPublico.jsx`           | `MapaPublico.jsx`           | 🟡 Media                    | Baja         |
+| 14 | `ini_set memory_limit` + `set_time_limit` en PDF general | `PDFController.php`         | 🟡 Media                    | Baja         |
+| 15 | Fuente DejaVu Sans en vistas Blade PDF                   | `pdf/*.blade.php`           | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
+| 16 | Índice `role` en tabla `users`                           | Nueva migración             | 🟢 Baja                     | Baja         |
+| 17 | `React.memo` en `SchoolCard`                             | `MapView.jsx`               | 🟢 Baja                     | Baja         |
+| 18 | ActivityLog en `UpdateModalidadAction`                   | `UpdateModalidadAction.php` | 🟢 Baja                     | Baja         |
+| 19 | Tests de seguridad y roles (Pest)                        | `tests/Feature/`            | 🟢 Baja                     | Media        |
+| 20 | Tests de integración mapa (assertInertia)                | `tests/Feature/Publico/`    | 🟢 Baja                     | Media        |
