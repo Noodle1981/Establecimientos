@@ -65,7 +65,7 @@ class MapaController extends Controller
         });
 
         return Inertia::render('Publico/MapaPublico', [
-            'edificios' => $edificios,
+            'edificios' => Inertia::lazy(fn () => $edificios),
         ]);
     }
 }
