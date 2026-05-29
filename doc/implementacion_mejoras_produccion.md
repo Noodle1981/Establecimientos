@@ -577,9 +577,9 @@ it('genera un PDF general con filtro de fechas', function () {
 
 | # | Tarea | Archivo | Prioridad | Complejidad |
 |---|-------|---------|-----------|-------------|
-| 1 | Contraseña temporal con `Str::password()` | `AdminController.php` | 🔴 Alta | Baja |
-| 2 | Rate limiting `throttle:5,1` en `POST /reportes` | `web.php` | 🔴 Alta | Baja |
-| 3 | Registrar rutas de `PDFController` en grupo protegido | `web.php` | 🔴 Alta | Baja |
+| 1 | Contraseña temporal con `Str::password()` | `AdminController.php` | ✅ IMPLEMENTADO - CORREGIDO | Baja |
+| 2 | Rate limiting `throttle:5,1` en `POST /reportes` | `web.php` | ✅ IMPLEMENTADO - CORREGIDO | Baja |
+| 3 | Registrar rutas de `PDFController` en grupo protegido | `web.php` | ✅ IMPLEMENTADO - CORREGIDO | Baja |
 | 4 | PRAGMA WAL mode en SQLite | `AppServiceProvider.php` | 🟡 Media | Baja |
 | 5 | try/catch en `updateEstado()` | `AuditoriaController.php` | 🟡 Media | Baja |
 | 6 | Paginación en `ReporteController::index()` | `ReporteController.php` | 🟡 Media | Baja |
@@ -591,7 +591,7 @@ it('genera un PDF general con filtro de fechas', function () {
 | 12 | Lazy Props para datos del mapa en Inertia | `MapaController.php` | 🟡 Media | Media |
 | 13 | `useCallback` en handlers de `MapaPublico.jsx` | `MapaPublico.jsx` | 🟡 Media | Baja |
 | 14 | `ini_set memory_limit` + `set_time_limit` en PDF general | `PDFController.php` | 🟡 Media | Baja |
-| 15 | Fuente DejaVu Sans en vistas Blade PDF | `pdf/*.blade.php` | 🟢 Baja | Baja |
+| 15 | Fuente DejaVu Sans en vistas Blade PDF | `pdf/*.blade.php` | ✅ IMPLEMENTADO - CORREGIDO | Baja |
 | 16 | Índice `role` en tabla `users` | Nueva migración | 🟢 Baja | Baja |
 | 17 | `React.memo` en `SchoolCard` | `MapView.jsx` | 🟢 Baja | Baja |
 | 18 | ActivityLog en `UpdateModalidadAction` | `UpdateModalidadAction.php` | 🟢 Baja | Baja |

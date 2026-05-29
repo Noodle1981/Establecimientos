@@ -10,6 +10,7 @@ use App\Models\Edificio;
 use App\Services\ActivityLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -58,16 +59,18 @@ class AdminController extends Controller
     public function resetPassword(Request $request, $id, ActivityLogService $logger)
     {
         $user = User::findOrFail($id);
-        $tempPass = 'Educacion2026!';
+
+        // Generar contraseña aleatoria segura de 12 caracteres
+        $tempPass = Str::password(12, letters: true, numbers: true, symbols: false);
         
         $user->update([
-            'password' => Hash::make($tempPass),
+            'password'            => Hash::make($tempPass),
             'password_changed_at' => null, // Force reset on login
         ]);
 
-        $logger->logUpdate($user, "Blanqueó la contraseña", ['after' => ['password' => 'TEMPORAL']]);
+        $logger->logUpdate($user, "Blanqueó la contraseña", ['after' => ['password' => 'TEMPORAL_GENERADA']]);
 
-        return back()->with('success', "Contraseña blanqueada. Nueva clave: {$tempPass}");
+        return back()->with('success', "Contraseña temporal generada: {$tempPass}");
     }
 
     /**

@@ -12,7 +12,9 @@ use Inertia\Inertia;
 Route::redirect('/', '/mapa')->name('home');
 
 Route::get('/mapa', [App\Http\Controllers\Publico\MapaController::class, 'index'])->name('mapa.publico');
-Route::post('/reportes', [App\Http\Controllers\Publico\ReporteController::class, 'store'])->name('publico.reportes.store');
+Route::post('/reportes', [App\Http\Controllers\Publico\ReporteController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('publico.reportes.store');
 
 /**
  * Authentication Routes
@@ -84,6 +86,8 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/auditoria/{id}/estado', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'updateEstado'])->name('administrativos.auditoria.updateEstado');
         Route::get('/auditoria/{id}/vinculados', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'vinculados'])->name('administrativos.auditoria.vinculados');
         Route::get('/auditoria/export-pdf', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'exportPdf'])->name('administrativos.auditoria.exportPdf');
+        Route::get('/auditoria/{id}/pdf', [App\Http\Controllers\Admin\PDFController::class, 'downloadIndividual'])->name('administrativos.auditoria.pdf.individual');
+        Route::get('/auditoria/pdf/general', [App\Http\Controllers\Admin\PDFController::class, 'downloadGeneral'])->name('administrativos.auditoria.pdf.general');
 
         // Reportes (Bandeja de Entrada)
         Route::get('/reportes', [App\Http\Controllers\Administrativos\ReporteController::class, 'index'])->name('administrativos.reportes.index');

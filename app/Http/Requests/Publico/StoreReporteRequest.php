@@ -20,11 +20,12 @@ class StoreReporteRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'honeypot' => 'max:0',
             'edificio_id' => 'nullable|exists:edificios,id',
-            'tipo' => 'required|string',
-            'descripcion' => 'required|string|min:10',
-            'nombre_remitente' => 'nullable|string|max:255',
-            'email_remitente' => 'nullable|email|max:255',
+            'tipo' => 'required|in:ERROR_DATOS,UBICACION_INCORRECTA,INFO_FALTANTE,OTRO',
+            'descripcion' => 'required|string|min:10|max:1000',
+            'nombre_remitente' => 'nullable|string|max:100',
+            'email_remitente' => 'nullable|email|max:150',
         ];
     }
 }
