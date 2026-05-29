@@ -592,8 +592,8 @@ it('genera un PDF general con filtro de fechas', function () {
 | 13 | `useCallback` en handlers de `MapaPublico.jsx`           | `MapaPublico.jsx`           | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
 | 14 | `ini_set memory_limit` + `set_time_limit` en PDF general | `PDFController.php`         | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
 | 15 | Fuente DejaVu Sans en vistas Blade PDF                   | `pdf/*.blade.php`           | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
-| 16 | Índice `role` en tabla `users`                           | Nueva migración             | 🟢 Baja                     | Baja         |
-| 17 | `React.memo` en `SchoolCard`                             | `MapView.jsx`               | 🟢 Baja                     | Baja         |
-| 18 | ActivityLog en `UpdateModalidadAction`                   | `UpdateModalidadAction.php` | 🟢 Baja                     | Baja         |
+| 16 | Índice `role` en tabla `users`                           | Nueva migración             | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
+| 17 | `React.memo` en `SchoolCard`                             | `MapView.jsx`               | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
+| 18 | ActivityLog en `UpdateModalidadAction`                   | `UpdateModalidadAction.php` | ✅ IMPLEMENTADO - CORREGIDO | Baja         |
 | 19 | Tests de seguridad y roles (Pest)                        | `tests/Feature/`            | 🟢 Baja                     | Media        |
 | 20 | Tests de integración mapa (assertInertia)                | `tests/Feature/Publico/`    | 🟢 Baja                     | Media        |

@@ -4,7 +4,7 @@
  * All react-leaflet and leaflet imports live here so they are split into a separate chunk.
  */
 import { MapContainer, TileLayer, CircleMarker, useMap, useMapEvents, GeoJSON } from 'react-leaflet';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, memo } from 'react';
 import L from 'leaflet';
 import { createTileLayerComponent, updateGridLayer, withPane } from '@react-leaflet/core';
 import 'leaflet/dist/leaflet.css';
@@ -82,7 +82,7 @@ const HighPriorityTileLayer = createTileLayerComponent(
 );
 
 // --- School Info Card (pure HTML, no Leaflet Popup) ---
-function SchoolCard({ edificio, onClose }) {
+const SchoolCard = memo(function SchoolCard({ edificio, onClose }) {
     if (!edificio || !edificio.establecimientos) return null;
 
     return (
@@ -151,7 +151,7 @@ function SchoolCard({ edificio, onClose }) {
             </div>
         </div>
     );
-}
+}, (prev, next) => prev.edificio?.id === next.edificio?.id);
 
 // --- Main Export ---
 export default function MapView({

@@ -41,6 +41,12 @@ class UpdateModalidadAction
                 'sector' => $data['sector'] ?? null,
                 'ambito' => $data['ambito'],
             ]);
+
+            app(\App\Services\ActivityLogService::class)->logUpdate(
+                $modalidad, 
+                "Actualizó modalidad", 
+                ['after' => $data]
+            );
         });
     }
 }
