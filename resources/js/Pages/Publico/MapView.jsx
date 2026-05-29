@@ -116,7 +116,11 @@ function SchoolCard({ edificio, onClose }) {
                         className="school-card__maps-btn"
                         title="Cómo llegar con Google Maps"
                     >
-                        <i className="fas fa-route"></i>
+                        {/* Google Maps pin SVG */}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#EA4335"/>
+                            <circle cx="12" cy="9" r="2.8" fill="white"/>
+                        </svg>
                         <span>Ruta</span>
                     </a>
                     <button
@@ -159,8 +163,13 @@ export default function MapView({
     sidebarOpen,
     showDeptoBorders = true,
     filterDepto = 'TODOS',
+    isSatellite = false,
 }) {
     const [geojsonData, setGeojsonData] = useState(null);
+
+    // Tile layer URLs
+    const TILE_STREET = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+    const TILE_SAT    = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
     useEffect(() => {
         fetch('/geojson/departamentos-san_juan.json')
@@ -198,9 +207,14 @@ export default function MapView({
                 zoomControl={false}
             >
                 <HighPriorityTileLayer
-                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                    subdomains="abcd"
+                    key={isSatellite ? 'sat' : 'street'}
+                    url={isSatellite ? TILE_SAT : TILE_STREET}
+                    attribution={
+                        isSatellite
+                            ? '&copy; <a href="https://www.esri.com">Esri</a> World Imagery'
+                            : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                    }
+                    subdomains={isSatellite ? '' : 'abcd'}
                     keepBuffer={2}
                     updateWhenIdle={true}
                     updateWhenZooming={false}

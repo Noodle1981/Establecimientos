@@ -19,6 +19,7 @@ export default function MapaPublico({ edificios = [] }) {
     const [isSearching, setIsSearching] = useState(false);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [showDeptoBorders, setShowDeptoBorders] = useState(true);
+    const [isSatellite, setIsSatellite] = useState(false);
 
     const { data, setData, post, processing, reset, errors } = useForm({
         edificio_id: '',
@@ -359,6 +360,7 @@ export default function MapaPublico({ edificios = [] }) {
                             sidebarOpen={sidebarOpen}
                             showDeptoBorders={showDeptoBorders}
                             filterDepto={filterDepto}
+                            isSatellite={isSatellite}
                         />
                     </Suspense>
 
@@ -366,7 +368,7 @@ export default function MapaPublico({ edificios = [] }) {
                     <div className="absolute top-6 right-6 z-[1001] flex flex-col gap-3">
                         <button 
                             onClick={() => {
-                                setSelectedEdificio(null); // Clear selection
+                                setSelectedEdificio(null);
                                 setSelectedEdificio({ latitud: -31.5375, longitud: -68.5364, zoom: 11, _isCenter: true });
                             }}
                             aria-label="Recentrar mapa en San Juan"
@@ -374,6 +376,19 @@ export default function MapaPublico({ edificios = [] }) {
                             title="Recentrar Mapa"
                         >
                             <i className="fas fa-expand-arrows-alt group-hover:scale-110 transition-transform"></i>
+                        </button>
+
+                        <button
+                            onClick={() => setIsSatellite(v => !v)}
+                            aria-label={isSatellite ? 'Cambiar a mapa normal' : 'Cambiar a vista satelital'}
+                            title={isSatellite ? 'Vista Normal' : 'Vista Satélite'}
+                            className={`w-12 h-12 rounded-2xl shadow-xl flex items-center justify-center transition-all border group ${
+                                isSatellite
+                                    ? 'bg-brand-orange text-white border-orange-300'
+                                    : 'bg-white text-gray-500 hover:text-brand-orange border-orange-50'
+                            }`}
+                        >
+                            <i className={`fas fa-satellite group-hover:scale-110 transition-transform ${isSatellite ? 'text-white' : ''}`}></i>
                         </button>
                     </div>
 
