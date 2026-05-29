@@ -5,6 +5,8 @@
  */
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, GeoJSON } from 'react-leaflet';
 import { useEffect, useState } from 'react';
+import L from 'leaflet';
+import { createTileLayerComponent, updateGridLayer, withPane } from '@react-leaflet/core';
 import 'leaflet/dist/leaflet.css';
 
 // --- Internal sub-components ---
@@ -60,8 +62,7 @@ function MapController({ selected, sidebarOpen, filterDepto, geojsonData }) {
 
 // --- Custom High Priority TileLayer ---
 // This ensures every <img> tag for the map tiles has fetchpriority="high"
-import L from 'leaflet';
-import { createTileLayerComponent, updateGridLayer, withPane } from '@react-leaflet/core';
+
 
 const HighPriorityTileLayer = createTileLayerComponent(
     (props, context) => {
@@ -162,6 +163,7 @@ export default function MapView({
 
             {showDeptoBorders && geojsonData && (
                 <GeoJSON
+                    key={geojsonData ? `geojson-${geojsonData.features.length}` : 'geojson-empty'}
                     data={geojsonData}
                     style={{
                         color: '#FE8204',
