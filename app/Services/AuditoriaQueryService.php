@@ -53,15 +53,34 @@ class AuditoriaQueryService
     }
 
     /**
-     * Get audit statistics.
+     * Get audit statistics based on active filters (excluding the validation status itself).
      */
-    public function getStats(?string $depto = null): array
+    public function getStats(Request $request): array
     {
         $kpiQuery = Modalidad::withTrashed();
-        if ($depto) {
+
+        if ($search = $request->input('search')) {
+            $kpiQuery->whereHas('establecimiento', function ($q) use ($search) {
+                $q->where('nombre', 'like', '%' . $search . '%')
+                  ->orWhere('cue', 'like', '%' . $search . '%')
+                  ->orWhereHas('edificio', function ($q2) use ($search) {
+                      $q2->where('cui', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        if ($depto = $request->input('departamento')) {
             $kpiQuery->whereHas('establecimiento.edificio', function ($q) use ($depto) {
                 $q->where('zona_departamento', $depto);
             });
+        }
+
+        if ($nivel = $request->input('nivel')) {
+            $kpiQuery->where('nivel_educativo', $nivel);
+        }
+
+        if ($ambito = $request->input('ambito')) {
+            $kpiQuery->where('ambito', $ambito);
         }
         
         $stats = $kpiQuery->selectRaw('estado_validacion, count(*) as total')
@@ -92,10 +111,12 @@ class AuditoriaQueryService
         $estado = $request->input('estado');
         $depto = $request->input('departamento');
         $nivel = $request->input('nivel');
+        $ambito = $request->input('ambito');
 
-        // Niveles available for the current Estado and Departamento
+        // Niveles available for the current filters
         $nivelQuery = Modalidad::distinct()->whereNotNull('nivel_educativo');
         if ($estado) $nivelQuery->where('estado_validacion', $estado);
+        if ($ambito) $nivelQuery->where('ambito', $ambito);
         if ($depto) {
             $nivelQuery->whereHas('establecimiento.edificio', function ($q) use ($depto) {
                 $q->where('zona_departamento', $depto);
@@ -103,12 +124,13 @@ class AuditoriaQueryService
         }
         $nivelesDisponibles = $nivelQuery->orderBy('nivel_educativo')->pluck('nivel_educativo');
 
-        // Departamentos available for the current Estado and Nivel
+        // Departamentos available for the current filters
         $deptoQuery = Edificio::distinct()->whereNotNull('zona_departamento');
-        if ($estado || $nivel) {
-            $deptoQuery->whereHas('establecimientos.modalidades', function ($q) use ($estado, $nivel) {
+        if ($estado || $nivel || $ambito) {
+            $deptoQuery->whereHas('establecimientos.modalidades', function ($q) use ($estado, $nivel, $ambito) {
                 if ($estado) $q->where('estado_validacion', $estado);
                 if ($nivel) $q->where('nivel_educativo', $nivel);
+                if ($ambito) $q->where('ambito', $ambito);
             });
         }
         $deptosDisponibles = $deptoQuery->orderBy('zona_departamento')->pluck('zona_departamento');

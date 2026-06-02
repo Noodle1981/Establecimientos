@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, usePage } from '@inertiajs/react';
-import { useState, useMemo, useCallback, lazy, Suspense } from 'react';
+import { Head, usePage, router } from '@inertiajs/react';
+import { useState, useMemo, useCallback, lazy, Suspense, useEffect } from 'react';
 import Modal from '@/Components/Modal';
 import { useForm } from '@inertiajs/react';
 
@@ -20,6 +20,18 @@ export default function MapaPublico({ edificios = [] }) {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [showDeptoBorders, setShowDeptoBorders] = useState(true);
     const [isSatellite, setIsSatellite] = useState(false);
+    const [isLoading, setIsLoading] = useState(edificios.length === 0);
+
+    useEffect(() => {
+        if (edificios.length === 0) {
+            router.reload({
+                only: ['edificios'],
+                onFinish: () => setIsLoading(false)
+            });
+        } else {
+            setIsLoading(false);
+        }
+    }, []);
 
     const { data, setData, post, processing, reset, errors } = useForm({
         edificio_id: '',
@@ -29,56 +41,143 @@ export default function MapaPublico({ edificios = [] }) {
         email_remitente: '',
     });
 
-    // Get unique levels and departments for filtering
-    const nivelesDisponibles = useMemo(() => {
-        const set = new Set();
-        edificios.forEach(e => e.establecimientos.forEach(est => est.modalidades.forEach(m => set.add(m.nivel))));
-        return Array.from(set).filter(n => n).sort();
-    }, [edificios]);
-
+    // Get unique levels and departments dynamically based on other active filters (Faceted search)
     const deptosDisponibles = useMemo(() => {
         const set = new Set();
-        edificios.forEach(e => { if (e.zona_departamento) set.add(e.zona_departamento); });
+        edificios.forEach(edificio => {
+            const hasMatchingModality = edificio.establecimientos.some(est => 
+                est.modalidades.some(m => {
+                    const matchesScope = (m.ambito === 'PUBLICO' && activeFilters.publico) ||
+                                         (m.ambito === 'PRIVADO' && activeFilters.privado);
+                    const matchesNivel = filterNivel === 'TODOS' || m.nivel === filterNivel;
+                    return matchesScope && matchesNivel;
+                })
+            );
+
+            if (hasMatchingModality && edificio.zona_departamento) {
+                set.add(edificio.zona_departamento);
+            }
+        });
         return Array.from(set).sort();
-    }, [edificios]);
+    }, [edificios, activeFilters, filterNivel]);
+
+    const nivelesDisponibles = useMemo(() => {
+        const set = new Set();
+        edificios.forEach(edificio => {
+            const matchesDepto = filterDepto === 'TODOS' || edificio.zona_departamento === filterDepto;
+            if (!matchesDepto) return;
+
+            edificio.establecimientos.forEach(est => {
+                est.modalidades.forEach(m => {
+                    const matchesScope = (m.ambito === 'PUBLICO' && activeFilters.publico) ||
+                                         (m.ambito === 'PRIVADO' && activeFilters.privado);
+                    if (matchesScope && m.nivel) {
+                        set.add(m.nivel);
+                    }
+                });
+            });
+        });
+        return Array.from(set).sort();
+    }, [edificios, activeFilters, filterDepto]);
+
+    // Auto-reset filters if selected option is no longer available
+    useEffect(() => {
+        if (filterDepto !== 'TODOS' && !deptosDisponibles.includes(filterDepto)) {
+            setFilterDepto('TODOS');
+        }
+    }, [deptosDisponibles, filterDepto]);
+
+    useEffect(() => {
+        if (filterNivel !== 'TODOS' && !nivelesDisponibles.includes(filterNivel)) {
+            setFilterNivel('TODOS');
+        }
+    }, [nivelesDisponibles, filterNivel]);
 
     // Filter Logic
     const filteredEdificios = useMemo(() => {
-        return edificios.filter(edificio => {
-            const matchesSearch = (edificio.localidad?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
-                (edificio.calle?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
-                (edificio.cui?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
-                edificio.establecimientos.some(est => 
-                    (est.nombre?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
-                    (est.cue?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase())
-                );
-            
-            const matchesType = (edificio.ambito === 'PUBLICO' && activeFilters.publico) ||
-                                (edificio.ambito === 'PRIVADO' && activeFilters.privado);
+        const query = searchQuery.trim().toLowerCase();
+        
+        return edificios.map(edificio => {
+            // 1. Filter establishments and their modalities by Scope and Nivel
+            const filteredEsts = edificio.establecimientos.map(est => {
+                const filteredMods = est.modalidades.filter(m => {
+                    const matchesScope = (m.ambito === 'PUBLICO' && activeFilters.publico) ||
+                                         (m.ambito === 'PRIVADO' && activeFilters.privado);
+                    const matchesNivel = filterNivel === 'TODOS' || m.nivel === filterNivel;
+                    return matchesScope && matchesNivel;
+                });
 
-            // If user is actively searching: Search Match + Scope Match (ignores Nivel/Depto)
-            if (searchQuery.length >= 2) {
-                return matchesSearch && matchesType;
+                if (filteredMods.length === 0) return null;
+
+                return {
+                    ...est,
+                    modalidades: filteredMods
+                };
+            }).filter(Boolean);
+
+            if (filteredEsts.length === 0) return null;
+
+            // 2. Determine dynamic building scope (ambito) based on filtered establishments
+            const hasPrivate = filteredEsts.some(est => 
+                est.modalidades.some(m => m.ambito === 'PRIVADO')
+            );
+            const dynamicAmbito = hasPrivate ? 'PRIVADO' : 'PUBLICO';
+
+            // 3. Filter by search query if active (search query length >= 2)
+            if (query.length >= 2) {
+                const matchesBuilding = (edificio.cui?.toString().toLowerCase() || '').includes(query) ||
+                                        (edificio.localidad?.toString().toLowerCase() || '').includes(query) ||
+                                        (edificio.calle?.toString().toLowerCase() || '').includes(query);
+                
+                const finalEsts = filteredEsts.filter(est => {
+                    if (matchesBuilding) return true;
+                    
+                    const matchesEst = (est.nombre?.toString().toLowerCase() || '').includes(query) ||
+                                       (est.cue?.toString().toLowerCase() || '').includes(query);
+                    return matchesEst;
+                });
+
+                if (finalEsts.length === 0) return null;
+
+                return {
+                    ...edificio,
+                    ambito: dynamicAmbito,
+                    establecimientos: finalEsts
+                };
             }
 
-            // Otherwise, apply all filters
-            const matchesNivel = filterNivel === 'TODOS' || 
-                                edificio.establecimientos.some(est => 
-                                    est.modalidades.some(m => m.nivel === filterNivel)
-                                );
-
+            // 4. Filter by department if not searching
             const matchesDepto = filterDepto === 'TODOS' || edificio.zona_departamento === filterDepto;
+            if (!matchesDepto) return null;
 
-            return matchesType && matchesNivel && matchesDepto;
-        });
+            return {
+                ...edificio,
+                ambito: dynamicAmbito,
+                establecimientos: filteredEsts
+            };
+        }).filter(Boolean);
     }, [edificios, searchQuery, activeFilters, filterNivel, filterDepto]);
 
     // Statistics for the sidebar
     const stats = useMemo(() => {
         const totalEdificios = filteredEdificios.length;
-        const totalEstablecimientos = filteredEdificios.reduce((acc, curr) => acc + curr.establecimientos.length, 0);
-        const publicos = filteredEdificios.filter(e => e.ambito === 'PUBLICO').length;
-        const privados = filteredEdificios.filter(e => e.ambito === 'PRIVADO').length;
+        
+        let totalEstablecimientos = 0;
+        let publicos = 0;
+        let privados = 0;
+
+        filteredEdificios.forEach(e => {
+            totalEstablecimientos += e.establecimientos.length;
+            e.establecimientos.forEach(est => {
+                const isPrivate = est.modalidades.some(m => m.ambito === 'PRIVADO');
+                if (isPrivate) {
+                    privados++;
+                } else {
+                    publicos++;
+                }
+            });
+        });
+
         return { totalEdificios, totalEstablecimientos, publicos, privados };
     }, [filteredEdificios]);
 
@@ -95,23 +194,25 @@ export default function MapaPublico({ edificios = [] }) {
 
     const searchResults = useMemo(() => {
         if (!searchQuery || searchQuery.length < 2) return [];
+        const query = searchQuery.trim().toLowerCase();
         const results = [];
-        edificios.forEach(edificio => {
+        
+        filteredEdificios.forEach(edificio => {
             edificio.establecimientos.forEach(est => {
-                const matchesName = (est.nombre?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase());
-                const matchesCue = (est.cue?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase());
-                const matchesCui = (edificio.cui?.toString().toLowerCase() || '').includes(searchQuery.toLowerCase());
+                const matchesName = (est.nombre?.toString().toLowerCase() || '').includes(query);
+                const matchesCue = (est.cue?.toString().toLowerCase() || '').includes(query);
+                const matchesCui = (edificio.cui?.toString().toLowerCase() || '').includes(query);
                 
                 if (matchesName || matchesCue || matchesCui) {
                     results.push({
                         ...est,
-                        edificio: edificio // Keep reference to the building for map centering
+                        edificio: edificio
                     });
                 }
             });
         });
-        return results.slice(0, 10); // Show up to 10 specific establishments
-    }, [edificios, searchQuery]);
+        return results.slice(0, 10);
+    }, [filteredEdificios, searchQuery]);
 
     const toggleFilter = useCallback((type) => {
         setActiveFilters(prev => {
@@ -226,13 +327,25 @@ export default function MapaPublico({ edificios = [] }) {
 
                             {/* Stats Summary */}
                             <div className="flex gap-2 mb-4">
-                                <div className="flex-1 bg-white/50 backdrop-blur-sm p-2 rounded-lg border border-orange-100/50">
+                                <div className="flex-1 bg-white/50 backdrop-blur-sm p-2 rounded-lg border border-orange-100/50 flex flex-col justify-center">
                                     <p className="text-[8px] uppercase font-black text-gray-400">Edificios</p>
-                                    <p className="text-sm font-black text-gray-800">{stats.totalEdificios}</p>
+                                    <div className="h-5 flex items-center">
+                                        {isLoading ? (
+                                            <i className="fas fa-circle-notch fa-spin text-xs text-brand-orange"></i>
+                                        ) : (
+                                            <p className="text-sm font-black text-gray-800 leading-none">{stats.totalEdificios}</p>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="flex-1 bg-white/50 backdrop-blur-sm p-2 rounded-lg border border-orange-100/50">
+                                <div className="flex-1 bg-white/50 backdrop-blur-sm p-2 rounded-lg border border-orange-100/50 flex flex-col justify-center">
                                     <p className="text-[8px] uppercase font-black text-gray-400">Establ.</p>
-                                    <p className="text-sm font-black text-gray-800">{stats.totalEstablecimientos}</p>
+                                    <div className="h-5 flex items-center">
+                                        {isLoading ? (
+                                            <i className="fas fa-circle-notch fa-spin text-xs text-brand-orange"></i>
+                                        ) : (
+                                            <p className="text-sm font-black text-gray-800 leading-none">{stats.totalEstablecimientos}</p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>

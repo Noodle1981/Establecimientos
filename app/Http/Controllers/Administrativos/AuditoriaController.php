@@ -36,7 +36,7 @@ class AuditoriaController extends Controller
             'modalidades' => $modalidades,
             'filters' => $request->all(),
             'nombresEdificios' => $this->queryService->getBuildingNamesMap(),
-            'stats' => $this->queryService->getStats($request->input('departamento')),
+            'stats' => $this->queryService->getStats($request),
             'options' => $this->queryService->getFilterOptions($request)
         ]);
     }

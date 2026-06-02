@@ -20,46 +20,48 @@ class MapaController extends Controller
         $edificios = Cache::remember('public-mapa-edificios-react', 3600, function () {
             $result = collect();
 
-            Edificio::select('id', 'cui', 'latitud', 'longitud', 'localidad', 'calle', 'numero_puerta', 'zona_departamento')
+            $edificios = Edificio::select('id', 'cui', 'latitud', 'longitud', 'localidad', 'calle', 'numero_puerta', 'zona_departamento')
                 ->whereNotNull('latitud')
                 ->whereNotNull('longitud')
                 ->whereHas('establecimientos.modalidades')
                 ->with(['establecimientos:id,edificio_id,cue,nombre', 'establecimientos.modalidades:id,establecimiento_id,ambito,radio,categoria,nivel_educativo,direccion_area,sector'])
-                ->chunk(100, function ($chunk) use ($result) {
-                    foreach ($chunk as $edificio) {
-                        $esPrivado = $edificio->establecimientos->flatMap(function (Establecimiento $est) {
-                            return $est->modalidades;
-                        })->contains(function (Modalidad $mod) {
-                            return stripos($mod->ambito, 'privado') !== false || $mod->sector == 2;
-                        });
+                ->get();
 
-                        $result->push([
-                            'id' => $edificio->id,
-                            'cui' => $edificio->cui,
-                            'latitud' => (float) $edificio->latitud,
-                            'longitud' => (float) $edificio->longitud,
-                            'localidad' => $edificio->localidad ?? 'Sin localidad',
-                            'calle' => $edificio->calle ?? 'Sin dirección',
-                            'numero_puerta' => $edificio->numero_puerta ?? 'S/N',
-                            'zona_departamento' => $edificio->zona_departamento ?? '',
-                            'ambito' => $esPrivado ? 'PRIVADO' : 'PUBLICO',
-                            'establecimientos' => $edificio->establecimientos->map(function ($est) {
+            foreach ($edificios as $edificio) {
+                $esPrivado = $edificio->establecimientos->flatMap(function (Establecimiento $est) {
+                    return $est->modalidades;
+                })->contains(function (Modalidad $mod) {
+                    return stripos($mod->ambito, 'privado') !== false || $mod->sector == 2;
+                });
+
+                $result->push([
+                    'id' => $edificio->id,
+                    'cui' => $edificio->cui,
+                    'latitud' => (float) $edificio->latitud,
+                    'longitud' => (float) $edificio->longitud,
+                    'localidad' => $edificio->localidad ?? 'Sin localidad',
+                    'calle' => $edificio->calle ?? 'Sin dirección',
+                    'numero_puerta' => $edificio->numero_puerta ?? 'S/N',
+                    'zona_departamento' => $edificio->zona_departamento ?? '',
+                    'ambito' => $esPrivado ? 'PRIVADO' : 'PUBLICO',
+                    'establecimientos' => $edificio->establecimientos->map(function ($est) {
+                        return [
+                            'nombre' => $est->nombre,
+                            'cue' => $est->cue,
+                            'modalidades' => $est->modalidades->map(function ($mod) {
+                                $esPriv = stripos($mod->ambito, 'privado') !== false || $mod->sector == 2;
                                 return [
-                                    'nombre' => $est->nombre,
-                                    'cue' => $est->cue,
-                                    'modalidades' => $est->modalidades->map(function ($mod) {
-                                        return [
-                                            'nivel' => $mod->nivel_educativo,
-                                            'area' => $mod->direccion_area,
-                                            'radio' => $mod->radio ?? 'N/A',
-                                            'categoria' => $mod->categoria ?? 'N/A',
-                                        ];
-                                    })->toArray(),
+                                    'nivel' => $mod->nivel_educativo,
+                                    'area' => $mod->direccion_area,
+                                    'radio' => $mod->radio ?? 'N/A',
+                                    'categoria' => $mod->categoria ?? 'N/A',
+                                    'ambito' => $esPriv ? 'PRIVADO' : 'PUBLICO',
                                 ];
                             })->toArray(),
-                        ]);
-                    }
-                });
+                        ];
+                    })->toArray(),
+                ]);
+            }
 
             return $result;
         });
