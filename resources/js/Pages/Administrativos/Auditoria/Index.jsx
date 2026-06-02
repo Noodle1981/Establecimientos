@@ -344,6 +344,14 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
 
     const [vinculados, setVinculados] = useState([]);
     const [loadingVinculados, setLoadingVinculados] = useState(false);
+    const [copiedField, setCopiedField] = useState(null);
+
+    const handleCopy = (text, fieldName) => {
+        if (!text) return;
+        navigator.clipboard.writeText(String(text));
+        setCopiedField(fieldName);
+        setTimeout(() => setCopiedField(null), 1500);
+    };
 
     // Sincronizar el formulario cuando cambia la modalidad seleccionada o se abre el modal
     useEffect(() => {
@@ -420,25 +428,57 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                             <div className="space-y-3">
                                 <InputLabel value="Datos del Establecimiento (CUE)" className="text-[10px] font-black uppercase tracking-widest text-brand-orange" />
                                 <div className="space-y-2">
-                                    <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Nombre del Establecimiento</p>
-                                        <p className="text-xs font-black text-gray-800 uppercase leading-tight">
-                                            {modalidad.establecimiento.nombre}
-                                        </p>
+                                    <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between group">
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Nombre del Establecimiento</p>
+                                            <p className="text-xs font-black text-gray-800 leading-tight truncate" title={modalidad.establecimiento.nombre}>
+                                                {modalidad.establecimiento.nombre}
+                                            </p>
+                                        </div>
+                                        <button 
+                                            type="button" 
+                                            onClick={() => handleCopy(modalidad.establecimiento.nombre, 'nombre_est')}
+                                            className="ml-2 p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                            title="Copiar nombre"
+                                        >
+                                            <i className={`fas ${copiedField === 'nombre_est' ? 'fa-check text-green-500' : 'fa-copy'} text-[10px]`}></i>
+                                        </button>
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
-                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
-                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">CUE</p>
-                                            <p className="text-xs font-black text-gray-800">{modalidad.establecimiento.cue}</p>
+                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between">
+                                            <div className="min-w-0">
+                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">CUE</p>
+                                                <p className="text-xs font-black text-gray-800">{modalidad.establecimiento.cue}</p>
+                                            </div>
+                                            <button 
+                                                type="button" 
+                                                onClick={() => handleCopy(modalidad.establecimiento.cue, 'cue')}
+                                                className="p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                                title="Copiar CUE"
+                                            >
+                                                <i className={`fas ${copiedField === 'cue' ? 'fa-check text-green-500' : 'fa-copy'} text-[9px]`}></i>
+                                            </button>
                                         </div>
-                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
-                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">CUI</p>
-                                            <p className="text-xs font-black text-gray-800">{modalidad.establecimiento.edificio?.cui || 'S/D'}</p>
+                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between">
+                                            <div className="min-w-0">
+                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">CUI</p>
+                                                <p className="text-xs font-black text-gray-800">{modalidad.establecimiento.edificio?.cui || 'S/D'}</p>
+                                            </div>
+                                            {modalidad.establecimiento.edificio?.cui && (
+                                                <button 
+                                                    type="button" 
+                                                    onClick={() => handleCopy(modalidad.establecimiento.edificio.cui, 'cui')}
+                                                    className="p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                                    title="Copiar CUI"
+                                                >
+                                                    <i className={`fas ${copiedField === 'cui' ? 'fa-check text-green-500' : 'fa-copy'} text-[9px]`}></i>
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100">
                                         <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Modalidad / Nivel Educativo</p>
-                                        <p className="text-xs font-black text-gray-800 uppercase leading-none">
+                                        <p className="text-xs font-black text-gray-800 leading-none">
                                             {modalidad.nivel_educativo}
                                         </p>
                                     </div>
@@ -450,18 +490,38 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                 <InputLabel value="Información del Edificio" className="text-[10px] font-black uppercase tracking-widest text-brand-orange" />
                                 <div className="space-y-2">
                                     {getNombreEdificio(modalidad) && (
-                                        <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Edificio / Establecimiento Cabecera</p>
-                                            <p className="text-[11px] font-black text-brand-orange uppercase leading-tight truncate" title={getNombreEdificio(modalidad)}>
-                                                {getNombreEdificio(modalidad)}
-                                            </p>
+                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between group">
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Edificio / Establecimiento Cabecera</p>
+                                                <p className="text-[11px] font-black text-brand-orange leading-tight truncate" title={getNombreEdificio(modalidad)}>
+                                                    {getNombreEdificio(modalidad)}
+                                                </p>
+                                            </div>
+                                            <button 
+                                                type="button" 
+                                                onClick={() => handleCopy(getNombreEdificio(modalidad), 'edificio')}
+                                                className="ml-2 p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                                title="Copiar edificio"
+                                            >
+                                                <i className={`fas ${copiedField === 'edificio' ? 'fa-check text-green-500' : 'fa-copy'} text-[10px]`}></i>
+                                            </button>
                                         </div>
                                     )}
-                                    <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Dirección Física</p>
-                                        <p className="text-[11px] font-black text-gray-800 uppercase truncate" title={`${modalidad.establecimiento.edificio?.calle} ${modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}`}>
-                                            {modalidad.establecimiento.edificio?.calle} {modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}
-                                        </p>
+                                    <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between group">
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Dirección Física</p>
+                                            <p className="text-[11px] font-black text-gray-800 leading-tight truncate" title={`${modalidad.establecimiento.edificio?.calle} ${modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}`}>
+                                                {modalidad.establecimiento.edificio?.calle} {modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}
+                                            </p>
+                                        </div>
+                                        <button 
+                                            type="button" 
+                                            onClick={() => handleCopy(`${modalidad.establecimiento.edificio?.calle} ${modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}`, 'direccion')}
+                                            className="ml-2 p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                            title="Copiar dirección"
+                                        >
+                                            <i className={`fas ${copiedField === 'direccion' ? 'fa-check text-green-500' : 'fa-copy'} text-[10px]`}></i>
+                                        </button>
                                     </div>
                                     <div className="grid grid-cols-3 gap-1.5">
                                         <div className="bg-gray-50 p-1.5 rounded-xl border border-gray-100 text-center">
@@ -478,11 +538,23 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
-                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
-                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">GPS</p>
-                                            <p className="text-[9px] font-black text-brand-orange truncate" title={`${modalidad.establecimiento.edificio?.latitud}, ${modalidad.establecimiento.edificio?.longitud}`}>
-                                                {modalidad.establecimiento.edificio?.latitud}, {modalidad.establecimiento.edificio?.longitud}
-                                            </p>
+                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between">
+                                            <div className="min-w-0">
+                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">GPS</p>
+                                                <p className="text-[9px] font-black text-brand-orange truncate" title={`${modalidad.establecimiento.edificio?.latitud}, ${modalidad.establecimiento.edificio?.longitud}`}>
+                                                    {modalidad.establecimiento.edificio?.latitud}, {modalidad.establecimiento.edificio?.longitud}
+                                                </p>
+                                            </div>
+                                            {modalidad.establecimiento.edificio?.latitud && (
+                                                <button 
+                                                    type="button" 
+                                                    onClick={() => handleCopy(`${modalidad.establecimiento.edificio?.latitud}, ${modalidad.establecimiento.edificio?.longitud}`, 'gps')}
+                                                    className="p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                                    title="Copiar GPS"
+                                                >
+                                                    <i className={`fas ${copiedField === 'gps' ? 'fa-check text-green-500' : 'fa-copy'} text-[9px]`}></i>
+                                                </button>
+                                            )}
                                         </div>
                                         <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
                                             <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Departamento</p>
