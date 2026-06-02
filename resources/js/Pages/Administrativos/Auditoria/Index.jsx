@@ -590,7 +590,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                     <div className="space-y-6">
                         <div>
                             <div className="flex justify-between items-center mb-3">
-                                <InputLabel value="Campos Verificados" className="text-[10px] font-black uppercase tracking-widest text-gray-400" />
+                                <InputLabel value="Campos Auditados / Reportados" className="text-[10px] font-black uppercase tracking-widest text-gray-400" />
                                 <button type="button" onClick={() => setData('campos_auditados', CAMPOS_AUDITORIA)} className="text-[9px] font-black text-brand-orange uppercase hover:underline">Marcar Todo</button>
                             </div>
                             <div className="grid grid-cols-3 gap-2">
