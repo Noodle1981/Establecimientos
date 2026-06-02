@@ -314,7 +314,7 @@ export default function Index({ modalidades, filters, options, nombresEdificios 
 
             {/* Modals */}
             <ViewModalidadModal show={showViewModal} onClose={() => setShowViewModal(false)} modalidad={selectedModalidad} nombresEdificios={nombresEdificios} />
-            <EditModalidadModal show={showEditModal} onClose={() => setShowEditModal(false)} modalidad={selectedModalidad} options={options} />
+            <EditModalidadModal show={showEditModal} onClose={() => setShowEditModal(false)} modalidad={selectedModalidad} options={options} nombresEdificios={nombresEdificios} />
             <CreateModalidadModal show={showCreateModal} onClose={() => setShowCreateModal(false)} options={options} />
 
         </AuthenticatedLayout>
@@ -393,7 +393,7 @@ function ViewModalidadModal({ show, onClose, modalidad, nombresEdificios }) {
     );
 }
 
-function EditModalidadModal({ show, onClose, modalidad, options }) {
+function EditModalidadModal({ show, onClose, modalidad, options, nombresEdificios = {} }) {
     const { data, setData, patch, processing, errors, reset } = useForm({
         cui: '',
         cue: '',
@@ -439,7 +439,17 @@ function EditModalidadModal({ show, onClose, modalidad, options }) {
                 <h3 className="text-xl font-black text-gray-900 border-b pb-4 mb-6">Actualizar Establecimiento</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                    <ModalInput label="CUI Edificio" value={data.cui} onChange={v => setData('cui', v)} error={errors.cui} />
+                    <div>
+                        <ModalInput label="CUI Edificio" value={data.cui} onChange={v => setData('cui', v)} error={errors.cui} />
+                        {modalidad?.establecimiento?.establecimiento_cabecera && (
+                            <div className="mt-1.5 px-3 py-1.5 bg-orange-50/50 rounded-xl border border-orange-100/50 text-[10px] font-bold text-gray-600">
+                                <span className="text-gray-400 font-black uppercase text-[8px] tracking-widest block mb-0.5">Establecimiento Cabecera</span>
+                                <span className="text-brand-orange font-black text-xs leading-none truncate block" title={nombresEdificios[modalidad.establecimiento.establecimiento_cabecera] || 'Sin Nombre'}>
+                                    {nombresEdificios[modalidad.establecimiento.establecimiento_cabecera] || 'Sin Nombre'}
+                                </span>
+                            </div>
+                        )}
+                    </div>
                     <ModalInput label="CUE Establecimiento" value={data.cue} onChange={v => setData('cue', v)} error={errors.cue} />
                     <div className="col-span-2">
                         <ModalInput label="Nombre del Establecimiento" value={data.nombre_establecimiento} onChange={v => setData('nombre_establecimiento', v)} error={errors.nombre_establecimiento} />
