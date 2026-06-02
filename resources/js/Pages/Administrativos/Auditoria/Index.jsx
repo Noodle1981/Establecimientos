@@ -395,7 +395,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
     };
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="2xl">
+        <Modal show={show} onClose={onClose} maxWidth="4xl">
             <form onSubmit={submit} className="p-6">
                 <div className="flex items-center gap-4 mb-6 border-b pb-4">
                     <div className="w-12 h-12 rounded-xl bg-orange-50 text-brand-orange flex items-center justify-center text-xl shadow-sm border border-orange-100">
@@ -415,59 +415,95 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Columna Izquierda: Detalles e Información */}
                     <div className="space-y-6">
-                        <div>
-                            <InputLabel value="Información del Edificio" className="text-[10px] font-black uppercase tracking-widest text-brand-orange mb-3" />
-                            <div className="grid grid-cols-2 gap-2">
-                                {getNombreEdificio(modalidad) && (
-                                    <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100 col-span-2">
-                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1 tracking-widest">Edificio / Establecimiento Cabecera</p>
-                                        <p className="text-[11px] font-black text-brand-orange uppercase leading-tight">
-                                            {getNombreEdificio(modalidad)}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {/* Bloque 1: Datos del Establecimiento */}
+                            <div className="space-y-3">
+                                <InputLabel value="Datos del Establecimiento (CUE)" className="text-[10px] font-black uppercase tracking-widest text-brand-orange" />
+                                <div className="space-y-2">
+                                    <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Nombre del Establecimiento</p>
+                                        <p className="text-xs font-black text-gray-800 uppercase leading-tight">
+                                            {modalidad.establecimiento.nombre}
                                         </p>
                                     </div>
-                                )}
-                                <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100 col-span-2">
-                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1 tracking-widest">Dirección Física</p>
-                                    <p className="text-[11px] font-black text-gray-800 uppercase">
-                                        {modalidad.establecimiento.edificio?.calle} {modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}
-                                    </p>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">CUE</p>
+                                            <p className="text-xs font-black text-gray-800">{modalidad.establecimiento.cue}</p>
+                                        </div>
+                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">CUI</p>
+                                            <p className="text-xs font-black text-gray-800">{modalidad.establecimiento.edificio?.cui || 'S/D'}</p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Modalidad / Nivel Educativo</p>
+                                        <p className="text-xs font-black text-gray-800 uppercase leading-none">
+                                            {modalidad.nivel_educativo}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
-                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Radio</p>
-                                    <p className="text-xs font-black text-gray-800">{modalidad.radio || '-'}</p>
-                                </div>
-                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
-                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Sector</p>
-                                    <p className="text-xs font-black text-gray-800">{modalidad.sector || '-'}</p>
-                                </div>
-                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
-                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1">Categoría</p>
-                                    <p className="text-xs font-black text-gray-800">{modalidad.categoria || '-'}</p>
-                                </div>
-                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
-                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1">GPS</p>
-                                    <p className="text-[10px] font-black text-brand-orange">
-                                        {modalidad.establecimiento.edificio?.latitud}, {modalidad.establecimiento.edificio?.longitud}
-                                    </p>
-                                </div>
-                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 col-span-2">
-                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-1 tracking-widest">Depto / Localidad</p>
-                                    <p className="text-[10px] font-bold text-gray-700 uppercase">
-                                        {modalidad.establecimiento.edificio?.zona_departamento} - {modalidad.establecimiento.edificio?.localidad}
-                                    </p>
+                            </div>
+
+                            {/* Bloque 2: Información del Edificio */}
+                            <div className="space-y-3">
+                                <InputLabel value="Información del Edificio" className="text-[10px] font-black uppercase tracking-widest text-brand-orange" />
+                                <div className="space-y-2">
+                                    {getNombreEdificio(modalidad) && (
+                                        <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Edificio / Establecimiento Cabecera</p>
+                                            <p className="text-[11px] font-black text-brand-orange uppercase leading-tight truncate" title={getNombreEdificio(modalidad)}>
+                                                {getNombreEdificio(modalidad)}
+                                            </p>
+                                        </div>
+                                    )}
+                                    <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Dirección Física</p>
+                                        <p className="text-[11px] font-black text-gray-800 uppercase truncate" title={`${modalidad.establecimiento.edificio?.calle} ${modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}`}>
+                                            {modalidad.establecimiento.edificio?.calle} {modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}
+                                        </p>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-1.5">
+                                        <div className="bg-gray-50 p-1.5 rounded-xl border border-gray-100 text-center">
+                                            <p className="text-[7px] font-black text-gray-400 uppercase mb-0.5">Radio</p>
+                                            <p className="text-[10px] font-black text-gray-800">{modalidad.radio || '-'}</p>
+                                        </div>
+                                        <div className="bg-gray-50 p-1.5 rounded-xl border border-gray-100 text-center">
+                                            <p className="text-[7px] font-black text-gray-400 uppercase mb-0.5">Sector</p>
+                                            <p className="text-[10px] font-black text-gray-800">{modalidad.sector || '-'}</p>
+                                        </div>
+                                        <div className="bg-gray-50 p-1.5 rounded-xl border border-gray-100 text-center">
+                                            <p className="text-[7px] font-black text-gray-400 uppercase mb-0.5">Cat.</p>
+                                            <p className="text-[10px] font-black text-gray-800">{modalidad.categoria || '-'}</p>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">GPS</p>
+                                            <p className="text-[9px] font-black text-brand-orange truncate" title={`${modalidad.establecimiento.edificio?.latitud}, ${modalidad.establecimiento.edificio?.longitud}`}>
+                                                {modalidad.establecimiento.edificio?.latitud}, {modalidad.establecimiento.edificio?.longitud}
+                                            </p>
+                                        </div>
+                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Departamento</p>
+                                            <p className="text-[9px] font-black text-gray-700 truncate" title={modalidad.establecimiento.edificio?.zona_departamento}>
+                                                {modalidad.establecimiento.edificio?.zona_departamento}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <div>
                             <InputLabel value="Nuevo Estado de Validación" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-4 gap-2">
                                 {['PENDIENTE', 'CORRECTO', 'CORREGIDO', 'REVISAR'].map(s => (
                                     <button
                                         key={s} type="button" onClick={() => setData('estado', s)}
-                                        className={`py-3 px-2 rounded-xl border-2 text-[10px] font-black uppercase tracking-widest transition-all ${
+                                        className={`py-3 px-1.5 rounded-xl border-2 text-[9px] font-black uppercase tracking-widest transition-all ${
                                             data.estado === s 
-                                                ? 'border-brand-orange bg-orange-50 text-brand-orange' 
+                                                ? 'border-brand-orange bg-orange-50 text-brand-orange shadow-sm' 
                                                 : 'border-gray-100 text-gray-400 hover:border-orange-100'
                                         }`}
                                     >
