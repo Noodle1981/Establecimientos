@@ -82,10 +82,6 @@ class ModalidadQueryService
      */
     public function getBuildingNamesMap(): \Illuminate\Support\Collection
     {
-        return \App\Models\Establecimiento::where('cue', 'LIKE', '%00')
-            ->pluck('nombre', 'cue')
-            ->mapWithKeys(function ($nombre, $cue) {
-                return [substr((string)$cue, 0, 7) => $nombre];
-            });
+        return \App\Models\Establecimiento::pluck('nombre', 'cue');
     }
 }

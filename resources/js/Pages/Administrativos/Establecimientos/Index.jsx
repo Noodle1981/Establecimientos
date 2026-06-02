@@ -15,21 +15,33 @@ const getNombreEdificio = (item, mapa = {}) => {
     try {
         if (!item || !item.establecimiento) return null;
         
-        // 1. Prioridad: Nombre directo del edificio
-        if (item.establecimiento.edificio && item.establecimiento.edificio.nombre) {
-            return item.establecimiento.edificio.nombre;
+        const est = item.establecimiento;
+
+        // 1. Prioridad principal: Nombre de la escuela principal del edificio físico (CUE Edificio Principal)
+        if (est.cue_edificio_principal && mapa[est.cue_edificio_principal]) {
+            return mapa[est.cue_edificio_principal];
         }
-        
-        // 2. Prioridad: Cabecera (Nombre o Código)
-        const cab = item.establecimiento.establecimiento_cabecera;
+
+        // 2. Prioridad: Nombre de la relación cabecera (Eloquent) si es distinta al establecimiento mismo
+        if (est.cabecera && est.cabecera.nombre && est.cabecera.cue !== est.cue) {
+            return est.cabecera.nombre;
+        }
+
+        // 3. Prioridad: Cabecera (Nombre o Código)
+        const cab = est.establecimiento_cabecera;
         if (cab) {
             if (mapa[cab]) return mapa[cab];
             if (isNaN(cab)) return cab;
         }
 
-        // 3. Fallback: CUI
-        if (item.establecimiento.edificio && item.establecimiento.edificio.cui && mapa[item.establecimiento.edificio.cui]) {
-            return mapa[item.establecimiento.edificio.cui];
+        // 4. Prioridad: Nombre directo del edificio (si existiera en la DB)
+        if (est.edificio && est.edificio.nombre) {
+            return est.edificio.nombre;
+        }
+
+        // 5. Fallback final: Relación cabecera Eloquent
+        if (est.cabecera && est.cabecera.nombre) {
+            return est.cabecera.nombre;
         }
     } catch (e) {
         console.error("Error en getNombreEdificio:", e);

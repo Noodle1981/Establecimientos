@@ -147,10 +147,6 @@ class AuditoriaQueryService
      */
     public function getBuildingNamesMap(): \Illuminate\Support\Collection
     {
-        return Establecimiento::where('cue', 'LIKE', '%00')
-            ->pluck('nombre', 'cue')
-            ->mapWithKeys(function ($nombre, $cue) {
-                return [substr((string)$cue, 0, 7) => $nombre];
-            });
+        return Establecimiento::pluck('nombre', 'cue');
     }
 }

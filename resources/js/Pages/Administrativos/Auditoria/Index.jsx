@@ -23,33 +23,36 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
         try {
             if (!mod || !mod.establecimiento) return null;
             
+            const est = mod.establecimiento;
             const mapa = nombresEdificios || {};
             
-            // 1. Prioridad: Nombre de la relación cabecera (Eloquent)
-            if (mod.establecimiento.cabecera && mod.establecimiento.cabecera.nombre) {
-                return mod.establecimiento.cabecera.nombre;
+            // 1. Prioridad principal: Nombre de la escuela principal del edificio físico (CUE Edificio Principal)
+            if (est.cue_edificio_principal && mapa[est.cue_edificio_principal]) {
+                return mapa[est.cue_edificio_principal];
             }
             
-            // 2. Prioridad: Nombre directo del edificio
-            if (mod.establecimiento.edificio && mod.establecimiento.edificio.nombre) {
-                return mod.establecimiento.edificio.nombre;
+            // 2. Prioridad: Nombre de la relación cabecera (Eloquent) si es distinta al establecimiento mismo
+            if (est.cabecera && est.cabecera.nombre && est.cabecera.cue !== est.cue) {
+                return est.cabecera.nombre;
             }
             
             // 3. Prioridad: Cabecera (Nombre o Código en mapa)
-            const cab = mod.establecimiento.establecimiento_cabecera;
+            const cab = est.establecimiento_cabecera;
             if (cab) {
                 const shortCab = typeof cab === 'string' || typeof cab === 'number' ? String(cab).substring(0, 7) : '';
                 if (mapa[cab]) return mapa[cab];
                 if (mapa[shortCab]) return mapa[shortCab];
                 if (isNaN(cab)) return cab; // Si es directamente un nombre (texto)
             }
+            
+            // 4. Prioridad: Nombre directo del edificio (si existiera en la DB)
+            if (est.edificio && est.edificio.nombre) {
+                return est.edificio.nombre;
+            }
 
-            // 4. Fallback: CUI del edificio propio en el mapa
-            if (mod.establecimiento.edificio && mod.establecimiento.edificio.cui) {
-                const cui = mod.establecimiento.edificio.cui;
-                const shortCui = typeof cui === 'string' || typeof cui === 'number' ? String(cui).substring(0, 7) : '';
-                if (mapa[cui]) return mapa[cui];
-                if (mapa[shortCui]) return mapa[shortCui];
+            // 5. Fallback final: Relación cabecera Eloquent
+            if (est.cabecera && est.cabecera.nombre) {
+                return est.cabecera.nombre;
             }
         } catch (e) {
             console.error("Error en getNombreEdificio:", e);
