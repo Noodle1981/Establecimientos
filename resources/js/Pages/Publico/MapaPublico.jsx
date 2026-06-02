@@ -187,10 +187,11 @@ export default function MapaPublico({ edificios = [] }) {
     }, []);
 
     const handleSelectSchool = useCallback((edificio) => {
-        setSelectedEdificio(edificio);
+        const fullEdificio = edificios.find(e => e.id === edificio.id);
+        setSelectedEdificio(fullEdificio || edificio);
         setIsSearching(false);
         setSearchQuery('');
-    }, []);
+    }, [edificios]);
 
     const searchResults = useMemo(() => {
         if (!searchQuery || searchQuery.length < 2) return [];
@@ -466,6 +467,7 @@ export default function MapaPublico({ edificios = [] }) {
                     }>
                         <MapView
                             filteredEdificios={filteredEdificios}
+                            edificios={edificios}
                             selectedEdificio={selectedEdificio}
                             setSelectedEdificio={setSelectedEdificio}
                             hoveredEdificioId={hoveredEdificioId}

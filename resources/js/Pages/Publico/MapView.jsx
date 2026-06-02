@@ -156,6 +156,7 @@ const SchoolCard = memo(function SchoolCard({ edificio, onClose }) {
 // --- Main Export ---
 export default function MapView({
     filteredEdificios,
+    edificios = [],
     selectedEdificio,
     setSelectedEdificio,
     hoveredEdificioId,
@@ -261,7 +262,8 @@ export default function MapView({
                         eventHandlers={{
                             click: (e) => {
                                 L.DomEvent.stopPropagation(e);
-                                setSelectedEdificio(edificio);
+                                const fullEdificio = edificios.find(e => e.id === edificio.id);
+                                setSelectedEdificio(fullEdificio || edificio);
                             },
                             mouseover: () => setHoveredEdificioId(edificio.id),
                             mouseout: () => setHoveredEdificioId(null),
