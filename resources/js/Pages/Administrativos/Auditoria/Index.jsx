@@ -284,6 +284,7 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                 show={showStatusModal} 
                 onClose={() => setShowStatusModal(false)} 
                 modalidad={selectedMod} 
+                getNombreEdificio={getNombreEdificio}
             />
 
         </AuthenticatedLayout>
@@ -330,7 +331,7 @@ const CAMPOS_AUDITORIA = [
     'Nombre', 'Dirección', 'Edificio', 'CUI', 'CUE', 'GPS', 'RADIO', 'SECTOR', 'MODALIDAD'
 ];
 
-function StatusUpdateModal({ show, onClose, modalidad }) {
+function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
     const { data, setData, patch, processing, errors, reset } = useForm({
         estado: modalidad?.estado_validacion || 'PENDIENTE',
         observaciones: modalidad?.observaciones || '',
@@ -414,6 +415,14 @@ function StatusUpdateModal({ show, onClose, modalidad }) {
                         <div>
                             <InputLabel value="Información del Edificio" className="text-[10px] font-black uppercase tracking-widest text-brand-orange mb-3" />
                             <div className="grid grid-cols-2 gap-2">
+                                {getNombreEdificio(modalidad) && (
+                                    <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100 col-span-2">
+                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-1 tracking-widest">Edificio / Establecimiento Cabecera</p>
+                                        <p className="text-[11px] font-black text-brand-orange uppercase leading-tight">
+                                            {getNombreEdificio(modalidad)}
+                                        </p>
+                                    </div>
+                                )}
                                 <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100 col-span-2">
                                     <p className="text-[8px] font-black text-gray-400 uppercase mb-1 tracking-widest">Dirección Física</p>
                                     <p className="text-[11px] font-black text-gray-800 uppercase">
