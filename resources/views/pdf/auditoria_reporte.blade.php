@@ -32,6 +32,34 @@
         
         .modifications { font-style: italic; color: #555; font-size: 7px; }
         .observations { font-size: 7px; color: #444; }
+
+        /* KPI Dashboard CSS Styles */
+        .kpi-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; margin-top: 5px; border: none; }
+        .kpi-table td { border: none; padding: 0 4px; vertical-align: top; }
+        .kpi-table td:first-child { padding-left: 0; }
+        .kpi-table td:last-child { padding-right: 0; }
+        
+        .kpi-card { border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 8px; min-height: 32px; }
+        .kpi-title { font-size: 6.5px; font-weight: bold; color: #4b5563; text-transform: uppercase; margin-bottom: 2px; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 11px; font-weight: 900; line-height: 1; }
+        
+        .kpi-global { border-color: #ff8200; background-color: #fffaf5; }
+        .kpi-global .kpi-value { color: #ff8200; }
+        
+        .kpi-pendiente { border-color: #fcd34d; background-color: #fffbeb; }
+        .kpi-pendiente .kpi-value { color: #d97706; }
+        
+        .kpi-correcto { border-color: #a7f3d0; background-color: #f0fdf4; }
+        .kpi-correcto .kpi-value { color: #059669; }
+        
+        .kpi-corregido { border-color: #bfdbfe; background-color: #eff6ff; }
+        .kpi-corregido .kpi-value { color: #2563eb; }
+        
+        .kpi-revisar { border-color: #fecaca; background-color: #fef2f2; }
+        .kpi-revisar .kpi-value { color: #dc2626; }
+        
+        .kpi-baja { border-color: #d1d5db; background-color: #f9fafb; }
+        .kpi-baja .kpi-value { color: #1f2937; }
     </style>
 </head>
 <body>
@@ -64,6 +92,47 @@
         </div>
         @endif
     </div>
+
+    <table class="kpi-table">
+        <tr>
+            <td style="width: 16.66%;">
+                <div class="kpi-card kpi-global">
+                    <div class="kpi-title">Avance Global</div>
+                    <div class="kpi-value">{{ $stats['porcentajeAvance'] }}%</div>
+                </div>
+            </td>
+            <td style="width: 16.66%;">
+                <div class="kpi-card kpi-pendiente">
+                    <div class="kpi-title">Pendiente</div>
+                    <div class="kpi-value">{{ $stats['pendientes'] }}</div>
+                </div>
+            </td>
+            <td style="width: 16.66%;">
+                <div class="kpi-card kpi-correcto">
+                    <div class="kpi-title">Correcto</div>
+                    <div class="kpi-value">{{ $stats['correctos'] }}</div>
+                </div>
+            </td>
+            <td style="width: 16.66%;">
+                <div class="kpi-card kpi-corregido">
+                    <div class="kpi-title">Corregido</div>
+                    <div class="kpi-value">{{ $stats['corregidos'] }}</div>
+                </div>
+            </td>
+            <td style="width: 16.66%;">
+                <div class="kpi-card kpi-revisar">
+                    <div class="kpi-title">Revisar</div>
+                    <div class="kpi-value">{{ $stats['revisar'] }}</div>
+                </div>
+            </td>
+            <td style="width: 16.66%;">
+                <div class="kpi-card kpi-baja">
+                    <div class="kpi-title">Baja</div>
+                    <div class="kpi-value">{{ $stats['bajas'] }}</div>
+                </div>
+            </td>
+        </tr>
+    </table>
 
     <table>
         <thead>

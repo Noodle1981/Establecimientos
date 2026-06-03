@@ -20,10 +20,16 @@ class UpdateModalidadAction
                 $targetEdificio = Edificio::where('cui', $data['cui'])->first();
                 if ($targetEdificio) {
                     $modalidad->establecimiento->update(['edificio_id' => $targetEdificio->id]);
+                    $edificio = $targetEdificio;
                 } else {
                     $edificio->update(['cui' => $data['cui']]);
                 }
             }
+
+            // Sync building letra_zona
+            $edificio->update([
+                'letra_zona' => $data['letra_zona'] ?? null,
+            ]);
 
             // Sync Establecimiento
             $modalidad->establecimiento->update([

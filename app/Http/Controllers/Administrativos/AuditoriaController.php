@@ -128,15 +128,17 @@ class AuditoriaController extends Controller
         $modalidades = $this->queryService->getFilteredQuery($request)
             ->orderBy('validado_en', 'desc')
             ->get();
-
+ 
         $nombresEdificios = $this->queryService->getBuildingNamesMap();
-
+        $stats = $this->queryService->getStats($request);
+ 
         $pdf = Pdf::loadView('pdf.auditoria_reporte', [
             'modalidades' => $modalidades,
             'nombresEdificios' => $nombresEdificios,
+            'stats' => $stats,
             'filtros' => $request->all()
         ])->setPaper('a4', 'landscape');
-
+ 
         return $pdf->download('reporte_auditoria_' . date('Y-m-d') . '.pdf');
     }
 }

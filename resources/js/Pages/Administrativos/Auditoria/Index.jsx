@@ -99,7 +99,7 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                     <div className="flex-1 relative w-full">
                         <input 
                             type="text"
-                            placeholder="Buscar por Nombre, CUE o CUI..."
+                            placeholder="Buscar por Nombre o CUE..."
                             className="w-full pl-10 pr-4 py-2.5 border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange transition-all text-sm font-medium"
                             defaultValue={filters.search}
                             onChange={(e) => {
@@ -112,6 +112,24 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
                             }}
                         />
                         <i className="fas fa-search absolute left-3.5 top-3.5 text-gray-300"></i>
+                    </div>
+
+                    <div className="w-full lg:w-48 relative">
+                        <input 
+                            type="text"
+                            placeholder="Buscar CUI..."
+                            className="w-full pl-10 pr-4 py-2.5 border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange transition-all text-sm font-medium"
+                            defaultValue={filters.cui}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                // Debounce simple manual
+                                clearTimeout(window.cuiTimeout);
+                                window.cuiTimeout = setTimeout(() => {
+                                    handleFilterChange('cui', val);
+                                }, 300);
+                            }}
+                        />
+                        <i className="fas fa-building absolute left-3.5 top-3.5 text-gray-300"></i>
                     </div>
 
                     <select 
@@ -348,9 +366,79 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
 
     const handleCopy = (text, fieldName) => {
         if (!text) return;
-        navigator.clipboard.writeText(String(text));
-        setCopiedField(fieldName);
-        setTimeout(() => setCopiedField(null), 1500);
+        const stringText = String(text);
+        
+        if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(stringText)
+                .then(() => {
+                    setCopiedField(fieldName);
+                    setTimeout(() => setCopiedField(null), 1500);
+                })
+                .catch(err => {
+                    console.warn("Failed using navigator.clipboard, trying fallback:", err);
+                    fallbackCopy(stringText, fieldName);
+                });
+        } else {
+            fallbackCopy(stringText, fieldName);
+        }
+    };
+
+    const fallbackCopy = (text, fieldName) => {
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            const successful = document.execCommand("copy");
+            document.body.removeChild(textArea);
+            if (successful) {
+                setCopiedField(fieldName);
+                setTimeout(() => setCopiedField(null), 1500);
+            } else {
+                console.error("Fallback copy failed");
+            }
+        } catch (err) {
+            console.error("Fallback copy threw error:", err);
+        }
+    };
+
+    const decimalToDMS = (val, isLat) => {
+        if (val === undefined || val === null || val === '') {
+            return { cardinal: '-', cardinalShort: '-', degrees: '-', minutes: '-', seconds: '-' };
+        }
+        const num = parseFloat(val);
+        if (isNaN(num)) {
+            return { cardinal: '-', cardinalShort: '-', degrees: '-', minutes: '-', seconds: '-' };
+        }
+
+        const absolute = Math.abs(num);
+        const degrees = Math.floor(absolute);
+        const minutesNotTruncated = (absolute - degrees) * 60;
+        const minutes = Math.floor(minutesNotTruncated);
+        const seconds = ((minutesNotTruncated - minutes) * 60).toFixed(2);
+
+        let cardinal = '';
+        let cardinalShort = '';
+        if (isLat) {
+            cardinal = num >= 0 ? 'Norte (N)' : 'Sur (S)';
+            cardinalShort = num >= 0 ? 'N' : 'S';
+        } else {
+            cardinal = num >= 0 ? 'Este (E)' : 'Oeste (O)';
+            cardinalShort = num >= 0 ? 'E' : 'O';
+        }
+
+        return {
+            cardinal,
+            cardinalShort,
+            degrees: String(degrees),
+            minutes: String(minutes),
+            seconds: String(seconds).replace('.', ',')
+        };
     };
 
     // Sincronizar el formulario cuando cambia la modalidad seleccionada o se abre el modal
@@ -403,7 +491,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
     };
 
     return (
-        <Modal show={show} onClose={onClose} maxWidth="4xl">
+        <Modal show={show} onClose={onClose} maxWidth="5xl">
             <form onSubmit={submit} className="p-6">
                 <div className="flex items-center gap-4 mb-6 border-b pb-4">
                     <div className="w-12 h-12 rounded-xl bg-orange-50 text-brand-orange flex items-center justify-center text-xl shadow-sm border border-orange-100">
@@ -421,151 +509,276 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Columna Izquierda: Detalles e Información */}
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            {/* Bloque 1: Datos del Establecimiento */}
-                            <div className="space-y-3">
-                                <InputLabel value="Datos del Establecimiento (CUE)" className="text-[10px] font-black uppercase tracking-widest text-brand-orange" />
-                                <div className="space-y-2">
-                                    <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between group">
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Nombre del Establecimiento</p>
-                                            <p className="text-xs font-black text-gray-800 leading-tight truncate" title={modalidad.establecimiento.nombre}>
-                                                {modalidad.establecimiento.nombre}
-                                            </p>
-                                        </div>
+                    {/* Fila 1 (Superior): Datos del Establecimiento e Información del Edificio */}
+                    {/* Bloque 1: Datos del Establecimiento */}
+                    <div className="space-y-3">
+                        <InputLabel value="Datos del Establecimiento (CUE)" className="text-[10px] font-black uppercase tracking-widest text-brand-orange" />
+                        <div className="space-y-2">
+                            <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between group">
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Nombre del Establecimiento</p>
+                                    <p className="text-xs font-black text-gray-800 leading-tight truncate" title={modalidad.establecimiento.nombre}>
+                                        {modalidad.establecimiento.nombre}
+                                    </p>
+                                </div>
+                                <button 
+                                    type="button" 
+                                    onClick={() => handleCopy(modalidad.establecimiento.nombre, 'nombre_est')}
+                                    className="ml-2 p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                    title="Copiar nombre"
+                                >
+                                    <i className={`fas ${copiedField === 'nombre_est' ? 'fa-check text-green-500' : 'fa-copy'} text-[10px]`}></i>
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between">
+                                    <div className="min-w-0">
+                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">CUE</p>
+                                        <p className="text-xs font-black text-gray-800">{modalidad.establecimiento.cue}</p>
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => handleCopy(modalidad.establecimiento.cue, 'cue')}
+                                        className="p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                        title="Copiar CUE"
+                                    >
+                                        <i className={`fas ${copiedField === 'cue' ? 'fa-check text-green-500' : 'fa-copy'} text-[9px]`}></i>
+                                    </button>
+                                </div>
+                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between">
+                                    <div className="min-w-0">
+                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">CUI</p>
+                                        <p className="text-xs font-black text-gray-800">{modalidad.establecimiento.edificio?.cui || 'S/D'}</p>
+                                    </div>
+                                    {modalidad.establecimiento.edificio?.cui && (
                                         <button 
                                             type="button" 
-                                            onClick={() => handleCopy(modalidad.establecimiento.nombre, 'nombre_est')}
-                                            className="ml-2 p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
-                                            title="Copiar nombre"
+                                            onClick={() => handleCopy(modalidad.establecimiento.edificio.cui, 'cui')}
+                                            className="p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                            title="Copiar CUI"
                                         >
-                                            <i className={`fas ${copiedField === 'nombre_est' ? 'fa-check text-green-500' : 'fa-copy'} text-[10px]`}></i>
+                                            <i className={`fas ${copiedField === 'cui' ? 'fa-check text-green-500' : 'fa-copy'} text-[9px]`}></i>
                                         </button>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between">
-                                            <div className="min-w-0">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">CUE</p>
-                                                <p className="text-xs font-black text-gray-800">{modalidad.establecimiento.cue}</p>
-                                            </div>
-                                            <button 
-                                                type="button" 
-                                                onClick={() => handleCopy(modalidad.establecimiento.cue, 'cue')}
-                                                className="p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
-                                                title="Copiar CUE"
-                                            >
-                                                <i className={`fas ${copiedField === 'cue' ? 'fa-check text-green-500' : 'fa-copy'} text-[9px]`}></i>
-                                            </button>
-                                        </div>
-                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between">
-                                            <div className="min-w-0">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">CUI</p>
-                                                <p className="text-xs font-black text-gray-800">{modalidad.establecimiento.edificio?.cui || 'S/D'}</p>
-                                            </div>
-                                            {modalidad.establecimiento.edificio?.cui && (
-                                                <button 
-                                                    type="button" 
-                                                    onClick={() => handleCopy(modalidad.establecimiento.edificio.cui, 'cui')}
-                                                    className="p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
-                                                    title="Copiar CUI"
-                                                >
-                                                    <i className={`fas ${copiedField === 'cui' ? 'fa-check text-green-500' : 'fa-copy'} text-[9px]`}></i>
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Modalidad / Nivel Educativo</p>
-                                        <p className="text-xs font-black text-gray-800 leading-none">
-                                            {modalidad.nivel_educativo}
-                                        </p>
-                                    </div>
+                                    )}
                                 </div>
                             </div>
+                            <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Modalidad / Nivel Educativo</p>
+                                <p className="text-xs font-black text-gray-800 leading-none">
+                                    {modalidad.nivel_educativo}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
-                            {/* Bloque 2: Información del Edificio */}
-                            <div className="space-y-3">
-                                <InputLabel value="Información del Edificio" className="text-[10px] font-black uppercase tracking-widest text-brand-orange" />
-                                <div className="space-y-2">
-                                    {getNombreEdificio(modalidad) && (
-                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between group">
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Edificio / Establecimiento Cabecera</p>
-                                                <p className="text-[11px] font-black text-brand-orange leading-tight truncate" title={getNombreEdificio(modalidad)}>
-                                                    {getNombreEdificio(modalidad)}
-                                                </p>
-                                            </div>
-                                            <button 
-                                                type="button" 
-                                                onClick={() => handleCopy(getNombreEdificio(modalidad), 'edificio')}
-                                                className="ml-2 p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
-                                                title="Copiar edificio"
-                                            >
-                                                <i className={`fas ${copiedField === 'edificio' ? 'fa-check text-green-500' : 'fa-copy'} text-[10px]`}></i>
-                                            </button>
-                                        </div>
-                                    )}
-                                    <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between group">
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Dirección Física</p>
-                                            <p className="text-[11px] font-black text-gray-800 leading-tight truncate" title={`${modalidad.establecimiento.edificio?.calle} ${modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}`}>
-                                                {modalidad.establecimiento.edificio?.calle} {modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}
-                                            </p>
-                                        </div>
+                    {/* Bloque 2: Información del Edificio */}
+                    <div className="space-y-3">
+                        <InputLabel value="Información del Edificio" className="text-[10px] font-black uppercase tracking-widest text-brand-orange" />
+                        <div className="space-y-2">
+                            {getNombreEdificio(modalidad) && (
+                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between group">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Edificio / Establecimiento Cabecera</p>
+                                        <p className="text-[11px] font-black text-brand-orange leading-tight truncate" title={getNombreEdificio(modalidad)}>
+                                            {getNombreEdificio(modalidad)}
+                                        </p>
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => handleCopy(getNombreEdificio(modalidad), 'edificio')}
+                                        className="ml-2 p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                        title="Copiar edificio"
+                                    >
+                                        <i className={`fas ${copiedField === 'edificio' ? 'fa-check text-green-500' : 'fa-copy'} text-[10px]`}></i>
+                                    </button>
+                                </div>
+                            )}
+                            <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between group">
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">Dirección Física</p>
+                                    <p className="text-[11px] font-black text-gray-800 leading-tight truncate" title={`${modalidad.establecimiento.edificio?.calle} ${modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}`}>
+                                        {modalidad.establecimiento.edificio?.calle} {modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}
+                                    </p>
+                                </div>
+                                <button 
+                                    type="button" 
+                                    onClick={() => handleCopy(`${modalidad.establecimiento.edificio?.calle} ${modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}`, 'direccion')}
+                                    className="ml-2 p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                    title="Copiar dirección"
+                                >
+                                    <i className={`fas ${copiedField === 'direccion' ? 'fa-check text-green-500' : 'fa-copy'} text-[10px]`}></i>
+                                </button>
+                            </div>
+                            <div className="grid grid-cols-3 gap-1.5">
+                                <div className="bg-gray-50 p-1.5 rounded-xl border border-gray-100 text-center">
+                                    <p className="text-[7px] font-black text-gray-400 uppercase mb-0.5">Radio</p>
+                                    <p className="text-[10px] font-black text-gray-800">{(modalidad.radio ?? '') !== '' ? modalidad.radio : '-'}</p>
+                                </div>
+                                <div className="bg-gray-50 p-1.5 rounded-xl border border-gray-100 text-center">
+                                    <p className="text-[7px] font-black text-gray-400 uppercase mb-0.5">Sector</p>
+                                    <p className="text-[10px] font-black text-gray-800">{(modalidad.sector ?? '') !== '' ? modalidad.sector : '-'}</p>
+                                </div>
+                                <div className="bg-gray-50 p-1.5 rounded-xl border border-gray-100 text-center">
+                                    <p className="text-[7px] font-black text-gray-400 uppercase mb-0.5">Cat.</p>
+                                    <p className="text-[10px] font-black text-gray-800">{(modalidad.categoria ?? '') !== '' ? modalidad.categoria : '-'}</p>
+                                </div>
+                            </div>
+                            <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between group">
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5 tracking-widest">GPS</p>
+                                    <p className="text-xs font-black text-brand-orange leading-tight truncate" title={`${modalidad.establecimiento.edificio?.latitud}, ${modalidad.establecimiento.edificio?.longitud}`}>
+                                        {modalidad.establecimiento.edificio?.latitud}, {modalidad.establecimiento.edificio?.longitud}
+                                    </p>
+                                </div>
+                                {modalidad.establecimiento.edificio?.latitud && (
+                                    <button 
+                                        type="button" 
+                                        onClick={() => handleCopy(`${modalidad.establecimiento.edificio?.latitud}, ${modalidad.establecimiento.edificio?.longitud}`, 'gps')}
+                                        className="ml-2 p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                        title="Copiar GPS"
+                                    >
+                                        <i className={`fas ${copiedField === 'gps' ? 'fa-check text-green-500' : 'fa-copy'} text-[10px]`}></i>
+                                    </button>
+                                )}
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                    <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Departamento</p>
+                                    <p className="text-xs font-black text-gray-700 truncate" title={modalidad.establecimiento.edificio?.zona_departamento}>
+                                        {modalidad.establecimiento.edificio?.zona_departamento}
+                                    </p>
+                                </div>
+                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between">
+                                    <div className="min-w-0">
+                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">C.P.</p>
+                                        <p className="text-xs font-black text-gray-800">{modalidad.establecimiento.edificio?.codigo_postal || 'S/D'}</p>
+                                    </div>
+                                    {modalidad.establecimiento.edificio?.codigo_postal && (
                                         <button 
                                             type="button" 
-                                            onClick={() => handleCopy(`${modalidad.establecimiento.edificio?.calle} ${modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}`, 'direccion')}
-                                            className="ml-2 p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
-                                            title="Copiar dirección"
+                                            onClick={() => handleCopy(modalidad.establecimiento.edificio.codigo_postal, 'cp')}
+                                            className="p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                            title="Copiar Código Postal"
                                         >
-                                            <i className={`fas ${copiedField === 'direccion' ? 'fa-check text-green-500' : 'fa-copy'} text-[10px]`}></i>
+                                            <i className={`fas ${copiedField === 'cp' ? 'fa-check text-green-500' : 'fa-copy'} text-[9px]`}></i>
                                         </button>
+                                    )}
+                                </div>
+                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between">
+                                    <div className="min-w-0">
+                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Orientación</p>
+                                        <p className="text-xs font-black text-gray-800 truncate" title={modalidad.establecimiento.edificio?.orientacion}>
+                                            {modalidad.establecimiento.edificio?.orientacion || 'S/D'}
+                                        </p>
                                     </div>
-                                    <div className="grid grid-cols-3 gap-1.5">
-                                        <div className="bg-gray-50 p-1.5 rounded-xl border border-gray-100 text-center">
-                                            <p className="text-[7px] font-black text-gray-400 uppercase mb-0.5">Radio</p>
-                                            <p className="text-[10px] font-black text-gray-800">{modalidad.radio || '-'}</p>
-                                        </div>
-                                        <div className="bg-gray-50 p-1.5 rounded-xl border border-gray-100 text-center">
-                                            <p className="text-[7px] font-black text-gray-400 uppercase mb-0.5">Sector</p>
-                                            <p className="text-[10px] font-black text-gray-800">{modalidad.sector || '-'}</p>
-                                        </div>
-                                        <div className="bg-gray-50 p-1.5 rounded-xl border border-gray-100 text-center">
-                                            <p className="text-[7px] font-black text-gray-400 uppercase mb-0.5">Cat.</p>
-                                            <p className="text-[10px] font-black text-gray-800">{modalidad.categoria || '-'}</p>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between">
-                                            <div className="min-w-0">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">GPS</p>
-                                                <p className="text-[9px] font-black text-brand-orange truncate" title={`${modalidad.establecimiento.edificio?.latitud}, ${modalidad.establecimiento.edificio?.longitud}`}>
-                                                    {modalidad.establecimiento.edificio?.latitud}, {modalidad.establecimiento.edificio?.longitud}
-                                                </p>
-                                            </div>
-                                            {modalidad.establecimiento.edificio?.latitud && (
-                                                <button 
-                                                    type="button" 
-                                                    onClick={() => handleCopy(`${modalidad.establecimiento.edificio?.latitud}, ${modalidad.establecimiento.edificio?.longitud}`, 'gps')}
-                                                    className="p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
-                                                    title="Copiar GPS"
-                                                >
-                                                    <i className={`fas ${copiedField === 'gps' ? 'fa-check text-green-500' : 'fa-copy'} text-[9px]`}></i>
-                                                </button>
-                                            )}
-                                        </div>
-                                        <div className="bg-gray-50 p-2 rounded-xl border border-gray-100">
-                                            <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Departamento</p>
-                                            <p className="text-[9px] font-black text-gray-700 truncate" title={modalidad.establecimiento.edificio?.zona_departamento}>
-                                                {modalidad.establecimiento.edificio?.zona_departamento}
-                                            </p>
-                                        </div>
-                                    </div>
+                                    {modalidad.establecimiento.edificio?.orientacion && (
+                                        <button 
+                                            type="button" 
+                                            onClick={() => handleCopy(modalidad.establecimiento.edificio.orientacion, 'orientacion')}
+                                            className="p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                            title="Copiar Orientación"
+                                        >
+                                            <i className={`fas ${copiedField === 'orientacion' ? 'fa-check text-green-500' : 'fa-copy'} text-[9px]`}></i>
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Fila 2 (Inferior): Georreferenciación + Nuevo Estado (Izquierda) y Campos Auditados + Observaciones (Derecha) */}
+                    {/* Columna Izquierda Inferior */}
+                    <div className="space-y-6">
+                        {modalidad.establecimiento.edificio?.latitud && modalidad.establecimiento.edificio?.longitud && (
+                            <div>
+                                <InputLabel value="Georreferenciación para EDUGE (DMS)" className="text-[10px] font-black uppercase tracking-widest text-brand-orange mb-3" />
+                                <div className="bg-orange-50/20 p-3 rounded-xl border border-orange-100/50 space-y-3">
+                                    {/* Latitud */}
+                                    {(() => {
+                                        const latDms = decimalToDMS(modalidad.establecimiento.edificio.latitud, true);
+                                        return (
+                                            <div>
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5 border-b border-orange-100/30 pb-0.5">Latitud (Sur)</p>
+                                                <div className="grid grid-cols-4 gap-1.5">
+                                                    <div className="bg-white p-1.5 rounded-lg border border-gray-100 text-center flex flex-col justify-between items-center relative group min-h-[48px]">
+                                                        <span className="text-[6px] font-black text-gray-400 uppercase tracking-wider">Card.</span>
+                                                        <span className="text-[11px] font-black text-gray-700 leading-none">{latDms.cardinalShort}</span>
+                                                        <button type="button" onClick={() => handleCopy(latDms.cardinal, 'lat_card')} className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-brand-orange/95 text-white rounded-lg text-[8px] font-black uppercase transition-all flex items-center justify-center shadow-md cursor-pointer">
+                                                            {copiedField === 'lat_card' ? '¡Copió!' : 'Copiar'}
+                                                        </button>
+                                                    </div>
+                                                    <div className="bg-white p-1.5 rounded-lg border border-gray-100 text-center flex flex-col justify-between items-center relative group min-h-[48px]">
+                                                        <span className="text-[6px] font-black text-gray-400 uppercase tracking-wider">Grado</span>
+                                                        <span className="text-[11px] font-black text-gray-700 leading-none">{latDms.degrees}°</span>
+                                                        <button type="button" onClick={() => handleCopy(latDms.degrees, 'lat_deg')} className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-brand-orange/95 text-white rounded-lg text-[8px] font-black uppercase transition-all flex items-center justify-center shadow-md cursor-pointer">
+                                                            {copiedField === 'lat_deg' ? '¡Copió!' : 'Copiar'}
+                                                        </button>
+                                                    </div>
+                                                    <div className="bg-white p-1.5 rounded-lg border border-gray-100 text-center flex flex-col justify-between items-center relative group min-h-[48px]">
+                                                        <span className="text-[6px] font-black text-gray-400 uppercase tracking-wider">Minuto</span>
+                                                        <span className="text-[11px] font-black text-gray-700 leading-none">{latDms.minutes}′</span>
+                                                        <button type="button" onClick={() => handleCopy(latDms.minutes, 'lat_min')} className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-brand-orange/95 text-white rounded-lg text-[8px] font-black uppercase transition-all flex items-center justify-center shadow-md cursor-pointer">
+                                                            {copiedField === 'lat_min' ? '¡Copió!' : 'Copiar'}
+                                                        </button>
+                                                    </div>
+                                                    <div className="bg-white p-1.5 rounded-lg border border-gray-100 text-center flex flex-col justify-between items-center relative group min-h-[48px]">
+                                                        <span className="text-[6px] font-black text-gray-400 uppercase tracking-wider">Segundo</span>
+                                                        <span className="text-[11px] font-black text-gray-700 leading-none truncate max-w-[50px]" title={latDms.seconds}>
+                                                            {latDms.seconds}″
+                                                        </span>
+                                                        <button type="button" onClick={() => handleCopy(latDms.seconds, 'lat_sec')} className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-brand-orange/95 text-white rounded-lg text-[8px] font-black uppercase transition-all flex items-center justify-center shadow-md cursor-pointer">
+                                                            {copiedField === 'lat_sec' ? '¡Copió!' : 'Copiar'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
+
+                                    {/* Longitud */}
+                                    {(() => {
+                                        const lngDms = decimalToDMS(modalidad.establecimiento.edificio.longitud, false);
+                                        return (
+                                            <div>
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5 border-b border-orange-100/30 pb-0.5">Longitud (Oeste)</p>
+                                                <div className="grid grid-cols-4 gap-1.5">
+                                                    <div className="bg-white p-1.5 rounded-lg border border-gray-100 text-center flex flex-col justify-between items-center relative group min-h-[48px]">
+                                                        <span className="text-[6px] font-black text-gray-400 uppercase tracking-wider">Card.</span>
+                                                        <span className="text-[11px] font-black text-gray-700 leading-none">{lngDms.cardinalShort}</span>
+                                                        <button type="button" onClick={() => handleCopy(lngDms.cardinal, 'lng_card')} className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-brand-orange/95 text-white rounded-lg text-[8px] font-black uppercase transition-all flex items-center justify-center shadow-md cursor-pointer">
+                                                            {copiedField === 'lng_card' ? '¡Copió!' : 'Copiar'}
+                                                        </button>
+                                                    </div>
+                                                    <div className="bg-white p-1.5 rounded-lg border border-gray-100 text-center flex flex-col justify-between items-center relative group min-h-[48px]">
+                                                        <span className="text-[6px] font-black text-gray-400 uppercase tracking-wider">Grado</span>
+                                                        <span className="text-[11px] font-black text-gray-700 leading-none">{lngDms.degrees}°</span>
+                                                        <button type="button" onClick={() => handleCopy(lngDms.degrees, 'lng_deg')} className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-brand-orange/95 text-white rounded-lg text-[8px] font-black uppercase transition-all flex items-center justify-center shadow-md cursor-pointer">
+                                                            {copiedField === 'lng_deg' ? '¡Copió!' : 'Copiar'}
+                                                        </button>
+                                                    </div>
+                                                    <div className="bg-white p-1.5 rounded-lg border border-gray-100 text-center flex flex-col justify-between items-center relative group min-h-[48px]">
+                                                        <span className="text-[6px] font-black text-gray-400 uppercase tracking-wider">Minuto</span>
+                                                        <span className="text-[11px] font-black text-gray-700 leading-none">{lngDms.minutes}′</span>
+                                                        <button type="button" onClick={() => handleCopy(lngDms.minutes, 'lng_min')} className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-brand-orange/95 text-white rounded-lg text-[8px] font-black uppercase transition-all flex items-center justify-center shadow-md cursor-pointer">
+                                                            {copiedField === 'lng_min' ? '¡Copió!' : 'Copiar'}
+                                                        </button>
+                                                    </div>
+                                                    <div className="bg-white p-1.5 rounded-lg border border-gray-100 text-center flex flex-col justify-between items-center relative group min-h-[48px]">
+                                                        <span className="text-[6px] font-black text-gray-400 uppercase tracking-wider">Segundo</span>
+                                                        <span className="text-[11px] font-black text-gray-700 leading-none truncate max-w-[50px]" title={lngDms.seconds}>
+                                                            {lngDms.seconds}″
+                                                        </span>
+                                                        <button type="button" onClick={() => handleCopy(lngDms.seconds, 'lng_sec')} className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-brand-orange/95 text-white rounded-lg text-[8px] font-black uppercase transition-all flex items-center justify-center shadow-md cursor-pointer">
+                                                            {copiedField === 'lng_sec' ? '¡Copió!' : 'Copiar'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+                            </div>
+                        )}
 
                         <div>
                             <InputLabel value="Nuevo Estado de Validación" className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
@@ -586,7 +799,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                         </div>
                     </div>
 
-                    {/* Columna Derecha: Verificación y Auditoría */}
+                    {/* Columna Derecha Inferior: Campos Auditados / Reportados + Observaciones */}
                     <div className="space-y-6">
                         <div>
                             <div className="flex justify-between items-center mb-3">

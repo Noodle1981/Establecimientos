@@ -19,9 +19,16 @@ class UpdateModalidadRequest extends FormRequest
      */
     public function rules(): array
     {
+        $modalidad = \App\Models\Modalidad::find($this->route('id'));
+        $establecimientoId = $modalidad ? $modalidad->establecimiento_id : null;
+
         return [
             'cui' => ['required', 'regex:/^(\d{7}|PROV.*)$/'],
-            'cue' => ['required', 'regex:/^(\d{9}|PROV.*)$/'],
+            'cue' => [
+                'required', 
+                'regex:/^(\d{9}|PROV.*)$/',
+                \Illuminate\Validation\Rule::unique('establecimientos', 'cue')->ignore($establecimientoId)
+            ],
             'nombre_establecimiento' => 'required|string',
             'nivel_educativo' => 'required',
             'direccion_area' => 'required',
@@ -29,7 +36,18 @@ class UpdateModalidadRequest extends FormRequest
             'radio' => 'nullable',
             'sector' => 'nullable',
             'ambito' => 'required',
+            'letra_zona' => 'nullable',
             'observaciones' => 'nullable|string',
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'cue.unique' => 'El CUE ingresado ya está asignado a otro establecimiento.',
         ];
     }
 

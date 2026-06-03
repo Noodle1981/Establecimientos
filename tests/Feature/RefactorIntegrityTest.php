@@ -394,4 +394,70 @@ class RefactorIntegrityTest extends TestCase
             'observaciones' => 'Esta es una observación propia del CUE.'
         ]);
     }
+
+    /**
+     * Test update fails validation when CUE is already assigned to another establishment.
+     */
+    public function test_cannot_update_modalidad_with_duplicate_cue(): void
+    {
+        $user = User::factory()->create(['role' => 'administrativos']);
+        
+        $edificio = Edificio::create([
+            'cui' => '1234567',
+            'calle' => 'Calle Falsa 123',
+            'numero_puerta' => '123',
+            'localidad' => 'SAN JUAN',
+            'latitud' => -31.5375,
+            'longitud' => -68.5364,
+            'zona_departamento' => 'CAPITAL'
+        ]);
+
+        $est1 = Establecimiento::create([
+            'edificio_id' => $edificio->id,
+            'cue' => '123456789',
+            'cue_edificio_principal' => '123456789',
+            'nombre' => 'Escuela de Prueba 1',
+            'establecimiento_cabecera' => '123456789'
+        ]);
+
+        $est2 = Establecimiento::create([
+            'edificio_id' => $edificio->id,
+            'cue' => '987654321',
+            'cue_edificio_principal' => '987654321',
+            'nombre' => 'Escuela de Prueba 2',
+            'establecimiento_cabecera' => '987654321'
+        ]);
+
+        $mod = Modalidad::create([
+            'establecimiento_id' => $est1->id,
+            'direccion_area' => 'AREA TEST',
+            'nivel_educativo' => 'PRIMARIA',
+            'ambito' => 'URBANO',
+            'validado' => false,
+            'estado_validacion' => 'PENDIENTE'
+        ]);
+
+        // Attempt to update $mod (representing $est1) to use CUE of $est2 ('987654321')
+        $response = $this->actingAs($user)->patch(route('administrativos.establecimientos.update', $mod->id), [
+            'cui' => '1234567',
+            'cue' => '987654321', // Duplicate CUE!
+            'nombre_establecimiento' => 'Escuela de Prueba 1',
+            'nivel_educativo' => 'PRIMARIA',
+            'direccion_area' => 'AREA TEST',
+            'ambito' => 'URBANO',
+            'validado' => false,
+            'radio' => '1',
+            'letra_zona' => 'P'
+        ]);
+
+        // Assert validation fails and CUE error exists
+        $response->assertSessionHasErrors(['cue']);
+        
+        // Assert database is not modified
+        $this->assertDatabaseHas('establecimientos', [
+            'id' => $est1->id,
+            'cue' => '123456789'
+        ]);
+    }
 }
+

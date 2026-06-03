@@ -365,8 +365,8 @@ function ViewModalidadModal({ show, onClose, modalidad, nombresEdificios }) {
                     <DetailItem icon="fas fa-graduation-cap" label="Nivel Educativo" value={modalidad.nivel_educativo} />
                     <DetailItem icon="fas fa-university" label="Dirección de Área" value={modalidad.direccion_area} />
                     <DetailItem icon="fas fa-landmark" label="Ámbito" value={modalidad.ambito} />
-                    <DetailItem icon="fas fa-users" label="Sector" value={modalidad.sector || 'S/D'} />
-                    <DetailItem icon="fas fa-broadcast-tower" label="Radio / Zona" value={`${modalidad.radio || '?'}, ${modalidad.zona || '?'}`} />
+                    <DetailItem icon="fas fa-users" label="Sector" value={(modalidad.sector ?? '') !== '' ? modalidad.sector : 'S/D'} />
+                    <DetailItem icon="fas fa-broadcast-tower" label="Radio / Zona" value={`${(modalidad.radio ?? '') !== '' ? modalidad.radio : '?'}, ${(modalidad.establecimiento.edificio?.letra_zona ?? '') !== '' ? modalidad.establecimiento.edificio.letra_zona : '?'}`} />
                     <DetailItem icon="fas fa-check-circle" label="Estado Validación" value={modalidad.validado ? 'CONSOLIDADO' : 'PENDIENTE DE REVISIÓN'} />
                 </div>
 
@@ -403,6 +403,7 @@ function EditModalidadModal({ show, onClose, modalidad, options, nombresEdificio
         ambito: '',
         radio: '',
         sector: '',
+        letra_zona: '',
         validado: false,
         observaciones: '',
     });
@@ -416,8 +417,9 @@ function EditModalidadModal({ show, onClose, modalidad, options, nombresEdificio
                 nivel_educativo: modalidad.nivel_educativo || '',
                 direccion_area: modalidad.direccion_area || '',
                 ambito: modalidad.ambito || '',
-                radio: modalidad.radio || '',
-                sector: modalidad.sector || '',
+                radio: modalidad.radio ?? '',
+                sector: modalidad.sector ?? '',
+                letra_zona: modalidad.establecimiento.edificio?.letra_zona ?? '',
                 validado: !!modalidad.validado,
                 observaciones: modalidad.establecimiento.observaciones || '',
             });
@@ -460,6 +462,7 @@ function EditModalidadModal({ show, onClose, modalidad, options, nombresEdificio
                         <select className="w-full mt-1 rounded-xl border-gray-300" value={data.ambito} onChange={e => setData('ambito', e.target.value)}>
                             {options.ambitos.map(o => <option key={o} value={o}>{o}</option>)}
                         </select>
+                        {errors.ambito && <InputError message={errors.ambito} />}
                     </div>
 
                     <div className="col-span-2 md:col-span-1 flex items-center gap-3 pt-6">
@@ -478,10 +481,17 @@ function EditModalidadModal({ show, onClose, modalidad, options, nombresEdificio
                         <select className="w-full mt-1 rounded-xl border-gray-300" value={data.direccion_area} onChange={e => setData('direccion_area', e.target.value)}>
                             {options.areas.map(o => <option key={o} value={o}>{o}</option>)}
                         </select>
+                        {errors.direccion_area && <InputError message={errors.direccion_area} />}
                     </div>
 
                     <div className="col-span-1">
                         <ModalInput label="Nivel Educativo" value={data.nivel_educativo} onChange={v => setData('nivel_educativo', v)} error={errors.nivel_educativo} />
+                    </div>
+
+                    <div className="col-span-2 grid grid-cols-3 gap-4 border-t pt-4 mt-2">
+                        <ModalInput label="Radio" value={data.radio} onChange={v => setData('radio', v)} error={errors.radio} />
+                        <ModalInput label="Sector" value={data.sector} onChange={v => setData('sector', v)} error={errors.sector} />
+                        <ModalInput label="Zona" value={data.letra_zona} onChange={v => setData('letra_zona', v)} error={errors.letra_zona} />
                     </div>
 
                     <div className="col-span-2 border-t pt-4 mt-2">

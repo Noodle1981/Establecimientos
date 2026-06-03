@@ -24,10 +24,13 @@ class AuditoriaQueryService
         if ($search = $request->input('search')) {
             $query->whereHas('establecimiento', function ($q) use ($search) {
                 $q->where('nombre', 'like', '%' . $search . '%')
-                  ->orWhere('cue', 'like', '%' . $search . '%')
-                  ->orWhereHas('edificio', function ($q2) use ($search) {
-                      $q2->where('cui', 'like', '%' . $search . '%');
-                  });
+                  ->orWhere('cue', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($cui = $request->input('cui')) {
+            $query->whereHas('establecimiento.edificio', function ($q) use ($cui) {
+                $q->where('cui', 'like', '%' . $cui . '%');
             });
         }
 
@@ -62,10 +65,13 @@ class AuditoriaQueryService
         if ($search = $request->input('search')) {
             $kpiQuery->whereHas('establecimiento', function ($q) use ($search) {
                 $q->where('nombre', 'like', '%' . $search . '%')
-                  ->orWhere('cue', 'like', '%' . $search . '%')
-                  ->orWhereHas('edificio', function ($q2) use ($search) {
-                      $q2->where('cui', 'like', '%' . $search . '%');
-                  });
+                  ->orWhere('cue', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($cui = $request->input('cui')) {
+            $kpiQuery->whereHas('establecimiento.edificio', function ($q) use ($cui) {
+                $q->where('cui', 'like', '%' . $cui . '%');
             });
         }
 
