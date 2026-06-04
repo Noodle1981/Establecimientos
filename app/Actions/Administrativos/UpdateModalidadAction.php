@@ -46,6 +46,7 @@ class UpdateModalidadAction
                 'radio' => $data['radio'] ?? null,
                 'sector' => $data['sector'] ?? null,
                 'ambito' => $data['ambito'],
+                'categoria' => $data['categoria'] ?? null,
             ]);
 
             app(\App\Services\ActivityLogService::class)->logUpdate(

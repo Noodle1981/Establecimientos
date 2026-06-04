@@ -23,7 +23,7 @@ class UpdateAuditoriaRequest extends FormRequest
             'estado' => 'required|in:PENDIENTE,CORRECTO,CORREGIDO,REVISAR,BAJA',
             'observaciones' => 'nullable|string',
             'campos_auditados' => 'nullable|array',
-            'campos_auditados.*' => 'string|in:Nombre,Dirección,Edificio,CUI,CUE,GPS,RADIO,SECTOR,MODALIDAD',
+            'campos_auditados.*' => 'string|in:Nombre,Dirección,Edificio,CUI,CUE,GPS,RADIO,SECTOR,MODALIDAD,CATEGORÍA',
             'propagar_al_edificio' => 'nullable|boolean',
         ];
     }

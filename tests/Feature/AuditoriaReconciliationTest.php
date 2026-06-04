@@ -143,14 +143,14 @@ class AuditoriaReconciliationTest extends TestCase
 
     public function test_propagation_is_granular_only_shared_fields()
     {
-        // mod2 ya tiene 'RADIO' tildado
-        $this->mod2->campos_auditados = ['RADIO'];
+        // mod2 ya tiene 'SECTOR' tildado
+        $this->mod2->campos_auditados = ['SECTOR'];
         $this->mod2->save();
 
         $payload = [
             'estado' => 'CORRECTO',
             'observaciones' => 'Propagación granular',
-            'campos_auditados' => ['Nombre', 'CUI', 'GPS'], // Nombre es específico, CUI/GPS son compartidos
+            'campos_auditados' => ['Nombre', 'CUI', 'GPS', 'RADIO'], // Nombre es específico, CUI/GPS/RADIO son compartidos
             'propagar_al_edificio' => true
         ];
 
@@ -160,12 +160,14 @@ class AuditoriaReconciliationTest extends TestCase
         $this->mod1->refresh();
         $this->assertContains('Nombre', $this->mod1->campos_auditados);
         $this->assertContains('CUI', $this->mod1->campos_auditados);
+        $this->assertContains('RADIO', $this->mod1->campos_auditados);
 
         $this->mod2->refresh();
         $this->assertNotContains('Nombre', $this->mod2->campos_auditados, 'No debería copiar campos específicos como Nombre');
         $this->assertContains('CUI', $this->mod2->campos_auditados, 'Debería copiar campos compartidos como CUI');
         $this->assertContains('GPS', $this->mod2->campos_auditados, 'Debería copiar campos compartidos como GPS');
-        $this->assertContains('RADIO', $this->mod2->campos_auditados, 'Debería MANTENER los campos específicos que ya tenía como RADIO');
+        $this->assertContains('RADIO', $this->mod2->campos_auditados, 'Debería copiar campos compartidos como RADIO');
+        $this->assertContains('SECTOR', $this->mod2->campos_auditados, 'Debería MANTENER los campos específicos que ya tenía como SECTOR');
     }
 
     public function test_propagation_preserves_sibling_observations()

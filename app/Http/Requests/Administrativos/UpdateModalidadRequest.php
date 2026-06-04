@@ -37,6 +37,7 @@ class UpdateModalidadRequest extends FormRequest
             'sector' => 'nullable',
             'ambito' => 'required',
             'letra_zona' => 'nullable',
+            'categoria' => 'nullable',
             'observaciones' => 'nullable|string',
         ];
     }

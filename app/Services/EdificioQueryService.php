@@ -15,16 +15,16 @@ class EdificioQueryService
     {
         $query = Edificio::with(['establecimientos.modalidades', 'establecimientos.cabecera']);
 
+        if ($searchCui = $request->input('search_cui')) {
+            $query->where('cui', 'like', '%' . $searchCui . '%');
+        }
+
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
-                $q->where('cui', 'like', '%' . $search . '%')
-                  ->orWhere('localidad', 'like', '%' . $search . '%')
-                  ->orWhere('zona_departamento', 'like', '%' . $search . '%')
-                  ->orWhereHas('establecimientos', function ($qEst) use ($search) {
-                      $qEst->where('establecimiento_cabecera', 'like', '%' . $search . '%')
-                           ->orWhere('nombre', 'like', '%' . $search . '%')
-                           ->orWhere('cue', 'like', '%' . $search . '%');
-                  });
+                $q->whereHas('establecimientos', function ($qEst) use ($search) {
+                    $qEst->where('nombre', 'like', '%' . $search . '%')
+                         ->orWhere('cue', 'like', '%' . $search . '%');
+                });
             });
         }
 

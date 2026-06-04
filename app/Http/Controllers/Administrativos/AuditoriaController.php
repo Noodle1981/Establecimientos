@@ -62,7 +62,7 @@ class AuditoriaController extends Controller
 
                 // Propagar al edificio si se solicita de forma consciente
                 if ($request->propagar_al_edificio && $modalidad->establecimiento) {
-                    $camposCompartidos = ['Dirección', 'Edificio', 'CUI', 'GPS'];
+                    $camposCompartidos = ['Dirección', 'Edificio', 'CUI', 'GPS', 'RADIO'];
                     
                     // Extraer solo los campos compartidos que se marcaron en esta validación
                     $auditoriaCompartida = array_intersect($request->campos_auditados ?? [], $camposCompartidos);

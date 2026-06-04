@@ -31,7 +31,8 @@ class ModalidadQueryService
 
         // Apply filters
         foreach (['nivel_educativo', 'ambito', 'direccion_area', 'radio', 'sector'] as $filter) {
-            if ($value = $request->input($filter)) {
+            $value = $request->input($filter);
+            if ($value !== null && $value !== '') {
                 $query->where($filter, $value);
             }
         }

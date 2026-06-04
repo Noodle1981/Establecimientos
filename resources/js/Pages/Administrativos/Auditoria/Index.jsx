@@ -349,7 +349,7 @@ function StatusBadge({ status }) {
 }
 
 const CAMPOS_AUDITORIA = [
-    'Nombre', 'Dirección', 'Edificio', 'CUI', 'CUE', 'GPS', 'RADIO', 'SECTOR', 'MODALIDAD'
+    'Nombre', 'Dirección', 'Edificio', 'CUI', 'CUE', 'GPS', 'RADIO', 'SECTOR', 'MODALIDAD', 'CATEGORÍA'
 ];
 
 function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
@@ -530,7 +530,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                     <i className={`fas ${copiedField === 'nombre_est' ? 'fa-check text-green-500' : 'fa-copy'} text-[10px]`}></i>
                                 </button>
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-3 gap-2">
                                 <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between">
                                     <div className="min-w-0">
                                         <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">CUE</p>
@@ -558,6 +558,24 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                             title="Copiar CUI"
                                         >
                                             <i className={`fas ${copiedField === 'cui' ? 'fa-check text-green-500' : 'fa-copy'} text-[9px]`}></i>
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="bg-gray-50 p-2 rounded-xl border border-gray-100 flex items-center justify-between">
+                                    <div className="min-w-0">
+                                        <p className="text-[8px] font-black text-gray-400 uppercase mb-0.5">Categoría</p>
+                                        <p className="text-xs font-black text-gray-800 truncate" title={modalidad.categoria}>
+                                            {(modalidad.categoria ?? '') !== '' ? modalidad.categoria : 'S/D'}
+                                        </p>
+                                    </div>
+                                    {modalidad.categoria && (
+                                        <button 
+                                            type="button" 
+                                            onClick={() => handleCopy(modalidad.categoria, 'categoria')}
+                                            className="p-1 text-gray-400 hover:text-brand-orange bg-white rounded-lg border border-gray-100 shadow-sm transition-all shrink-0"
+                                            title="Copiar Categoría"
+                                        >
+                                            <i className={`fas ${copiedField === 'categoria' ? 'fa-check text-green-500' : 'fa-copy'} text-[9px]`}></i>
                                         </button>
                                     )}
                                 </div>
@@ -832,26 +850,33 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                             ></textarea>
                         </div>
 
-                        {vinculados.length > 0 && (
-                            <div className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-3 ${
-                                data.propagar_al_edificio 
-                                    ? 'bg-brand-orange border-brand-orange text-white shadow-md' 
-                                    : 'bg-gray-50 border-gray-100 text-gray-500'
-                            }`}
-                            onClick={() => setData('propagar_al_edificio', !data.propagar_al_edificio)}
-                            >
-                                <i className={`fas ${data.propagar_al_edificio ? 'fa-check-double' : 'fa-link'} text-xl`}></i>
-                                <div className="flex-1">
-                                    <p className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Sincronizar Edificio ({vinculados.length})</p>
-                                    <p className={`text-[8px] font-bold ${data.propagar_al_edificio ? 'text-white/80' : 'text-gray-400'}`}>Aplicar validación a todo el CUI</p>
-                                </div>
-                            </div>
-                        )}
+
                     </div>
                 </div>
 
-                <div className="mt-8 flex justify-end gap-3 border-t pt-6">
+                <div className="mt-8 flex justify-end items-center gap-3 border-t pt-6">
                     <SecondaryButton onClick={onClose} className="px-6 py-2.5">Cancelar</SecondaryButton>
+                    {vinculados.length > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => setData('propagar_al_edificio', !data.propagar_al_edificio)}
+                            className={`px-4 py-1.5 rounded-xl border flex items-center gap-2 text-xs font-black transition-all ${
+                                data.propagar_al_edificio
+                                    ? 'bg-brand-orange border-brand-orange text-white shadow-sm'
+                                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                            }`}
+                        >
+                            <i className={`fas ${data.propagar_al_edificio ? 'fa-check-double' : 'fa-link'}`}></i>
+                            <div className="text-left">
+                                <p className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">
+                                    Sincronizar Edificio ({vinculados.length})
+                                </p>
+                                <p className={`text-[8px] font-bold ${data.propagar_al_edificio ? 'text-white/80' : 'text-gray-400'}`}>
+                                    Aplicar validación a todo el CUI
+                                </p>
+                            </div>
+                        </button>
+                    )}
                     <PrimaryButton className="px-12 py-2.5" disabled={processing}>
                         {processing ? 'Guardando...' : 'Confirmar Validación'}
                     </PrimaryButton>

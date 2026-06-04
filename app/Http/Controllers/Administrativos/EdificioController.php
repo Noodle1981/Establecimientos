@@ -37,7 +37,7 @@ class EdificioController extends Controller
 
         return Inertia::render('Administrativos/Edificios/Index', [
             'edificios' => $edificios,
-            'filters' => $request->only(['search', 'zona_departamento', 'localidad', 'ambito']),
+            'filters' => $request->only(['search', 'search_cui', 'zona_departamento', 'localidad', 'ambito']),
             'options' => $this->queryService->getFilterOptions()
         ]);
     }

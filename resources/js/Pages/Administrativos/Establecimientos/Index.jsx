@@ -367,6 +367,7 @@ function ViewModalidadModal({ show, onClose, modalidad, nombresEdificios }) {
                     <DetailItem icon="fas fa-landmark" label="Ámbito" value={modalidad.ambito} />
                     <DetailItem icon="fas fa-users" label="Sector" value={(modalidad.sector ?? '') !== '' ? modalidad.sector : 'S/D'} />
                     <DetailItem icon="fas fa-broadcast-tower" label="Radio / Zona" value={`${(modalidad.radio ?? '') !== '' ? modalidad.radio : '?'}, ${(modalidad.establecimiento.edificio?.letra_zona ?? '') !== '' ? modalidad.establecimiento.edificio.letra_zona : '?'}`} />
+                    <DetailItem icon="fas fa-award" label="Categoría" value={(modalidad.categoria ?? '') !== '' ? modalidad.categoria : 'S/D'} />
                     <DetailItem icon="fas fa-check-circle" label="Estado Validación" value={modalidad.validado ? 'CONSOLIDADO' : 'PENDIENTE DE REVISIÓN'} />
                 </div>
 
@@ -404,6 +405,7 @@ function EditModalidadModal({ show, onClose, modalidad, options, nombresEdificio
         radio: '',
         sector: '',
         letra_zona: '',
+        categoria: '',
         validado: false,
         observaciones: '',
     });
@@ -420,6 +422,7 @@ function EditModalidadModal({ show, onClose, modalidad, options, nombresEdificio
                 radio: modalidad.radio ?? '',
                 sector: modalidad.sector ?? '',
                 letra_zona: modalidad.establecimiento.edificio?.letra_zona ?? '',
+                categoria: modalidad.categoria ?? '',
                 validado: !!modalidad.validado,
                 observaciones: modalidad.establecimiento.observaciones || '',
             });
@@ -488,10 +491,25 @@ function EditModalidadModal({ show, onClose, modalidad, options, nombresEdificio
                         <ModalInput label="Nivel Educativo" value={data.nivel_educativo} onChange={v => setData('nivel_educativo', v)} error={errors.nivel_educativo} />
                     </div>
 
-                    <div className="col-span-2 grid grid-cols-3 gap-4 border-t pt-4 mt-2">
+                    <div className="col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4 border-t pt-4 mt-2">
                         <ModalInput label="Radio" value={data.radio} onChange={v => setData('radio', v)} error={errors.radio} />
                         <ModalInput label="Sector" value={data.sector} onChange={v => setData('sector', v)} error={errors.sector} />
                         <ModalInput label="Zona" value={data.letra_zona} onChange={v => setData('letra_zona', v)} error={errors.letra_zona} />
+                        <div className="space-y-1">
+                            <InputLabel value="Categoría" />
+                            <select
+                                className="w-full mt-1 rounded-xl border-gray-300 text-xs font-bold focus:border-brand-orange focus:ring-brand-orange"
+                                value={data.categoria}
+                                onChange={e => setData('categoria', e.target.value)}
+                            >
+                                <option value="">Seleccione...</option>
+                                <option value="PRIMERA">PRIMERA</option>
+                                <option value="SEGUNDA">SEGUNDA</option>
+                                <option value="TERCERA">TERCERA</option>
+                                <option value="CUARTA">CUARTA</option>
+                            </select>
+                            {errors.categoria && <InputError message={errors.categoria} />}
+                        </div>
                     </div>
 
                     <div className="col-span-2 border-t pt-4 mt-2">

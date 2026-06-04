@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import Pagination from '@/Components/Pagination';
 import Modal from '@/Components/Modal';
 import TextInput from '@/Components/TextInput';
@@ -12,15 +12,26 @@ import debounce from 'lodash/debounce';
 
 export default function Index({ edificios, filters, options }) {
     const [search, setSearch] = useState(filters.search || '');
+    const [searchCui, setSearchCui] = useState(filters.search_cui || '');
     const [selectedEdificio, setSelectedEdificio] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
 
+    // Refs to capture latest search values for the debounced callback
+    const searchRef = useRef(search);
+    const searchCuiRef = useRef(searchCui);
+    searchRef.current = search;
+    searchCuiRef.current = searchCui;
+
     // Filter handling
     const applyFilters = useCallback(
-        debounce((query) => {
-            router.get(route('administrativos.edificios.index'), { ...filters, search: query }, {
+        debounce(() => {
+            router.get(route('administrativos.edificios.index'), { 
+                ...filters, 
+                search: searchRef.current,
+                search_cui: searchCuiRef.current
+            }, {
                 preserveState: true,
                 preserveScroll: true,
                 replace: true
@@ -30,8 +41,17 @@ export default function Index({ edificios, filters, options }) {
     );
 
     const handleSearch = (e) => {
-        setSearch(e.target.value);
-        applyFilters(e.target.value);
+        const val = e.target.value;
+        setSearch(val);
+        searchRef.current = val;
+        applyFilters();
+    };
+
+    const handleSearchCui = (e) => {
+        const val = e.target.value;
+        setSearchCui(val);
+        searchCuiRef.current = val;
+        applyFilters();
     };
 
     const handleParamChange = (key, value) => {
@@ -83,10 +103,21 @@ export default function Index({ edificios, filters, options }) {
             <div className="space-y-6">
                 {/* Filters & Actions Bar */}
                 <div className="bg-white p-4 rounded-2x border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4 items-center">
-                    <div className="flex-1 relative">
+                    <div className="w-full md:w-52 relative">
                         <input 
                             type="text"
-                            placeholder="Buscar por CUI, CUE, Localidad..."
+                            placeholder="Buscar por CUI..."
+                            className="w-full pl-10 pr-4 py-2 border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange transition-all text-sm"
+                            value={searchCui}
+                            onChange={handleSearchCui}
+                        />
+                        <i className="fas fa-search absolute left-3.5 top-3 text-gray-400"></i>
+                    </div>
+
+                    <div className="flex-1 w-full relative">
+                        <input 
+                            type="text"
+                            placeholder="Buscar por CUE o Establecimiento..."
                             className="w-full pl-10 pr-4 py-2 border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange transition-all text-sm"
                             value={search}
                             onChange={handleSearch}
