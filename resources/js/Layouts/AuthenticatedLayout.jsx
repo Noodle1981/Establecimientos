@@ -1,10 +1,17 @@
 import { Link, usePage } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import logoMinisterio from '../../images/logoMinisterio.png';
 
-export default function AuthenticatedLayout({ header, children, fullWidth = false, showSidebar = true, padding = true }) {
+export default function AuthenticatedLayout({
+    header,
+    children,
+    fullWidth = false,
+    showSidebar = true,
+    padding = true,
+}) {
     const user = usePage().props.auth.user;
-    const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const [showingNavigationDropdown, setShowingNavigationDropdown] =
+        useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [userOpen, setUserOpen] = useState(false);
 
@@ -28,7 +35,7 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
 
         window.addEventListener('resize', handleResize);
         handleResize(); // Initial check
-        
+
         return () => {
             window.removeEventListener('resize', handleResize);
             cancelAnimationFrame(frameId);
@@ -36,177 +43,215 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
     }, []);
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="flex min-h-screen bg-gray-50">
             {/* Sidebar Desktop */}
             {showSidebar && (
-                <aside 
-                    className={`fixed inset-y-0 left-0 z-50 transition-all duration-300 ease-in-out bg-brand-orange shadow-2xl flex flex-col ${
+                <aside
+                    className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-brand-orange shadow-2xl transition-all duration-300 ease-in-out ${
                         sidebarOpen ? 'w-64' : 'w-20'
                     } hidden lg:flex`}
                 >
-                {/* Sidebar Header - App Brand */}
-                <div className="h-16 flex items-center px-6 border-b border-white/10 shrink-0">
-                    <div className="flex items-center gap-3 overflow-hidden whitespace-nowrap">
-                        <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shrink-0">
-                            <i className="fas fa-graduation-cap text-brand-orange"></i>
-                        </div>
-                        {sidebarOpen && (
-                            <div className="flex flex-col">
-                                <span className="text-sm font-black text-white leading-tight">Establecimientos</span>
-                                <span className="text-[10px] text-white/70 font-bold uppercase tracking-widest">Panel de Gestión</span>
+                    {/* Sidebar Header - App Brand */}
+                    <div className="flex h-16 shrink-0 items-center border-b border-white/10 px-6">
+                        <div className="flex items-center gap-3 overflow-hidden whitespace-nowrap">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white">
+                                <i className="fas fa-graduation-cap text-brand-orange"></i>
                             </div>
-                        )}
+                            {sidebarOpen && (
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-black leading-tight text-white">
+                                        Establecimientos
+                                    </span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
+                                        Panel de Gestión
+                                    </span>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
 
-                {/* Sidebar Links */}
-                <div className="flex-1 overflow-y-auto px-3 py-6 space-y-1 custom-scrollbar">
-                    <SidebarLink 
-                        href={route('mapa.publico')} 
-                        active={route().current('mapa.publico')} 
-                        icon="fas fa-map-marked-alt" 
-                        collapsed={!sidebarOpen}
-                    >
-                        Mapa Escolar
-                    </SidebarLink>
-
-                    {isAdmin && (
-                        <SidebarLink 
-                            href={route('admin.dashboard')} 
-                            active={route().current('admin.dashboard')} 
-                            icon="fas fa-chart-line" 
+                    {/* Sidebar Links */}
+                    <div className="custom-scrollbar flex-1 space-y-1 overflow-y-auto px-3 py-6">
+                        <SidebarLink
+                            href={route('mapa.publico')}
+                            active={route().current('mapa.publico')}
+                            icon="fas fa-map-marked-alt"
                             collapsed={!sidebarOpen}
                         >
-                            Dashboard Admin
+                            Mapa Escolar
                         </SidebarLink>
-                    )}
 
-                    {(isAdmin || isAdministrativo) && (
-                        <>
-                            <div className={`px-4 mt-6 mb-2 text-[10px] uppercase font-black tracking-widest text-white/40 ${!sidebarOpen && 'hidden'}`}>
-                                Gestión
-                            </div>
-                            <SidebarLink 
-                                href={route('administrativos.dashboard')} 
-                                active={route().current('administrativos.dashboard')} 
-                                icon="fas fa-tachometer-alt" 
+                        {isAdmin && (
+                            <SidebarLink
+                                href={route('admin.dashboard')}
+                                active={route().current('admin.dashboard')}
+                                icon="fas fa-chart-line"
                                 collapsed={!sidebarOpen}
                             >
-                                Estadísticas
+                                Dashboard Admin
                             </SidebarLink>
-                            <SidebarLink 
-                                href={route('administrativos.edificios.index')} 
-                                active={route().current('administrativos.edificios.index')} 
-                                icon="fas fa-building" 
-                                collapsed={!sidebarOpen}
-                            >
-                                Edificios
-                            </SidebarLink>
-                            <SidebarLink 
-                                href={route('administrativos.establecimientos.index')} 
-                                active={route().current('administrativos.establecimientos.index')} 
-                                icon="fas fa-school" 
-                                collapsed={!sidebarOpen}
-                            >
-                                Establecimientos
-                            </SidebarLink>
-                            <SidebarLink 
-                                href={route('administrativos.instrumentos.index')} 
-                                active={route().current('administrativos.instrumentos.index')} 
-                                icon="fas fa-file-contract" 
-                                collapsed={!sidebarOpen}
-                            >
-                                Instrumentos
-                            </SidebarLink>
-                            <SidebarLink 
-                                href={route('administrativos.auditoria.index')} 
-                                active={route().current('administrativos.auditoria.index')} 
-                                icon="fas fa-clipboard-check" 
-                                collapsed={!sidebarOpen}
-                            >
-                                Auditoría
-                            </SidebarLink>
-                            <SidebarLink 
-                                href={route('administrativos.reportes.index')} 
-                                active={route().current('administrativos.reportes.*')} 
-                                icon="fas fa-inbox" 
-                                collapsed={!sidebarOpen}
-                            >
-                                Reportes
-                            </SidebarLink>
-                        </>
-                    )}
+                        )}
 
-                    <div className={`px-4 mt-6 mb-2 text-[10px] uppercase font-black tracking-widest text-white/40 ${!sidebarOpen && 'hidden'}`}>
-                        Sistema
+                        {(isAdmin || isAdministrativo) && (
+                            <>
+                                <div
+                                    className={`mb-2 mt-6 px-4 text-[10px] font-black uppercase tracking-widest text-white/40 ${!sidebarOpen && 'hidden'}`}
+                                >
+                                    Gestión
+                                </div>
+                                <SidebarLink
+                                    href={route('administrativos.dashboard')}
+                                    active={route().current(
+                                        'administrativos.dashboard',
+                                    )}
+                                    icon="fas fa-tachometer-alt"
+                                    collapsed={!sidebarOpen}
+                                >
+                                    Estadísticas
+                                </SidebarLink>
+                                <SidebarLink
+                                    href={route(
+                                        'administrativos.edificios.index',
+                                    )}
+                                    active={route().current(
+                                        'administrativos.edificios.index',
+                                    )}
+                                    icon="fas fa-building"
+                                    collapsed={!sidebarOpen}
+                                >
+                                    Edificios
+                                </SidebarLink>
+                                <SidebarLink
+                                    href={route(
+                                        'administrativos.establecimientos.index',
+                                    )}
+                                    active={route().current(
+                                        'administrativos.establecimientos.index',
+                                    )}
+                                    icon="fas fa-school"
+                                    collapsed={!sidebarOpen}
+                                >
+                                    Establecimientos
+                                </SidebarLink>
+                                <SidebarLink
+                                    href={route(
+                                        'administrativos.instrumentos.index',
+                                    )}
+                                    active={route().current(
+                                        'administrativos.instrumentos.index',
+                                    )}
+                                    icon="fas fa-file-contract"
+                                    collapsed={!sidebarOpen}
+                                >
+                                    Instrumentos
+                                </SidebarLink>
+                                <SidebarLink
+                                    href={route(
+                                        'administrativos.auditoria.index',
+                                    )}
+                                    active={route().current(
+                                        'administrativos.auditoria.index',
+                                    )}
+                                    icon="fas fa-clipboard-check"
+                                    collapsed={!sidebarOpen}
+                                >
+                                    Auditoría
+                                </SidebarLink>
+                                <SidebarLink
+                                    href={route(
+                                        'administrativos.reportes.index',
+                                    )}
+                                    active={route().current(
+                                        'administrativos.reportes.*',
+                                    )}
+                                    icon="fas fa-inbox"
+                                    collapsed={!sidebarOpen}
+                                >
+                                    Reportes
+                                </SidebarLink>
+                            </>
+                        )}
+
+                        <div
+                            className={`mb-2 mt-6 px-4 text-[10px] font-black uppercase tracking-widest text-white/40 ${!sidebarOpen && 'hidden'}`}
+                        >
+                            Sistema
+                        </div>
+
+                        <SidebarLink
+                            href={route('bitacora.index')}
+                            active={route().current('bitacora.index')}
+                            icon="fas fa-history"
+                            collapsed={!sidebarOpen}
+                        >
+                            Bitácora
+                        </SidebarLink>
+
+                        {isAdmin && (
+                            <>
+                                <SidebarLink
+                                    href={route('admin.users.index')}
+                                    active={route().current('admin.users.*')}
+                                    icon="fas fa-users-cog"
+                                    collapsed={!sidebarOpen}
+                                >
+                                    Usuarios
+                                </SidebarLink>
+                                <SidebarLink
+                                    href={route('admin.trash.index')}
+                                    active={route().current('admin.trash.*')}
+                                    icon="fas fa-trash-alt"
+                                    collapsed={!sidebarOpen}
+                                >
+                                    Papelera
+                                </SidebarLink>
+                            </>
+                        )}
                     </div>
-                    
-                    <SidebarLink 
-                        href={route('bitacora.index')} 
-                        active={route().current('bitacora.index')} 
-                        icon="fas fa-history" 
-                        collapsed={!sidebarOpen}
-                    >
-                        Bitácora
-                    </SidebarLink>
 
-                    {isAdmin && (
-                        <>
-                            <SidebarLink 
-                                href={route('admin.users.index')} 
-                                active={route().current('admin.users.*')} 
-                                icon="fas fa-users-cog" 
-                                collapsed={!sidebarOpen}
-                            >
-                                Usuarios
-                            </SidebarLink>
-                            <SidebarLink 
-                                href={route('admin.trash.index')} 
-                                active={route().current('admin.trash.*')} 
-                                icon="fas fa-trash-alt" 
-                                collapsed={!sidebarOpen}
-                            >
-                                Papelera
-                            </SidebarLink>
-                        </>
-                    )}
-                </div>
-
-                {/* Sidebar Footer - Toggle */}
-                <div className="p-4 border-t border-white/10 shrink-0">
-                    <button 
-                        onClick={() => setSidebarOpen(!sidebarOpen)}
-                        className="w-full flex items-center justify-center p-2 rounded-xl hover:bg-white/10 text-white transition-colors"
-                    >
-                        <i className={`fas ${sidebarOpen ? 'fa-chevron-left' : 'fa-chevron-right'}`}></i>
-                    </button>
-                </div>
-            </aside>
+                    {/* Sidebar Footer - Toggle */}
+                    <div className="shrink-0 border-t border-white/10 p-4">
+                        <button
+                            onClick={() => setSidebarOpen(!sidebarOpen)}
+                            className="flex w-full items-center justify-center rounded-xl p-2 text-white transition-colors hover:bg-white/10"
+                        >
+                            <i
+                                className={`fas ${sidebarOpen ? 'fa-chevron-left' : 'fa-chevron-right'}`}
+                            ></i>
+                        </button>
+                    </div>
+                </aside>
             )}
 
             {/* Main Content Area */}
-            <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${
-                showSidebar ? (sidebarOpen ? 'lg:pl-64' : 'lg:pl-20') : ''
-            }`}>
+            <div
+                className={`flex flex-1 flex-col transition-all duration-300 ease-in-out ${
+                    showSidebar ? (sidebarOpen ? 'lg:pl-64' : 'lg:pl-20') : ''
+                }`}
+            >
                 {/* Top Navbar */}
-                <header className="sticky top-0 z-40 bg-white border-b border-gray-100 h-16 shrink-0 shadow-sm">
-                    <div className="h-full flex items-center justify-between px-6">
+                <header className="sticky top-0 z-40 h-16 shrink-0 border-b border-gray-100 bg-white shadow-sm">
+                    <div className="flex h-full items-center justify-between px-6">
                         {/* Left: Mobile Toggle & Logo Mobile */}
                         <div className="flex items-center gap-4">
                             {showSidebar && (
-                                <button 
-                                    onClick={() => setShowingNavigationDropdown(!showingNavigationDropdown)}
-                                    className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                                <button
+                                    onClick={() =>
+                                        setShowingNavigationDropdown(
+                                            !showingNavigationDropdown,
+                                        )
+                                    }
+                                    className="rounded-lg p-2 text-gray-600 transition hover:bg-gray-100 lg:hidden"
                                 >
                                     <i className="fas fa-bars text-xl"></i>
                                 </button>
                             )}
                             <Link href="/">
-                                <img 
-                                    src={logoMinisterio} 
-                                    alt="M.E." 
-                                    className="h-10 w-auto" 
-                                    width="160" 
+                                <img
+                                    src={logoMinisterio}
+                                    alt="M.E."
+                                    className="h-10 w-auto"
+                                    width="160"
                                     height="40"
                                 />
                             </Link>
@@ -218,55 +263,78 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                                 <div className="relative">
                                     <div className="flex items-center gap-3">
                                         {!showSidebar && (
-                                            <Link 
-                                                href={isAdmin ? route('admin.dashboard') : route('administrativos.dashboard')}
-                                                className="hidden sm:inline-flex items-center px-4 py-2 bg-orange-50 text-brand-orange border border-orange-100 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-brand-orange hover:text-white transition shadow-sm gap-2"
+                                            <Link
+                                                href={
+                                                    isAdmin
+                                                        ? route(
+                                                              'admin.dashboard',
+                                                          )
+                                                        : route(
+                                                              'administrativos.dashboard',
+                                                          )
+                                                }
+                                                className="hidden items-center gap-2 rounded-xl border border-orange-100 bg-orange-50 px-4 py-2 text-xs font-black uppercase tracking-widest text-brand-orange shadow-sm transition hover:bg-brand-orange hover:text-white sm:inline-flex"
                                             >
-                                                <i className="fas fa-th-large"></i> Entrar al Panel
+                                                <i className="fas fa-th-large"></i>{' '}
+                                                Entrar al Panel
                                             </Link>
                                         )}
-                                        <button 
-                                            onClick={() => setUserOpen(!userOpen)}
-                                            className="flex items-center space-x-3 p-1 rounded-xl hover:bg-gray-50 transition"
+                                        <button
+                                            onClick={() =>
+                                                setUserOpen(!userOpen)
+                                            }
+                                            className="flex items-center space-x-3 rounded-xl p-1 transition hover:bg-gray-50"
                                         >
-                                        <div className="flex flex-col text-right hidden sm:flex">
-                                            <span className="text-xs font-black leading-none text-black">{user.name}</span>
-                                            <span className="text-[9px] uppercase font-black tracking-tighter text-brand-orange">{user.role}</span>
-                                        </div>
-                                        <div 
-                                            className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md font-black bg-brand-orange" 
-                                        >
-                                            {user.name.charAt(0)}
-                                        </div>
+                                            <div className="flex hidden flex-col text-right sm:flex">
+                                                <span className="text-xs font-black leading-none text-black">
+                                                    {user.name}
+                                                </span>
+                                                <span className="text-[9px] font-black uppercase tracking-tighter text-brand-orange">
+                                                    {user.role}
+                                                </span>
+                                            </div>
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-orange font-black text-white shadow-md">
+                                                {user.name.charAt(0)}
+                                            </div>
                                         </button>
                                     </div>
-                                    
+
                                     {userOpen && (
-                                        <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl py-2 overflow-hidden border z-50 border-gray-100 animate-in fade-in slide-in-from-right-4 duration-200">
-                                            <div className="px-4 py-3 border-b border-gray-50 bg-gray-50/50">
-                                                <p className="text-[10px] uppercase font-black text-gray-400">Cuenta de Usuario</p>
-                                                <p className="text-sm font-black text-black truncate">{user.email}</p>
+                                        <div className="animate-in fade-in slide-in-from-right-4 absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-gray-100 bg-white py-2 shadow-2xl duration-200">
+                                            <div className="border-b border-gray-50 bg-gray-50/50 px-4 py-3">
+                                                <p className="text-[10px] font-black uppercase text-gray-400">
+                                                    Cuenta de Usuario
+                                                </p>
+                                                <p className="truncate text-sm font-black text-black">
+                                                    {user.email}
+                                                </p>
                                             </div>
-                                            <Link href={route('profile.edit')} className="flex items-center px-4 py-3 text-sm text-black hover:bg-orange-50 transition font-medium">
-                                                <i className="fas fa-id-card-alt mr-3 text-brand-orange"></i> Mi Perfil
-                                            </Link>
-                                            <Link 
-                                                href={route('logout')} 
-                                                method="post" 
-                                                as="button" 
-                                                className="w-full flex items-center px-4 py-3 text-sm hover:bg-red-50 transition text-red-600 font-medium"
+                                            <Link
+                                                href={route('profile.edit')}
+                                                className="flex items-center px-4 py-3 text-sm font-medium text-black transition hover:bg-orange-50"
                                             >
-                                                <i className="fas fa-sign-out-alt mr-3"></i> Cerrar Sesión
+                                                <i className="fas fa-id-card-alt mr-3 text-brand-orange"></i>{' '}
+                                                Mi Perfil
+                                            </Link>
+                                            <Link
+                                                href={route('logout')}
+                                                method="post"
+                                                as="button"
+                                                className="flex w-full items-center px-4 py-3 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                                            >
+                                                <i className="fas fa-sign-out-alt mr-3"></i>{' '}
+                                                Cerrar Sesión
                                             </Link>
                                         </div>
                                     )}
                                 </div>
                             ) : (
-                                <Link 
+                                <Link
                                     href={route('login')}
-                                    className="inline-flex items-center px-6 py-2 bg-brand-orange border border-transparent rounded-xl font-black text-xs text-white uppercase tracking-widest hover:bg-orange-600 transition shadow-lg gap-2"
+                                    className="inline-flex items-center gap-2 rounded-xl border border-transparent bg-brand-orange px-6 py-2 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-orange-600"
                                 >
-                                    <i className="fas fa-sign-in-alt"></i> Iniciar Sesión
+                                    <i className="fas fa-sign-in-alt"></i>{' '}
+                                    Iniciar Sesión
                                 </Link>
                             )}
                         </div>
@@ -276,54 +344,156 @@ export default function AuthenticatedLayout({ header, children, fullWidth = fals
                 {/* Mobile Slide-over Drawer (Logic simplified for Inertia links) */}
                 {showSidebar && showingNavigationDropdown && (
                     <div className="fixed inset-0 z-[60] lg:hidden">
-                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowingNavigationDropdown(false)}></div>
-                        <aside className="fixed inset-y-0 left-0 w-72 bg-brand-orange shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
-                            <div className="h-16 flex items-center justify-between px-6 border-b border-white/10 shrink-0">
-                                <span className="text-white font-black">Menú Principal</span>
-                                <button onClick={() => setShowingNavigationDropdown(false)} className="text-white hover:text-white/70 transition">
+                        <div
+                            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+                            onClick={() => setShowingNavigationDropdown(false)}
+                        ></div>
+                        <aside className="animate-in slide-in-from-left fixed inset-y-0 left-0 flex w-72 flex-col bg-brand-orange shadow-2xl duration-300">
+                            <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-6">
+                                <span className="font-black text-white">
+                                    Menú Principal
+                                </span>
+                                <button
+                                    onClick={() =>
+                                        setShowingNavigationDropdown(false)
+                                    }
+                                    className="text-white transition hover:text-white/70"
+                                >
                                     <i className="fas fa-times"></i>
                                 </button>
                             </div>
-                            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                            <div className="flex-1 space-y-2 overflow-y-auto p-4">
                                 {/* Repeat similar links for mobile if needed, or unify components */}
-                                <MobileNavLink href={route('mapa.publico')} active={route().current('mapa.publico')} icon="fas fa-map-marked-alt">Mapa</MobileNavLink>
+                                <MobileNavLink
+                                    href={route('mapa.publico')}
+                                    active={route().current('mapa.publico')}
+                                    icon="fas fa-map-marked-alt"
+                                >
+                                    Mapa
+                                </MobileNavLink>
                                 {(isAdmin || isAdministrativo) && (
                                     <>
-                                        <MobileNavLink href={route('administrativos.dashboard')} active={route().current('administrativos.dashboard')} icon="fas fa-tachometer-alt">Estadísticas</MobileNavLink>
-                                        <MobileNavLink href={route('administrativos.edificios.index')} active={route().current('administrativos.edificios.index')} icon="fas fa-building">Edificios</MobileNavLink>
-                                        <MobileNavLink href={route('administrativos.establecimientos.index')} active={route().current('administrativos.establecimientos.index')} icon="fas fa-school">Establecimientos</MobileNavLink>
-                                        <MobileNavLink href={route('administrativos.instrumentos.index')} active={route().current('administrativos.instrumentos.index')} icon="fas fa-file-contract">Instrumentos</MobileNavLink>
-                                        <MobileNavLink href={route('administrativos.auditoria.index')} active={route().current('administrativos.auditoria.index')} icon="fas fa-clipboard-check">Auditoría</MobileNavLink>
-                                        <MobileNavLink href={route('administrativos.reportes.index')} active={route().current('administrativos.reportes.*')} icon="fas fa-inbox">Reportes</MobileNavLink>
+                                        <MobileNavLink
+                                            href={route(
+                                                'administrativos.dashboard',
+                                            )}
+                                            active={route().current(
+                                                'administrativos.dashboard',
+                                            )}
+                                            icon="fas fa-tachometer-alt"
+                                        >
+                                            Estadísticas
+                                        </MobileNavLink>
+                                        <MobileNavLink
+                                            href={route(
+                                                'administrativos.edificios.index',
+                                            )}
+                                            active={route().current(
+                                                'administrativos.edificios.index',
+                                            )}
+                                            icon="fas fa-building"
+                                        >
+                                            Edificios
+                                        </MobileNavLink>
+                                        <MobileNavLink
+                                            href={route(
+                                                'administrativos.establecimientos.index',
+                                            )}
+                                            active={route().current(
+                                                'administrativos.establecimientos.index',
+                                            )}
+                                            icon="fas fa-school"
+                                        >
+                                            Establecimientos
+                                        </MobileNavLink>
+                                        <MobileNavLink
+                                            href={route(
+                                                'administrativos.instrumentos.index',
+                                            )}
+                                            active={route().current(
+                                                'administrativos.instrumentos.index',
+                                            )}
+                                            icon="fas fa-file-contract"
+                                        >
+                                            Instrumentos
+                                        </MobileNavLink>
+                                        <MobileNavLink
+                                            href={route(
+                                                'administrativos.auditoria.index',
+                                            )}
+                                            active={route().current(
+                                                'administrativos.auditoria.index',
+                                            )}
+                                            icon="fas fa-clipboard-check"
+                                        >
+                                            Auditoría
+                                        </MobileNavLink>
+                                        <MobileNavLink
+                                            href={route(
+                                                'administrativos.reportes.index',
+                                            )}
+                                            active={route().current(
+                                                'administrativos.reportes.*',
+                                            )}
+                                            icon="fas fa-inbox"
+                                        >
+                                            Reportes
+                                        </MobileNavLink>
                                     </>
                                 )}
-                                <MobileNavLink href={route('bitacora.index')} active={route().current('bitacora.index')} icon="fas fa-history">Bitácora</MobileNavLink>
+                                <MobileNavLink
+                                    href={route('bitacora.index')}
+                                    active={route().current('bitacora.index')}
+                                    icon="fas fa-history"
+                                >
+                                    Bitácora
+                                </MobileNavLink>
                             </div>
                         </aside>
                     </div>
                 )}
 
                 {/* Main Content Scrollable Area */}
-                <main className={`flex-1 overflow-y-auto ${fullWidth ? '' : 'bg-gray-50'}`}>
+                <main
+                    className={`flex-1 overflow-y-auto ${fullWidth ? '' : 'bg-gray-50'}`}
+                >
                     {header && (
-                        <div className="px-6 py-6 bg-white border-b border-gray-100 mb-6">
-                            <div className={fullWidth ? 'w-full' : 'max-w-[1600px] mx-auto'}>
+                        <div className="mb-6 border-b border-gray-100 bg-white px-6 py-6">
+                            <div
+                                className={
+                                    fullWidth
+                                        ? 'w-full'
+                                        : 'mx-auto max-w-[1600px]'
+                                }
+                            >
                                 {header}
                             </div>
                         </div>
                     )}
-                    <div className={padding ? (fullWidth ? 'p-6' : 'max-w-[1600px] mx-auto p-6 lg:p-10') : ''}>
+                    <div
+                        className={
+                            padding
+                                ? fullWidth
+                                    ? 'p-6'
+                                    : 'mx-auto max-w-[1600px] p-6 lg:p-10'
+                                : ''
+                        }
+                    >
                         {children}
                     </div>
                 </main>
             </div>
-            
-            <style dangerouslySetInnerHTML={{ __html: `
+
+            <style
+                dangerouslySetInnerHTML={{
+                    __html: `
                 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
                 .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
-            `}} />
+            `,
+                }}
+            />
         </div>
     );
 }
@@ -333,20 +503,26 @@ function SidebarLink({ href, active, children, icon, collapsed }) {
         <Link
             href={href}
             title={collapsed ? children : ''}
-            className={`flex items-center h-12 rounded-xl transition-all duration-200 group relative ${
-                active 
-                    ? 'bg-white text-brand-orange shadow-lg font-black translate-x-1' 
-                    : 'text-white hover:bg-white/10 font-bold'
-            } ${collapsed ? 'px-0 justify-center' : 'px-4 gap-4'}`}
+            className={`group relative flex h-12 items-center rounded-xl transition-all duration-200 ${
+                active
+                    ? 'translate-x-1 bg-white font-black text-brand-orange shadow-lg'
+                    : 'font-bold text-white hover:bg-white/10'
+            } ${collapsed ? 'justify-center px-0' : 'gap-4 px-4'}`}
         >
-            <div className={`flex items-center justify-center shrink-0 ${collapsed ? 'w-full' : 'w-5'}`}>
-                <i className={`${icon} ${active ? 'text-brand-orange' : 'text-white/60 group-hover:text-white'} transition-colors ${collapsed ? 'text-lg' : 'text-sm'}`}></i>
+            <div
+                className={`flex shrink-0 items-center justify-center ${collapsed ? 'w-full' : 'w-5'}`}
+            >
+                <i
+                    className={`${icon} ${active ? 'text-brand-orange' : 'text-white/60 group-hover:text-white'} transition-colors ${collapsed ? 'text-lg' : 'text-sm'}`}
+                ></i>
             </div>
             {!collapsed && (
-                <span className="truncate text-sm tracking-tight">{children}</span>
+                <span className="truncate text-sm tracking-tight">
+                    {children}
+                </span>
             )}
             {active && (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-brand-orange rounded-l-full"></div>
+                <div className="absolute right-0 top-1/2 h-6 w-1.5 -translate-y-1/2 rounded-l-full bg-brand-orange"></div>
             )}
         </Link>
     );
@@ -356,13 +532,15 @@ function MobileNavLink({ href, active, children, icon }) {
     return (
         <Link
             href={href}
-            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors font-black text-sm ${
-                active 
-                    ? 'bg-white text-brand-orange shadow-lg' 
+            className={`flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-black transition-colors ${
+                active
+                    ? 'bg-white text-brand-orange shadow-lg'
                     : 'text-white hover:bg-white/10'
             }`}
         >
-            <i className={`${icon} w-5 text-center ${active ? 'text-brand-orange' : 'text-white/60'}`}></i>
+            <i
+                className={`${icon} w-5 text-center ${active ? 'text-brand-orange' : 'text-white/60'}`}
+            ></i>
             {children}
         </Link>
     );

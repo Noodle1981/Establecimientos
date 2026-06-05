@@ -1,14 +1,14 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import { useState, useCallback, useRef, useEffect } from 'react';
-import Pagination from '@/Components/Pagination';
-import Modal from '@/Components/Modal';
-import TextInput from '@/Components/TextInput';
-import InputLabel from '@/Components/InputLabel';
 import InputError from '@/Components/InputError';
+import InputLabel from '@/Components/InputLabel';
+import Modal from '@/Components/Modal';
+import Pagination from '@/Components/Pagination';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
+import TextInput from '@/Components/TextInput';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Head, router, useForm } from '@inertiajs/react';
 import debounce from 'lodash/debounce';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 export default function Index({ edificios, filters, options }) {
     const [search, setSearch] = useState(filters.search || '');
@@ -25,19 +25,24 @@ export default function Index({ edificios, filters, options }) {
     searchCuiRef.current = searchCui;
 
     // Filter handling
-    const applyFilters = useCallback(
-        debounce(() => {
-            router.get(route('administrativos.edificios.index'), { 
-                ...filters, 
-                search: searchRef.current,
-                search_cui: searchCuiRef.current
-            }, {
-                preserveState: true,
-                preserveScroll: true,
-                replace: true
-            });
-        }, 300),
-        [filters]
+    const applyFilters = useMemo(
+        () =>
+            debounce(() => {
+                router.get(
+                    route('administrativos.edificios.index'),
+                    {
+                        ...filters,
+                        search: searchRef.current,
+                        search_cui: searchCuiRef.current,
+                    },
+                    {
+                        preserveState: true,
+                        preserveScroll: true,
+                        replace: true,
+                    },
+                );
+            }, 300),
+        [filters],
     );
 
     const handleSearch = (e) => {
@@ -55,22 +60,33 @@ export default function Index({ edificios, filters, options }) {
     };
 
     const handleParamChange = (key, value) => {
-        router.get(route('administrativos.edificios.index'), { ...filters, [key]: value }, {
-            preserveState: true,
-            preserveScroll: true
-        });
+        router.get(
+            route('administrativos.edificios.index'),
+            { ...filters, [key]: value },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     const handleSort = (field) => {
-        const direction = filters.sort_by === field && filters.sort_dir === 'asc' ? 'desc' : 'asc';
-        router.get(route('administrativos.edificios.index'), { 
-            ...filters, 
-            sort_by: field, 
-            sort_dir: direction 
-        }, {
-            preserveState: true,
-            preserveScroll: true
-        });
+        const direction =
+            filters.sort_by === field && filters.sort_dir === 'asc'
+                ? 'desc'
+                : 'asc';
+        router.get(
+            route('administrativos.edificios.index'),
+            {
+                ...filters,
+                sort_by: field,
+                sort_dir: direction,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     // Modal Handlers
@@ -85,13 +101,17 @@ export default function Index({ edificios, filters, options }) {
     };
 
     const handleDelete = (id) => {
-        if (confirm('¿Está seguro de que desea eliminar este edificio? Se trasladará a la papelera de reciclaje.')) {
+        if (
+            confirm(
+                '¿Está seguro de que desea eliminar este edificio? Se trasladará a la papelera de reciclaje.',
+            )
+        ) {
             router.delete(route('administrativos.edificios.destroy', id), {
                 onError: (errors) => {
                     if (errors.error) {
                         alert(errors.error);
                     }
-                }
+                },
             });
         }
     };
@@ -102,144 +122,212 @@ export default function Index({ edificios, filters, options }) {
 
             <div className="space-y-6">
                 {/* Filters & Actions Bar */}
-                <div className="bg-white p-4 rounded-2x border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4 items-center">
-                    <div className="w-full md:w-52 relative">
-                        <input 
+                <div className="rounded-2x flex flex-col items-center gap-4 border border-gray-100 bg-white p-4 shadow-sm md:flex-row">
+                    <div className="relative w-full md:w-52">
+                        <input
                             type="text"
                             placeholder="Buscar por CUI..."
-                            className="w-full pl-10 pr-4 py-2 border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange transition-all text-sm"
+                            className="w-full rounded-xl border-gray-200 py-2 pl-10 pr-4 text-sm transition-all focus:border-brand-orange focus:ring-brand-orange"
                             value={searchCui}
                             onChange={handleSearchCui}
                         />
                         <i className="fas fa-search absolute left-3.5 top-3 text-gray-400"></i>
                     </div>
 
-                    <div className="flex-1 w-full relative">
-                        <input 
+                    <div className="relative w-full flex-1">
+                        <input
                             type="text"
                             placeholder="Buscar por CUE o Establecimiento..."
-                            className="w-full pl-10 pr-4 py-2 border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange transition-all text-sm"
+                            className="w-full rounded-xl border-gray-200 py-2 pl-10 pr-4 text-sm transition-all focus:border-brand-orange focus:ring-brand-orange"
                             value={search}
                             onChange={handleSearch}
                         />
                         <i className="fas fa-search absolute left-3.5 top-3 text-gray-400"></i>
                     </div>
-                    
-                    <select 
+
+                    <select
                         value={filters.zona_departamento || ''}
-                        onChange={(e) => handleParamChange('zona_departamento', e.target.value)}
-                        className="border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange text-sm min-w-[200px]"
+                        onChange={(e) =>
+                            handleParamChange(
+                                'zona_departamento',
+                                e.target.value,
+                            )
+                        }
+                        className="min-w-[200px] rounded-xl border-gray-200 text-sm focus:border-brand-orange focus:ring-brand-orange"
                     >
                         <option value="">Departamentos (Todos)</option>
-                        {options.zonas.map(z => <option key={z} value={z}>{z}</option>)}
+                        {options.zonas.map((z) => (
+                            <option key={z} value={z}>
+                                {z}
+                            </option>
+                        ))}
                     </select>
 
-                    <select 
+                    <select
                         value={filters.localidad || ''}
-                        onChange={(e) => handleParamChange('localidad', e.target.value)}
-                        className="border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange text-sm min-w-[150px]"
+                        onChange={(e) =>
+                            handleParamChange('localidad', e.target.value)
+                        }
+                        className="min-w-[150px] rounded-xl border-gray-200 text-sm focus:border-brand-orange focus:ring-brand-orange"
                     >
                         <option value="">Localidades (Todas)</option>
-                        {options.localidades.map(l => <option key={l} value={l}>{l}</option>)}
+                        {options.localidades.map((l) => (
+                            <option key={l} value={l}>
+                                {l}
+                            </option>
+                        ))}
                     </select>
 
-                    <select 
+                    <select
                         value={filters.ambito || ''}
-                        onChange={(e) => handleParamChange('ambito', e.target.value)}
-                        className="border-gray-200 rounded-xl focus:border-brand-orange focus:ring-brand-orange text-sm min-w-[150px] font-black uppercase"
+                        onChange={(e) =>
+                            handleParamChange('ambito', e.target.value)
+                        }
+                        className="min-w-[150px] rounded-xl border-gray-200 text-sm font-black uppercase focus:border-brand-orange focus:ring-brand-orange"
                     >
                         <option value="">Ámbito (Todos)</option>
-                        {options.ambitos.map(a => <option key={a} value={a}>{a}</option>)}
+                        {options.ambitos.map((a) => (
+                            <option key={a} value={a}>
+                                {a}
+                            </option>
+                        ))}
                     </select>
 
-                    <div className="bg-gray-50 text-black px-4 py-2 rounded-xl border border-gray-100 text-sm font-black shadow-sm h-[38px] flex items-center justify-center min-w-[50px]">
+                    <div className="flex h-[38px] min-w-[50px] items-center justify-center rounded-xl border border-gray-100 bg-gray-50 px-4 py-2 text-sm font-black text-black shadow-sm">
                         {edificios.total}
                     </div>
 
-                    <div className="flex gap-2 shrink-0 border-l pl-4 border-gray-100 ml-2">
-                        <a 
+                    <div className="ml-2 flex shrink-0 gap-2 border-l border-gray-100 pl-4">
+                        <a
                             href={route('administrativos.edificios.export')}
-                            className="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-xl font-bold text-[10px] text-white uppercase tracking-widest hover:bg-green-700 transition shadow-sm gap-2"
+                            className="inline-flex items-center gap-2 rounded-xl border border-transparent bg-green-600 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm transition hover:bg-green-700"
                         >
                             <i className="fas fa-file-excel"></i> Exportar
                         </a>
-                        <PrimaryButton className="gap-2 !py-2 !px-4 !rounded-xl !text-[10px]" onClick={() => setShowCreateModal(true)}>
+                        <PrimaryButton
+                            className="gap-2 !rounded-xl !px-4 !py-2 !text-[10px]"
+                            onClick={() => setShowCreateModal(true)}
+                        >
                             <i className="fas fa-plus"></i> Nuevo
                         </PrimaryButton>
                     </div>
                 </div>
 
                 {/* Table */}
-                <div className="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100">
+                <div className="overflow-hidden border border-gray-100 bg-white shadow-sm sm:rounded-2xl">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full border-collapse text-left">
                             <thead>
-                                <tr className="bg-brand-orange text-[10px] uppercase font-black text-white border-b border-orange-600">
-                                    <th className="px-6 py-2 cursor-pointer hover:bg-orange-600 transition-colors group" onClick={() => handleSort('cui')}>
+                                <tr className="border-b border-orange-600 bg-brand-orange text-[10px] font-black uppercase text-white">
+                                    <th
+                                        className="group cursor-pointer px-6 py-2 transition-colors hover:bg-orange-600"
+                                        onClick={() => handleSort('cui')}
+                                    >
                                         <div className="flex items-center gap-2">
                                             CUI / Ubicación
-                                            <i className={`fas fa-sort${filters.sort_by === 'cui' ? (filters.sort_dir === 'asc' ? '-up' : '-down') : ''} opacity-50 group-hover:opacity-100`}></i>
+                                            <i
+                                                className={`fas fa-sort${filters.sort_by === 'cui' ? (filters.sort_dir === 'asc' ? '-up' : '-down') : ''} opacity-50 group-hover:opacity-100`}
+                                            ></i>
                                         </div>
                                     </th>
-                                    <th className="px-6 py-2">Establecimiento Cabecera</th>
-                                    <th className="px-6 py-2 cursor-pointer hover:bg-orange-600 transition-colors group" onClick={() => handleSort('zona_departamento')}>
+                                    <th className="px-6 py-2">
+                                        Establecimiento Cabecera
+                                    </th>
+                                    <th
+                                        className="group cursor-pointer px-6 py-2 transition-colors hover:bg-orange-600"
+                                        onClick={() =>
+                                            handleSort('zona_departamento')
+                                        }
+                                    >
                                         <div className="flex items-center gap-2">
                                             Depto / Localidad
-                                            <i className={`fas fa-sort${filters.sort_by === 'zona_departamento' ? (filters.sort_dir === 'asc' ? '-up' : '-down') : ''} opacity-50 group-hover:opacity-100`}></i>
+                                            <i
+                                                className={`fas fa-sort${filters.sort_by === 'zona_departamento' ? (filters.sort_dir === 'asc' ? '-up' : '-down') : ''} opacity-50 group-hover:opacity-100`}
+                                            ></i>
                                         </div>
                                     </th>
-                                    <th className="px-6 py-2 text-center">Ámbito</th>
-                                    <th className="px-6 py-2 text-right">Acciones</th>
+                                    <th className="px-6 py-2 text-center">
+                                        Ámbito
+                                    </th>
+                                    <th className="px-6 py-2 text-right">
+                                        Acciones
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {edificios.data.map((edificio) => (
-                                    <tr key={edificio.id} className="hover:bg-orange-50/30 transition-colors group">
+                                    <tr
+                                        key={edificio.id}
+                                        className="group transition-colors hover:bg-orange-50/30"
+                                    >
                                         <td className="px-6 py-2">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-black text-black group-hover:text-brand-orange">{edificio.cui}</span>
-                                                <span className="text-[10px] font-black text-black/40 uppercase tracking-tighter">{edificio.calle} {edificio.numero_puerta || 'S/N'}</span>
+                                                <span className="text-sm font-black text-black group-hover:text-brand-orange">
+                                                    {edificio.cui}
+                                                </span>
+                                                <span className="text-[10px] font-black uppercase tracking-tighter text-black/40">
+                                                    {edificio.calle}{' '}
+                                                    {edificio.numero_puerta ||
+                                                        'S/N'}
+                                                </span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-2">
-                                            <span className="text-xs font-black text-black/80 leading-tight line-clamp-2">
-                                                {edificio.cabecera?.nombre || 'Sin Cabecera'}
+                                            <span className="line-clamp-2 text-xs font-black leading-tight text-black/80">
+                                                {edificio.cabecera?.nombre ||
+                                                    'Sin Cabecera'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-2">
                                             <div className="flex flex-col">
-                                                <span className="text-xs font-black text-black/70">{edificio.zona_departamento}</span>
-                                                <span className="text-[10px] text-black/40 font-black">{edificio.localidad}</span>
+                                                <span className="text-xs font-black text-black/70">
+                                                    {edificio.zona_departamento}
+                                                </span>
+                                                <span className="text-[10px] font-black text-black/40">
+                                                    {edificio.localidad}
+                                                </span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-2 text-center">
-                                            <span className={`inline-flex items-center justify-center px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors ${
-                                                getEdificioAmbito(edificio) === 'PUBLICO' 
-                                                    ? 'bg-orange-50 text-brand-orange border border-orange-100' 
-                                                    : 'bg-blue-50 text-blue-600 border border-blue-100'
-                                            }`}>
+                                            <span
+                                                className={`inline-flex items-center justify-center rounded-lg px-2 py-1 text-[9px] font-black uppercase tracking-widest transition-colors ${
+                                                    getEdificioAmbito(
+                                                        edificio,
+                                                    ) === 'PUBLICO'
+                                                        ? 'border border-orange-100 bg-orange-50 text-brand-orange'
+                                                        : 'border border-blue-100 bg-blue-50 text-blue-600'
+                                                }`}
+                                            >
                                                 {getEdificioAmbito(edificio)}
                                             </span>
                                         </td>
                                         <td className="px-6 py-2 text-right">
                                             <div className="flex justify-end gap-2">
-                                                <button 
-                                                    onClick={() => openView(edificio)}
-                                                    className="p-2 rounded-lg bg-gray-50 text-gray-400 hover:bg-brand-orange hover:text-white transition shadow-sm"
+                                                <button
+                                                    onClick={() =>
+                                                        openView(edificio)
+                                                    }
+                                                    className="rounded-lg bg-gray-50 p-2 text-gray-400 shadow-sm transition hover:bg-brand-orange hover:text-white"
                                                     title="Ver detalles"
                                                 >
                                                     <i className="fas fa-eye text-xs"></i>
                                                 </button>
-                                                <button 
-                                                    onClick={() => openEdit(edificio)}
-                                                    className="p-2 rounded-lg bg-orange-50 text-brand-orange hover:bg-brand-orange hover:text-white transition shadow-sm"
+                                                <button
+                                                    onClick={() =>
+                                                        openEdit(edificio)
+                                                    }
+                                                    className="rounded-lg bg-orange-50 p-2 text-brand-orange shadow-sm transition hover:bg-brand-orange hover:text-white"
                                                     title="Editar edificio"
                                                 >
                                                     <i className="fas fa-edit text-xs"></i>
                                                 </button>
-                                                <button 
-                                                    onClick={() => handleDelete(edificio.id)}
-                                                    className="p-2 rounded-lg bg-red-50 text-brand-red border border-brand-red/20 hover:bg-brand-red hover:text-white transition shadow-sm"
+                                                <button
+                                                    onClick={() =>
+                                                        handleDelete(
+                                                            edificio.id,
+                                                        )
+                                                    }
+                                                    className="rounded-lg border border-brand-red/20 bg-red-50 p-2 text-brand-red shadow-sm transition hover:bg-brand-red hover:text-white"
                                                     title="Eliminar edificio"
                                                 >
                                                     <i className="fas fa-trash text-xs"></i>
@@ -254,16 +342,28 @@ export default function Index({ edificios, filters, options }) {
                 </div>
 
                 {/* Pagination */}
-                <div className="flex justify-center -mt-2">
+                <div className="-mt-2 flex justify-center">
                     <Pagination links={edificios.links} />
                 </div>
             </div>
 
             {/* Modals */}
-            <ViewEdificioModal show={showViewModal} onClose={() => setShowViewModal(false)} edificio={selectedEdificio} />
-            <EditEdificioModal show={showEditModal} onClose={() => setShowEditModal(false)} edificio={selectedEdificio} options={options} />
-            <CreateEdificioModal show={showCreateModal} onClose={() => setShowCreateModal(false)} options={options} />
-
+            <ViewEdificioModal
+                show={showViewModal}
+                onClose={() => setShowViewModal(false)}
+                edificio={selectedEdificio}
+            />
+            <EditEdificioModal
+                show={showEditModal}
+                onClose={() => setShowEditModal(false)}
+                edificio={selectedEdificio}
+                options={options}
+            />
+            <CreateEdificioModal
+                show={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+                options={options}
+            />
         </AuthenticatedLayout>
     );
 }
@@ -296,22 +396,26 @@ function CreateEdificioModal({ show, onClose, options = {} }) {
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl">
             <form onSubmit={submit} className="p-6">
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="w-12 h-12 rounded-2xl bg-orange-50 text-brand-orange flex items-center justify-center text-xl shadow-sm border border-orange-100">
+                <div className="mb-8 flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-orange-100 bg-orange-50 text-xl text-brand-orange shadow-sm">
                         <i className="fas fa-plus-circle"></i>
                     </div>
                     <div>
-                        <h3 className="text-xl font-black text-black uppercase">Nuevo Edificio</h3>
-                        <p className="text-[10px] font-black text-black/40 tracking-widest">ALTA DE REGISTRO</p>
+                        <h3 className="text-xl font-black uppercase text-black">
+                            Nuevo Edificio
+                        </h3>
+                        <p className="text-[10px] font-black tracking-widest text-black/40">
+                            ALTA DE REGISTRO
+                        </p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
                     <div className="col-span-2 md:col-span-1">
                         <InputLabel htmlFor="cui" value="CUI" />
                         <TextInput
                             id="cui"
-                            className="mt-1 block w-full bg-orange-50/50 border-orange-100"
+                            className="mt-1 block w-full border-orange-100 bg-orange-50/50"
                             value={data.cui}
                             onChange={(e) => setData('cui', e.target.value)}
                             required
@@ -319,8 +423,10 @@ function CreateEdificioModal({ show, onClose, options = {} }) {
                         <InputError message={errors.cui} className="mt-2" />
                     </div>
 
-                    <div className="col-span-2 md:col-span-2 border-t pt-4 border-orange-100">
-                          <h4 className="text-[10px] font-black text-black/50 uppercase tracking-widest mb-2">Información de Ubicación</h4>
+                    <div className="col-span-2 border-t border-orange-100 pt-4 md:col-span-2">
+                        <h4 className="mb-2 text-[10px] font-black uppercase tracking-widest text-black/50">
+                            Información de Ubicación
+                        </h4>
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -341,9 +447,14 @@ function CreateEdificioModal({ show, onClose, options = {} }) {
                             id="numero"
                             className="mt-1 block w-full"
                             value={data.numero_puerta}
-                            onChange={(e) => setData('numero_puerta', e.target.value)}
+                            onChange={(e) =>
+                                setData('numero_puerta', e.target.value)
+                            }
                         />
-                        <InputError message={errors.numero_puerta} className="mt-2" />
+                        <InputError
+                            message={errors.numero_puerta}
+                            className="mt-2"
+                        />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -352,31 +463,45 @@ function CreateEdificioModal({ show, onClose, options = {} }) {
                             id="localidad"
                             className="mt-1 block w-full"
                             value={data.localidad}
-                            onChange={(e) => setData('localidad', e.target.value)}
+                            onChange={(e) =>
+                                setData('localidad', e.target.value)
+                            }
                             required
                         />
-                        <InputError message={errors.localidad} className="mt-2" />
+                        <InputError
+                            message={errors.localidad}
+                            className="mt-2"
+                        />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
                         <InputLabel htmlFor="depto" value="Departamento" />
                         <select
                             id="depto"
-                            className="mt-1 block w-full rounded-xl border-gray-300 focus:border-brand-orange focus:ring-brand-orange shadow-sm text-sm font-semibold"
+                            className="mt-1 block w-full rounded-xl border-gray-300 text-sm font-semibold shadow-sm focus:border-brand-orange focus:ring-brand-orange"
                             value={data.zona_departamento}
-                            onChange={(e) => setData('zona_departamento', e.target.value)}
+                            onChange={(e) =>
+                                setData('zona_departamento', e.target.value)
+                            }
                             required
                         >
                             <option value="">Seleccione Departamento...</option>
-                            {(options.zonas || []).map(z => (
-                                <option key={z} value={z}>{z}</option>
+                            {(options.zonas || []).map((z) => (
+                                <option key={z} value={z}>
+                                    {z}
+                                </option>
                             ))}
                         </select>
-                        <InputError message={errors.zona_departamento} className="mt-2" />
+                        <InputError
+                            message={errors.zona_departamento}
+                            className="mt-2"
+                        />
                     </div>
 
-                    <div className="col-span-2 md:col-span-2 border-t pt-4">
-                          <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Geo-referenciación (Opcional)</h4>
+                    <div className="col-span-2 border-t pt-4 md:col-span-2">
+                        <h4 className="mb-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            Geo-referenciación (Opcional)
+                        </h4>
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -396,45 +521,68 @@ function CreateEdificioModal({ show, onClose, options = {} }) {
                             id="lng"
                             className="mt-1 block w-full"
                             value={data.longitud}
-                            onChange={(e) => setData('longitud', e.target.value)}
+                            onChange={(e) =>
+                                setData('longitud', e.target.value)
+                            }
                         />
-                        <InputError message={errors.longitud} className="mt-2" />
+                        <InputError
+                            message={errors.longitud}
+                            className="mt-2"
+                        />
                     </div>
 
-                    <div className="col-span-2 md:col-span-2 border-t pt-4">
-                          <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Otros Datos</h4>
+                    <div className="col-span-2 border-t pt-4 md:col-span-2">
+                        <h4 className="mb-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            Otros Datos
+                        </h4>
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
                         <InputLabel htmlFor="cp" value="Código Postal" />
                         <select
                             id="cp"
-                            className="mt-1 block w-full rounded-xl border-gray-300 focus:border-brand-orange focus:ring-brand-orange shadow-sm text-sm font-semibold"
+                            className="mt-1 block w-full rounded-xl border-gray-300 text-sm font-semibold shadow-sm focus:border-brand-orange focus:ring-brand-orange"
                             value={data.codigo_postal}
-                            onChange={(e) => setData('codigo_postal', e.target.value)}
+                            onChange={(e) =>
+                                setData('codigo_postal', e.target.value)
+                            }
                         >
-                            <option value="">Seleccione Código Postal...</option>
-                            {(options.codigos_postales || []).map(cp => (
-                                <option key={cp} value={cp}>{cp}</option>
+                            <option value="">
+                                Seleccione Código Postal...
+                            </option>
+                            {(options.codigos_postales || []).map((cp) => (
+                                <option key={cp} value={cp}>
+                                    {cp}
+                                </option>
                             ))}
                         </select>
-                        <InputError message={errors.codigo_postal} className="mt-2" />
+                        <InputError
+                            message={errors.codigo_postal}
+                            className="mt-2"
+                        />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
                         <InputLabel htmlFor="orientacion" value="Orientación" />
                         <select
                             id="orientacion"
-                            className="mt-1 block w-full rounded-xl border-gray-300 focus:border-brand-orange focus:ring-brand-orange shadow-sm text-sm font-semibold"
+                            className="mt-1 block w-full rounded-xl border-gray-300 text-sm font-semibold shadow-sm focus:border-brand-orange focus:ring-brand-orange"
                             value={data.orientacion}
-                            onChange={(e) => setData('orientacion', e.target.value)}
+                            onChange={(e) =>
+                                setData('orientacion', e.target.value)
+                            }
                         >
                             <option value="">Seleccione Orientación...</option>
-                            {(options.orientaciones || []).map(o => (
-                                <option key={o} value={o}>{o}</option>
+                            {(options.orientaciones || []).map((o) => (
+                                <option key={o} value={o}>
+                                    {o}
+                                </option>
                             ))}
                         </select>
-                        <InputError message={errors.orientacion} className="mt-2" />
+                        <InputError
+                            message={errors.orientacion}
+                            className="mt-2"
+                        />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -452,21 +600,30 @@ function CreateEdificioModal({ show, onClose, options = {} }) {
                         <InputLabel htmlFor="letra_zona" value="Letra Zona" />
                         <select
                             id="letra_zona"
-                            className="mt-1 block w-full rounded-xl border-gray-300 focus:border-brand-orange focus:ring-brand-orange shadow-sm text-sm font-semibold"
+                            className="mt-1 block w-full rounded-xl border-gray-300 text-sm font-semibold shadow-sm focus:border-brand-orange focus:ring-brand-orange"
                             value={data.letra_zona}
-                            onChange={(e) => setData('letra_zona', e.target.value)}
+                            onChange={(e) =>
+                                setData('letra_zona', e.target.value)
+                            }
                         >
                             <option value="">Seleccione Letra Zona...</option>
-                            {(options.letras_zona || []).map(lz => (
-                                <option key={lz} value={lz}>{lz}</option>
+                            {(options.letras_zona || []).map((lz) => (
+                                <option key={lz} value={lz}>
+                                    {lz}
+                                </option>
                             ))}
                         </select>
-                        <InputError message={errors.letra_zona} className="mt-2" />
+                        <InputError
+                            message={errors.letra_zona}
+                            className="mt-2"
+                        />
                     </div>
                 </div>
 
                 <div className="mt-10 flex justify-end gap-3 border-t pt-6">
-                    <SecondaryButton onClick={onClose} disabled={processing}>Cancelar</SecondaryButton>
+                    <SecondaryButton onClick={onClose} disabled={processing}>
+                        Cancelar
+                    </SecondaryButton>
                     <PrimaryButton disabled={processing}>
                         {processing ? 'Creando...' : 'Crear Edificio'}
                     </PrimaryButton>
@@ -481,36 +638,70 @@ function ViewEdificioModal({ show, onClose, edificio }) {
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl">
             <div className="p-6">
-                <div className="flex justify-between items-start mb-6">
+                <div className="mb-6 flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-orange-50 text-brand-orange flex items-center justify-center text-xl shadow-sm border border-orange-100">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-orange-100 bg-orange-50 text-xl text-brand-orange shadow-sm">
                             <i className="fas fa-info-circle"></i>
                         </div>
                         <div>
-                            <h3 className="text-xl font-black text-gray-900">Detalles del Edificio</h3>
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">CUI: {edificio.cui}</p>
+                            <h3 className="text-xl font-black text-gray-900">
+                                Detalles del Edificio
+                            </h3>
+                            <p className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                                CUI: {edificio.cui}
+                            </p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><i className="fas fa-times"></i></button>
+                    <button
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-gray-600"
+                    >
+                        <i className="fas fa-times"></i>
+                    </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <DetailItem icon="fas fa-map-marker-alt" label="Ubicación" value={`${edificio.calle} ${edificio.numero_puerta || 'S/N'}`} />
-                    <DetailItem icon="fas fa-city" label="Localidad / Depto" value={`${edificio.localidad} - ${edificio.zona_departamento}`} />
-                    <DetailItem icon="fas fa-mail-bulk" label="Código Postal" value={edificio.codigo_postal || 'N/A'} />
-                    <DetailItem icon="fas fa-compass" label="Coordenadas" value={`${edificio.latitud || '?'}, ${edificio.longitud || '?'}`} />
+                <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <DetailItem
+                        icon="fas fa-map-marker-alt"
+                        label="Ubicación"
+                        value={`${edificio.calle} ${edificio.numero_puerta || 'S/N'}`}
+                    />
+                    <DetailItem
+                        icon="fas fa-city"
+                        label="Localidad / Depto"
+                        value={`${edificio.localidad} - ${edificio.zona_departamento}`}
+                    />
+                    <DetailItem
+                        icon="fas fa-mail-bulk"
+                        label="Código Postal"
+                        value={edificio.codigo_postal || 'N/A'}
+                    />
+                    <DetailItem
+                        icon="fas fa-compass"
+                        label="Coordenadas"
+                        value={`${edificio.latitud || '?'}, ${edificio.longitud || '?'}`}
+                    />
                 </div>
 
                 <div className="border-t pt-6">
-                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Establecimientos que comparten este edificio</h4>
+                    <h4 className="mb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                        Establecimientos que comparten este edificio
+                    </h4>
                     <div className="space-y-3">
-                        {edificio.establecimientos.map(est => (
-                            <div key={est.id} className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex justify-between items-center group hover:border-brand-orange transition-colors">
+                        {edificio.establecimientos.map((est) => (
+                            <div
+                                key={est.id}
+                                className="group flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 p-4 transition-colors hover:border-brand-orange"
+                            >
                                 <div>
-                                    <p className="text-xs font-black text-gray-800 leading-none mb-1">{est.nombre}</p>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase">CUE: {est.cue}</p>
+                                    <p className="mb-1 text-xs font-black leading-none text-gray-800">
+                                        {est.nombre}
+                                    </p>
+                                    <p className="text-[10px] font-bold uppercase text-gray-400">
+                                        CUE: {est.cue}
+                                    </p>
                                 </div>
-                                <i className="fas fa-chevron-right text-gray-200 group-hover:text-brand-orange transition-colors"></i>
+                                <i className="fas fa-chevron-right text-gray-200 transition-colors group-hover:text-brand-orange"></i>
                             </div>
                         ))}
                     </div>
@@ -525,26 +716,43 @@ function ViewEdificioModal({ show, onClose, edificio }) {
 }
 
 function EditEdificioModal({ show, onClose, edificio, options = {} }) {
-    if (!edificio) return null;
-
     const { data, setData, patch, processing, errors, reset } = useForm({
-        cui: edificio.cui || '',
-        calle: edificio.calle || '',
-        numero_puerta: edificio.numero_puerta || '',
-        localidad: edificio.localidad || '',
-        zona_departamento: edificio.zona_departamento || '',
-        codigo_postal: edificio.codigo_postal || '',
-        latitud: edificio.latitud || '',
-        longitud: edificio.longitud || '',
-        letra_zona: edificio.letra_zona || '',
-        orientacion: edificio.orientacion || '',
-        te_voip: edificio.te_voip || '',
-        cue_cabecera: edificio.cabecera_cue || '',
+        cui: edificio?.cui || '',
+        calle: edificio?.calle || '',
+        numero_puerta: edificio?.numero_puerta || '',
+        localidad: edificio?.localidad || '',
+        zona_departamento: edificio?.zona_departamento || '',
+        codigo_postal: edificio?.codigo_postal || '',
+        latitud: edificio?.latitud || '',
+        longitud: edificio?.longitud || '',
+        letra_zona: edificio?.letra_zona || '',
+        orientacion: edificio?.orientacion || '',
+        te_voip: edificio?.te_voip || '',
+        cue_cabecera: edificio?.cabecera_cue || '',
     });
 
     const [detectedNombre, setDetectedNombre] = useState('');
     const [detectedCui, setDetectedCui] = useState(null);
     const [cueStatus, setCueStatus] = useState('idle'); // 'idle' | 'loading' | 'found_local' | 'found_external' | 'not_found'
+
+    useEffect(() => {
+        if (show && edificio) {
+            setData({
+                cui: edificio.cui || '',
+                calle: edificio.calle || '',
+                numero_puerta: edificio.numero_puerta || '',
+                localidad: edificio.localidad || '',
+                zona_departamento: edificio.zona_departamento || '',
+                codigo_postal: edificio.codigo_postal || '',
+                latitud: edificio.latitud || '',
+                longitud: edificio.longitud || '',
+                letra_zona: edificio.letra_zona || '',
+                orientacion: edificio.orientacion || '',
+                te_voip: edificio.te_voip || '',
+                cue_cabecera: edificio.cabecera_cue || '',
+            });
+        }
+    }, [edificio, show, setData]);
 
     useEffect(() => {
         const cueStr = String(data.cue_cabecera).trim();
@@ -556,18 +764,20 @@ function EditEdificioModal({ show, onClose, edificio, options = {} }) {
         }
 
         // 1. Check if it's the current cabecera (eager-loaded)
-        if (cueStr === String(edificio.cabecera_cue)) {
-            setDetectedNombre(edificio.cabecera?.nombre || 'Sin Nombre');
-            setDetectedCui(edificio.cui);
+        if (cueStr === String(edificio?.cabecera_cue)) {
+            setDetectedNombre(edificio?.cabecera?.nombre || 'Sin Nombre');
+            setDetectedCui(edificio?.cui);
             setCueStatus('found_local');
             return;
         }
 
         // 2. Check if it is in the current building's establishments
-        const localEst = edificio.establecimientos?.find(e => String(e.cue) === cueStr);
+        const localEst = edificio?.establecimientos?.find(
+            (e) => String(e.cue) === cueStr,
+        );
         if (localEst) {
             setDetectedNombre(localEst.nombre);
-            setDetectedCui(edificio.cui);
+            setDetectedCui(edificio?.cui);
             setCueStatus('found_local');
             return;
         }
@@ -577,12 +787,14 @@ function EditEdificioModal({ show, onClose, edificio, options = {} }) {
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
-            fetch(route('api.lookup-cue', cueStr), { signal: controller.signal })
-                .then(res => {
+            fetch(route('api.lookup-cue', cueStr), {
+                signal: controller.signal,
+            })
+                .then((res) => {
                     if (!res.ok) throw new Error();
                     return res.json();
                 })
-                .then(res => {
+                .then((res) => {
                     if (res && res.nombre) {
                         setDetectedNombre(res.nombre);
                         setDetectedCui(res.cui);
@@ -608,6 +820,8 @@ function EditEdificioModal({ show, onClose, edificio, options = {} }) {
         };
     }, [data.cue_cabecera, edificio]);
 
+    if (!edificio) return null;
+
     const submit = (e) => {
         e.preventDefault();
         patch(route('administrativos.edificios.update', edificio.id), {
@@ -620,41 +834,49 @@ function EditEdificioModal({ show, onClose, edificio, options = {} }) {
 
     const renderDetectedName = () => {
         if (!data.cue_cabecera) {
-            return <span className="text-gray-400 normal-case font-medium">Ingrese un CUE de cabecera</span>;
+            return (
+                <span className="font-medium normal-case text-gray-400">
+                    Ingrese un CUE de cabecera
+                </span>
+            );
         }
         if (cueStatus === 'loading') {
             return (
-                <span className="text-gray-400 font-medium flex items-center gap-1.5 animate-pulse">
+                <span className="flex animate-pulse items-center gap-1.5 font-medium text-gray-400">
                     <i className="fas fa-spinner fa-spin"></i> Buscando CUE...
                 </span>
             );
         }
         if (cueStatus === 'found_local') {
             return (
-                <span className="text-green-600 font-extrabold flex items-center gap-1.5">
+                <span className="flex items-center gap-1.5 font-extrabold text-green-600">
                     <i className="fas fa-check-circle"></i> {detectedNombre}
                 </span>
             );
         }
         if (cueStatus === 'found_external') {
             return (
-                <span className="text-orange-600 font-bold flex flex-col gap-1">
-                    <span className="flex items-center gap-1.5 text-orange-600 font-extrabold">
-                        <i className="fas fa-exclamation-triangle"></i> {detectedNombre}
+                <span className="flex flex-col gap-1 font-bold text-orange-600">
+                    <span className="flex items-center gap-1.5 font-extrabold text-orange-600">
+                        <i className="fas fa-exclamation-triangle"></i>{' '}
+                        {detectedNombre}
                     </span>
-                    <span className="text-[10px] text-orange-500/80 font-medium normal-case leading-tight">
-                        * CUE válido pero no pertenece a este edificio actualmente (asociado a CUI {detectedCui}). Se actualizará la cabecera del edificio.
+                    <span className="text-[10px] font-medium normal-case leading-tight text-orange-500/80">
+                        * CUE válido pero no pertenece a este edificio
+                        actualmente (asociado a CUI {detectedCui}). Se
+                        actualizará la cabecera del edificio.
                     </span>
                 </span>
             );
         }
         if (cueStatus === 'not_found') {
             return (
-                <span className="text-red-600 font-bold flex flex-col gap-1">
+                <span className="flex flex-col gap-1 font-bold text-red-600">
                     <span className="flex items-center gap-1.5 text-[11px] leading-tight">
-                        <i className="fas fa-times-circle"></i> CUE no registrado en el sistema
+                        <i className="fas fa-times-circle"></i> CUE no
+                        registrado en el sistema
                     </span>
-                    <span className="text-[9px] text-red-500/80 font-medium normal-case leading-tight">
+                    <span className="text-[9px] font-medium normal-case leading-tight text-red-500/80">
                         * Verifique el número ingresado.
                     </span>
                 </span>
@@ -666,22 +888,26 @@ function EditEdificioModal({ show, onClose, edificio, options = {} }) {
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl">
             <form onSubmit={submit} className="p-6">
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="w-12 h-12 rounded-2xl bg-orange-50 text-brand-orange flex items-center justify-center text-xl shadow-sm border border-orange-100">
+                <div className="mb-8 flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-orange-100 bg-orange-50 text-xl text-brand-orange shadow-sm">
                         <i className="fas fa-edit"></i>
                     </div>
                     <div>
-                        <h3 className="text-xl font-black text-gray-900 uppercase">Editar Edificio</h3>
-                        <p className="text-[10px] font-bold text-gray-400 tracking-widest">ACTUALIZACIÓN DE REGISTRO</p>
+                        <h3 className="text-xl font-black uppercase text-gray-900">
+                            Editar Edificio
+                        </h3>
+                        <p className="text-[10px] font-bold tracking-widest text-gray-400">
+                            ACTUALIZACIÓN DE REGISTRO
+                        </p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
                     <div className="col-span-2 md:col-span-1">
                         <InputLabel htmlFor="cui" value="CUI" />
                         <TextInput
                             id="cui"
-                            className="mt-1 block w-full bg-orange-50/50 border-orange-100"
+                            className="mt-1 block w-full border-orange-100 bg-orange-50/50"
                             value={data.cui}
                             onChange={(e) => setData('cui', e.target.value)}
                             required
@@ -690,28 +916,41 @@ function EditEdificioModal({ show, onClose, edificio, options = {} }) {
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
-                        <InputLabel htmlFor="cue_cabecera" value="CUE de la Cabecera" />
+                        <InputLabel
+                            htmlFor="cue_cabecera"
+                            value="CUE de la Cabecera"
+                        />
                         <TextInput
                             id="cue_cabecera"
-                            className="mt-1 block w-full bg-orange-50 border-orange-200 font-black text-brand-orange"
+                            className="mt-1 block w-full border-orange-200 bg-orange-50 font-black text-brand-orange"
                             placeholder="Ingrese CUE para actualizar nombre"
                             value={data.cue_cabecera}
-                            onChange={(e) => setData('cue_cabecera', e.target.value)}
+                            onChange={(e) =>
+                                setData('cue_cabecera', e.target.value)
+                            }
                         />
-                        <div className="mt-2 p-2.5 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 leading-none">Nombre Detectado:</p>
+                        <div className="mt-2 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-2.5">
+                            <p className="mb-1.5 text-[10px] font-black uppercase leading-none tracking-widest text-gray-400">
+                                Nombre Detectado:
+                            </p>
                             <p className="text-xs font-black uppercase leading-normal">
                                 {renderDetectedName()}
                             </p>
                         </div>
-                        <p className="text-[9px] text-gray-400 mt-1 uppercase font-bold italic">
-                            * Actualizará el establecimiento cabecera del edificio (edificios.cabecera_cue).
+                        <p className="mt-1 text-[9px] font-bold uppercase italic text-gray-400">
+                            * Actualizará el establecimiento cabecera del
+                            edificio (edificios.cabecera_cue).
                         </p>
-                        <InputError message={errors.cue_cabecera} className="mt-2" />
+                        <InputError
+                            message={errors.cue_cabecera}
+                            className="mt-2"
+                        />
                     </div>
 
-                    <div className="col-span-2 md:col-span-2 border-t pt-4">
-                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Información de Ubicación</h4>
+                    <div className="col-span-2 border-t pt-4 md:col-span-2">
+                        <h4 className="mb-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            Información de Ubicación
+                        </h4>
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -732,9 +971,14 @@ function EditEdificioModal({ show, onClose, edificio, options = {} }) {
                             id="numero"
                             className="mt-1 block w-full"
                             value={data.numero_puerta}
-                            onChange={(e) => setData('numero_puerta', e.target.value)}
+                            onChange={(e) =>
+                                setData('numero_puerta', e.target.value)
+                            }
                         />
-                        <InputError message={errors.numero_puerta} className="mt-2" />
+                        <InputError
+                            message={errors.numero_puerta}
+                            className="mt-2"
+                        />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -743,31 +987,45 @@ function EditEdificioModal({ show, onClose, edificio, options = {} }) {
                             id="localidad"
                             className="mt-1 block w-full"
                             value={data.localidad}
-                            onChange={(e) => setData('localidad', e.target.value)}
+                            onChange={(e) =>
+                                setData('localidad', e.target.value)
+                            }
                             required
                         />
-                        <InputError message={errors.localidad} className="mt-2" />
+                        <InputError
+                            message={errors.localidad}
+                            className="mt-2"
+                        />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
                         <InputLabel htmlFor="depto" value="Departamento" />
                         <select
                             id="depto"
-                            className="mt-1 block w-full rounded-xl border-gray-300 focus:border-brand-orange focus:ring-brand-orange shadow-sm text-sm font-semibold"
+                            className="mt-1 block w-full rounded-xl border-gray-300 text-sm font-semibold shadow-sm focus:border-brand-orange focus:ring-brand-orange"
                             value={data.zona_departamento}
-                            onChange={(e) => setData('zona_departamento', e.target.value)}
+                            onChange={(e) =>
+                                setData('zona_departamento', e.target.value)
+                            }
                             required
                         >
                             <option value="">Seleccione Departamento...</option>
-                            {(options.zonas || []).map(z => (
-                                <option key={z} value={z}>{z}</option>
+                            {(options.zonas || []).map((z) => (
+                                <option key={z} value={z}>
+                                    {z}
+                                </option>
                             ))}
                         </select>
-                        <InputError message={errors.zona_departamento} className="mt-2" />
+                        <InputError
+                            message={errors.zona_departamento}
+                            className="mt-2"
+                        />
                     </div>
 
-                    <div className="col-span-2 md:col-span-2 border-t pt-4">
-                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Geo-referenciación</h4>
+                    <div className="col-span-2 border-t pt-4 md:col-span-2">
+                        <h4 className="mb-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            Geo-referenciación
+                        </h4>
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
@@ -787,49 +1045,78 @@ function EditEdificioModal({ show, onClose, edificio, options = {} }) {
                             id="lng_edit"
                             className="mt-1 block w-full"
                             value={data.longitud}
-                            onChange={(e) => setData('longitud', e.target.value)}
+                            onChange={(e) =>
+                                setData('longitud', e.target.value)
+                            }
                         />
-                        <InputError message={errors.longitud} className="mt-2" />
+                        <InputError
+                            message={errors.longitud}
+                            className="mt-2"
+                        />
                     </div>
 
-                    <div className="col-span-2 md:col-span-2 border-t pt-4">
-                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Otros Datos</h4>
+                    <div className="col-span-2 border-t pt-4 md:col-span-2">
+                        <h4 className="mb-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            Otros Datos
+                        </h4>
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
                         <InputLabel htmlFor="cp_edit" value="Código Postal" />
                         <select
                             id="cp_edit"
-                            className="mt-1 block w-full rounded-xl border-gray-300 focus:border-brand-orange focus:ring-brand-orange shadow-sm text-sm font-semibold"
+                            className="mt-1 block w-full rounded-xl border-gray-300 text-sm font-semibold shadow-sm focus:border-brand-orange focus:ring-brand-orange"
                             value={data.codigo_postal}
-                            onChange={(e) => setData('codigo_postal', e.target.value)}
+                            onChange={(e) =>
+                                setData('codigo_postal', e.target.value)
+                            }
                         >
-                            <option value="">Seleccione Código Postal...</option>
-                            {(options.codigos_postales || []).map(cp => (
-                                <option key={cp} value={cp}>{cp}</option>
+                            <option value="">
+                                Seleccione Código Postal...
+                            </option>
+                            {(options.codigos_postales || []).map((cp) => (
+                                <option key={cp} value={cp}>
+                                    {cp}
+                                </option>
                             ))}
                         </select>
-                        <InputError message={errors.codigo_postal} className="mt-2" />
+                        <InputError
+                            message={errors.codigo_postal}
+                            className="mt-2"
+                        />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
-                        <InputLabel htmlFor="orientacion_edit" value="Orientación" />
+                        <InputLabel
+                            htmlFor="orientacion_edit"
+                            value="Orientación"
+                        />
                         <select
                             id="orientacion_edit"
-                            className="mt-1 block w-full rounded-xl border-gray-300 focus:border-brand-orange focus:ring-brand-orange shadow-sm text-sm font-semibold"
+                            className="mt-1 block w-full rounded-xl border-gray-300 text-sm font-semibold shadow-sm focus:border-brand-orange focus:ring-brand-orange"
                             value={data.orientacion}
-                            onChange={(e) => setData('orientacion', e.target.value)}
+                            onChange={(e) =>
+                                setData('orientacion', e.target.value)
+                            }
                         >
                             <option value="">Seleccione Orientación...</option>
-                            {(options.orientaciones || []).map(o => (
-                                <option key={o} value={o}>{o}</option>
+                            {(options.orientaciones || []).map((o) => (
+                                <option key={o} value={o}>
+                                    {o}
+                                </option>
                             ))}
                         </select>
-                        <InputError message={errors.orientacion} className="mt-2" />
+                        <InputError
+                            message={errors.orientacion}
+                            className="mt-2"
+                        />
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
-                        <InputLabel htmlFor="te_voip_edit" value="Teléfono VoIP" />
+                        <InputLabel
+                            htmlFor="te_voip_edit"
+                            value="Teléfono VoIP"
+                        />
                         <TextInput
                             id="te_voip_edit"
                             className="mt-1 block w-full"
@@ -840,24 +1127,36 @@ function EditEdificioModal({ show, onClose, edificio, options = {} }) {
                     </div>
 
                     <div className="col-span-2 md:col-span-1">
-                        <InputLabel htmlFor="letra_zona_edit" value="Letra Zona" />
+                        <InputLabel
+                            htmlFor="letra_zona_edit"
+                            value="Letra Zona"
+                        />
                         <select
                             id="letra_zona_edit"
-                            className="mt-1 block w-full rounded-xl border-gray-300 focus:border-brand-orange focus:ring-brand-orange shadow-sm text-sm font-semibold"
+                            className="mt-1 block w-full rounded-xl border-gray-300 text-sm font-semibold shadow-sm focus:border-brand-orange focus:ring-brand-orange"
                             value={data.letra_zona}
-                            onChange={(e) => setData('letra_zona', e.target.value)}
+                            onChange={(e) =>
+                                setData('letra_zona', e.target.value)
+                            }
                         >
                             <option value="">Seleccione Letra Zona...</option>
-                            {(options.letras_zona || []).map(lz => (
-                                <option key={lz} value={lz}>{lz}</option>
+                            {(options.letras_zona || []).map((lz) => (
+                                <option key={lz} value={lz}>
+                                    {lz}
+                                </option>
                             ))}
                         </select>
-                        <InputError message={errors.letra_zona} className="mt-2" />
+                        <InputError
+                            message={errors.letra_zona}
+                            className="mt-2"
+                        />
                     </div>
                 </div>
 
                 <div className="mt-10 flex justify-end gap-3 border-t pt-6">
-                    <SecondaryButton onClick={onClose} disabled={processing}>Cancelar</SecondaryButton>
+                    <SecondaryButton onClick={onClose} disabled={processing}>
+                        Cancelar
+                    </SecondaryButton>
                     <PrimaryButton disabled={processing}>
                         {processing ? 'Guardando...' : 'Guardar Cambios'}
                     </PrimaryButton>
@@ -869,21 +1168,26 @@ function EditEdificioModal({ show, onClose, edificio, options = {} }) {
 
 function DetailItem({ icon, label, value }) {
     return (
-        <div className="flex gap-4 items-start">
-            <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-brand-orange border border-orange-100 shrink-0">
+        <div className="flex items-start gap-4">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-orange-100 bg-orange-50 text-brand-orange">
                 <i className={icon}></i>
             </div>
             <div>
-                <p className="text-[10px] font-black text-black/40 uppercase tracking-widest leading-none mb-1">{label}</p>
-                <p className="text-sm font-black text-black leading-tight">{value}</p>
+                <p className="mb-1 text-[10px] font-black uppercase leading-none tracking-widest text-black/40">
+                    {label}
+                </p>
+                <p className="text-sm font-black leading-tight text-black">
+                    {value}
+                </p>
             </div>
         </div>
     );
 }
 
 const getEdificioAmbito = (edificio) => {
-    if (!edificio.establecimientos || edificio.establecimientos.length === 0) return 'S/D';
-    
+    if (!edificio.establecimientos || edificio.establecimientos.length === 0)
+        return 'S/D';
+
     // Buscar en todos los establecimientos del edificio
     for (const est of edificio.establecimientos) {
         if (est.modalidades && est.modalidades.length > 0) {

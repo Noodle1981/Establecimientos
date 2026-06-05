@@ -5,26 +5,26 @@ export default function Pagination({ links }) {
 
     return (
         <div className="flex flex-wrap gap-1">
-            {links.map((link, key) => (
+            {links.map((link, key) =>
                 link.url === null ? (
                     <div
                         key={key}
-                        className="px-3 py-1.5 text-[10px] text-gray-400 border rounded-lg bg-gray-50 cursor-default font-black uppercase tracking-tighter"
+                        className="cursor-default rounded-lg border bg-gray-50 px-3 py-1.5 text-[10px] font-black uppercase tracking-tighter text-gray-400"
                         dangerouslySetInnerHTML={{ __html: link.label }}
                     />
                 ) : (
                     <Link
                         key={key}
                         href={link.url}
-                        className={`px-3 py-1.5 text-[10px] border rounded-lg transition-colors font-black uppercase tracking-tighter ${
-                            link.active 
-                                ? 'bg-brand-orange text-white border-brand-orange' 
-                                : 'bg-white text-gray-700 hover:bg-orange-50 hover:border-brand-orange'
+                        className={`rounded-lg border px-3 py-1.5 text-[10px] font-black uppercase tracking-tighter transition-colors ${
+                            link.active
+                                ? 'border-brand-orange bg-brand-orange text-white'
+                                : 'bg-white text-gray-700 hover:border-brand-orange hover:bg-orange-50'
                         }`}
                         dangerouslySetInnerHTML={{ __html: link.label }}
                     />
-                )
-            ))}
+                ),
+            )}
         </div>
     );
 }
