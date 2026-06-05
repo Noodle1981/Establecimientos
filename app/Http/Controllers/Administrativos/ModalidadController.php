@@ -161,7 +161,7 @@ class ModalidadController extends Controller
      */
     public function lookupEdificio(string $cui)
     {
-        $edificio = Edificio::where('cui', $cui)->first();
+        $edificio = Edificio::with('cabecera')->where('cui', $cui)->first();
         if (!$edificio) return response()->json(null);
 
         return response()->json([
@@ -169,6 +169,7 @@ class ModalidadController extends Controller
             'localidad' => $edificio->localidad,
             'zona_departamento' => $edificio->zona_departamento,
             'numero_puerta' => $edificio->numero_puerta,
+            'cabecera_nombre' => $edificio->cabecera?->nombre,
         ]);
     }
 

@@ -388,10 +388,15 @@ function EditModalidadModal({ show, onClose, modalidad, options, nombresEdificio
         observaciones: '',
     });
 
+    const [edificioInfo, setEdificioInfo] = useState({
+        departamento: '',
+        cabecera: ''
+    });
+
     useEffect(() => {
         if (show && modalidad) {
             setData({
-                cui: modalidad.establecimiento.edificio.cui || '',
+                cui: modalidad.establecimiento.edificio?.cui || '',
                 cue: modalidad.establecimiento.cue || '',
                 nombre_establecimiento: modalidad.establecimiento.nombre || '',
                 nivel_educativo: modalidad.nivel_educativo || '',
@@ -404,8 +409,60 @@ function EditModalidadModal({ show, onClose, modalidad, options, nombresEdificio
                 validado: !!modalidad.validado,
                 observaciones: modalidad.establecimiento.observaciones || '',
             });
+
+            setEdificioInfo({
+                departamento: modalidad.establecimiento.edificio?.zona_departamento || '',
+                cabecera: nombresEdificios[modalidad.establecimiento.edificio_id] || 'Sin Nombre'
+            });
         }
     }, [modalidad, show]);
+
+    useEffect(() => {
+        const cuiStr = String(data.cui).trim();
+        if (!cuiStr) {
+            setEdificioInfo({ departamento: '', cabecera: '' });
+            return;
+        }
+
+        // If it matches the original CUI of this building
+        if (modalidad?.establecimiento?.edificio?.cui && cuiStr === String(modalidad.establecimiento.edificio.cui)) {
+            setEdificioInfo({
+                departamento: modalidad.establecimiento.edificio?.zona_departamento || '',
+                cabecera: nombresEdificios[modalidad.establecimiento.edificio_id] || 'Sin Nombre'
+            });
+            return;
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+            fetch(route('api.lookup-edificio', cuiStr), { signal: controller.signal })
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.json();
+                })
+                .then(res => {
+                    if (res) {
+                        setEdificioInfo({
+                            departamento: res.zona_departamento || 'Sin Departamento',
+                            cabecera: res.cabecera_nombre || 'Edificio sin cabecera asignada'
+                        });
+                    } else {
+                        setEdificioInfo({
+                            departamento: 'Nuevo CUI (No registrado)',
+                            cabecera: 'Se creará un nuevo edificio al guardar'
+                        });
+                    }
+                })
+                .catch(() => {
+                    // Ignore abort
+                });
+        }, 300);
+
+        return () => {
+            clearTimeout(timeoutId);
+            controller.abort();
+        };
+    }, [data.cui, modalidad, nombresEdificios]);
 
     if (!modalidad) return null;
 
@@ -424,12 +481,22 @@ function EditModalidadModal({ show, onClose, modalidad, options, nombresEdificio
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                     <div>
                         <ModalInput label="CUI Edificio" value={data.cui} onChange={v => setData('cui', v)} error={errors.cui} />
-                        {modalidad?.establecimiento?.edificio_id && (
-                            <div className="mt-1.5 px-3 py-1.5 bg-orange-50/50 rounded-xl border border-orange-100/50 text-[10px] font-bold text-gray-600">
-                                <span className="text-gray-400 font-black uppercase text-[8px] tracking-widest block mb-0.5">Establecimiento Cabecera</span>
-                                <span className="text-brand-orange font-black text-xs leading-none truncate block" title={nombresEdificios[modalidad.establecimiento.edificio_id] || 'Sin Nombre'}>
-                                    {nombresEdificios[modalidad.establecimiento.edificio_id] || 'Sin Nombre'}
-                                </span>
+                        {data.cui && (
+                            <div className="mt-1.5 px-3 py-1.5 bg-orange-50/50 rounded-xl border border-orange-100/50 text-[10px] font-bold text-gray-600 space-y-1">
+                                <div>
+                                    <span className="text-gray-400 font-black uppercase text-[8px] tracking-widest block mb-0.5">Establecimiento Cabecera</span>
+                                    <span className="text-brand-orange font-black text-xs leading-none truncate block" title={edificioInfo.cabecera}>
+                                        {edificioInfo.cabecera || 'Sin Nombre'}
+                                    </span>
+                                </div>
+                                {edificioInfo.departamento && (
+                                    <div className="pt-1 border-t border-orange-100/40">
+                                        <span className="text-gray-400 font-black uppercase text-[8px] tracking-widest block mb-0.5">Ubicación del CUI</span>
+                                        <span className="text-gray-700 font-extrabold text-[11px] uppercase leading-none block">
+                                            <i className="fas fa-map-marker-alt text-brand-orange mr-1"></i> {edificioInfo.departamento}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
