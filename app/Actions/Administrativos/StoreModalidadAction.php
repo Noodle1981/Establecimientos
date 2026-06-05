@@ -38,6 +38,11 @@ class StoreModalidadAction
                 ]
             );
 
+            // Si el edificio aún no tiene cabecera, este nuevo establecimiento es la cabecera
+            if (is_null($edificio->cabecera_cue)) {
+                $edificio->update(['cabecera_cue' => $establecimiento->cue]);
+            }
+
             // 3. Modalidad
             return Modalidad::create([
                 'establecimiento_id' => $establecimiento->id,

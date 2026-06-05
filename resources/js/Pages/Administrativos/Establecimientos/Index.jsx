@@ -13,40 +13,18 @@ import debounce from 'lodash/debounce';
 // Función para obtener el nombre descriptivo del edificio
 const getNombreEdificio = (item, mapa = {}) => {
     try {
-        if (!item || !item.establecimiento) return null;
-        
-        const est = item.establecimiento;
-
-        // 1. Prioridad principal: Nombre de la escuela principal del edificio físico (CUE Edificio Principal)
-        if (est.cue_edificio_principal && mapa[est.cue_edificio_principal]) {
-            return mapa[est.cue_edificio_principal];
+        const edificioId = item.establecimiento?.edificio_id;
+        if (edificioId && mapa[edificioId]) {
+            return mapa[edificioId];
         }
-
-        // 2. Prioridad: Nombre de la relación cabecera (Eloquent) si es distinta al establecimiento mismo
-        if (est.cabecera && est.cabecera.nombre && est.cabecera.cue !== est.cue) {
-            return est.cabecera.nombre;
-        }
-
-        // 3. Prioridad: Cabecera (Nombre o Código)
-        const cab = est.establecimiento_cabecera;
-        if (cab) {
-            if (mapa[cab]) return mapa[cab];
-            if (isNaN(cab)) return cab;
-        }
-
-        // 4. Prioridad: Nombre directo del edificio (si existiera en la DB)
-        if (est.edificio && est.edificio.nombre) {
-            return est.edificio.nombre;
-        }
-
-        // 5. Fallback final: Relación cabecera Eloquent
-        if (est.cabecera && est.cabecera.nombre) {
-            return est.cabecera.nombre;
-        }
+        // Fallback: nombre del establecimiento si no hay mapa
+        return item.establecimiento?.edificio?.cabecera?.nombre
+            ?? item.establecimiento?.nombre
+            ?? null;
     } catch (e) {
-        console.error("Error en getNombreEdificio:", e);
+        console.error('Error en getNombreEdificio:', e);
+        return null;
     }
-    return null;
 };
 
 export default function Index({ modalidades, filters, options, nombresEdificios = {} }) {
@@ -446,11 +424,11 @@ function EditModalidadModal({ show, onClose, modalidad, options, nombresEdificio
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                     <div>
                         <ModalInput label="CUI Edificio" value={data.cui} onChange={v => setData('cui', v)} error={errors.cui} />
-                        {modalidad?.establecimiento?.establecimiento_cabecera && (
+                        {modalidad?.establecimiento?.edificio_id && (
                             <div className="mt-1.5 px-3 py-1.5 bg-orange-50/50 rounded-xl border border-orange-100/50 text-[10px] font-bold text-gray-600">
                                 <span className="text-gray-400 font-black uppercase text-[8px] tracking-widest block mb-0.5">Establecimiento Cabecera</span>
-                                <span className="text-brand-orange font-black text-xs leading-none truncate block" title={nombresEdificios[modalidad.establecimiento.establecimiento_cabecera] || 'Sin Nombre'}>
-                                    {nombresEdificios[modalidad.establecimiento.establecimiento_cabecera] || 'Sin Nombre'}
+                                <span className="text-brand-orange font-black text-xs leading-none truncate block" title={nombresEdificios[modalidad.establecimiento.edificio_id] || 'Sin Nombre'}>
+                                    {nombresEdificios[modalidad.establecimiento.edificio_id] || 'Sin Nombre'}
                                 </span>
                             </div>
                         )}

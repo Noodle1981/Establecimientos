@@ -76,6 +76,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/establecimientos/{id}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'destroy'])->name('administrativos.establecimientos.destroy');
         Route::get('/establecimientos/export', [App\Http\Controllers\Administrativos\ModalidadController::class, 'export'])->name('administrativos.establecimientos.export');
         Route::get('/api/lookup-edificio/{cui}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'lookupEdificio'])->name('api.lookup-edificio');
+        Route::get('/api/lookup-cue/{cue}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'lookupCue'])->name('api.lookup-cue');
+
 
         // Instrumentos Legales
         Route::get('/instrumentos', [App\Http\Controllers\Administrativos\ModalidadController::class, 'instrumentosIndex'])->name('administrativos.instrumentos.index');

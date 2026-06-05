@@ -171,4 +171,19 @@ class ModalidadController extends Controller
             'numero_puerta' => $edificio->numero_puerta,
         ]);
     }
+
+    /**
+     * API for CUE lookup.
+     */
+    public function lookupCue(string $cue)
+    {
+        $est = \App\Models\Establecimiento::with('edificio')->where('cue', $cue)->first();
+        if (!$est) return response()->json(null);
+
+        return response()->json([
+            'nombre' => $est->nombre,
+            'edificio_id' => $est->edificio_id,
+            'cui' => $est->edificio?->cui,
+        ]);
+    }
 }

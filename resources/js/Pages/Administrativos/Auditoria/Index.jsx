@@ -21,43 +21,19 @@ export default function Index({ modalidades, stats, filters, nombresEdificios = 
     // Función para obtener el nombre descriptivo del edificio
     const getNombreEdificio = (mod) => {
         try {
-            if (!mod || !mod.establecimiento) return null;
-            
-            const est = mod.establecimiento;
+            const edificioId = mod?.establecimiento?.edificio_id;
             const mapa = nombresEdificios || {};
-            
-            // 1. Prioridad principal: Nombre de la escuela principal del edificio físico (CUE Edificio Principal)
-            if (est.cue_edificio_principal && mapa[est.cue_edificio_principal]) {
-                return mapa[est.cue_edificio_principal];
+            if (edificioId && mapa[edificioId]) {
+                return mapa[edificioId];
             }
-            
-            // 2. Prioridad: Nombre de la relación cabecera (Eloquent) si es distinta al establecimiento mismo
-            if (est.cabecera && est.cabecera.nombre && est.cabecera.cue !== est.cue) {
-                return est.cabecera.nombre;
-            }
-            
-            // 3. Prioridad: Cabecera (Nombre o Código en mapa)
-            const cab = est.establecimiento_cabecera;
-            if (cab) {
-                const shortCab = typeof cab === 'string' || typeof cab === 'number' ? String(cab).substring(0, 7) : '';
-                if (mapa[cab]) return mapa[cab];
-                if (mapa[shortCab]) return mapa[shortCab];
-                if (isNaN(cab)) return cab; // Si es directamente un nombre (texto)
-            }
-            
-            // 4. Prioridad: Nombre directo del edificio (si existiera en la DB)
-            if (est.edificio && est.edificio.nombre) {
-                return est.edificio.nombre;
-            }
-
-            // 5. Fallback final: Relación cabecera Eloquent
-            if (est.cabecera && est.cabecera.nombre) {
-                return est.cabecera.nombre;
-            }
+            // Fallback: nombre de la cabecera en el establecimiento o establecimiento mismo
+            return mod?.establecimiento?.edificio?.cabecera?.nombre
+                ?? mod?.establecimiento?.nombre
+                ?? null;
         } catch (e) {
             console.error("Error en getNombreEdificio:", e);
+            return null;
         }
-        return null;
     };
 
     const handleSearch = (query) => {

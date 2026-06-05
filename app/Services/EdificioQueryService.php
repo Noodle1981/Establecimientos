@@ -13,7 +13,11 @@ class EdificioQueryService
      */
     public function getFilteredQuery(Request $request): Builder
     {
-        $query = Edificio::with(['establecimientos.modalidades', 'establecimientos.cabecera']);
+        $query = Edificio::with([
+            'establecimientos.modalidades',
+            'establecimientos.cabecera',
+            'cabecera',
+        ]);
 
         if ($searchCui = $request->input('search_cui')) {
             $query->where('cui', 'like', '%' . $searchCui . '%');

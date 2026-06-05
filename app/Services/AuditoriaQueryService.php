@@ -153,6 +153,10 @@ class AuditoriaQueryService
      */
     public function getBuildingNamesMap(): \Illuminate\Support\Collection
     {
-        return Establecimiento::pluck('nombre', 'cue');
+        return \App\Models\Edificio::with('cabecera')
+            ->get()
+            ->mapWithKeys(fn($e) => [
+                $e->id => $e->cabecera?->nombre ?? 'Sin Nombre',
+            ]);
     }
 }

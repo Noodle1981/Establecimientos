@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import Pagination from '@/Components/Pagination';
 import Modal from '@/Components/Modal';
 import TextInput from '@/Components/TextInput';
@@ -203,7 +203,7 @@ export default function Index({ edificios, filters, options }) {
                                         </td>
                                         <td className="px-6 py-2">
                                             <span className="text-xs font-black text-black/80 leading-tight line-clamp-2">
-                                                {edificio.establecimientos[0]?.cabecera?.nombre || edificio.establecimientos[0]?.nombre || 'Sin Cabecera'}
+                                                {edificio.cabecera?.nombre || 'Sin Cabecera'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-2">
@@ -519,8 +519,74 @@ function EditEdificioModal({ show, onClose, edificio }) {
         letra_zona: edificio.letra_zona || '',
         orientacion: edificio.orientacion || '',
         te_voip: edificio.te_voip || '',
-        cue_cabecera: edificio.establecimientos?.[0]?.establecimiento_cabecera || edificio.establecimientos?.[0]?.cue || '',
+        cue_cabecera: edificio.cabecera_cue || '',
     });
+
+    const [detectedNombre, setDetectedNombre] = useState('');
+    const [detectedCui, setDetectedCui] = useState(null);
+    const [cueStatus, setCueStatus] = useState('idle'); // 'idle' | 'loading' | 'found_local' | 'found_external' | 'not_found'
+
+    useEffect(() => {
+        const cueStr = String(data.cue_cabecera).trim();
+        if (!cueStr) {
+            setDetectedNombre('');
+            setDetectedCui(null);
+            setCueStatus('idle');
+            return;
+        }
+
+        // 1. Check if it's the current cabecera (eager-loaded)
+        if (cueStr === String(edificio.cabecera_cue)) {
+            setDetectedNombre(edificio.cabecera?.nombre || 'Sin Nombre');
+            setDetectedCui(edificio.cui);
+            setCueStatus('found_local');
+            return;
+        }
+
+        // 2. Check if it is in the current building's establishments
+        const localEst = edificio.establecimientos?.find(e => String(e.cue) === cueStr);
+        if (localEst) {
+            setDetectedNombre(localEst.nombre);
+            setDetectedCui(edificio.cui);
+            setCueStatus('found_local');
+            return;
+        }
+
+        // 3. Otherwise, fetch from the database to see if it is a valid external CUE
+        setCueStatus('loading');
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+            fetch(route('api.lookup-cue', cueStr), { signal: controller.signal })
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.json();
+                })
+                .then(res => {
+                    if (res && res.nombre) {
+                        setDetectedNombre(res.nombre);
+                        setDetectedCui(res.cui);
+                        setCueStatus('found_external');
+                    } else {
+                        setDetectedNombre('');
+                        setDetectedCui(null);
+                        setCueStatus('not_found');
+                    }
+                })
+                .catch(() => {
+                    if (!controller.signal.aborted) {
+                        setDetectedNombre('');
+                        setDetectedCui(null);
+                        setCueStatus('not_found');
+                    }
+                });
+        }, 300); // 300ms debounce
+
+        return () => {
+            clearTimeout(timeoutId);
+            controller.abort();
+        };
+    }, [data.cue_cabecera, edificio]);
 
     const submit = (e) => {
         e.preventDefault();
@@ -530,6 +596,51 @@ function EditEdificioModal({ show, onClose, edificio }) {
                 reset();
             },
         });
+    };
+
+    const renderDetectedName = () => {
+        if (!data.cue_cabecera) {
+            return <span className="text-gray-400 normal-case font-medium">Ingrese un CUE de cabecera</span>;
+        }
+        if (cueStatus === 'loading') {
+            return (
+                <span className="text-gray-400 font-medium flex items-center gap-1.5 animate-pulse">
+                    <i className="fas fa-spinner fa-spin"></i> Buscando CUE...
+                </span>
+            );
+        }
+        if (cueStatus === 'found_local') {
+            return (
+                <span className="text-green-600 font-extrabold flex items-center gap-1.5">
+                    <i className="fas fa-check-circle"></i> {detectedNombre}
+                </span>
+            );
+        }
+        if (cueStatus === 'found_external') {
+            return (
+                <span className="text-orange-600 font-bold flex flex-col gap-1">
+                    <span className="flex items-center gap-1.5 text-orange-600 font-extrabold">
+                        <i className="fas fa-exclamation-triangle"></i> {detectedNombre}
+                    </span>
+                    <span className="text-[10px] text-orange-500/80 font-medium normal-case leading-tight">
+                        * CUE válido pero no pertenece a este edificio actualmente (asociado a CUI {detectedCui}). Se actualizará la cabecera del edificio.
+                    </span>
+                </span>
+            );
+        }
+        if (cueStatus === 'not_found') {
+            return (
+                <span className="text-red-600 font-bold flex flex-col gap-1">
+                    <span className="flex items-center gap-1.5 text-[11px] leading-tight">
+                        <i className="fas fa-times-circle"></i> CUE no registrado en el sistema
+                    </span>
+                    <span className="text-[9px] text-red-500/80 font-medium normal-case leading-tight">
+                        * Verifique el número ingresado.
+                    </span>
+                </span>
+            );
+        }
+        return null;
     };
 
     return (
@@ -570,33 +681,11 @@ function EditEdificioModal({ show, onClose, edificio }) {
                         <div className="mt-2 p-2.5 bg-gray-50 rounded-xl border border-dashed border-gray-200">
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 leading-none">Nombre Detectado:</p>
                             <p className="text-xs font-black uppercase leading-normal">
-                                {(() => {
-                                    const est = edificio.establecimientos?.find(e => String(e.cue) === String(data.cue_cabecera));
-                                    if (est) {
-                                        return (
-                                            <span className="text-green-600 font-extrabold flex items-center gap-1.5">
-                                                <i className="fas fa-check-circle"></i> {est.nombre}
-                                            </span>
-                                        );
-                                    }
-                                    if (!data.cue_cabecera) {
-                                        return <span className="text-gray-400 normal-case font-medium">Ingrese un CUE de cabecera</span>;
-                                    }
-                                    return (
-                                        <span className="text-red-600 font-bold flex flex-col gap-1">
-                                            <span className="flex items-center gap-1 text-[11px] leading-tight">
-                                                <i className="fas fa-exclamation-triangle"></i> CUE no vinculado a este edificio (CUI {edificio.cui})
-                                            </span>
-                                            <span className="text-[9px] text-red-500/80 font-medium normal-case leading-tight">
-                                                * Para solucionarlo administrativamente, reasigne el establecimiento a este edificio en la base de datos.
-                                            </span>
-                                        </span>
-                                    );
-                                })()}
+                                {renderDetectedName()}
                             </p>
                         </div>
                         <p className="text-[9px] text-gray-400 mt-1 uppercase font-bold italic">
-                            * Cambiará el nombre de cabecera en todos los establecimientos vinculados.
+                            * Actualizará el establecimiento cabecera del edificio (edificios.cabecera_cue).
                         </p>
                         <InputError message={errors.cue_cabecera} className="mt-2" />
                     </div>
