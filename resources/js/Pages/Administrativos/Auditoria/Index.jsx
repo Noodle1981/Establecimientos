@@ -681,7 +681,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                     ></i>
                                 </button>
                             </div>
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-4 gap-2">
                                 <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 p-2">
                                     <div className="min-w-0">
                                         <p className="mb-0.5 text-[8px] font-black uppercase text-gray-400">
@@ -765,6 +765,38 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                         >
                                             <i
                                                 className={`fas ${copiedField === 'categoria' ? 'fa-check text-green-500' : 'fa-copy'} text-[9px]`}
+                                            ></i>
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 p-2">
+                                    <div className="min-w-0">
+                                        <p className="mb-0.5 text-[8px] font-black uppercase text-gray-400">
+                                            Sector
+                                        </p>
+                                        <p
+                                            className="truncate text-xs font-black text-gray-800"
+                                            title={modalidad.sector}
+                                        >
+                                            {(modalidad.sector ?? '') !== ''
+                                                ? modalidad.sector
+                                                : 'S/D'}
+                                        </p>
+                                    </div>
+                                    {modalidad.sector && (
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleCopy(
+                                                    modalidad.sector,
+                                                    'sector',
+                                                )
+                                            }
+                                            className="shrink-0 rounded-lg border border-gray-100 bg-white p-1 text-gray-400 shadow-sm transition-all hover:text-brand-orange"
+                                            title="Copiar Sector"
+                                        >
+                                            <i
+                                                className={`fas ${copiedField === 'sector' ? 'fa-check text-green-500' : 'fa-copy'} text-[9px]`}
                                             ></i>
                                         </button>
                                     )}

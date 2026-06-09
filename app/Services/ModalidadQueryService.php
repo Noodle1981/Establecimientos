@@ -30,7 +30,7 @@ class ModalidadQueryService
         }
 
         // Apply filters
-        foreach (['nivel_educativo', 'ambito', 'direccion_area', 'radio', 'sector'] as $filter) {
+        foreach (['nivel_educativo', 'ambito', 'direccion_area', 'radio', 'sector', 'categoria'] as $filter) {
             $value = $request->input($filter);
             if ($value !== null && $value !== '') {
                 $query->where($filter, $value);
@@ -75,6 +75,7 @@ class ModalidadQueryService
             'zonas' => \App\Models\Edificio::select('zona_departamento')->distinct()->whereNotNull('zona_departamento')->orderBy('zona_departamento')->pluck('zona_departamento'),
             'radios' => Modalidad::select('radio')->distinct()->whereNotNull('radio')->orderBy('radio')->pluck('radio'),
             'sectores' => Modalidad::select('sector')->distinct()->whereNotNull('sector')->orderBy('sector')->pluck('sector'),
+            'categorias' => Modalidad::select('categoria')->distinct()->whereNotNull('categoria')->where('categoria', '<>', '')->orderBy('categoria')->pluck('categoria'),
         ];
     }
 

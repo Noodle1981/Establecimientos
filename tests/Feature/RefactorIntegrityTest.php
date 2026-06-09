@@ -459,5 +459,68 @@ class RefactorIntegrityTest extends TestCase
             'cue' => '123456789'
         ]);
     }
+
+    /**
+     * Test administrative filtering of modalities by category.
+     */
+    public function test_administrativo_can_filter_modalidades_by_categoria(): void
+    {
+        $user = User::factory()->create(['role' => 'administrativos']);
+        
+        $edificio = Edificio::create([
+            'cui' => '1234567',
+            'calle' => 'Calle Falsa 123',
+            'numero_puerta' => '123',
+            'localidad' => 'SAN JUAN',
+            'latitud' => -31.5375,
+            'longitud' => -68.5364,
+            'zona_departamento' => 'CAPITAL'
+        ]);
+
+        $est1 = Establecimiento::create([
+            'edificio_id' => $edificio->id,
+            'cue' => '123456781',
+            'cue_edificio_principal' => '123456781',
+            'nombre' => 'Escuela de Prueba 1',
+            'establecimiento_cabecera' => '123456781'
+        ]);
+
+        $est2 = Establecimiento::create([
+            'edificio_id' => $edificio->id,
+            'cue' => '123456782',
+            'cue_edificio_principal' => '123456782',
+            'nombre' => 'Escuela de Prueba 2',
+            'establecimiento_cabecera' => '123456782'
+        ]);
+
+        $mod1 = Modalidad::create([
+            'establecimiento_id' => $est1->id,
+            'direccion_area' => 'AREA TEST',
+            'nivel_educativo' => 'PRIMARIA',
+            'ambito' => 'URBANO',
+            'categoria' => 'PRIMERA',
+            'validado' => false,
+            'estado_validacion' => 'PENDIENTE'
+        ]);
+
+        $mod2 = Modalidad::create([
+            'establecimiento_id' => $est2->id,
+            'direccion_area' => 'AREA TEST',
+            'nivel_educativo' => 'PRIMARIA',
+            'ambito' => 'URBANO',
+            'categoria' => 'SEGUNDA',
+            'validado' => false,
+            'estado_validacion' => 'PENDIENTE'
+        ]);
+
+        $response = $this->actingAs($user)->get('/administrativos/establecimientos?categoria=PRIMERA');
+        
+        $response->assertStatus(200);
+        $response->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+            ->component('Administrativos/Establecimientos/Index')
+            ->has('modalidades.data', 1)
+            ->where('modalidades.data.0.id', $mod1->id)
+        );
+    }
 }
 

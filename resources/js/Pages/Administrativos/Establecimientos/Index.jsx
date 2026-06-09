@@ -166,7 +166,7 @@ export default function Index({
                                     <i className="fas fa-filter"></i>
                                     Filtros
                                 </h3>
-                                <span className="rounded-lg border border-gray-200 bg-gray-100 px-2.5 py-1 text-xs font-black text-black shadow-sm">
+                                <span className="rounded-lg border border-gray-200 bg-gray-100 px-4 py-1.5 text-xl font-black text-black shadow-sm">
                                     {modalidades.total}
                                 </span>
                             </div>
@@ -290,6 +290,14 @@ export default function Index({
                                 options={options.zonas}
                                 onChange={(v) =>
                                     handleParamChange('zona_departamento', v)
+                                }
+                            />
+                            <FilterSelect
+                                label="Categoría"
+                                value={filters.categoria}
+                                options={options.categorias || []}
+                                onChange={(v) =>
+                                    handleParamChange('categoria', v)
                                 }
                             />
                         </div>
