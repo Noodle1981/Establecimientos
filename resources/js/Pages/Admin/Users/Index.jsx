@@ -162,7 +162,7 @@ function CreateUserModal({ show, onClose }) {
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="lg">
-            <form onSubmit={submit} className="p-6">
+            <form onSubmit={submit} className="p-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <h3 className="mb-6 border-b pb-4 text-lg font-black text-gray-900">
                     Registrar Nuevo Usuario
                 </h3>

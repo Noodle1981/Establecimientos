@@ -622,7 +622,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="5xl">
-            <form onSubmit={submit} className="p-6">
+            <form onSubmit={submit} className="p-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <div className="mb-6 flex items-center gap-4 border-b pb-4">
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-orange-100 bg-orange-50 text-xl text-brand-orange shadow-sm">
                         <i className="fas fa-tasks"></i>
@@ -681,7 +681,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                     ></i>
                                 </button>
                             </div>
-                            <div className="grid grid-cols-4 gap-2">
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                                 <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 p-2">
                                     <div className="min-w-0">
                                         <p className="mb-0.5 text-[8px] font-black uppercase text-gray-400">
@@ -954,7 +954,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                     </button>
                                 )}
                             </div>
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                                 <div className="rounded-xl border border-gray-100 bg-gray-50 p-2">
                                     <p className="mb-0.5 text-[8px] font-black uppercase text-gray-400">
                                         Departamento
@@ -1065,7 +1065,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                                     <p className="mb-1.5 border-b border-orange-100/30 pb-0.5 text-[8px] font-black uppercase tracking-widest text-gray-400">
                                                         Latitud (Sur)
                                                     </p>
-                                                    <div className="grid grid-cols-4 gap-1.5">
+                                                    <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
                                                         <div className="group relative flex min-h-[48px] flex-col items-center justify-between rounded-lg border border-gray-100 bg-white p-1.5 text-center">
                                                             <span className="text-[6px] font-black uppercase tracking-wider text-gray-400">
                                                                 Card.
@@ -1185,7 +1185,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                                     <p className="mb-1.5 border-b border-orange-100/30 pb-0.5 text-[8px] font-black uppercase tracking-widest text-gray-400">
                                                         Longitud (Oeste)
                                                     </p>
-                                                    <div className="grid grid-cols-4 gap-1.5">
+                                                    <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
                                                         <div className="group relative flex min-h-[48px] flex-col items-center justify-between rounded-lg border border-gray-100 bg-white p-1.5 text-center">
                                                             <span className="text-[6px] font-black uppercase tracking-wider text-gray-400">
                                                                 Card.
@@ -1301,7 +1301,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                 value="Nuevo Estado de Validación"
                                 className="mb-2 text-[10px] font-black uppercase tracking-widest text-gray-400"
                             />
-                            <div className="grid grid-cols-4 gap-2">
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                                 {[
                                     'PENDIENTE',
                                     'CORRECTO',
@@ -1346,7 +1346,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                     Marcar Todo
                                 </button>
                             </div>
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                                 {CAMPOS_AUDITORIA.map((campo) => (
                                     <button
                                         key={campo}

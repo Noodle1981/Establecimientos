@@ -25,7 +25,7 @@ export default function AuthenticatedLayout({
             // Use requestAnimationFrame to avoid forced reflows during layout cycles
             cancelAnimationFrame(frameId);
             frameId = requestAnimationFrame(() => {
-                if (window.innerWidth < 1024) {
+                if (window.innerWidth < 1280) {
                     setSidebarOpen(false);
                 } else {
                     setSidebarOpen(true);
@@ -71,7 +71,7 @@ export default function AuthenticatedLayout({
                     </div>
 
                     {/* Sidebar Links */}
-                    <div className="custom-scrollbar flex-1 space-y-1 overflow-y-auto px-3 py-6">
+                    <div className="custom-scrollbar-dark flex-1 space-y-1 overflow-y-auto px-3 py-6">
                         <SidebarLink
                             href={route('mapa.publico')}
                             active={route().current('mapa.publico')}
@@ -487,10 +487,17 @@ export default function AuthenticatedLayout({
             <style
                 dangerouslySetInnerHTML={{
                     __html: `
-                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+                /* Scrollbar por defecto (para fondos claros) */
+                .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.35); }
+
+                /* Scrollbar para fondos oscuros (sidebar) */
+                .custom-scrollbar-dark::-webkit-scrollbar { width: 6px; height: 6px; }
+                .custom-scrollbar-dark::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar-dark::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+                .custom-scrollbar-dark::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.35); }
             `,
                 }}
             />

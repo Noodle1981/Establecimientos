@@ -139,7 +139,7 @@ export default function Index({
 
             <div className="grid grid-cols-1 gap-6 pt-2 lg:grid-cols-4">
                 {/* Actions & Filters Sidebar - Sticky */}
-                <div className="sticky top-6 space-y-4 self-start lg:col-span-1">
+                <div className="sticky top-6 space-y-4 self-start lg:col-span-1 max-h-[calc(100vh-100px)] overflow-y-auto custom-scrollbar p-1">
                     {/* Primary Actions Area */}
                     <div className="mb-6 flex flex-col gap-2">
                         <PrimaryButton
@@ -542,7 +542,7 @@ function ViewModalidadModal({ show, onClose, modalidad, nombresEdificios }) {
     if (!modalidad) return null;
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl">
-            <div className="p-6">
+            <div className="p-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <div className="mb-6 flex items-start justify-between">
                     <div className="flex items-center gap-3">
                         <div
@@ -802,7 +802,7 @@ function EditModalidadModal({
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl">
-            <form onSubmit={submit} className="p-6">
+            <form onSubmit={submit} className="p-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <h3 className="mb-6 border-b pb-4 text-xl font-black text-gray-900">
                     Actualizar Establecimiento
                 </h3>
@@ -1064,7 +1064,7 @@ function CreateModalidadModal({ show, onClose, options }) {
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="4xl">
-            <form onSubmit={submit} className="p-8">
+            <form onSubmit={submit} className="p-8 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <h3 className="mb-8 flex items-center gap-3 text-2xl font-black text-gray-900">
                     <div className="rounded-xl bg-orange-50 p-2 text-brand-orange">
                         <i className="fas fa-plus"></i>

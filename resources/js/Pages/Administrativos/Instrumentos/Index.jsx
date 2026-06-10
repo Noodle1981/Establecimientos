@@ -198,7 +198,7 @@ function EditModal({ show, onClose, modalidad }) {
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="lg">
-            <form onSubmit={submit} className="p-6">
+            <form onSubmit={submit} className="p-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <div className="mb-6 flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-lg text-brand-orange shadow-sm">
                         <i className="fas fa-file-signature"></i>

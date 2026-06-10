@@ -89,6 +89,12 @@ export default function Index({ edificios, filters, options }) {
         );
     };
 
+    const resetFilters = () => {
+        setSearch('');
+        setSearchCui('');
+        router.get(route('administrativos.edificios.index'), {});
+    };
+
     // Modal Handlers
     const openEdit = (edificio) => {
         setSelectedEdificio(edificio);
@@ -120,230 +126,272 @@ export default function Index({ edificios, filters, options }) {
         <AuthenticatedLayout header={null}>
             <Head title="Edificios" />
 
-            <div className="space-y-6">
-                {/* Filters & Actions Bar */}
-                <div className="rounded-2x flex flex-col items-center gap-4 border border-gray-100 bg-white p-4 shadow-sm md:flex-row">
-                    <div className="relative w-full md:w-52">
-                        <input
-                            type="text"
-                            placeholder="Buscar por CUI..."
-                            className="w-full rounded-xl border-gray-200 py-2 pl-10 pr-4 text-sm transition-all focus:border-brand-orange focus:ring-brand-orange"
-                            value={searchCui}
-                            onChange={handleSearchCui}
-                        />
-                        <i className="fas fa-search absolute left-3.5 top-3 text-gray-400"></i>
-                    </div>
-
-                    <div className="relative w-full flex-1">
-                        <input
-                            type="text"
-                            placeholder="Buscar por CUE o Establecimiento..."
-                            className="w-full rounded-xl border-gray-200 py-2 pl-10 pr-4 text-sm transition-all focus:border-brand-orange focus:ring-brand-orange"
-                            value={search}
-                            onChange={handleSearch}
-                        />
-                        <i className="fas fa-search absolute left-3.5 top-3 text-gray-400"></i>
-                    </div>
-
-                    <select
-                        value={filters.zona_departamento || ''}
-                        onChange={(e) =>
-                            handleParamChange(
-                                'zona_departamento',
-                                e.target.value,
-                            )
-                        }
-                        className="min-w-[200px] rounded-xl border-gray-200 text-sm focus:border-brand-orange focus:ring-brand-orange"
-                    >
-                        <option value="">Departamentos (Todos)</option>
-                        {options.zonas.map((z) => (
-                            <option key={z} value={z}>
-                                {z}
-                            </option>
-                        ))}
-                    </select>
-
-                    <select
-                        value={filters.localidad || ''}
-                        onChange={(e) =>
-                            handleParamChange('localidad', e.target.value)
-                        }
-                        className="min-w-[150px] rounded-xl border-gray-200 text-sm focus:border-brand-orange focus:ring-brand-orange"
-                    >
-                        <option value="">Localidades (Todas)</option>
-                        {options.localidades.map((l) => (
-                            <option key={l} value={l}>
-                                {l}
-                            </option>
-                        ))}
-                    </select>
-
-                    <select
-                        value={filters.ambito || ''}
-                        onChange={(e) =>
-                            handleParamChange('ambito', e.target.value)
-                        }
-                        className="min-w-[150px] rounded-xl border-gray-200 text-sm font-black uppercase focus:border-brand-orange focus:ring-brand-orange"
-                    >
-                        <option value="">Ámbito (Todos)</option>
-                        {options.ambitos.map((a) => (
-                            <option key={a} value={a}>
-                                {a}
-                            </option>
-                        ))}
-                    </select>
-
-                    <div className="flex h-[38px] min-w-[50px] items-center justify-center rounded-xl border border-gray-100 bg-gray-50 px-4 py-2 text-sm font-black text-black shadow-sm">
-                        {edificios.total}
-                    </div>
-
-                    <div className="ml-2 flex shrink-0 gap-2 border-l border-gray-100 pl-4">
-                        <a
-                            href={route('administrativos.edificios.export')}
-                            className="inline-flex items-center gap-2 rounded-xl border border-transparent bg-green-600 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm transition hover:bg-green-700"
-                        >
-                            <i className="fas fa-file-excel"></i> Exportar
-                        </a>
+            <div className="grid grid-cols-1 gap-6 pt-2 lg:grid-cols-4">
+                {/* Actions & Filters Sidebar - Sticky */}
+                <div className="sticky top-6 space-y-4 self-start lg:col-span-1 max-h-[calc(100vh-100px)] overflow-y-auto custom-scrollbar p-1">
+                    {/* Primary Actions Area */}
+                    <div className="mb-6 flex flex-col gap-2">
                         <PrimaryButton
-                            className="gap-2 !rounded-xl !px-4 !py-2 !text-[10px]"
+                            className="w-full gap-3 !rounded-2xl !py-4"
                             onClick={() => setShowCreateModal(true)}
                         >
-                            <i className="fas fa-plus"></i> Nuevo
+                            <i className="fas fa-plus"></i>
+                            <span className="text-sm">Nuevo Edificio</span>
                         </PrimaryButton>
+                        <a
+                            href={route('administrativos.edificios.export')}
+                            className="flex w-full items-center justify-center gap-3 rounded-2xl border border-green-100 bg-green-50 py-3 text-[10px] font-black uppercase tracking-widest text-green-700 shadow-sm transition-all hover:bg-green-600 hover:text-white"
+                        >
+                            <i className="fas fa-file-excel"></i> Exportar Datos
+                        </a>
+                    </div>
+
+                    <div className="space-y-6 overflow-hidden rounded-2xl border border-orange-100 bg-white p-0 shadow-sm">
+                        <div className="flex items-center justify-between border-b border-orange-100 bg-orange-50/50 px-5 py-3">
+                            <div className="flex items-center gap-3">
+                                <h3 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-brand-orange">
+                                    <i className="fas fa-filter"></i>
+                                    Filtros
+                                </h3>
+                                <span className="rounded-lg border border-gray-200 bg-gray-100 px-4 py-1.5 text-xl font-black text-black shadow-sm">
+                                    {edificios.total}
+                                </span>
+                            </div>
+                            <button
+                                onClick={resetFilters}
+                                className="text-[10px] font-black uppercase tracking-widest text-brand-orange hover:underline"
+                            >
+                                Limpiar
+                            </button>
+                        </div>
+                        <div className="space-y-6 px-5 pb-6">
+                            {/* Buscar por CUI */}
+                            <div className="space-y-1">
+                                <InputLabel value="Buscar por CUI" />
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="CUI..."
+                                        className="w-full rounded-xl border-gray-200 py-2 pl-9 pr-4 text-xs font-bold transition-all focus:border-brand-orange focus:ring-brand-orange"
+                                        value={searchCui}
+                                        onChange={handleSearchCui}
+                                    />
+                                    <i className="fas fa-search absolute left-3 top-2.5 text-gray-300"></i>
+                                </div>
+                            </div>
+
+                            {/* Buscar por CUE o Establecimiento */}
+                            <div className="space-y-1">
+                                <InputLabel value="Establecimiento / CUE" />
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="CUE o nombre..."
+                                        className="w-full rounded-xl border-gray-200 py-2 pl-9 pr-4 text-xs font-bold transition-all focus:border-brand-orange focus:ring-brand-orange"
+                                        value={search}
+                                        onChange={handleSearch}
+                                    />
+                                    <i className="fas fa-search absolute left-3 top-2.5 text-gray-300"></i>
+                                </div>
+                            </div>
+
+                            {/* Departamentos */}
+                            <div className="space-y-1">
+                                <InputLabel value="Departamento" />
+                                <select
+                                    value={filters.zona_departamento || ''}
+                                    onChange={(e) =>
+                                        handleParamChange(
+                                            'zona_departamento',
+                                            e.target.value,
+                                        )
+                                    }
+                                    className="w-full rounded-xl border-gray-200 text-xs font-bold focus:border-brand-orange focus:ring-brand-orange"
+                                >
+                                    <option value="">Departamentos (Todos)</option>
+                                    {options.zonas.map((z) => (
+                                        <option key={z} value={z}>
+                                            {z}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Localidades */}
+                            <div className="space-y-1">
+                                <InputLabel value="Localidad" />
+                                <select
+                                    value={filters.localidad || ''}
+                                    onChange={(e) =>
+                                        handleParamChange('localidad', e.target.value)
+                                    }
+                                    className="w-full rounded-xl border-gray-200 text-xs font-bold focus:border-brand-orange focus:ring-brand-orange"
+                                >
+                                    <option value="">Localidades (Todas)</option>
+                                    {options.localidades.map((l) => (
+                                        <option key={l} value={l}>
+                                            {l}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Ámbito */}
+                            <div className="space-y-1">
+                                <InputLabel value="Ámbito" />
+                                <select
+                                    value={filters.ambito || ''}
+                                    onChange={(e) =>
+                                        handleParamChange('ambito', e.target.value)
+                                    }
+                                    className="w-full rounded-xl border-gray-200 text-xs font-bold focus:border-brand-orange focus:ring-brand-orange text-black uppercase"
+                                >
+                                    <option value="">Ámbito (Todos)</option>
+                                    {options.ambitos.map((a) => (
+                                        <option key={a} value={a}>
+                                            {a}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Table */}
-                <div className="overflow-hidden border border-gray-100 bg-white shadow-sm sm:rounded-2xl">
-                    <div className="overflow-x-auto">
-                        <table className="w-full border-collapse text-left">
-                            <thead>
-                                <tr className="border-b border-orange-600 bg-brand-orange text-[10px] font-black uppercase text-white">
-                                    <th
-                                        className="group cursor-pointer px-6 py-2 transition-colors hover:bg-orange-600"
-                                        onClick={() => handleSort('cui')}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            CUI / Ubicación
-                                            <i
-                                                className={`fas fa-sort${filters.sort_by === 'cui' ? (filters.sort_dir === 'asc' ? '-up' : '-down') : ''} opacity-50 group-hover:opacity-100`}
-                                            ></i>
-                                        </div>
-                                    </th>
-                                    <th className="px-6 py-2">
-                                        Establecimiento Cabecera
-                                    </th>
-                                    <th
-                                        className="group cursor-pointer px-6 py-2 transition-colors hover:bg-orange-600"
-                                        onClick={() =>
-                                            handleSort('zona_departamento')
-                                        }
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            Depto / Localidad
-                                            <i
-                                                className={`fas fa-sort${filters.sort_by === 'zona_departamento' ? (filters.sort_dir === 'asc' ? '-up' : '-down') : ''} opacity-50 group-hover:opacity-100`}
-                                            ></i>
-                                        </div>
-                                    </th>
-                                    <th className="px-6 py-2 text-center">
-                                        Ámbito
-                                    </th>
-                                    <th className="px-6 py-2 text-right">
-                                        Acciones
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50">
-                                {edificios.data.map((edificio) => (
-                                    <tr
-                                        key={edificio.id}
-                                        className="group transition-colors hover:bg-orange-50/30"
-                                    >
-                                        <td className="px-6 py-2">
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-black text-black group-hover:text-brand-orange">
-                                                    {edificio.cui}
-                                                </span>
-                                                <span className="text-[10px] font-black uppercase tracking-tighter text-black/40">
-                                                    {edificio.calle}{' '}
-                                                    {edificio.numero_puerta ||
-                                                        'S/N'}
-                                                </span>
+                {/* Table Content */}
+                <div className="space-y-6 lg:col-span-3">
+                    {/* Table */}
+                    <div className="overflow-hidden border border-l-4 border-gray-100 border-l-brand-orange bg-white shadow-sm sm:rounded-2xl">
+                        <div className="overflow-x-auto">
+                            <table className="w-full border-collapse text-left">
+                                <thead>
+                                    <tr className="border-b border-orange-600 bg-brand-orange text-[10px] font-black uppercase text-white">
+                                        <th
+                                            className="group cursor-pointer px-6 py-2 transition-colors hover:bg-orange-600"
+                                            onClick={() => handleSort('cui')}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                CUI / Ubicación
+                                                <i
+                                                    className={`fas fa-sort${filters.sort_by === 'cui' ? (filters.sort_dir === 'asc' ? '-up' : '-down') : ''} opacity-50 group-hover:opacity-100`}
+                                                ></i>
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-2">
-                                            <span className="line-clamp-2 text-xs font-black leading-tight text-black/80">
-                                                {edificio.cabecera?.nombre ||
-                                                    'Sin Cabecera'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-2">
-                                            <div className="flex flex-col">
-                                                <span className="text-xs font-black text-black/70">
-                                                    {edificio.zona_departamento}
-                                                </span>
-                                                <span className="text-[10px] font-black text-black/40">
-                                                    {edificio.localidad}
-                                                </span>
+                                        </th>
+                                        <th className="px-6 py-2">
+                                            Establecimiento Cabecera
+                                        </th>
+                                        <th
+                                            className="group cursor-pointer px-6 py-2 transition-colors hover:bg-orange-600"
+                                            onClick={() =>
+                                                handleSort('zona_departamento')
+                                            }
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                Depto / Localidad
+                                                <i
+                                                    className={`fas fa-sort${filters.sort_by === 'zona_departamento' ? (filters.sort_dir === 'asc' ? '-up' : '-down') : ''} opacity-50 group-hover:opacity-100`}
+                                                ></i>
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-2 text-center">
-                                            <span
-                                                className={`inline-flex items-center justify-center rounded-lg px-2 py-1 text-[9px] font-black uppercase tracking-widest transition-colors ${
-                                                    getEdificioAmbito(
-                                                        edificio,
-                                                    ) === 'PUBLICO'
-                                                        ? 'border border-orange-100 bg-orange-50 text-brand-orange'
-                                                        : 'border border-blue-100 bg-blue-50 text-blue-600'
-                                                }`}
-                                            >
-                                                {getEdificioAmbito(edificio)}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-2 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <button
-                                                    onClick={() =>
-                                                        openView(edificio)
-                                                    }
-                                                    className="rounded-lg bg-gray-50 p-2 text-gray-400 shadow-sm transition hover:bg-brand-orange hover:text-white"
-                                                    title="Ver detalles"
-                                                >
-                                                    <i className="fas fa-eye text-xs"></i>
-                                                </button>
-                                                <button
-                                                    onClick={() =>
-                                                        openEdit(edificio)
-                                                    }
-                                                    className="rounded-lg bg-orange-50 p-2 text-brand-orange shadow-sm transition hover:bg-brand-orange hover:text-white"
-                                                    title="Editar edificio"
-                                                >
-                                                    <i className="fas fa-edit text-xs"></i>
-                                                </button>
-                                                <button
-                                                    onClick={() =>
-                                                        handleDelete(
-                                                            edificio.id,
-                                                        )
-                                                    }
-                                                    className="rounded-lg border border-brand-red/20 bg-red-50 p-2 text-brand-red shadow-sm transition hover:bg-brand-red hover:text-white"
-                                                    title="Eliminar edificio"
-                                                >
-                                                    <i className="fas fa-trash text-xs"></i>
-                                                </button>
-                                            </div>
-                                        </td>
+                                        </th>
+                                        <th className="px-6 py-2 text-center">
+                                            Ámbito
+                                        </th>
+                                        <th className="px-6 py-2 text-right">
+                                            Acciones
+                                        </th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {edificios.data.map((edificio) => (
+                                        <tr
+                                            key={edificio.id}
+                                            className="group transition-colors hover:bg-orange-50/30"
+                                        >
+                                            <td className="px-6 py-2">
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-black text-black group-hover:text-brand-orange">
+                                                        {edificio.cui}
+                                                    </span>
+                                                    <span className="text-[10px] font-black uppercase tracking-tighter text-black/40">
+                                                        {edificio.calle}{' '}
+                                                        {edificio.numero_puerta ||
+                                                            'S/N'}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-2">
+                                                <span className="line-clamp-2 text-xs font-black leading-tight text-black/80">
+                                                    {edificio.cabecera?.nombre ||
+                                                        'Sin Cabecera'}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-2">
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-black text-black/70">
+                                                        {edificio.zona_departamento}
+                                                    </span>
+                                                    <span className="text-[10px] font-black text-black/40">
+                                                        {edificio.localidad}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-2 text-center">
+                                                <span
+                                                    className={`inline-flex items-center justify-center rounded-lg px-2 py-1 text-[9px] font-black uppercase tracking-widest transition-colors ${
+                                                        getEdificioAmbito(
+                                                            edificio,
+                                                        ) === 'PUBLICO'
+                                                            ? 'border border-orange-100 bg-orange-50 text-brand-orange'
+                                                            : 'border border-blue-100 bg-blue-50 text-blue-600'
+                                                    }`}
+                                                >
+                                                    {getEdificioAmbito(edificio)}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-2 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() =>
+                                                            openView(edificio)
+                                                        }
+                                                        className="rounded-lg bg-gray-50 p-2 text-gray-400 shadow-sm transition hover:bg-brand-orange hover:text-white"
+                                                        title="Ver detalles"
+                                                    >
+                                                        <i className="fas fa-eye text-xs"></i>
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            openEdit(edificio)
+                                                        }
+                                                        className="rounded-lg bg-orange-50 p-2 text-brand-orange shadow-sm transition hover:bg-brand-orange hover:text-white"
+                                                        title="Editar edificio"
+                                                    >
+                                                        <i className="fas fa-edit text-xs"></i>
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                edificio.id,
+                                                            )
+                                                        }
+                                                        className="rounded-lg border border-brand-red/20 bg-red-50 p-2 text-brand-red shadow-sm transition hover:bg-brand-red hover:text-white"
+                                                        title="Eliminar edificio"
+                                                    >
+                                                        <i className="fas fa-trash text-xs"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
 
-                {/* Pagination */}
-                <div className="-mt-2 flex justify-center">
-                    <Pagination links={edificios.links} />
+                    {/* Pagination */}
+                    <div className="-mt-2 flex justify-center">
+                        <Pagination links={edificios.links} />
+                    </div>
                 </div>
             </div>
 
@@ -395,7 +443,7 @@ function CreateEdificioModal({ show, onClose, options = {} }) {
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl">
-            <form onSubmit={submit} className="p-6">
+            <form onSubmit={submit} className="p-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <div className="mb-8 flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-orange-100 bg-orange-50 text-xl text-brand-orange shadow-sm">
                         <i className="fas fa-plus-circle"></i>
@@ -637,7 +685,7 @@ function ViewEdificioModal({ show, onClose, edificio }) {
     if (!edificio) return null;
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl">
-            <div className="p-6">
+            <div className="p-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <div className="mb-6 flex items-start justify-between">
                     <div className="flex items-center gap-3">
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-orange-100 bg-orange-50 text-xl text-brand-orange shadow-sm">
@@ -887,7 +935,7 @@ function EditEdificioModal({ show, onClose, edificio, options = {} }) {
 
     return (
         <Modal show={show} onClose={onClose} maxWidth="2xl">
-            <form onSubmit={submit} className="p-6">
+            <form onSubmit={submit} className="p-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
                 <div className="mb-8 flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-orange-100 bg-orange-50 text-xl text-brand-orange shadow-sm">
                         <i className="fas fa-edit"></i>

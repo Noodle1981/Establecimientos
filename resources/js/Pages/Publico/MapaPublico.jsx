@@ -684,7 +684,7 @@ export default function MapaPublico({ edificios = [] }) {
                 onClose={() => setIsReportModalOpen(false)}
                 maxWidth="lg"
             >
-                <div className="bg-white p-8">
+                <div className="bg-white p-8 max-h-[85vh] overflow-y-auto custom-scrollbar">
                     <div className="mb-8 flex items-center gap-4">
                         <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-2xl text-red-500 shadow-inner">
                             <i className="fas fa-bullhorn"></i>

@@ -226,7 +226,7 @@ export default function Dashboard({ filters, options, chartData }) {
                 </div>
 
                 {/* Charts Grid */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     <ChartWrapper
                         title="Modalidades Educativas"
                         onZoom={() =>
@@ -317,7 +317,7 @@ export default function Dashboard({ filters, options, chartData }) {
                         title="Zonas"
                         className={
                             localFilters.ambito !== 'TODOS'
-                                ? 'lg:col-span-2'
+                                ? 'sm:col-span-2 lg:col-span-1 xl:col-span-2'
                                 : ''
                         }
                         onZoom={() =>
@@ -420,7 +420,7 @@ export default function Dashboard({ filters, options, chartData }) {
 
                     <ChartWrapper
                         title="Distribución por Radio"
-                        className="lg:col-span-4"
+                        className="sm:col-span-2 lg:col-span-3 xl:col-span-4"
                         onZoom={() =>
                             setModalChart({
                                 title: 'Modalidades por Radio de Ubicación',
@@ -477,7 +477,7 @@ export default function Dashboard({ filters, options, chartData }) {
                 maxWidth="4xl"
             >
                 {modalChart && (
-                    <div className="p-8">
+                    <div className="p-8 max-h-[85vh] overflow-y-auto custom-scrollbar">
                         <div className="mb-8 flex items-center justify-between border-b pb-4">
                             <div className="flex items-center gap-3">
                                 <div className="h-6 w-2 rounded-full bg-brand-orange"></div>
