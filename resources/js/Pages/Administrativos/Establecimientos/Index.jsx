@@ -239,28 +239,12 @@ export default function Index({
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
-                                <div className="space-y-1">
-                                    <InputLabel value="Radio" />
-                                    <input
-                                        type="text"
-                                        placeholder="Radio..."
-                                        className="w-full rounded-xl border-gray-200 text-xs font-bold focus:border-brand-orange focus:ring-brand-orange"
-                                        defaultValue={filters.radio || ''}
-                                        onBlur={(e) =>
-                                            handleParamChange(
-                                                'radio',
-                                                e.target.value,
-                                            )
-                                        }
-                                        onKeyDown={(e) =>
-                                            e.key === 'Enter' &&
-                                            handleParamChange(
-                                                'radio',
-                                                e.target.value,
-                                            )
-                                        }
-                                    />
-                                </div>
+                                <FilterSelect
+                                    label="Radio"
+                                    value={filters.radio}
+                                    options={options.radios || []}
+                                    onChange={(v) => handleParamChange('radio', v)}
+                                />
                                 <div className="space-y-1">
                                     <InputLabel value="Sector" />
                                     <input
