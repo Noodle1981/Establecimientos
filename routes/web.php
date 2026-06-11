@@ -95,6 +95,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/reportes', [App\Http\Controllers\Administrativos\ReporteController::class, 'index'])->name('administrativos.reportes.index');
         Route::patch('/reportes/{reporte}', [App\Http\Controllers\Administrativos\ReporteController::class, 'update'])->name('administrativos.reportes.update');
         Route::delete('/reportes/{reporte}', [App\Http\Controllers\Administrativos\ReporteController::class, 'destroy'])->name('administrativos.reportes.destroy');
+
+        // Bitácora (Compartida)
+        Route::get('/bitacora', [App\Http\Controllers\Admin\AdminController::class, 'logs'])->name('bitacora.index');
     });
 
     // --- CONSOLA ADMIN (Solo Administradores) ---
@@ -110,11 +113,6 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/trash/modalidad/{id}/force', [App\Http\Controllers\Admin\AdminController::class, 'forceDelete'])->name('admin.trash.forceDelete');
     });
 
-    // Bitácora shared route (Accessible to Admin and Administrativos)
-    Route::get('/bitacora', [App\Http\Controllers\Admin\AdminController::class, 'logs'])->name('bitacora.index');
+
 });
 
-/**
- * API Routes
- */
-Route::middleware('throttle:60,1')->get('/api/edificios-mapa', [\App\Http\Controllers\Api\EdificiosMapaController::class, 'index']);

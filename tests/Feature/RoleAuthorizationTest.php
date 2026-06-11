@@ -174,4 +174,46 @@ class RoleAuthorizationTest extends TestCase
         $this->assertTrue($admin->hasRole(['admin', 'administrativos']));
         $this->assertFalse($user->hasRole(['admin', 'administrativos']));
     }
+
+    /**
+     * Test que un usuario no autenticado no puede acceder a la bitácora
+     */
+    public function test_unauthenticated_cannot_access_bitacora(): void
+    {
+        $response = $this->get(route('bitacora.index'));
+        $response->assertRedirect('/login');
+    }
+
+    /**
+     * Test que un usuario con rol 'user' no puede acceder a la bitácora
+     */
+    public function test_user_role_cannot_access_bitacora(): void
+    {
+        $user = User::factory()->create(['role' => 'user']);
+
+        $response = $this->actingAs($user)->get(route('bitacora.index'));
+        $response->assertStatus(403);
+    }
+
+    /**
+     * Test que un usuario con rol 'administrativos' puede acceder a la bitácora
+     */
+    public function test_administrativo_can_access_bitacora(): void
+    {
+        $user = User::factory()->create(['role' => 'administrativos']);
+
+        $response = $this->actingAs($user)->get(route('bitacora.index'));
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Test que un usuario con rol 'admin' puede acceder a la bitácora
+     */
+    public function test_admin_can_access_bitacora(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($user)->get(route('bitacora.index'));
+        $response->assertStatus(200);
+    }
 }

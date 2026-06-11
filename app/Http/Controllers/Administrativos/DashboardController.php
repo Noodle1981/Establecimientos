@@ -67,16 +67,19 @@ class DashboardController extends Controller
     {
         if (empty($direccion_area)) return [];
 
-        $query = Modalidad::select('nivel_educativo')->distinct()
-            ->where('direccion_area', $direccion_area)
-            ->whereNotNull('nivel_educativo')
-            ->where('nivel_educativo', '!=', '');
-        
-        if ($ambito !== 'TODOS') {
-            $query->where('ambito', $ambito);
-        }
+        $cacheKey = 'dashboard-niveles-' . md5($direccion_area . '_' . $ambito);
+        return Cache::remember($cacheKey, 3600, function () use ($direccion_area, $ambito) {
+            $query = Modalidad::select('nivel_educativo')->distinct()
+                ->where('direccion_area', $direccion_area)
+                ->whereNotNull('nivel_educativo')
+                ->where('nivel_educativo', '!=', '');
+            
+            if ($ambito !== 'TODOS') {
+                $query->where('ambito', $ambito);
+            }
 
-        return $query->orderBy('nivel_educativo')->pluck('nivel_educativo');
+            return $query->orderBy('nivel_educativo')->pluck('nivel_educativo');
+        });
     }
 
     private function getChartData($filters)
@@ -166,6 +169,8 @@ class DashboardController extends Controller
             ->join('establecimientos', 'edificios.id', '=', 'establecimientos.edificio_id')
             ->join('modalidades', 'establecimientos.id', '=', 'modalidades.establecimiento_id')
             ->whereNull('modalidades.deleted_at')
+            ->whereNull('establecimientos.deleted_at')
+            ->whereNull('edificios.deleted_at')
             ->whereNotNull('zona_departamento')->where('zona_departamento', '!=', '');
 
         $this->applyFilters($query, $filters, 'join_edificio');

@@ -24,15 +24,40 @@ class MapaController extends Controller
                 ->whereNotNull('latitud')
                 ->whereNotNull('longitud')
                 ->whereHas('establecimientos.modalidades')
-                ->with(['establecimientos:id,edificio_id,cue,nombre', 'establecimientos.modalidades:id,establecimiento_id,ambito,radio,categoria,nivel_educativo,direccion_area,sector'])
+                ->with([
+                    'establecimientos:id,edificio_id,cue,nombre',
+                    'establecimientos.modalidades:id,establecimiento_id,ambito,radio,categoria,nivel_educativo,direccion_area,sector'
+                ])
                 ->get();
 
             foreach ($edificios as $edificio) {
-                $esPrivado = $edificio->establecimientos->flatMap(function (Establecimiento $est) {
-                    return $est->modalidades;
-                })->contains(function (Modalidad $mod) {
-                    return stripos($mod->ambito, 'privado') !== false || $mod->sector == 2;
-                });
+                $esPrivado = false;
+                $mappedEstablecimientos = [];
+
+                foreach ($edificio->establecimientos as $est) {
+                    $mappedModalidades = [];
+                    foreach ($est->modalidades as $mod) {
+                        $esPriv = stripos($mod->ambito, 'privado') !== false || $mod->sector == 2;
+                        if ($esPriv) {
+                            $esPrivado = true;
+                        }
+                        $mappedModalidades[] = [
+                            'nivel' => $mod->nivel_educativo,
+                            'area' => $mod->direccion_area,
+                            'radio' => $mod->radio ?? 'N/A',
+                            'categoria' => $mod->categoria ?? 'N/A',
+                            'ambito' => $esPriv ? 'PRIVADO' : 'PUBLICO',
+                        ];
+                    }
+
+                    if (!empty($mappedModalidades)) {
+                        $mappedEstablecimientos[] = [
+                            'nombre' => $est->nombre,
+                            'cue' => $est->cue,
+                            'modalidades' => $mappedModalidades,
+                        ];
+                    }
+                }
 
                 $result->push([
                     'id' => $edificio->id,
@@ -44,22 +69,7 @@ class MapaController extends Controller
                     'numero_puerta' => $edificio->numero_puerta ?? 'S/N',
                     'zona_departamento' => $edificio->zona_departamento ?? '',
                     'ambito' => $esPrivado ? 'PRIVADO' : 'PUBLICO',
-                    'establecimientos' => $edificio->establecimientos->map(function ($est) {
-                        return [
-                            'nombre' => $est->nombre,
-                            'cue' => $est->cue,
-                            'modalidades' => $est->modalidades->map(function ($mod) {
-                                $esPriv = stripos($mod->ambito, 'privado') !== false || $mod->sector == 2;
-                                return [
-                                    'nivel' => $mod->nivel_educativo,
-                                    'area' => $mod->direccion_area,
-                                    'radio' => $mod->radio ?? 'N/A',
-                                    'categoria' => $mod->categoria ?? 'N/A',
-                                    'ambito' => $esPriv ? 'PRIVADO' : 'PUBLICO',
-                                ];
-                            })->toArray(),
-                        ];
-                    })->toArray(),
+                    'establecimientos' => $mappedEstablecimientos,
                 ]);
             }
 

@@ -84,10 +84,6 @@ class ModalidadQueryService
      */
     public function getBuildingNamesMap(): \Illuminate\Support\Collection
     {
-        return \App\Models\Edificio::with('cabecera')
-            ->get()
-            ->mapWithKeys(fn($e) => [
-                $e->id => $e->cabecera?->nombre ?? 'Sin Nombre',
-            ]);
+        return \App\Models\Edificio::getNamesMap();
     }
 }

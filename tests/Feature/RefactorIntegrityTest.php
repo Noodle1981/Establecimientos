@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Edificio;
 use App\Models\Modalidad;
 use App\Models\Establecimiento;
+use App\Models\Reporte;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -521,6 +522,82 @@ class RefactorIntegrityTest extends TestCase
             ->has('modalidades.data', 1)
             ->where('modalidades.data.0.id', $mod1->id)
         );
+    }
+
+    /**
+     * Test administrative update of report status.
+     */
+    public function test_administrativo_can_update_reporte_status(): void
+    {
+        $user = User::factory()->create(['role' => 'administrativos']);
+        
+        $reporte = Reporte::create([
+            'tipo' => 'ERROR_DATOS',
+            'descripcion' => 'Descripción de prueba para reporte',
+            'email_remitente' => 'test@example.com',
+            'estado' => 'PENDIENTE'
+        ]);
+
+        $response = $this->actingAs($user)->patch(route('administrativos.reportes.update', $reporte->id), [
+            'estado' => 'PROCESADO'
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect();
+        
+        $this->assertDatabaseHas('reportes', [
+            'id' => $reporte->id,
+            'estado' => 'PROCESADO'
+        ]);
+    }
+
+    /**
+     * Test administrative deletion of a report.
+     */
+    public function test_administrativo_can_delete_reporte(): void
+    {
+        $user = User::factory()->create(['role' => 'administrativos']);
+        
+        $reporte = Reporte::create([
+            'tipo' => 'ERROR_DATOS',
+            'descripcion' => 'Descripción de prueba para reporte',
+            'email_remitente' => 'test@example.com',
+            'estado' => 'PENDIENTE'
+        ]);
+
+        $response = $this->actingAs($user)->delete(route('administrativos.reportes.destroy', $reporte->id));
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect();
+        
+        $this->assertDatabaseMissing('reportes', [
+            'id' => $reporte->id
+        ]);
+    }
+
+    /**
+     * Test that regular users cannot update or delete reports.
+     */
+    public function test_regular_user_cannot_update_or_delete_reporte(): void
+    {
+        $user = User::factory()->create(['role' => 'user']);
+        
+        $reporte = Reporte::create([
+            'tipo' => 'ERROR_DATOS',
+            'descripcion' => 'Descripción de prueba para reporte',
+            'email_remitente' => 'test@example.com',
+            'estado' => 'PENDIENTE'
+        ]);
+
+        // Attempt update
+        $response = $this->actingAs($user)->patch(route('administrativos.reportes.update', $reporte->id), [
+            'estado' => 'PROCESADO'
+        ]);
+        $response->assertStatus(403);
+
+        // Attempt delete
+        $response = $this->actingAs($user)->delete(route('administrativos.reportes.destroy', $reporte->id));
+        $response->assertStatus(403);
     }
 }
 

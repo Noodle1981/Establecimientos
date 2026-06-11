@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Pagination from '@/Components/Pagination';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -117,18 +118,8 @@ export default function ReportesIndex({ reportes, stats }) {
                                         </button>
                                     ))}
                                     {/* Controles de Paginación */}
-                                    <div className="flex flex-wrap justify-center gap-1 border-t border-gray-50 bg-gray-50/50 p-4">
-                                        {reportes.links.map((link, k) => (
-                                            <Link
-                                                key={k}
-                                                href={link.url || '#'}
-                                                preserveScroll
-                                                dangerouslySetInnerHTML={{
-                                                    __html: link.label,
-                                                }}
-                                                className={`rounded-lg px-3 py-1 text-[10px] font-bold ${link.active ? 'bg-brand-orange text-white' : 'border bg-white text-gray-500 hover:bg-gray-50'} ${!link.url && 'cursor-not-allowed opacity-50'}`}
-                                            />
-                                        ))}
+                                    <div className="flex justify-center border-t border-gray-50 bg-gray-50/50 p-4">
+                                        <Pagination links={reportes.links} />
                                     </div>
                                 </>
                             )}

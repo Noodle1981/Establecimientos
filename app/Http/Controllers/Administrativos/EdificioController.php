@@ -11,6 +11,7 @@ use App\Actions\Administrativos\UpdateEdificioAction;
 use App\Http\Requests\Administrativos\StoreEdificioRequest;
 use App\Http\Requests\Administrativos\UpdateEdificioRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -35,10 +36,14 @@ class EdificioController extends Controller
             ->onEachSide(1)
             ->withQueryString();
 
+        $options = Cache::remember('edificios_options_react', 3600, function () {
+            return $this->queryService->getFilterOptions();
+        });
+
         return Inertia::render('Administrativos/Edificios/Index', [
             'edificios' => $edificios,
             'filters' => $request->only(['search', 'search_cui', 'zona_departamento', 'localidad', 'ambito']),
-            'options' => $this->queryService->getFilterOptions()
+            'options' => $options
         ]);
     }
 

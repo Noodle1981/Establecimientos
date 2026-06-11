@@ -17,10 +17,15 @@ class ReporteController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(25);
 
+        $statsData = Reporte::selectRaw('estado, count(*) as total')
+            ->groupBy('estado')
+            ->pluck('total', 'estado')
+            ->toArray();
+
         $stats = [
-            'pendientes' => Reporte::where('estado', 'PENDIENTE')->count(),
-            'procesados' => Reporte::where('estado', 'PROCESADO')->count(),
-            'descartados' => Reporte::where('estado', 'DESCARTADO')->count(),
+            'pendientes' => $statsData['PENDIENTE'] ?? 0,
+            'procesados' => $statsData['PROCESADO'] ?? 0,
+            'descartados' => $statsData['DESCARTADO'] ?? 0,
         ];
 
         return Inertia::render('Administrativos/Reportes/Index', [

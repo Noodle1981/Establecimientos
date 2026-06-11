@@ -23,7 +23,13 @@ export default function Index({ logs, filters }) {
                             placeholder="Buscar en la bitácora..."
                             className="w-full rounded-xl border-gray-200 py-2.5 pl-10 pr-4 text-sm font-medium shadow-sm transition-all focus:border-brand-orange focus:ring-brand-orange"
                             defaultValue={filters?.search}
-                            onChange={(e) => handleSearch(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                clearTimeout(window.searchTimeout);
+                                window.searchTimeout = setTimeout(() => {
+                                    handleSearch(val);
+                                }, 300);
+                            }}
                         />
                         <i className="fas fa-search absolute left-4 top-3 text-gray-300"></i>
                     </div>

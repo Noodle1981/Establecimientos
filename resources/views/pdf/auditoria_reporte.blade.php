@@ -159,7 +159,7 @@
                     <small style="font-size: 7px; color: #666;">R:{{ $m->radio ?? '-' }} | S:{{ $m->sector ?? '-' }} | C:{{ $m->categoria ?? '-' }}</small>
                 </td>
                 <td>
-                    {{ $nombresEdificios[substr($m->establecimiento->cue, 0, 7)] ?? 'S/D' }}<br>
+                    {{ $nombresEdificios[$m->establecimiento->edificio_id] ?? 'S/D' }}<br>
                     <small>CUI: {{ $m->establecimiento->edificio->cui }}</small><br>
                     <small style="font-size: 7px; color: #FF8200;">GPS: {{ $m->establecimiento->edificio->latitud }}, {{ $m->establecimiento->edificio->longitud }}</small>
                 </td>
