@@ -96,6 +96,48 @@ export default function Index({
         applyFilters(e.target.value);
     };
 
+    const filteredRadios = useMemo(() => {
+        if (!filters.zona_departamento) {
+            return options.radios || [];
+        }
+        return options.departamento_radios?.[filters.zona_departamento] || [];
+    }, [filters.zona_departamento, options.radios, options.departamento_radios]);
+
+    const filteredCategorias = useMemo(() => {
+        if (!filters.zona_departamento) {
+            return options.categorias || [];
+        }
+        return options.departamento_categorias?.[filters.zona_departamento] || [];
+    }, [filters.zona_departamento, options.categorias, options.departamento_categorias]);
+
+    const handleZonaDepartamentoChange = (newDepto) => {
+        const newFilters = { ...filters, zona_departamento: newDepto };
+        delete newFilters.page;
+
+        if (newDepto && filters.radio) {
+            const validRadios = options.departamento_radios?.[newDepto] || [];
+            if (!validRadios.includes(filters.radio)) {
+                delete newFilters.radio;
+            }
+        }
+
+        if (newDepto && filters.categoria) {
+            const validCategorias = options.departamento_categorias?.[newDepto] || [];
+            if (!validCategorias.includes(filters.categoria)) {
+                delete newFilters.categoria;
+            }
+        }
+
+        router.get(
+            route('administrativos.establecimientos.index'),
+            newFilters,
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
+    };
+
     const handleParamChange = (key, value) => {
         const newFilters = { ...filters, [key]: value };
         delete newFilters.page;
@@ -217,7 +259,7 @@ export default function Index({
                             />
 
                             <div className="space-y-1">
-                                <InputLabel value="Estado de Validación" />
+                                <InputLabel value="Estado" />
                                 <select
                                     value={filters.estado || ''}
                                     onChange={(e) =>
@@ -228,13 +270,9 @@ export default function Index({
                                     }
                                     className="w-full rounded-xl border-gray-200 text-xs font-bold focus:border-brand-orange focus:ring-brand-orange"
                                 >
-                                    <option value="">Todos los estados</option>
-                                    <option value="VALIDADO">
-                                        Solo VALIDADOS
-                                    </option>
-                                    <option value="PENDIENTE">
-                                        Solo PENDIENTES
-                                    </option>
+                                    <option value="">Cualquiera</option>
+                                    <option value="VALIDADO">Validado</option>
+                                    <option value="PENDIENTE">Pendiente</option>
                                 </select>
                             </div>
 
@@ -242,7 +280,7 @@ export default function Index({
                                 <FilterSelect
                                     label="Radio"
                                     value={filters.radio}
-                                    options={options.radios || []}
+                                    options={filteredRadios}
                                     onChange={(v) => handleParamChange('radio', v)}
                                 />
                                 <div className="space-y-1">
@@ -272,14 +310,12 @@ export default function Index({
                                 label="Zona / Departamento"
                                 value={filters.zona_departamento}
                                 options={options.zonas}
-                                onChange={(v) =>
-                                    handleParamChange('zona_departamento', v)
-                                }
+                                onChange={handleZonaDepartamentoChange}
                             />
                             <FilterSelect
                                 label="Categoría"
                                 value={filters.categoria}
-                                options={options.categorias || []}
+                                options={filteredCategorias}
                                 onChange={(v) =>
                                     handleParamChange('categoria', v)
                                 }

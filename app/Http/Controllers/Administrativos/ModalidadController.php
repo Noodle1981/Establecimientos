@@ -40,7 +40,7 @@ class ModalidadController extends Controller
             ->onEachSide(1)
             ->withQueryString();
 
-        $options = Cache::remember('modalidades_options_react', 3600, function () {
+        $options = Cache::remember('modalidades_options_react_v2', 3600, function () {
             return $this->queryService->getFilterOptions();
         });
 

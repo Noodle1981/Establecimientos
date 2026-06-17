@@ -68,14 +68,54 @@ class ModalidadQueryService
      */
     public function getFilterOptions(): array
     {
+        $niveles = Modalidad::select('nivel_educativo')->distinct()->whereNotNull('nivel_educativo')->orderBy('nivel_educativo')->pluck('nivel_educativo');
+        $ambitos = Modalidad::select('ambito')->distinct()->whereNotNull('ambito')->pluck('ambito');
+        $areas = Modalidad::select('direccion_area')->distinct()->whereNotNull('direccion_area')->orderBy('direccion_area')->pluck('direccion_area');
+        $zonas = \App\Models\Edificio::select('zona_departamento')->distinct()->whereNotNull('zona_departamento')->orderBy('zona_departamento')->pluck('zona_departamento');
+        $radios = Modalidad::select('radio')->distinct()->whereNotNull('radio')->orderBy('radio')->pluck('radio');
+        $sectores = Modalidad::select('sector')->distinct()->whereNotNull('sector')->orderBy('sector')->pluck('sector');
+        $categorias = Modalidad::select('categoria')->distinct()->whereNotNull('categoria')->where('categoria', '<>', '')->orderBy('categoria')->pluck('categoria');
+
+        // Mappings for dependent filters
+        $deptRadios = \DB::table('modalidades')
+            ->join('establecimientos', 'modalidades.establecimiento_id', '=', 'establecimientos.id')
+            ->join('edificios', 'establecimientos.edificio_id', '=', 'edificios.id')
+            ->select('edificios.zona_departamento', 'modalidades.radio')
+            ->whereNotNull('edificios.zona_departamento')
+            ->whereNotNull('modalidades.radio')
+            ->distinct()
+            ->get();
+
+        $departamentoRadios = [];
+        foreach ($deptRadios as $row) {
+            $departamentoRadios[$row->zona_departamento][] = $row->radio;
+        }
+
+        $deptCategorias = \DB::table('modalidades')
+            ->join('establecimientos', 'modalidades.establecimiento_id', '=', 'establecimientos.id')
+            ->join('edificios', 'establecimientos.edificio_id', '=', 'edificios.id')
+            ->select('edificios.zona_departamento', 'modalidades.categoria')
+            ->whereNotNull('edificios.zona_departamento')
+            ->whereNotNull('modalidades.categoria')
+            ->where('modalidades.categoria', '<>', '')
+            ->distinct()
+            ->get();
+
+        $departamentoCategorias = [];
+        foreach ($deptCategorias as $row) {
+            $departamentoCategorias[$row->zona_departamento][] = $row->categoria;
+        }
+
         return [
-            'niveles' => Modalidad::select('nivel_educativo')->distinct()->whereNotNull('nivel_educativo')->orderBy('nivel_educativo')->pluck('nivel_educativo'),
-            'ambitos' => Modalidad::select('ambito')->distinct()->whereNotNull('ambito')->pluck('ambito'),
-            'areas' => Modalidad::select('direccion_area')->distinct()->whereNotNull('direccion_area')->orderBy('direccion_area')->pluck('direccion_area'),
-            'zonas' => \App\Models\Edificio::select('zona_departamento')->distinct()->whereNotNull('zona_departamento')->orderBy('zona_departamento')->pluck('zona_departamento'),
-            'radios' => Modalidad::select('radio')->distinct()->whereNotNull('radio')->orderBy('radio')->pluck('radio'),
-            'sectores' => Modalidad::select('sector')->distinct()->whereNotNull('sector')->orderBy('sector')->pluck('sector'),
-            'categorias' => Modalidad::select('categoria')->distinct()->whereNotNull('categoria')->where('categoria', '<>', '')->orderBy('categoria')->pluck('categoria'),
+            'niveles' => $niveles,
+            'ambitos' => $ambitos,
+            'areas' => $areas,
+            'zonas' => $zonas,
+            'radios' => $radios,
+            'sectores' => $sectores,
+            'categorias' => $categorias,
+            'departamento_radios' => $departamentoRadios,
+            'departamento_categorias' => $departamentoCategorias,
         ];
     }
 
