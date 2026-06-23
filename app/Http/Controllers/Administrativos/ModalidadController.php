@@ -170,6 +170,7 @@ class ModalidadController extends Controller
             'zona_departamento' => $edificio->zona_departamento,
             'numero_puerta' => $edificio->numero_puerta,
             'cabecera_nombre' => $edificio->cabecera?->nombre,
+            'cabecera_cue' => $edificio->cabecera?->cue,
         ]);
     }
 

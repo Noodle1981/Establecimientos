@@ -1055,7 +1055,16 @@ function CreateModalidadModal({ show, onClose, options }) {
         zona_departamento: '',
     });
 
-    const lookupCUI = (cui) => {
+    const [cabeceraNombre, setCabeceraNombre] = useState('');
+
+    useEffect(() => {
+        if (!show) {
+            setCabeceraNombre('');
+        }
+    }, [show]);
+
+    const lookupCUI = (cuiStr) => {
+        const cui = String(cuiStr).trim();
         if (cui.length < 3) return;
         fetch(route('api.lookup-edificio', cui))
             .then((res) => res.json())
@@ -1067,8 +1076,24 @@ function CreateModalidadModal({ show, onClose, options }) {
                         calle: res.calle,
                         localidad: res.localidad,
                         zona_departamento: res.zona_departamento,
+                        establecimiento_cabecera: res.cabecera_cue || prev.cue || '',
                     }));
+                    if (res.cabecera_nombre) {
+                        setCabeceraNombre(res.cabecera_nombre);
+                    } else {
+                        setCabeceraNombre('Edificio sin cabecera asignada (este nuevo establecimiento será cabecera)');
+                    }
+                } else {
+                    setData((prev) => ({
+                        ...prev,
+                        cui,
+                        establecimiento_cabecera: prev.cue || '',
+                    }));
+                    setCabeceraNombre('Edificio nuevo (este nuevo establecimiento será cabecera)');
                 }
+            })
+            .catch(() => {
+                setCabeceraNombre('');
             });
     };
 
@@ -1136,24 +1161,40 @@ function CreateModalidadModal({ show, onClose, options }) {
                                 <TextInput
                                     className="mt-1 w-full"
                                     value={data.cue}
-                                    onChange={(e) =>
-                                        setData('cue', e.target.value)
-                                    }
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setData((prev) => ({
+                                            ...prev,
+                                            cue: val,
+                                            // Si no hay cabecera asignada en el edificio, se asume que este CUE es cabecera de sí mismo
+                                            establecimiento_cabecera: !cabeceraNombre || 
+                                                cabeceraNombre.includes('nueva') || 
+                                                cabeceraNombre.includes('nuevo') || 
+                                                cabeceraNombre.includes('sin cabecera')
+                                                ? val
+                                                : prev.establecimiento_cabecera,
+                                        }));
+                                    }}
                                 />
                                 <InputError message={errors.cue} />
                             </div>
                             <div className="col-span-2 lg:col-span-1">
-                                <InputLabel value="Establecimiento Cabecera" />
+                                <InputLabel value="CUE Establecimiento Cabecera" />
                                 <TextInput
-                                    className="mt-1 w-full"
+                                    className="mt-1 w-full bg-gray-50 font-mono text-gray-700"
                                     value={data.establecimiento_cabecera}
-                                    onChange={(e) =>
-                                        setData(
-                                            'establecimiento_cabecera',
-                                            e.target.value,
-                                        )
-                                    }
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setData('establecimiento_cabecera', val);
+                                        setCabeceraNombre('');
+                                    }}
+                                    placeholder="Ej: 700053600"
                                 />
+                                {cabeceraNombre && (
+                                    <p className="mt-1 text-xs font-semibold text-brand-orange">
+                                        <i className="fas fa-school mr-1"></i> {cabeceraNombre}
+                                    </p>
+                                )}
                                 <InputError
                                     message={errors.establecimiento_cabecera}
                                 />
