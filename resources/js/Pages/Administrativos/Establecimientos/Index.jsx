@@ -101,14 +101,24 @@ export default function Index({
             return options.radios || [];
         }
         return options.departamento_radios?.[filters.zona_departamento] || [];
-    }, [filters.zona_departamento, options.radios, options.departamento_radios]);
+    }, [
+        filters.zona_departamento,
+        options.radios,
+        options.departamento_radios,
+    ]);
 
     const filteredCategorias = useMemo(() => {
         if (!filters.zona_departamento) {
             return options.categorias || [];
         }
-        return options.departamento_categorias?.[filters.zona_departamento] || [];
-    }, [filters.zona_departamento, options.categorias, options.departamento_categorias]);
+        return (
+            options.departamento_categorias?.[filters.zona_departamento] || []
+        );
+    }, [
+        filters.zona_departamento,
+        options.categorias,
+        options.departamento_categorias,
+    ]);
 
     const handleZonaDepartamentoChange = (newDepto) => {
         const newFilters = { ...filters, zona_departamento: newDepto };
@@ -122,7 +132,8 @@ export default function Index({
         }
 
         if (newDepto && filters.categoria) {
-            const validCategorias = options.departamento_categorias?.[newDepto] || [];
+            const validCategorias =
+                options.departamento_categorias?.[newDepto] || [];
             if (!validCategorias.includes(filters.categoria)) {
                 delete newFilters.categoria;
             }
@@ -281,7 +292,9 @@ export default function Index({
                                     label="Radio"
                                     value={filters.radio}
                                     options={filteredRadios}
-                                    onChange={(v) => handleParamChange('radio', v)}
+                                    onChange={(v) =>
+                                        handleParamChange('radio', v)
+                                    }
                                 />
                                 <div className="space-y-1">
                                     <InputLabel value="Sector" />
@@ -364,6 +377,10 @@ export default function Index({
                                                             item.establecimiento
                                                                 .cue
                                                         }
+                                                        {item.establecimiento
+                                                            ?.edificio
+                                                            ?.zona_departamento &&
+                                                            ` - ${item.establecimiento.edificio.zona_departamento}`}
                                                     </span>
                                                 </div>
                                             </td>
@@ -578,10 +595,11 @@ function ViewModalidadModal({ show, onClose, modalidad, nombresEdificios }) {
                         </div>
                         <div>
                             <h3 className="text-xl font-black leading-tight text-gray-900">
-                                {modalidad.establecimiento.nombre}
+                                {modalidad.establecimiento?.nombre ||
+                                    'Sin Establecimiento'}
                             </h3>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                CUE: {modalidad.establecimiento.cue}
+                                CUE: {modalidad.establecimiento?.cue || 'S/D'}
                             </p>
                         </div>
                     </div>
@@ -605,18 +623,21 @@ function ViewModalidadModal({ show, onClose, modalidad, nombresEdificios }) {
                     <DetailItem
                         icon="fas fa-id-card"
                         label="CUI Edificio"
-                        value={modalidad.establecimiento.edificio.cui}
+                        value={
+                            modalidad.establecimiento?.edificio?.cui || 'S/D'
+                        }
                     />
                     <DetailItem
                         icon="fas fa-map-marker-alt"
                         label="Dirección"
-                        value={`${modalidad.establecimiento.edificio.calle} ${modalidad.establecimiento.edificio.numero_puerta || 'S/N'}`}
+                        value={`${modalidad.establecimiento?.edificio?.calle || ''} ${modalidad.establecimiento?.edificio?.numero_puerta || 'S/N'}`}
                     />
                     <DetailItem
                         icon="fas fa-city"
                         label="Departamento"
                         value={
-                            modalidad.establecimiento.edificio.zona_departamento
+                            modalidad.establecimiento?.edificio
+                                ?.zona_departamento || 'S/D'
                         }
                     />
                     <DetailItem
@@ -1076,12 +1097,15 @@ function CreateModalidadModal({ show, onClose, options }) {
                         calle: res.calle,
                         localidad: res.localidad,
                         zona_departamento: res.zona_departamento,
-                        establecimiento_cabecera: res.cabecera_cue || prev.cue || '',
+                        establecimiento_cabecera:
+                            res.cabecera_cue || prev.cue || '',
                     }));
                     if (res.cabecera_nombre) {
                         setCabeceraNombre(res.cabecera_nombre);
                     } else {
-                        setCabeceraNombre('Edificio sin cabecera asignada (este nuevo establecimiento será cabecera)');
+                        setCabeceraNombre(
+                            'Edificio sin cabecera asignada (este nuevo establecimiento será cabecera)',
+                        );
                     }
                 } else {
                     setData((prev) => ({
@@ -1089,7 +1113,9 @@ function CreateModalidadModal({ show, onClose, options }) {
                         cui,
                         establecimiento_cabecera: prev.cue || '',
                     }));
-                    setCabeceraNombre('Edificio nuevo (este nuevo establecimiento será cabecera)');
+                    setCabeceraNombre(
+                        'Edificio nuevo (este nuevo establecimiento será cabecera)',
+                    );
                 }
             })
             .catch(() => {
@@ -1167,12 +1193,19 @@ function CreateModalidadModal({ show, onClose, options }) {
                                             ...prev,
                                             cue: val,
                                             // Si no hay cabecera asignada en el edificio, se asume que este CUE es cabecera de sí mismo
-                                            establecimiento_cabecera: !cabeceraNombre || 
-                                                cabeceraNombre.includes('nueva') || 
-                                                cabeceraNombre.includes('nuevo') || 
-                                                cabeceraNombre.includes('sin cabecera')
-                                                ? val
-                                                : prev.establecimiento_cabecera,
+                                            establecimiento_cabecera:
+                                                !cabeceraNombre ||
+                                                cabeceraNombre.includes(
+                                                    'nueva',
+                                                ) ||
+                                                cabeceraNombre.includes(
+                                                    'nuevo',
+                                                ) ||
+                                                cabeceraNombre.includes(
+                                                    'sin cabecera',
+                                                )
+                                                    ? val
+                                                    : prev.establecimiento_cabecera,
                                         }));
                                     }}
                                 />
@@ -1185,14 +1218,18 @@ function CreateModalidadModal({ show, onClose, options }) {
                                     value={data.establecimiento_cabecera}
                                     onChange={(e) => {
                                         const val = e.target.value;
-                                        setData('establecimiento_cabecera', val);
+                                        setData(
+                                            'establecimiento_cabecera',
+                                            val,
+                                        );
                                         setCabeceraNombre('');
                                     }}
                                     placeholder="Ej: 700053600"
                                 />
                                 {cabeceraNombre && (
                                     <p className="mt-1 text-xs font-semibold text-brand-orange">
-                                        <i className="fas fa-school mr-1"></i> {cabeceraNombre}
+                                        <i className="fas fa-school mr-1"></i>{' '}
+                                        {cabeceraNombre}
                                     </p>
                                 )}
                                 <InputError

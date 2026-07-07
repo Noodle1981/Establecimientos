@@ -260,17 +260,14 @@ export default function Index({
                                             <td className="px-6 py-2">
                                                 <div className="flex flex-col">
                                                     <span className="text-xs font-black leading-tight text-gray-900">
-                                                        {
-                                                            mod.establecimiento
-                                                                .nombre
-                                                        }
+                                                        {mod.establecimiento
+                                                            ?.nombre ||
+                                                            'Sin Establecimiento'}
                                                     </span>
                                                     <span className="text-[9px] font-bold text-gray-400">
                                                         CUE:{' '}
-                                                        {
-                                                            mod.establecimiento
-                                                                .cue
-                                                        }
+                                                        {mod.establecimiento
+                                                            ?.cue || 'S/D'}
                                                     </span>
                                                 </div>
                                             </td>
@@ -306,22 +303,23 @@ export default function Index({
                                                                 CUI:{' '}
                                                                 {mod
                                                                     .establecimiento
-                                                                    .edificio
+                                                                    ?.edificio
                                                                     ?.cui ||
                                                                     mod
                                                                         .establecimiento
-                                                                        .establecimiento_cabecera}
+                                                                        ?.establecimiento_cabecera ||
+                                                                    'S/D'}
                                                             </span>
                                                         </>
                                                     ) : (
                                                         <span className="text-[10px] font-black leading-tight text-brand-orange">
                                                             CUI:{' '}
                                                             {mod.establecimiento
-                                                                .edificio
+                                                                ?.edificio
                                                                 ?.cui ||
                                                                 mod
                                                                     .establecimiento
-                                                                    .establecimiento_cabecera ||
+                                                                    ?.establecimiento_cabecera ||
                                                                 'S/D'}
                                                         </span>
                                                     )}
@@ -632,7 +630,8 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                             Validación de Datos
                         </h3>
                         <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                            {modalidad.establecimiento.nombre}
+                            {modalidad.establecimiento?.nombre ||
+                                'Sin Establecimiento'}
                         </p>
                     </div>
                     <button
@@ -660,16 +659,21 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                     </p>
                                     <p
                                         className="truncate text-xs font-black leading-tight text-gray-800"
-                                        title={modalidad.establecimiento.nombre}
+                                        title={
+                                            modalidad.establecimiento?.nombre ||
+                                            ''
+                                        }
                                     >
-                                        {modalidad.establecimiento.nombre}
+                                        {modalidad.establecimiento?.nombre ||
+                                            'Sin Establecimiento'}
                                     </p>
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() =>
                                         handleCopy(
-                                            modalidad.establecimiento.nombre,
+                                            modalidad.establecimiento?.nombre ||
+                                                '',
                                             'nombre_est',
                                         )
                                     }
@@ -688,14 +692,16 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                             CUE
                                         </p>
                                         <p className="text-xs font-black text-gray-800">
-                                            {modalidad.establecimiento.cue}
+                                            {modalidad.establecimiento?.cue ||
+                                                'S/D'}
                                         </p>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={() =>
                                             handleCopy(
-                                                modalidad.establecimiento.cue,
+                                                modalidad.establecimiento
+                                                    ?.cue || '',
                                                 'cue',
                                             )
                                         }
@@ -713,18 +719,18 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                             CUI
                                         </p>
                                         <p className="text-xs font-black text-gray-800">
-                                            {modalidad.establecimiento.edificio
+                                            {modalidad.establecimiento?.edificio
                                                 ?.cui || 'S/D'}
                                         </p>
                                     </div>
-                                    {modalidad.establecimiento.edificio
+                                    {modalidad.establecimiento?.edificio
                                         ?.cui && (
                                         <button
                                             type="button"
                                             onClick={() =>
                                                 handleCopy(
                                                     modalidad.establecimiento
-                                                        .edificio.cui,
+                                                        ?.edificio?.cui,
                                                     'cui',
                                                 )
                                             }
@@ -857,13 +863,13 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                     </p>
                                     <p
                                         className="truncate text-[11px] font-black leading-tight text-gray-800"
-                                        title={`${modalidad.establecimiento.edificio?.calle} ${modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}`}
+                                        title={`${modalidad.establecimiento?.edificio?.calle} ${modalidad.establecimiento?.edificio?.numero_puerta || 'S/N'}`}
                                     >
                                         {
-                                            modalidad.establecimiento.edificio
+                                            modalidad.establecimiento?.edificio
                                                 ?.calle
                                         }{' '}
-                                        {modalidad.establecimiento.edificio
+                                        {modalidad.establecimiento?.edificio
                                             ?.numero_puerta || 'S/N'}
                                     </p>
                                 </div>
@@ -871,7 +877,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                     type="button"
                                     onClick={() =>
                                         handleCopy(
-                                            `${modalidad.establecimiento.edificio?.calle} ${modalidad.establecimiento.edificio?.numero_puerta || 'S/N'}`,
+                                            `${modalidad.establecimiento?.edificio?.calle} ${modalidad.establecimiento?.edificio?.numero_puerta || 'S/N'}`,
                                             'direccion',
                                         )
                                     }
@@ -922,26 +928,26 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                     </p>
                                     <p
                                         className="truncate text-xs font-black leading-tight text-brand-orange"
-                                        title={`${modalidad.establecimiento.edificio?.latitud}, ${modalidad.establecimiento.edificio?.longitud}`}
+                                        title={`${modalidad.establecimiento?.edificio?.latitud}, ${modalidad.establecimiento?.edificio?.longitud}`}
                                     >
                                         {
-                                            modalidad.establecimiento.edificio
+                                            modalidad.establecimiento?.edificio
                                                 ?.latitud
                                         }
                                         ,{' '}
                                         {
-                                            modalidad.establecimiento.edificio
+                                            modalidad.establecimiento?.edificio
                                                 ?.longitud
                                         }
                                     </p>
                                 </div>
-                                {modalidad.establecimiento.edificio
+                                {modalidad.establecimiento?.edificio
                                     ?.latitud && (
                                     <button
                                         type="button"
                                         onClick={() =>
                                             handleCopy(
-                                                `${modalidad.establecimiento.edificio?.latitud}, ${modalidad.establecimiento.edificio?.longitud}`,
+                                                `${modalidad.establecimiento?.edificio?.latitud}, ${modalidad.establecimiento?.edificio?.longitud}`,
                                                 'gps',
                                             )
                                         }
@@ -962,12 +968,12 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                     <p
                                         className="truncate text-xs font-black text-gray-700"
                                         title={
-                                            modalidad.establecimiento.edificio
+                                            modalidad.establecimiento?.edificio
                                                 ?.zona_departamento
                                         }
                                     >
                                         {
-                                            modalidad.establecimiento.edificio
+                                            modalidad.establecimiento?.edificio
                                                 ?.zona_departamento
                                         }
                                     </p>
@@ -978,18 +984,19 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                             C.P.
                                         </p>
                                         <p className="text-xs font-black text-gray-800">
-                                            {modalidad.establecimiento.edificio
+                                            {modalidad.establecimiento?.edificio
                                                 ?.codigo_postal || 'S/D'}
                                         </p>
                                     </div>
-                                    {modalidad.establecimiento.edificio
+                                    {modalidad.establecimiento?.edificio
                                         ?.codigo_postal && (
                                         <button
                                             type="button"
                                             onClick={() =>
                                                 handleCopy(
                                                     modalidad.establecimiento
-                                                        .edificio.codigo_postal,
+                                                        ?.edificio
+                                                        ?.codigo_postal,
                                                     'cp',
                                                 )
                                             }
@@ -1011,21 +1018,21 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                             className="truncate text-xs font-black text-gray-800"
                                             title={
                                                 modalidad.establecimiento
-                                                    .edificio?.orientacion
+                                                    ?.edificio?.orientacion
                                             }
                                         >
-                                            {modalidad.establecimiento.edificio
+                                            {modalidad.establecimiento?.edificio
                                                 ?.orientacion || 'S/D'}
                                         </p>
                                     </div>
-                                    {modalidad.establecimiento.edificio
+                                    {modalidad.establecimiento?.edificio
                                         ?.orientacion && (
                                         <button
                                             type="button"
                                             onClick={() =>
                                                 handleCopy(
                                                     modalidad.establecimiento
-                                                        .edificio.orientacion,
+                                                        ?.edificio?.orientacion,
                                                     'orientacion',
                                                 )
                                             }
@@ -1045,8 +1052,8 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                     {/* Fila 2 (Inferior): Georreferenciación + Nuevo Estado (Izquierda) y Campos Auditados + Observaciones (Derecha) */}
                     {/* Columna Izquierda Inferior */}
                     <div className="space-y-6">
-                        {modalidad.establecimiento.edificio?.latitud &&
-                            modalidad.establecimiento.edificio?.longitud && (
+                        {modalidad.establecimiento?.edificio?.latitud &&
+                            modalidad.establecimiento?.edificio?.longitud && (
                                 <div>
                                     <InputLabel
                                         value="Georreferenciación para EDUGE (DMS)"
@@ -1057,7 +1064,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                         {(() => {
                                             const latDms = decimalToDMS(
                                                 modalidad.establecimiento
-                                                    .edificio.latitud,
+                                                    ?.edificio?.latitud,
                                                 true,
                                             );
                                             return (
@@ -1177,7 +1184,7 @@ function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
                                         {(() => {
                                             const lngDms = decimalToDMS(
                                                 modalidad.establecimiento
-                                                    .edificio.longitud,
+                                                    ?.edificio?.longitud,
                                                 false,
                                             );
                                             return (

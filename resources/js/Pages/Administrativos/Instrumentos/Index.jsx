@@ -102,11 +102,14 @@ export default function Index({ modalidades, filters }) {
                                         <td className="px-6 py-2">
                                             <div className="flex flex-col">
                                                 <span className="text-xs font-black leading-tight text-black group-hover:text-brand-orange">
-                                                    {mod.establecimiento.nombre}
+                                                    {mod.establecimiento
+                                                        ?.nombre ||
+                                                        'Sin Establecimiento'}
                                                 </span>
                                                 <span className="text-[9px] font-black uppercase text-black/40">
                                                     CUE:{' '}
-                                                    {mod.establecimiento.cue}
+                                                    {mod.establecimiento?.cue ||
+                                                        'S/D'}
                                                 </span>
                                             </div>
                                         </td>
@@ -208,7 +211,8 @@ function EditModal({ show, onClose, modalidad }) {
                             Editar Instrumentos
                         </h3>
                         <p className="mt-1 text-[9px] font-bold tracking-widest text-gray-400">
-                            {modalidad.establecimiento.nombre}
+                            {modalidad.establecimiento?.nombre ||
+                                'Sin Establecimiento'}
                         </p>
                     </div>
                 </div>
