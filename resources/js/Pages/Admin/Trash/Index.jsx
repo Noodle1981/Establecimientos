@@ -67,15 +67,13 @@ export default function Index({ modalidades, edificios }) {
                                                 <div className="flex flex-col">
                                                     <span className="text-xs font-black leading-tight text-black">
                                                         {
-                                                            mod.establecimiento
-                                                                .nombre
+                                                            mod.establecimiento?.nombre ?? 'Establecimiento no encontrado'
                                                         }
                                                     </span>
                                                     <span className="text-[9px] font-black uppercase text-black/40">
                                                         CUE:{' '}
                                                         {
-                                                            mod.establecimiento
-                                                                .cue
+                                                            mod.establecimiento?.cue ?? 'S/D'
                                                         }
                                                     </span>
                                                 </div>

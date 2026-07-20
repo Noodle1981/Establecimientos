@@ -13,7 +13,7 @@ Plataforma del Ministerio de Educación de San Juan para gestionar, conciliar (c
 *   **Backend:** Laravel 12.x (PHP 8.2+)
 *   **Frontend:** React 18+ + Inertia.js 2.x (SPA monolítica, páginas en `resources/js/Pages/`)
 *   **Base de Datos:** SQLite con soporte relacional e indexación.
-*   **Visualización:** Leaflet.js (mapas) y Chart.js / ApexCharts (gráficos).
+*   **Visualización:** Leaflet.js (mapas) y Chart.js (gráficos).
 *   **Reportes:** Barryvdh/laravel-dompdf (exportación horizontal de auditoría).
 
 ---
@@ -41,10 +41,10 @@ El sistema procesa la planilla Excel original (`Establecimientos_Publicos.xlsx`)
 ## 🏗️ Arquitectura Relacional (Base de Datos)
 
 ### 1. `edificios` (Inmueble Físico)
-`id` (PK), `cui` (UNIQUE), `calle`, `numero_puerta`, `orientacion`, `codigo_postal`, `localidad`, `latitud`, `longitud`, `letra_zona`, `zona_departamento`, `te_voip`.
+`id` (PK), `cui` (UNIQUE), `cabecera_cue` (FK/CUE), `calle`, `numero_puerta`, `orientacion`, `codigo_postal`, `localidad`, `latitud`, `longitud`, `letra_zona`, `zona_departamento`, `te_voip`.
 
 ### 2. `establecimientos` (Escuela)
-`id` (PK), `edificio_id` (FK), `cue`, `cue_edificio_principal`, `nombre`, `establecimiento_cabecera`.
+`id` (PK), `edificio_id` (FK), `cue`, `cue_edificio_principal`, `nombre`, `establecimiento_cabecera`, `observaciones`.
 
 ### 3. `modalidades` (Oferta y Estado de Validación)
 `id` (PK), `establecimiento_id` (FK), `direccion_area`, `nivel_educativo`, `sector`, `categoria`, `inst_legal_categoria`, `radio`, `inst_legal_radio`, `inst_legal_categoria_bis`, `inst_legal_creacion`, `ambito` ('PUBLICO'/'PRIVADO'), `validado` (bool), `estado_validacion` ('PENDIENTE', 'CORRECTO', 'CORREGIDO', 'BAJA', 'ELIMINADO'), `validado_por_user_id` (FK), `validado_en`, `zona`, `observaciones`, `campos_auditados` (JSON).
@@ -54,6 +54,9 @@ El sistema procesa la planilla Excel original (`Establecimientos_Publicos.xlsx`)
 
 ### 5. `auditorias_eduge` (Conciliación Externa)
 `id` (PK), `establecimiento_id` (FK), `user_id` (FK), `fecha_visita`, `cambios` (JSON), `observaciones`, `tipo_cotejo`, `identificador_eduge`.
+
+### 6. `reportes` (Denuncias / Sugerencias Ciudadanas)
+`id` (PK), `edificio_id` (FK), `tipo`, `descripcion`, `nombre_remitente`, `email_remitente`, `estado` ('PENDIENTE', 'PROCESADO', etc.).
 
 ---
 

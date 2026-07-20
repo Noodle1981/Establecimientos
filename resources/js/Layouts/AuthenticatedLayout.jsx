@@ -18,6 +18,14 @@ export default function AuthenticatedLayout({
     const isAdmin = user?.role === 'admin';
     const isAdministrativo = user?.role === 'administrativos';
 
+    const isGestionActive = route().current('administrativos.dashboard') ||
+                            route().current('administrativos.edificios.index') ||
+                            route().current('administrativos.establecimientos.index') ||
+                            route().current('administrativos.instrumentos.index') ||
+                            route().current('administrativos.auditoria.index');
+
+    const [gestionOpen, setGestionOpen] = useState(isGestionActive);
+
     // Handle mobile responsiveness for sidebar
     useEffect(() => {
         let frameId;
@@ -81,18 +89,7 @@ export default function AuthenticatedLayout({
                             Mapa Escolar
                         </SidebarLink>
 
-                        {isAdmin && (
-                            <SidebarLink
-                                href={route('admin.dashboard')}
-                                active={route().current('admin.dashboard')}
-                                icon="fas fa-chart-line"
-                                collapsed={!sidebarOpen}
-                            >
-                                Dashboard Admin
-                            </SidebarLink>
-                        )}
-
-                        {(isAdmin || isAdministrativo) && (
+                        {isAdministrativo && (
                             <>
                                 <div
                                     className={`mb-2 mt-6 px-4 text-[10px] font-black uppercase tracking-widest text-white/40 ${!sidebarOpen && 'hidden'}`}
@@ -101,75 +98,131 @@ export default function AuthenticatedLayout({
                                 </div>
                                 <SidebarLink
                                     href={route('administrativos.dashboard')}
-                                    active={route().current(
-                                        'administrativos.dashboard',
-                                    )}
+                                    active={route().current('administrativos.dashboard')}
                                     icon="fas fa-tachometer-alt"
                                     collapsed={!sidebarOpen}
                                 >
                                     Estadísticas
                                 </SidebarLink>
                                 <SidebarLink
-                                    href={route(
-                                        'administrativos.edificios.index',
-                                    )}
-                                    active={route().current(
-                                        'administrativos.edificios.index',
-                                    )}
+                                    href={route('administrativos.edificios.index')}
+                                    active={route().current('administrativos.edificios.index')}
                                     icon="fas fa-building"
                                     collapsed={!sidebarOpen}
                                 >
                                     Edificios
                                 </SidebarLink>
                                 <SidebarLink
-                                    href={route(
-                                        'administrativos.establecimientos.index',
-                                    )}
-                                    active={route().current(
-                                        'administrativos.establecimientos.index',
-                                    )}
+                                    href={route('administrativos.establecimientos.index')}
+                                    active={route().current('administrativos.establecimientos.index')}
                                     icon="fas fa-school"
                                     collapsed={!sidebarOpen}
                                 >
                                     Establecimientos
                                 </SidebarLink>
                                 <SidebarLink
-                                    href={route(
-                                        'administrativos.instrumentos.index',
-                                    )}
-                                    active={route().current(
-                                        'administrativos.instrumentos.index',
-                                    )}
+                                    href={route('administrativos.instrumentos.index')}
+                                    active={route().current('administrativos.instrumentos.index')}
                                     icon="fas fa-file-contract"
                                     collapsed={!sidebarOpen}
                                 >
                                     Instrumentos
                                 </SidebarLink>
                                 <SidebarLink
-                                    href={route(
-                                        'administrativos.auditoria.index',
-                                    )}
-                                    active={route().current(
-                                        'administrativos.auditoria.index',
-                                    )}
+                                    href={route('administrativos.auditoria.index')}
+                                    active={route().current('administrativos.auditoria.index')}
                                     icon="fas fa-clipboard-check"
                                     collapsed={!sidebarOpen}
                                 >
                                     Auditoría
                                 </SidebarLink>
-                                <SidebarLink
-                                    href={route(
-                                        'administrativos.reportes.index',
-                                    )}
-                                    active={route().current(
-                                        'administrativos.reportes.*',
-                                    )}
-                                    icon="fas fa-inbox"
-                                    collapsed={!sidebarOpen}
-                                >
-                                    Reportes
-                                </SidebarLink>
                             </>
+                        )}
+
+                        {isAdmin && (
+                            <div className="space-y-1">
+                                <button
+                                    onClick={() => setGestionOpen(!gestionOpen)}
+                                    className={`flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white/60 hover:bg-white/10 hover:text-white transition-all ${
+                                        !sidebarOpen && 'justify-center px-0'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <i className="fas fa-tasks text-xs"></i>
+                                        {sidebarOpen && <span>Gestión</span>}
+                                    </div>
+                                    {sidebarOpen && (
+                                        <i
+                                            className={`fas fa-chevron-${
+                                                gestionOpen ? 'up' : 'down'
+                                            } text-[8px] transition-transform duration-200`}
+                                        ></i>
+                                    )}
+                                </button>
+
+                                {gestionOpen && (
+                                    <div className={`space-y-1 ${sidebarOpen ? 'pl-3 border-l border-white/10 ml-4' : ''}`}>
+                                        <SidebarLink
+                                            href={route('administrativos.dashboard')}
+                                            active={route().current(
+                                                'administrativos.dashboard',
+                                            )}
+                                            icon="fas fa-tachometer-alt"
+                                            collapsed={!sidebarOpen}
+                                        >
+                                            Estadísticas
+                                        </SidebarLink>
+                                        <SidebarLink
+                                            href={route(
+                                                'administrativos.edificios.index',
+                                            )}
+                                            active={route().current(
+                                                'administrativos.edificios.index',
+                                            )}
+                                            icon="fas fa-building"
+                                            collapsed={!sidebarOpen}
+                                        >
+                                            Edificios
+                                        </SidebarLink>
+                                        <SidebarLink
+                                            href={route(
+                                                'administrativos.establecimientos.index',
+                                            )}
+                                            active={route().current(
+                                                'administrativos.establecimientos.index',
+                                            )}
+                                            icon="fas fa-school"
+                                            collapsed={!sidebarOpen}
+                                        >
+                                            Establecimientos
+                                        </SidebarLink>
+                                        <SidebarLink
+                                            href={route(
+                                                'administrativos.instrumentos.index',
+                                            )}
+                                            active={route().current(
+                                                'administrativos.instrumentos.index',
+                                            )}
+                                            icon="fas fa-file-contract"
+                                            collapsed={!sidebarOpen}
+                                        >
+                                            Instrumentos
+                                        </SidebarLink>
+                                        <SidebarLink
+                                            href={route(
+                                                'administrativos.auditoria.index',
+                                            )}
+                                            active={route().current(
+                                                'administrativos.auditoria.index',
+                                            )}
+                                            icon="fas fa-clipboard-check"
+                                            collapsed={!sidebarOpen}
+                                        >
+                                            Auditoría
+                                        </SidebarLink>
+                                    </div>
+                                )}
+                            </div>
                         )}
 
                         <div
@@ -187,8 +240,29 @@ export default function AuthenticatedLayout({
                             Bitácora
                         </SidebarLink>
 
+                        <SidebarLink
+                            href={route(
+                                'administrativos.reportes.index',
+                            )}
+                            active={route().current(
+                                'administrativos.reportes.*',
+                            )}
+                            icon="fas fa-inbox"
+                            collapsed={!sidebarOpen}
+                        >
+                            Reportes
+                        </SidebarLink>
+
                         {isAdmin && (
                             <>
+                                <SidebarLink
+                                    href={route('admin.dashboard')}
+                                    active={route().current('admin.dashboard')}
+                                    icon="fas fa-chart-line"
+                                    collapsed={!sidebarOpen}
+                                >
+                                    Dashboard Admin
+                                </SidebarLink>
                                 <SidebarLink
                                     href={route('admin.users.index')}
                                     active={route().current('admin.users.*')}
@@ -371,75 +445,99 @@ export default function AuthenticatedLayout({
                                 >
                                     Mapa
                                 </MobileNavLink>
-                                {(isAdmin || isAdministrativo) && (
+                                {isAdministrativo && (
                                     <>
                                         <MobileNavLink
-                                            href={route(
-                                                'administrativos.dashboard',
-                                            )}
-                                            active={route().current(
-                                                'administrativos.dashboard',
-                                            )}
+                                            href={route('administrativos.dashboard')}
+                                            active={route().current('administrativos.dashboard')}
                                             icon="fas fa-tachometer-alt"
                                         >
                                             Estadísticas
                                         </MobileNavLink>
                                         <MobileNavLink
-                                            href={route(
-                                                'administrativos.edificios.index',
-                                            )}
-                                            active={route().current(
-                                                'administrativos.edificios.index',
-                                            )}
+                                            href={route('administrativos.edificios.index')}
+                                            active={route().current('administrativos.edificios.index')}
                                             icon="fas fa-building"
                                         >
                                             Edificios
                                         </MobileNavLink>
                                         <MobileNavLink
-                                            href={route(
-                                                'administrativos.establecimientos.index',
-                                            )}
-                                            active={route().current(
-                                                'administrativos.establecimientos.index',
-                                            )}
+                                            href={route('administrativos.establecimientos.index')}
+                                            active={route().current('administrativos.establecimientos.index')}
                                             icon="fas fa-school"
                                         >
                                             Establecimientos
                                         </MobileNavLink>
                                         <MobileNavLink
-                                            href={route(
-                                                'administrativos.instrumentos.index',
-                                            )}
-                                            active={route().current(
-                                                'administrativos.instrumentos.index',
-                                            )}
+                                            href={route('administrativos.instrumentos.index')}
+                                            active={route().current('administrativos.instrumentos.index')}
                                             icon="fas fa-file-contract"
                                         >
                                             Instrumentos
                                         </MobileNavLink>
                                         <MobileNavLink
-                                            href={route(
-                                                'administrativos.auditoria.index',
-                                            )}
-                                            active={route().current(
-                                                'administrativos.auditoria.index',
-                                            )}
+                                            href={route('administrativos.auditoria.index')}
+                                            active={route().current('administrativos.auditoria.index')}
                                             icon="fas fa-clipboard-check"
                                         >
                                             Auditoría
                                         </MobileNavLink>
-                                        <MobileNavLink
-                                            href={route(
-                                                'administrativos.reportes.index',
-                                            )}
-                                            active={route().current(
-                                                'administrativos.reportes.*',
-                                            )}
-                                            icon="fas fa-inbox"
-                                        >
-                                            Reportes
-                                        </MobileNavLink>
                                     </>
+                                )}
+
+                                {isAdmin && (
+                                    <div className="space-y-1">
+                                        <button
+                                            onClick={() => setGestionOpen(!gestionOpen)}
+                                            className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-black text-white hover:bg-white/10 transition-colors"
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                <i className="fas fa-tasks w-5 text-center text-white/60"></i>
+                                                <span>Gestión</span>
+                                            </div>
+                                            <i className={`fas fa-chevron-${gestionOpen ? 'up' : 'down'} text-xs text-white/60`}></i>
+                                        </button>
+
+                                        {gestionOpen && (
+                                            <div className="pl-4 space-y-1 border-l border-white/10 ml-6">
+                                                <MobileNavLink
+                                                    href={route('administrativos.dashboard')}
+                                                    active={route().current('administrativos.dashboard')}
+                                                    icon="fas fa-tachometer-alt"
+                                                >
+                                                    Estadísticas
+                                                </MobileNavLink>
+                                                <MobileNavLink
+                                                    href={route('administrativos.edificios.index')}
+                                                    active={route().current('administrativos.edificios.index')}
+                                                    icon="fas fa-building"
+                                                >
+                                                    Edificios
+                                                </MobileNavLink>
+                                                <MobileNavLink
+                                                    href={route('administrativos.establecimientos.index')}
+                                                    active={route().current('administrativos.establecimientos.index')}
+                                                    icon="fas fa-school"
+                                                >
+                                                    Establecimientos
+                                                </MobileNavLink>
+                                                <MobileNavLink
+                                                    href={route('administrativos.instrumentos.index')}
+                                                    active={route().current('administrativos.instrumentos.index')}
+                                                    icon="fas fa-file-contract"
+                                                >
+                                                    Instrumentos
+                                                </MobileNavLink>
+                                                <MobileNavLink
+                                                    href={route('administrativos.auditoria.index')}
+                                                    active={route().current('administrativos.auditoria.index')}
+                                                    icon="fas fa-clipboard-check"
+                                                >
+                                                    Auditoría
+                                                </MobileNavLink>
+                                            </div>
+                                        )}
+                                    </div>
                                 )}
                                 <MobileNavLink
                                     href={route('bitacora.index')}
@@ -448,6 +546,42 @@ export default function AuthenticatedLayout({
                                 >
                                     Bitácora
                                 </MobileNavLink>
+                                <MobileNavLink
+                                    href={route(
+                                        'administrativos.reportes.index',
+                                    )}
+                                    active={route().current(
+                                        'administrativos.reportes.*',
+                                    )}
+                                    icon="fas fa-inbox"
+                                >
+                                    Reportes
+                                </MobileNavLink>
+                                {isAdmin && (
+                                    <>
+                                        <MobileNavLink
+                                            href={route('admin.dashboard')}
+                                            active={route().current('admin.dashboard')}
+                                            icon="fas fa-chart-line"
+                                        >
+                                            Dashboard Admin
+                                        </MobileNavLink>
+                                        <MobileNavLink
+                                            href={route('admin.users.index')}
+                                            active={route().current('admin.users.*')}
+                                            icon="fas fa-users-cog"
+                                        >
+                                            Usuarios
+                                        </MobileNavLink>
+                                        <MobileNavLink
+                                            href={route('admin.trash.index')}
+                                            active={route().current('admin.trash.*')}
+                                            icon="fas fa-trash-alt"
+                                        >
+                                            Papelera
+                                        </MobileNavLink>
+                                    </>
+                                )}
                             </div>
                         </aside>
                     </div>

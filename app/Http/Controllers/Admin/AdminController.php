@@ -95,7 +95,7 @@ class AdminController extends Controller
      */
     public function trash(Request $request): Response
     {
-        $modalidades = Modalidad::onlyTrashed()->with('establecimiento')->get();
+        $modalidades = Modalidad::onlyTrashed()->with(['establecimiento' => fn($q) => $q->withTrashed()])->get();
         $edificios = Edificio::onlyTrashed()->get();
 
         return Inertia::render('Admin/Trash/Index', [
