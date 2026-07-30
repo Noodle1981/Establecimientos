@@ -16,6 +16,7 @@ export default function Index({
 }) {
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedMod, setSelectedMod] = useState(null);
+    const [isExporting, setIsExporting] = useState(false);
 
     // Función para obtener el nombre descriptivo del edificio
     const getNombreEdificio = (mod) => {
@@ -46,6 +47,37 @@ export default function Index({
             preserveState: true,
             replace: true,
         });
+    };
+
+    const handleExportPdf = async () => {
+        setIsExporting(true);
+        try {
+            const response = await window.axios.get(route('administrativos.auditoria.exportPdf', filters), {
+                responseType: 'blob',
+            });
+            
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            
+            const contentDisposition = response.headers['content-disposition'];
+            let fileName = 'reporte_auditoria.pdf';
+            if (contentDisposition) {
+                const fileNameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+                if (fileNameMatch && fileNameMatch.length === 2)
+                    fileName = fileNameMatch[1];
+            }
+            
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error('Error exporting PDF:', error);
+            alert('Hubo un error al generar el PDF. Por favor, intente nuevamente.');
+        } finally {
+            setIsExporting(false);
+        }
     };
 
     return (
@@ -192,17 +224,18 @@ export default function Index({
                     </select>
 
                     <div className="ml-2 flex w-full shrink-0 gap-2 border-l border-orange-50 pl-4 lg:w-auto">
-                        <a
-                            href={route(
-                                'administrativos.auditoria.exportPdf',
-                                filters,
-                            )}
-                            target="_blank"
-                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-transparent bg-red-600 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-sm transition hover:bg-red-700 lg:w-auto"
-                            rel="noreferrer"
+                        <button
+                            onClick={handleExportPdf}
+                            disabled={isExporting}
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-transparent bg-red-600 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-sm transition hover:bg-red-700 disabled:opacity-50 lg:w-auto"
                         >
-                            <i className="fas fa-file-pdf"></i> Exportar PDF
-                        </a>
+                            {isExporting ? (
+                                <i className="fas fa-spinner fa-spin"></i>
+                            ) : (
+                                <i className="fas fa-file-pdf"></i>
+                            )}
+                            {isExporting ? 'Generando...' : 'Exportar PDF'}
+                        </button>
                     </div>
                 </div>
 

@@ -32,11 +32,44 @@ class UpdateModalidadAction
             ]);
 
             // Sync Establecimiento
-            $modalidad->establecimiento->update([
-                'cue' => $data['cue'],
-                'nombre' => $data['nombre_establecimiento'],
-                'observaciones' => $data['observaciones'] ?? null,
-            ]);
+            $currentEstablecimiento = $modalidad->establecimiento;
+            if ((string)$currentEstablecimiento->cue !== (string)$data['cue']) {
+                $targetEstablecimiento = \App\Models\Establecimiento::where('cue', $data['cue'])->first();
+                if ($targetEstablecimiento) {
+                    $targetEstablecimiento->update([
+                        'edificio_id' => $edificio->id,
+                        'nombre' => $data['nombre_establecimiento'],
+                        'observaciones' => $data['observaciones'] ?? $targetEstablecimiento->observaciones,
+                    ]);
+                    $modalidad->establecimiento_id = $targetEstablecimiento->id;
+                } else {
+                    $otherCount = $currentEstablecimiento->modalidades()->where('id', '!=', $modalidad->id)->count();
+                    if ($otherCount > 0) {
+                        $newEstablecimiento = \App\Models\Establecimiento::create([
+                            'cue' => $data['cue'],
+                            'nombre' => $data['nombre_establecimiento'],
+                            'edificio_id' => $edificio->id,
+                            'cue_edificio_principal' => $currentEstablecimiento->cue_edificio_principal,
+                            'establecimiento_cabecera' => $currentEstablecimiento->establecimiento_cabecera,
+                            'observaciones' => $data['observaciones'] ?? null,
+                        ]);
+                        $modalidad->establecimiento_id = $newEstablecimiento->id;
+                    } else {
+                        $currentEstablecimiento->update([
+                            'cue' => $data['cue'],
+                            'edificio_id' => $edificio->id,
+                            'nombre' => $data['nombre_establecimiento'],
+                            'observaciones' => $data['observaciones'] ?? null,
+                        ]);
+                    }
+                }
+            } else {
+                $currentEstablecimiento->update([
+                    'edificio_id' => $edificio->id,
+                    'nombre' => $data['nombre_establecimiento'],
+                    'observaciones' => $data['observaciones'] ?? null,
+                ]);
+            }
 
             // Sync Modalidad
             $modalidad->update([

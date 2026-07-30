@@ -124,6 +124,9 @@ class AuditoriaController extends Controller
      */
     public function exportPdf(Request $request)
     {
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+
         // Obtener los datos filtrados (sin paginación para el PDF)
         $modalidades = $this->queryService->getFilteredQuery($request)
             ->orderBy('validado_en', 'desc')
