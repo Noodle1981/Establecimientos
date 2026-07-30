@@ -74,7 +74,7 @@
             <span class="info-label">Fecha de Emisión:</span> {{ now()->format('d/m/Y H:i') }}
         </div>
         <div class="info-item">
-            <span class="info-label">Generado por:</span> {{ auth()->user()->name }}
+            <span class="info-label">Generado por:</span> {{ auth()->user()?->name ?? 'Sistema' }}
         </div>
         @if(isset($filtros['departamento']) && $filtros['departamento'])
         <div class="info-item">
@@ -150,18 +150,18 @@
             @foreach($modalidades as $m)
             <tr>
                 <td>
-                    <strong>{{ $m->establecimiento->nombre }}</strong><br>
-                    <small>CUE: {{ $m->establecimiento->cue }}</small><br>
-                    <small style="font-size: 7px; color: #666;">Dir: {{ $m->establecimiento->edificio->calle }} {{ $m->establecimiento->edificio->numero_puerta ?? 'S/N' }}</small>
+                    <strong>{{ $m->establecimiento?->nombre ?? 'Sin Establecimiento' }}</strong><br>
+                    <small>CUE: {{ $m->establecimiento?->cue ?? '-' }}</small><br>
+                    <small style="font-size: 7px; color: #666;">Dir: {{ $m->establecimiento?->edificio?->calle ?? '' }} {{ $m->establecimiento?->edificio?->numero_puerta ?? 'S/N' }}</small>
                 </td>
                 <td>
                     {{ $m->nivel_educativo }}<br>
                     <small style="font-size: 7px; color: #666;">R:{{ $m->radio ?? '-' }} | S:{{ $m->sector ?? '-' }} | C:{{ $m->categoria ?? '-' }}</small>
                 </td>
                 <td>
-                    {{ $nombresEdificios[$m->establecimiento->edificio_id] ?? 'S/D' }}<br>
-                    <small>CUI: {{ $m->establecimiento->edificio->cui }}</small><br>
-                    <small style="font-size: 7px; color: #FF8200;">GPS: {{ $m->establecimiento->edificio->latitud }}, {{ $m->establecimiento->edificio->longitud }}</small>
+                    {{ isset($m->establecimiento?->edificio_id) ? ($nombresEdificios[$m->establecimiento->edificio_id] ?? 'S/D') : 'S/D' }}<br>
+                    <small>CUI: {{ $m->establecimiento?->edificio?->cui ?? '-' }}</small><br>
+                    <small style="font-size: 7px; color: #FF8200;">GPS: {{ $m->establecimiento?->edificio?->latitud ?? '-' }}, {{ $m->establecimiento?->edificio?->longitud ?? '-' }}</small>
                 </td>
                 <td>
                     <span class="badge bg-{{ strtolower($m->estado_validacion) }}">

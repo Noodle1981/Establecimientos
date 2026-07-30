@@ -75,7 +75,7 @@ class AuditoriaController extends Controller
                         ->get();
 
                     foreach ($vinculados as $v) {
-                        /** @var \App\Models\Modalidad $v */
+                        /** @var Modalidad $v */
                         // Para los vinculados, mantenemos sus campos específicos actuales 
                         // y solo actualizamos/sincronizamos los campos de edificio (compartidos)
                         $camposActuales = $v->campos_auditados ?? [];
@@ -124,8 +124,8 @@ class AuditoriaController extends Controller
      */
     public function exportPdf(Request $request)
     {
-        ini_set('memory_limit', '512M');
-        set_time_limit(300);
+        ini_set('memory_limit', '-1');
+        set_time_limit(0);
 
         // Obtener los datos filtrados (sin paginación para el PDF)
         $modalidades = $this->queryService->getFilteredQuery($request)

@@ -16,7 +16,9 @@ class AuditoriaQueryService
     public function getFilteredQuery(Request $request): Builder
     {
         $query = Modalidad::withTrashed()->with([
+            'establecimiento' => function($q) { $q->withTrashed(); },
             'establecimiento.edificio' => function($q) { $q->withTrashed(); },
+            'establecimiento.cabecera' => function($q) { $q->withTrashed(); },
             'establecimiento.cabecera.edificio' => function($q) { $q->withTrashed(); },
             'usuarioValidacion'
         ]);
