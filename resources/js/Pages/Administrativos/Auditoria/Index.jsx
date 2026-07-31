@@ -17,6 +17,7 @@ export default function Index({
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [selectedMod, setSelectedMod] = useState(null);
     const [isExporting, setIsExporting] = useState(false);
+    const [isExportingExcel, setIsExportingExcel] = useState(false);
 
     // Función para obtener el nombre descriptivo del edificio
     const getNombreEdificio = (mod) => {
@@ -80,12 +81,43 @@ export default function Index({
         }
     };
 
+    const handleExportExcel = async () => {
+        setIsExportingExcel(true);
+        try {
+            const response = await window.axios.get(route('administrativos.auditoria.exportExcel', filters), {
+                responseType: 'blob',
+            });
+            
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            
+            const contentDisposition = response.headers['content-disposition'];
+            let fileName = 'reporte_auditoria.xlsx';
+            if (contentDisposition) {
+                const fileNameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+                if (fileNameMatch && fileNameMatch.length === 2)
+                    fileName = fileNameMatch[1];
+            }
+            
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error('Error exporting Excel:', error);
+            alert('Hubo un error al generar el Excel. Por favor, intente nuevamente.');
+        } finally {
+            setIsExportingExcel(false);
+        }
+    };
+
     return (
         <AuthenticatedLayout header={null}>
             <Head title="Auditoría" />
 
             {/* KPIs */}
-            <div className="mb-8 grid grid-cols-1 gap-4 pt-2 md:grid-cols-2 lg:grid-cols-6">
+            <div className="mb-6 grid grid-cols-2 gap-3 pt-2 sm:grid-cols-3 xl:grid-cols-6">
                 <KPICard
                     label="Avance Global"
                     value={`${stats.porcentajeAvance}%`}
@@ -125,117 +157,137 @@ export default function Index({
             </div>
 
             <div className="space-y-6">
-                {/* Filters */}
-                <div className="flex flex-col items-center gap-4 rounded-2xl border border-orange-50 bg-white p-5 shadow-sm lg:flex-row">
-                    <div className="relative w-full flex-1">
-                        <input
-                            type="text"
-                            placeholder="Buscar por Nombre o CUE..."
-                            className="w-full rounded-xl border-gray-200 py-2.5 pl-10 pr-4 text-sm font-medium transition-all focus:border-brand-orange focus:ring-brand-orange"
-                            defaultValue={filters.search}
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                // Debounce simple manual
-                                clearTimeout(window.searchTimeout);
-                                window.searchTimeout = setTimeout(() => {
-                                    handleFilterChange('search', val);
-                                }, 300);
-                            }}
-                        />
-                        <i className="fas fa-search absolute left-3.5 top-3.5 text-gray-300"></i>
+                {/* Filters Card */}
+                <div className="space-y-4 rounded-2xl border border-orange-50 bg-white p-4 shadow-sm">
+                    {/* Top Row: Search inputs & Export buttons */}
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+                            <div className="relative w-full flex-1">
+                                <input
+                                    type="text"
+                                    placeholder="Buscar por Nombre o CUE..."
+                                    className="w-full rounded-xl border-gray-200 py-2 pl-9 pr-3 text-xs font-medium transition-all focus:border-brand-orange focus:ring-brand-orange"
+                                    defaultValue={filters.search}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        clearTimeout(window.searchTimeout);
+                                        window.searchTimeout = setTimeout(() => {
+                                            handleFilterChange('search', val);
+                                        }, 300);
+                                    }}
+                                />
+                                <i className="fas fa-search absolute left-3 top-2.5 text-xs text-gray-300"></i>
+                            </div>
+
+                            <div className="relative w-full sm:w-44">
+                                <input
+                                    type="text"
+                                    placeholder="Buscar CUI..."
+                                    className="w-full rounded-xl border-gray-200 py-2 pl-9 pr-3 text-xs font-medium transition-all focus:border-brand-orange focus:ring-brand-orange"
+                                    defaultValue={filters.cui}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        clearTimeout(window.cuiTimeout);
+                                        window.cuiTimeout = setTimeout(() => {
+                                            handleFilterChange('cui', val);
+                                        }, 300);
+                                    }}
+                                />
+                                <i className="fas fa-building absolute left-3 top-2.5 text-xs text-gray-300"></i>
+                            </div>
+                        </div>
+
+                        {/* Export Buttons */}
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={handleExportPdf}
+                                disabled={isExporting}
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-transparent bg-red-600 px-3.5 py-2 text-[10px] font-black uppercase tracking-wider text-white shadow-sm transition hover:bg-red-700 disabled:opacity-50"
+                            >
+                                {isExporting ? (
+                                    <i className="fas fa-spinner fa-spin"></i>
+                                ) : (
+                                    <i className="fas fa-file-pdf"></i>
+                                )}
+                                <span>{isExporting ? 'Generando...' : 'Exportar PDF'}</span>
+                            </button>
+
+                            <button
+                                onClick={handleExportExcel}
+                                disabled={isExportingExcel}
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-transparent bg-emerald-600 px-3.5 py-2 text-[10px] font-black uppercase tracking-wider text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50"
+                            >
+                                {isExportingExcel ? (
+                                    <i className="fas fa-spinner fa-spin"></i>
+                                ) : (
+                                    <i className="fas fa-file-excel"></i>
+                                )}
+                                <span>{isExportingExcel ? 'Generando...' : 'Exportar Excel'}</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <div className="relative w-full lg:w-48">
-                        <input
-                            type="text"
-                            placeholder="Buscar CUI..."
-                            className="w-full rounded-xl border-gray-200 py-2.5 pl-10 pr-4 text-sm font-medium transition-all focus:border-brand-orange focus:ring-brand-orange"
-                            defaultValue={filters.cui}
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                // Debounce simple manual
-                                clearTimeout(window.cuiTimeout);
-                                window.cuiTimeout = setTimeout(() => {
-                                    handleFilterChange('cui', val);
-                                }, 300);
-                            }}
-                        />
-                        <i className="fas fa-building absolute left-3.5 top-3.5 text-gray-300"></i>
-                    </div>
-
-                    <select
-                        className="w-full rounded-xl border-gray-200 text-xs font-black uppercase text-gray-500 lg:w-48"
-                        value={filters.estado || ''}
-                        onChange={(e) =>
-                            handleFilterChange('estado', e.target.value)
-                        }
-                    >
-                        <option value="">Todos los Estados</option>
-                        <option value="PENDIENTE">PENDIENTE</option>
-                        <option value="CORRECTO">CORRECTO</option>
-                        <option value="CORREGIDO">CORREGIDO</option>
-                        <option value="REVISAR">REVISAR</option>
-                        <option value="BAJA">BAJA</option>
-                    </select>
-
-                    <select
-                        className="w-full rounded-xl border-gray-200 text-xs font-black uppercase text-gray-500 lg:w-48"
-                        value={filters.nivel || ''}
-                        onChange={(e) =>
-                            handleFilterChange('nivel', e.target.value)
-                        }
-                    >
-                        <option value="">Todos los Niveles</option>
-                        {options.niveles.map((n) => (
-                            <option key={n} value={n}>
-                                {n}
-                            </option>
-                        ))}
-                    </select>
-
-                    <select
-                        className="w-full rounded-xl border-gray-200 text-xs font-black uppercase text-gray-500 lg:w-48"
-                        value={filters.departamento || ''}
-                        onChange={(e) =>
-                            handleFilterChange('departamento', e.target.value)
-                        }
-                    >
-                        <option value="">Todos los Deptos</option>
-                        {options.departamentos.map((d) => (
-                            <option key={d} value={d}>
-                                {d}
-                            </option>
-                        ))}
-                    </select>
-
-                    <select
-                        className="w-full rounded-xl border-gray-200 text-xs font-black uppercase text-gray-500 lg:w-48"
-                        value={filters.ambito || ''}
-                        onChange={(e) =>
-                            handleFilterChange('ambito', e.target.value)
-                        }
-                    >
-                        <option value="">Todos los Ámbitos</option>
-                        {options.ambitos.map((a) => (
-                            <option key={a} value={a}>
-                                {a}
-                            </option>
-                        ))}
-                    </select>
-
-                    <div className="ml-2 flex w-full shrink-0 gap-2 border-l border-orange-50 pl-4 lg:w-auto">
-                        <button
-                            onClick={handleExportPdf}
-                            disabled={isExporting}
-                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-transparent bg-red-600 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-sm transition hover:bg-red-700 disabled:opacity-50 lg:w-auto"
+                    {/* Bottom Row: Select Filters */}
+                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-100 sm:grid-cols-4">
+                        <select
+                            className="w-full rounded-xl border-gray-200 py-1.5 text-xs font-black uppercase text-gray-600"
+                            value={filters.estado || ''}
+                            onChange={(e) =>
+                                handleFilterChange('estado', e.target.value)
+                            }
                         >
-                            {isExporting ? (
-                                <i className="fas fa-spinner fa-spin"></i>
-                            ) : (
-                                <i className="fas fa-file-pdf"></i>
-                            )}
-                            {isExporting ? 'Generando...' : 'Exportar PDF'}
-                        </button>
+                            <option value="">Todos los Estados</option>
+                            <option value="PENDIENTE">PENDIENTE</option>
+                            <option value="CORRECTO">CORRECTO</option>
+                            <option value="CORREGIDO">CORREGIDO</option>
+                            <option value="REVISAR">REVISAR</option>
+                            <option value="BAJA">BAJA</option>
+                        </select>
+
+                        <select
+                            className="w-full rounded-xl border-gray-200 py-1.5 text-xs font-black uppercase text-gray-600"
+                            value={filters.nivel || ''}
+                            onChange={(e) =>
+                                handleFilterChange('nivel', e.target.value)
+                            }
+                        >
+                            <option value="">Todos los Niveles</option>
+                            {options.niveles.map((n) => (
+                                <option key={n} value={n}>
+                                    {n}
+                                </option>
+                            ))}
+                        </select>
+
+                        <select
+                            className="w-full rounded-xl border-gray-200 py-1.5 text-xs font-black uppercase text-gray-600"
+                            value={filters.departamento || ''}
+                            onChange={(e) =>
+                                handleFilterChange('departamento', e.target.value)
+                            }
+                        >
+                            <option value="">Todos los Deptos</option>
+                            {options.departamentos.map((d) => (
+                                <option key={d} value={d}>
+                                    {d}
+                                </option>
+                            ))}
+                        </select>
+
+                        <select
+                            className="w-full rounded-xl border-gray-200 py-1.5 text-xs font-black uppercase text-gray-600"
+                            value={filters.ambito || ''}
+                            onChange={(e) =>
+                                handleFilterChange('ambito', e.target.value)
+                            }
+                        >
+                            <option value="">Todos los Ámbitos</option>
+                            {options.ambitos.map((a) => (
+                                <option key={a} value={a}>
+                                    {a}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 </div>
 
@@ -245,20 +297,20 @@ export default function Index({
                         <table className="w-full border-collapse text-left">
                             <thead>
                                 <tr className="border-b border-orange-600 bg-brand-orange text-[10px] font-black uppercase text-white">
-                                    <th className="px-6 py-2">
+                                    <th className="px-3.5 py-2.5">
                                         Establecimiento / CUE
                                     </th>
-                                    <th className="px-6 py-2">Modalidad</th>
-                                    <th className="px-6 py-2">Edificio</th>
-                                    <th className="px-6 py-2">
+                                    <th className="px-3.5 py-2.5">Modalidad</th>
+                                    <th className="px-3.5 py-2.5">Edificio</th>
+                                    <th className="px-3.5 py-2.5">
                                         Última Validación
                                     </th>
-                                    <th className="px-6 py-2">Estado</th>
-                                    <th className="px-6 py-2">
+                                    <th className="px-3.5 py-2.5">Estado</th>
+                                    <th className="px-3.5 py-2.5">
                                         Modificaciones
                                     </th>
-                                    <th className="px-6 py-2">Observaciones</th>
-                                    <th className="px-6 py-2 text-right">
+                                    <th className="px-3.5 py-2.5">Observaciones</th>
+                                    <th className="px-3.5 py-2.5 text-right">
                                         Acciones
                                     </th>
                                 </tr>
@@ -268,7 +320,7 @@ export default function Index({
                                     <tr>
                                         <td
                                             colSpan="8"
-                                            className="px-6 py-12 text-center"
+                                            className="px-4 py-12 text-center"
                                         >
                                             <div className="flex flex-col items-center justify-center py-4">
                                                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-brand-orange">
@@ -290,7 +342,7 @@ export default function Index({
                                             key={mod.id}
                                             className="group transition-colors hover:bg-orange-50/5"
                                         >
-                                            <td className="px-6 py-2">
+                                            <td className="px-3.5 py-2.5">
                                                 <div className="flex flex-col">
                                                     <span className="text-xs font-black leading-tight text-gray-900">
                                                         {mod.establecimiento
@@ -304,9 +356,9 @@ export default function Index({
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="whitespace-nowrap px-6 py-2">
+                                            <td className="whitespace-nowrap px-3.5 py-2.5">
                                                 <div className="flex flex-col gap-1">
-                                                    <span className="w-fit rounded-lg border border-orange-100 bg-orange-50 px-2 py-1 text-[10px] font-black uppercase tracking-tight text-brand-orange">
+                                                    <span className="w-fit rounded-lg border border-orange-100 bg-orange-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-tight text-brand-orange">
                                                         {mod.nivel_educativo ||
                                                             'S/D'}
                                                     </span>
@@ -317,8 +369,8 @@ export default function Index({
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-2">
-                                                <div className="flex max-w-[200px] flex-col">
+                                            <td className="px-3.5 py-2.5">
+                                                <div className="flex max-w-[180px] flex-col">
                                                     {/* Usamos la función de búsqueda de nombre de cabecera */}
                                                     {getNombreEdificio(mod) ? (
                                                         <>
@@ -358,7 +410,7 @@ export default function Index({
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-2">
+                                            <td className="px-3.5 py-2.5">
                                                 <div className="flex flex-col">
                                                     <span className="text-[10px] font-black uppercase text-gray-700">
                                                         {mod.usuario_validacion
@@ -370,15 +422,15 @@ export default function Index({
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-2">
+                                            <td className="px-3.5 py-2.5">
                                                 <StatusBadge
                                                     status={
                                                         mod.estado_validacion
                                                     }
                                                 />
                                             </td>
-                                            <td className="px-6 py-2">
-                                                <div className="flex max-w-[150px] flex-wrap gap-1">
+                                            <td className="px-3.5 py-2.5">
+                                                <div className="flex max-w-[140px] flex-wrap gap-1">
                                                     {mod.campos_auditados &&
                                                     mod.campos_auditados
                                                         .length > 0 ? (
@@ -399,12 +451,12 @@ export default function Index({
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-2">
-                                                <p className="line-clamp-2 max-w-[200px] text-[10px] font-medium italic text-gray-400">
+                                            <td className="px-3.5 py-2.5">
+                                                <p className="line-clamp-2 max-w-[180px] text-[10px] font-medium italic text-gray-400">
                                                     {mod.observaciones || '-'}
                                                 </p>
                                             </td>
-                                            <td className="px-6 py-2 text-right">
+                                            <td className="px-3.5 py-2.5 text-right">
                                                 <button
                                                     onClick={() => {
                                                         setSelectedMod(mod);

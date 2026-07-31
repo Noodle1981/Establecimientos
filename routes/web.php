@@ -88,6 +88,7 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/auditoria/{id}/estado', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'updateEstado'])->name('administrativos.auditoria.updateEstado');
         Route::get('/auditoria/{id}/vinculados', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'vinculados'])->name('administrativos.auditoria.vinculados');
         Route::get('/auditoria/export-pdf', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'exportPdf'])->name('administrativos.auditoria.exportPdf');
+        Route::get('/auditoria/export-excel', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'exportExcel'])->name('administrativos.auditoria.exportExcel');
         Route::get('/auditoria/{id}/pdf', [App\Http\Controllers\Admin\PDFController::class, 'downloadIndividual'])->name('administrativos.auditoria.pdf.individual');
         Route::get('/auditoria/pdf/general', [App\Http\Controllers\Admin\PDFController::class, 'downloadGeneral'])->name('administrativos.auditoria.pdf.general');
 

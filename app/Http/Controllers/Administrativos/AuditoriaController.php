@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Administrativos;
 use App\Http\Controllers\Controller;
 use App\Models\Modalidad;
 use App\Services\AuditoriaQueryService;
+use App\Services\ExcelExportService;
 use App\Http\Requests\Administrativos\UpdateAuditoriaRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -143,5 +144,79 @@ class AuditoriaController extends Controller
         ])->setPaper('a4', 'landscape');
  
         return $pdf->download('reporte_auditoria_' . date('Y-m-d') . '.pdf');
+    }
+
+    /**
+     * Export audit report to Excel.
+     */
+    public function exportExcel(Request $request)
+    {
+        ini_set('memory_limit', '-1');
+        set_time_limit(0);
+
+        $modalidades = $this->queryService->getFilteredQuery($request)
+            ->orderBy('validado_en', 'desc')
+            ->get();
+
+        $nombresEdificios = $this->queryService->getBuildingNamesMap();
+        $excelService = app(ExcelExportService::class);
+
+        $headers = [
+            'CUE',
+            'Establecimiento',
+            'Dirección',
+            'Nivel Educativo / Modalidad',
+            'Radio',
+            'Sector',
+            'Categoría',
+            'Edificio / Cabecera',
+            'CUI',
+            'Latitud',
+            'Longitud',
+            'Estado Validación',
+            'Campos Auditados',
+            'Observaciones',
+            'Fecha Última Validación',
+            'Validado Por',
+        ];
+
+        [$spreadsheet, $sheet] = $excelService->setupSheet('Auditoría', $headers);
+
+        $row = 2;
+        foreach ($modalidades as $m) {
+            $edificioNombre = isset($m->establecimiento?->edificio_id)
+                ? ($nombresEdificios[$m->establecimiento->edificio_id] ?? 'S/D')
+                : 'S/D';
+
+            $direccion = trim(($m->establecimiento?->edificio?->calle ?? '') . ' ' . ($m->establecimiento?->edificio?->numero_puerta ?? ''));
+
+            $camposAuditadosStr = is_array($m->campos_auditados)
+                ? implode(', ', $m->campos_auditados)
+                : ($m->campos_auditados ?? '-');
+
+            $sheet->setCellValue("A{$row}", $m->establecimiento?->cue ?? '-');
+            $sheet->setCellValue("B{$row}", $m->establecimiento?->nombre ?? 'Sin Establecimiento');
+            $sheet->setCellValue("C{$row}", $direccion ?: '-');
+            $sheet->setCellValue("D{$row}", $m->nivel_educativo ?? '-');
+            $sheet->setCellValue("E{$row}", $m->radio ?? '-');
+            $sheet->setCellValue("F{$row}", $m->sector ?? '-');
+            $sheet->setCellValue("G{$row}", $m->categoria ?? '-');
+            $sheet->setCellValue("H{$row}", $edificioNombre);
+            $sheet->setCellValue("I{$row}", $m->establecimiento?->edificio?->cui ?? '-');
+            $sheet->setCellValue("J{$row}", $m->establecimiento?->edificio?->latitud ?? '-');
+            $sheet->setCellValue("K{$row}", $m->establecimiento?->edificio?->longitud ?? '-');
+            $sheet->setCellValue("L{$row}", $m->estado_validacion ?? 'PENDIENTE');
+            $sheet->setCellValue("M{$row}", $camposAuditadosStr ?: '-');
+            $sheet->setCellValue("N{$row}", $m->observaciones ?? '-');
+            $sheet->setCellValue("O{$row}", $m->validado_en ? \Carbon\Carbon::parse($m->validado_en)->format('d/m/Y H:i') : '-');
+            $sheet->setCellValue("P{$row}", $m->usuarioValidacion?->name ?? ($m->validado_en ? 'Sistema' : '-'));
+
+            $row++;
+        }
+
+        $excelService->autoSizeColumns($sheet, count($headers));
+
+        $fileName = 'reporte_auditoria_' . date('Y-m-d') . '.xlsx';
+        return $excelService->download($spreadsheet, $fileName);
     }
 }

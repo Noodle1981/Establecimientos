@@ -86,6 +86,8 @@ class ExcelExportService
         
         return response()->streamDownload(function() use ($writer) {
             $writer->save('php://output');
-        }, $filename);
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
     }
 }
