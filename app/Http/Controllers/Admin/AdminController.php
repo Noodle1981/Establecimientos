@@ -41,7 +41,7 @@ class AdminController extends Controller
             'name' => 'required|string|min:3',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:admin,administrativos',
+            'role' => 'required|in:admin,administrativos,autoridades',
         ]);
 
         $user = User::create([

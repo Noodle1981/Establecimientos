@@ -17,6 +17,7 @@ export default function AuthenticatedLayout({
 
     const isAdmin = user?.role === 'admin';
     const isAdministrativo = user?.role === 'administrativos';
+    const isAutoridad = user?.role === 'autoridades';
 
     const isGestionActive = route().current('administrativos.dashboard') ||
                             route().current('administrativos.edificios.index') ||
@@ -88,6 +89,24 @@ export default function AuthenticatedLayout({
                         >
                             Mapa Escolar
                         </SidebarLink>
+
+                        {isAutoridad && (
+                            <>
+                                <div
+                                    className={`mb-2 mt-6 px-4 text-[10px] font-black uppercase tracking-widest text-white/40 ${!sidebarOpen && 'hidden'}`}
+                                >
+                                    Informes
+                                </div>
+                                <SidebarLink
+                                    href={route('administrativos.dashboard')}
+                                    active={route().current('administrativos.dashboard')}
+                                    icon="fas fa-tachometer-alt"
+                                    collapsed={!sidebarOpen}
+                                >
+                                    Estadísticas
+                                </SidebarLink>
+                            </>
+                        )}
 
                         {isAdministrativo && (
                             <>
@@ -225,33 +244,37 @@ export default function AuthenticatedLayout({
                             </div>
                         )}
 
-                        <div
-                            className={`mb-2 mt-6 px-4 text-[10px] font-black uppercase tracking-widest text-white/40 ${!sidebarOpen && 'hidden'}`}
-                        >
-                            Sistema
-                        </div>
+                        {(isAdmin || isAdministrativo) && (
+                            <>
+                                <div
+                                    className={`mb-2 mt-6 px-4 text-[10px] font-black uppercase tracking-widest text-white/40 ${!sidebarOpen && 'hidden'}`}
+                                >
+                                    Sistema
+                                </div>
 
-                        <SidebarLink
-                            href={route('bitacora.index')}
-                            active={route().current('bitacora.index')}
-                            icon="fas fa-history"
-                            collapsed={!sidebarOpen}
-                        >
-                            Bitácora
-                        </SidebarLink>
+                                <SidebarLink
+                                    href={route('bitacora.index')}
+                                    active={route().current('bitacora.index')}
+                                    icon="fas fa-history"
+                                    collapsed={!sidebarOpen}
+                                >
+                                    Bitácora
+                                </SidebarLink>
 
-                        <SidebarLink
-                            href={route(
-                                'administrativos.reportes.index',
-                            )}
-                            active={route().current(
-                                'administrativos.reportes.*',
-                            )}
-                            icon="fas fa-inbox"
-                            collapsed={!sidebarOpen}
-                        >
-                            Reportes
-                        </SidebarLink>
+                                <SidebarLink
+                                    href={route(
+                                        'administrativos.reportes.index',
+                                    )}
+                                    active={route().current(
+                                        'administrativos.reportes.*',
+                                    )}
+                                    icon="fas fa-inbox"
+                                    collapsed={!sidebarOpen}
+                                >
+                                    Reportes
+                                </SidebarLink>
+                            </>
+                        )}
 
                         {isAdmin && (
                             <>
@@ -445,6 +468,17 @@ export default function AuthenticatedLayout({
                                 >
                                     Mapa
                                 </MobileNavLink>
+
+                                {isAutoridad && (
+                                    <MobileNavLink
+                                        href={route('administrativos.dashboard')}
+                                        active={route().current('administrativos.dashboard')}
+                                        icon="fas fa-tachometer-alt"
+                                    >
+                                        Estadísticas
+                                    </MobileNavLink>
+                                )}
+
                                 {isAdministrativo && (
                                     <>
                                         <MobileNavLink
@@ -539,24 +573,29 @@ export default function AuthenticatedLayout({
                                         )}
                                     </div>
                                 )}
-                                <MobileNavLink
-                                    href={route('bitacora.index')}
-                                    active={route().current('bitacora.index')}
-                                    icon="fas fa-history"
-                                >
-                                    Bitácora
-                                </MobileNavLink>
-                                <MobileNavLink
-                                    href={route(
-                                        'administrativos.reportes.index',
-                                    )}
-                                    active={route().current(
-                                        'administrativos.reportes.*',
-                                    )}
-                                    icon="fas fa-inbox"
-                                >
-                                    Reportes
-                                </MobileNavLink>
+                                
+                                {(isAdmin || isAdministrativo) && (
+                                    <>
+                                        <MobileNavLink
+                                            href={route('bitacora.index')}
+                                            active={route().current('bitacora.index')}
+                                            icon="fas fa-history"
+                                        >
+                                            Bitácora
+                                        </MobileNavLink>
+                                        <MobileNavLink
+                                            href={route(
+                                                'administrativos.reportes.index',
+                                            )}
+                                            active={route().current(
+                                                'administrativos.reportes.*',
+                                            )}
+                                            icon="fas fa-inbox"
+                                        >
+                                            Reportes
+                                        </MobileNavLink>
+                                    </>
+                                )}
                                 {isAdmin && (
                                     <>
                                         <MobileNavLink

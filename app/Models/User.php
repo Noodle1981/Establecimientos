@@ -68,6 +68,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is autoridad.
+     */
+    public function isAutoridad(): bool
+    {
+        return $this->role === 'autoridades';
+    }
+
+    /**
      * Check if user is mid.
      */
     public function isMid(): bool

@@ -9,10 +9,8 @@
         <!-- Fonts & CDNs (Non-blocking) -->
         <!-- Fonts & CDNs (Optimized) -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link rel="preconnect" href="https://a.basemaps.cartocdn.com">
-        <link rel="dns-prefetch" href="https://b.basemaps.cartocdn.com">
-        <link rel="dns-prefetch" href="https://c.basemaps.cartocdn.com">
-        <link rel="dns-prefetch" href="https://d.basemaps.cartocdn.com">
+        <link rel="preconnect" href="https://tile.openstreetmap.org">
+        <link rel="dns-prefetch" href="https://server.arcgisonline.com">
         
         <link rel="preload" href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
         

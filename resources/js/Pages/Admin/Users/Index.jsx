@@ -97,6 +97,8 @@ export default function Index({ users, filters }) {
                                             className={`rounded-lg border px-2 py-1 text-[9px] font-black uppercase tracking-widest ${
                                                 user.role === 'admin'
                                                     ? 'border-purple-100 bg-purple-50 text-purple-600'
+                                                    : user.role === 'autoridades'
+                                                    ? 'border-emerald-100 bg-emerald-50 text-emerald-600'
                                                     : 'border-blue-100 bg-blue-50 text-blue-600'
                                             }`}
                                         >
@@ -208,6 +210,9 @@ function CreateUserModal({ show, onClose }) {
                         >
                             <option value="administrativos">
                                 Administrativo (Consultas y CRUDS)
+                            </option>
+                            <option value="autoridades">
+                                Autoridades (Vista de Mapa y Estadísticas)
                             </option>
                             <option value="admin">
                                 Administrador (Control Total)

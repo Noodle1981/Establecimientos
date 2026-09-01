@@ -35,7 +35,7 @@ Route::middleware(['auth'])->group(function () {
         
         if ($user?->isAdmin()) {
             return redirect()->route('admin.dashboard');
-        } elseif ($user->isAdministrativo()) {
+        } elseif ($user?->isAdministrativo() || $user?->isAutoridad()) {
             return redirect()->route('administrativos.dashboard');
         }
         
@@ -57,10 +57,16 @@ Route::middleware(['auth'])->group(function () {
     });
 
     /**
-     * Rutas Administrativas (Inertia)
+     * Panel de Estadísticas / Métricas (Accesible por Admin, Administrativos y Autoridades)
+     */
+    Route::middleware(['role:admin,administrativos,autoridades'])->prefix('administrativos')->group(function () {
+        Route::get('/Panel', [App\Http\Controllers\Administrativos\DashboardController::class, 'index'])->name('administrativos.dashboard');
+    });
+
+    /**
+     * Rutas Operativas de Gestión Administrativa (Admin y Administrativos)
      */
     Route::middleware(['role:admin,administrativos'])->prefix('administrativos')->group(function () {
-        Route::get('/Panel', [App\Http\Controllers\Administrativos\DashboardController::class, 'index'])->name('administrativos.dashboard');
         
         // Gestión de Edificios
         Route::get('/edificios', [App\Http\Controllers\Administrativos\EdificioController::class, 'index'])->name('administrativos.edificios.index');

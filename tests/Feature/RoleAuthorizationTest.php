@@ -216,4 +216,58 @@ class RoleAuthorizationTest extends TestCase
         $response = $this->actingAs($user)->get(route('bitacora.index'));
         $response->assertStatus(200);
     }
+
+    /**
+     * Test que autoridades pueden acceder al panel de estadísticas y mapa
+     */
+    public function test_autoridades_can_access_dashboard_and_map(): void
+    {
+        $autoridad = User::factory()->create(['role' => 'autoridades']);
+
+        $this->assertTrue($autoridad->isAutoridad());
+        $this->assertFalse($autoridad->isAdmin());
+        $this->assertFalse($autoridad->isAdministrativo());
+
+        // Redirect from /dashboard to /administrativos/Panel
+        $response = $this->actingAs($autoridad)->get('/dashboard');
+        $response->assertRedirect(route('administrativos.dashboard'));
+
+        // Access to Panel
+        $response = $this->actingAs($autoridad)->get('/administrativos/Panel');
+        $response->assertStatus(200);
+
+        // Access to Map
+        $response = $this->actingAs($autoridad)->get(route('mapa.publico'));
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Test que autoridades NO pueden acceder a rutas de gestión operativa ni admin
+     */
+    public function test_autoridades_cannot_access_operational_administrative_routes(): void
+    {
+        $autoridad = User::factory()->create(['role' => 'autoridades']);
+
+        // Cannot access edificios management
+        $this->actingAs($autoridad)->get(route('administrativos.edificios.index'))->assertStatus(403);
+
+        // Cannot access establecimientos management
+        $this->actingAs($autoridad)->get(route('administrativos.establecimientos.index'))->assertStatus(403);
+
+        // Cannot access instrumentos
+        $this->actingAs($autoridad)->get(route('administrativos.instrumentos.index'))->assertStatus(403);
+
+        // Cannot access auditoria
+        $this->actingAs($autoridad)->get(route('administrativos.auditoria.index'))->assertStatus(403);
+
+        // Cannot access reportes
+        $this->actingAs($autoridad)->get(route('administrativos.reportes.index'))->assertStatus(403);
+
+        // Cannot access bitacora
+        $this->actingAs($autoridad)->get(route('bitacora.index'))->assertStatus(403);
+
+        // Cannot access admin console
+        $this->actingAs($autoridad)->get('/admin')->assertStatus(403);
+        $this->actingAs($autoridad)->get(route('admin.users.index'))->assertStatus(403);
+    }
 }
