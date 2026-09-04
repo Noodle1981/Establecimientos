@@ -340,23 +340,6 @@ export default function MapaPublico({ edificios = [] }) {
                     <div className="flex h-full w-80 flex-col bg-white text-black">
                         {/* Header */}
                         <div className="border-b border-orange-50 bg-orange-50/20 p-6">
-                            <div className="mb-4 flex items-center gap-3">
-                                <div className="rounded-xl border border-orange-100 bg-white p-2.5 text-brand-orange shadow-sm">
-                                    <i className="fas fa-map-marked-alt text-xl"></i>
-                                </div>
-                                <div>
-                                    <h2 className="text-xl font-black leading-tight text-gray-900">
-                                        Mapa{' '}
-                                        <span className="text-brand-orange">
-                                            Escolar
-                                        </span>
-                                    </h2>
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                                        San Juan, Argentina
-                                    </p>
-                                </div>
-                            </div>
-
                             {/* Search */}
                             <div className="relative mb-4">
                                 <input
@@ -409,38 +392,6 @@ export default function MapaPublico({ edificios = [] }) {
                                         ))}
                                     </div>
                                 )}
-                            </div>
-
-                            {/* Stats Summary */}
-                            <div className="mb-4 flex gap-2">
-                                <div className="flex flex-1 flex-col justify-center rounded-lg border border-orange-100/50 bg-white/50 p-2 backdrop-blur-sm">
-                                    <p className="text-[8px] font-black uppercase text-gray-400">
-                                        Edificios
-                                    </p>
-                                    <div className="flex h-5 items-center">
-                                        {isLoading ? (
-                                            <i className="fas fa-circle-notch fa-spin text-xs text-brand-orange"></i>
-                                        ) : (
-                                            <p className="text-sm font-black leading-none text-gray-800">
-                                                {stats.totalEdificios}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="flex flex-1 flex-col justify-center rounded-lg border border-orange-100/50 bg-white/50 p-2 backdrop-blur-sm">
-                                    <p className="text-[8px] font-black uppercase text-gray-400">
-                                        Establ.
-                                    </p>
-                                    <div className="flex h-5 items-center">
-                                        {isLoading ? (
-                                            <i className="fas fa-circle-notch fa-spin text-xs text-brand-orange"></i>
-                                        ) : (
-                                            <p className="text-sm font-black leading-none text-gray-800">
-                                                {stats.totalEstablecimientos}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
@@ -559,13 +510,44 @@ export default function MapaPublico({ edificios = [] }) {
                         </div>
 
                         {/* Footer Actions */}
-                        <div className="border-t border-orange-100 bg-orange-50/10 p-6">
+                        <div className="border-t border-orange-100 bg-orange-50/10 p-6 space-y-4">
+                            {/* Stats Summary */}
+                            <div className="flex gap-2">
+                                <div className="flex flex-1 flex-col justify-center rounded-xl border border-orange-100/60 bg-white p-2.5 shadow-sm">
+                                    <p className="text-[8px] font-black uppercase tracking-wider text-gray-400">
+                                        Edificios
+                                    </p>
+                                    <div className="flex h-6 items-center">
+                                        {isLoading ? (
+                                            <i className="fas fa-circle-notch fa-spin text-xs text-brand-orange"></i>
+                                        ) : (
+                                            <p className="text-base font-black leading-none text-gray-800">
+                                                {stats.totalEdificios}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="flex flex-1 flex-col justify-center rounded-xl border border-orange-100/60 bg-white p-2.5 shadow-sm">
+                                    <p className="text-[8px] font-black uppercase tracking-wider text-gray-400">
+                                        Establecimientos
+                                    </p>
+                                    <div className="flex h-6 items-center">
+                                        {isLoading ? (
+                                            <i className="fas fa-circle-notch fa-spin text-xs text-brand-orange"></i>
+                                        ) : (
+                                            <p className="text-base font-black leading-none text-gray-800">
+                                                {stats.totalEstablecimientos}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
                             <button
                                 onClick={clearFilters}
-                                className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-gray-100 bg-white py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 transition-all hover:border-brand-orange hover:text-brand-orange"
+                                className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-gray-100 bg-white py-3.5 text-[10px] font-black uppercase tracking-widest text-gray-400 transition-all hover:border-brand-orange hover:text-brand-orange shadow-sm"
                             >
-                                <i className="fas fa-sync-alt"></i> Limpiar
-                                Filtros
+                                <i className="fas fa-sync-alt"></i> Limpiar Filtros
                             </button>
                         </div>
                     </div>

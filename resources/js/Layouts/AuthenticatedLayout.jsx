@@ -13,114 +13,58 @@ export default function AuthenticatedLayout({
     const user = usePage().props.auth.user;
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
-    const [sidebarOpen, setSidebarOpen] = useState(true);
     const [userOpen, setUserOpen] = useState(false);
-
     const isAdmin = user?.role === 'admin';
     const isAdministrativo = user?.role === 'administrativos';
     const isAutoridad = user?.role === 'autoridades';
 
-    const isGestionActive = route().current('administrativos.dashboard') ||
-                            route().current('administrativos.edificios.index') ||
-                            route().current('administrativos.establecimientos.index') ||
-                            route().current('administrativos.instrumentos.index') ||
-                            route().current('administrativos.auditoria.index');
+    const isGestionActive =
+        route().current('administrativos.dashboard') ||
+        route().current('administrativos.edificios.index') ||
+        route().current('administrativos.establecimientos.index') ||
+        route().current('administrativos.instrumentos.index') ||
+        route().current('administrativos.auditoria.index');
 
     const [gestionOpen, setGestionOpen] = useState(isGestionActive);
 
-    // Handle mobile responsiveness for sidebar
-    useEffect(() => {
-        let frameId;
-        const handleResize = () => {
-            // Use requestAnimationFrame to avoid forced reflows during layout cycles
-            cancelAnimationFrame(frameId);
-            frameId = requestAnimationFrame(() => {
-                if (window.innerWidth < 1024) {
-                    setSidebarOpen(false);
-                } else {
-                    setSidebarOpen(true);
-                }
-            });
-        };
-
-        window.addEventListener('resize', handleResize);
-        handleResize(); // Initial check
-
-        return () => {
-            window.removeEventListener('resize', handleResize);
-            cancelAnimationFrame(frameId);
-        };
-    }, []);
-
     return (
         <div className="flex min-h-screen bg-gray-50">
-            {/* Sidebar Desktop */}
+            {/* Sidebar Desktop (Gemini-style compact dock) */}
             {showSidebar && (
-                <aside
-                    className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-brand-orange shadow-2xl transition-all duration-300 ease-in-out ${
-                        sidebarOpen ? 'w-64' : 'w-20'
-                    } hidden lg:flex`}
-                >
-                    {/* Sidebar Header - App Brand */}
-                    <div className="flex h-16 shrink-0 items-center border-b border-white/10 px-6">
-                        <div className="flex items-center gap-3 overflow-hidden whitespace-nowrap">
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white">
-                                <i className="fas fa-graduation-cap text-brand-orange"></i>
-                            </div>
-                            {sidebarOpen && (
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-black leading-tight text-white">
-                                        Establecimientos
-                                    </span>
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
-                                        Panel de Gestión
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                <aside className="fixed inset-y-0 left-0 z-[1050] hidden w-20 flex-col border-r border-gray-200/80 bg-white shadow-xs lg:flex">
+                    {/* Header Spacer (mantiene la altura y alineación con el navbar de h-16) */}
+                    <div className="h-16 shrink-0 border-b border-gray-100" />
 
-                    {/* Sidebar Links */}
-                    <div className="custom-scrollbar flex-1 space-y-1 overflow-y-auto px-3 py-6">
+                    {/* Navigation Links */}
+                    <div className="custom-scrollbar flex-1 flex flex-col items-center space-y-2 overflow-visible py-4 px-2">
                         <SidebarLink
                             href={route('mapa.publico')}
                             active={route().current('mapa.publico')}
                             icon="fas fa-map-marked-alt"
-                            collapsed={!sidebarOpen}
                         >
                             Mapa Escolar
                         </SidebarLink>
 
                         {isAutoridad && (
                             <>
-                                <div
-                                    className={`mb-2 mt-6 px-4 text-[10px] font-black uppercase tracking-widest text-white/40 ${!sidebarOpen && 'hidden'}`}
-                                >
-                                    Informes
-                                </div>
+                                <div className="my-1.5 h-px w-8 bg-gray-200/80 shrink-0" />
                                 <SidebarLink
                                     href={route('administrativos.dashboard')}
                                     active={route().current('administrativos.dashboard')}
                                     icon="fas fa-tachometer-alt"
-                                    collapsed={!sidebarOpen}
                                 >
                                     Estadísticas
                                 </SidebarLink>
                             </>
                         )}
 
-                        {isAdministrativo && (
+                        {(isAdministrativo || isAdmin) && (
                             <>
-                                <div
-                                    className={`mb-2 mt-6 px-4 text-[10px] font-black uppercase tracking-widest text-white/40 ${!sidebarOpen && 'hidden'}`}
-                                >
-                                    Gestión
-                                </div>
+                                <div className="my-1.5 h-px w-8 bg-gray-200/80 shrink-0" />
                                 <SidebarLink
                                     href={route('administrativos.dashboard')}
                                     active={route().current('administrativos.dashboard')}
                                     icon="fas fa-tachometer-alt"
-                                    collapsed={!sidebarOpen}
                                 >
                                     Estadísticas
                                 </SidebarLink>
@@ -128,7 +72,6 @@ export default function AuthenticatedLayout({
                                     href={route('administrativos.edificios.index')}
                                     active={route().current('administrativos.edificios.index')}
                                     icon="fas fa-building"
-                                    collapsed={!sidebarOpen}
                                 >
                                     Edificios
                                 </SidebarLink>
@@ -136,7 +79,6 @@ export default function AuthenticatedLayout({
                                     href={route('administrativos.establecimientos.index')}
                                     active={route().current('administrativos.establecimientos.index')}
                                     icon="fas fa-school"
-                                    collapsed={!sidebarOpen}
                                 >
                                     Establecimientos
                                 </SidebarLink>
@@ -144,7 +86,6 @@ export default function AuthenticatedLayout({
                                     href={route('administrativos.instrumentos.index')}
                                     active={route().current('administrativos.instrumentos.index')}
                                     icon="fas fa-file-contract"
-                                    collapsed={!sidebarOpen}
                                 >
                                     Instrumentos
                                 </SidebarLink>
@@ -152,125 +93,22 @@ export default function AuthenticatedLayout({
                                     href={route('administrativos.auditoria.index')}
                                     active={route().current('administrativos.auditoria.index')}
                                     icon="fas fa-clipboard-check"
-                                    collapsed={!sidebarOpen}
                                 >
                                     Auditoría
                                 </SidebarLink>
-                            </>
-                        )}
 
-                        {isAdmin && (
-                            <div className="space-y-1">
-                                <button
-                                    onClick={() => setGestionOpen(!gestionOpen)}
-                                    className={`flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white/60 hover:bg-white/10 hover:text-white transition-all ${
-                                        !sidebarOpen && 'justify-center px-0'
-                                    }`}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <i className="fas fa-tasks text-xs"></i>
-                                        {sidebarOpen && <span>Gestión</span>}
-                                    </div>
-                                    {sidebarOpen && (
-                                        <i
-                                            className={`fas fa-chevron-${
-                                                gestionOpen ? 'up' : 'down'
-                                            } text-[8px] transition-transform duration-200`}
-                                        ></i>
-                                    )}
-                                </button>
-
-                                {gestionOpen && (
-                                    <div className={`space-y-1 ${sidebarOpen ? 'pl-3 border-l border-white/10 ml-4' : ''}`}>
-                                        <SidebarLink
-                                            href={route('administrativos.dashboard')}
-                                            active={route().current(
-                                                'administrativos.dashboard',
-                                            )}
-                                            icon="fas fa-tachometer-alt"
-                                            collapsed={!sidebarOpen}
-                                        >
-                                            Estadísticas
-                                        </SidebarLink>
-                                        <SidebarLink
-                                            href={route(
-                                                'administrativos.edificios.index',
-                                            )}
-                                            active={route().current(
-                                                'administrativos.edificios.index',
-                                            )}
-                                            icon="fas fa-building"
-                                            collapsed={!sidebarOpen}
-                                        >
-                                            Edificios
-                                        </SidebarLink>
-                                        <SidebarLink
-                                            href={route(
-                                                'administrativos.establecimientos.index',
-                                            )}
-                                            active={route().current(
-                                                'administrativos.establecimientos.index',
-                                            )}
-                                            icon="fas fa-school"
-                                            collapsed={!sidebarOpen}
-                                        >
-                                            Establecimientos
-                                        </SidebarLink>
-                                        <SidebarLink
-                                            href={route(
-                                                'administrativos.instrumentos.index',
-                                            )}
-                                            active={route().current(
-                                                'administrativos.instrumentos.index',
-                                            )}
-                                            icon="fas fa-file-contract"
-                                            collapsed={!sidebarOpen}
-                                        >
-                                            Instrumentos
-                                        </SidebarLink>
-                                        <SidebarLink
-                                            href={route(
-                                                'administrativos.auditoria.index',
-                                            )}
-                                            active={route().current(
-                                                'administrativos.auditoria.index',
-                                            )}
-                                            icon="fas fa-clipboard-check"
-                                            collapsed={!sidebarOpen}
-                                        >
-                                            Auditoría
-                                        </SidebarLink>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {(isAdmin || isAdministrativo) && (
-                            <>
-                                <div
-                                    className={`mb-2 mt-6 px-4 text-[10px] font-black uppercase tracking-widest text-white/40 ${!sidebarOpen && 'hidden'}`}
-                                >
-                                    Sistema
-                                </div>
-
+                                <div className="my-1.5 h-px w-8 bg-gray-200/80 shrink-0" />
                                 <SidebarLink
                                     href={route('bitacora.index')}
                                     active={route().current('bitacora.index')}
                                     icon="fas fa-history"
-                                    collapsed={!sidebarOpen}
                                 >
                                     Bitácora
                                 </SidebarLink>
-
                                 <SidebarLink
-                                    href={route(
-                                        'administrativos.reportes.index',
-                                    )}
-                                    active={route().current(
-                                        'administrativos.reportes.*',
-                                    )}
+                                    href={route('administrativos.reportes.index')}
+                                    active={route().current('administrativos.reportes.*')}
                                     icon="fas fa-inbox"
-                                    collapsed={!sidebarOpen}
                                 >
                                     Reportes
                                 </SidebarLink>
@@ -279,11 +117,11 @@ export default function AuthenticatedLayout({
 
                         {isAdmin && (
                             <>
+                                <div className="my-1.5 h-px w-8 bg-gray-200/80 shrink-0" />
                                 <SidebarLink
                                     href={route('admin.dashboard')}
                                     active={route().current('admin.dashboard')}
                                     icon="fas fa-chart-line"
-                                    collapsed={!sidebarOpen}
                                 >
                                     Dashboard Admin
                                 </SidebarLink>
@@ -291,7 +129,6 @@ export default function AuthenticatedLayout({
                                     href={route('admin.users.index')}
                                     active={route().current('admin.users.*')}
                                     icon="fas fa-users-cog"
-                                    collapsed={!sidebarOpen}
                                 >
                                     Usuarios
                                 </SidebarLink>
@@ -299,7 +136,6 @@ export default function AuthenticatedLayout({
                                     href={route('admin.trash.index')}
                                     active={route().current('admin.trash.*')}
                                     icon="fas fa-trash-alt"
-                                    collapsed={!sidebarOpen}
                                 >
                                     Papelera
                                 </SidebarLink>
@@ -307,24 +143,29 @@ export default function AuthenticatedLayout({
                         )}
                     </div>
 
-                    {/* Sidebar Footer - Toggle */}
-                    <div className="shrink-0 border-t border-white/10 p-4">
-                        <button
-                            onClick={() => setSidebarOpen(!sidebarOpen)}
-                            className="flex w-full items-center justify-center rounded-xl p-2 text-white transition-colors hover:bg-white/10"
-                        >
-                            <i
-                                className={`fas ${sidebarOpen ? 'fa-chevron-left' : 'fa-chevron-right'}`}
-                            ></i>
-                        </button>
-                    </div>
+                    {/* Sidebar Footer */}
+                    {user && (
+                        <div className="flex shrink-0 flex-col items-center border-t border-gray-100 py-3">
+                            <div className="relative group flex items-center justify-center">
+                                <Link
+                                    href={route('profile.edit')}
+                                    className="flex h-11 w-11 items-center justify-center rounded-2xl text-gray-500 hover:bg-gray-100 hover:text-black transition-colors"
+                                >
+                                    <i className="fas fa-user-circle text-lg"></i>
+                                </Link>
+                                <div className="pointer-events-none absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 z-[1100] hidden md:flex items-center rounded-xl bg-[#1e1f20] px-3.5 py-1.5 text-xs font-medium text-white shadow-2xl transition-all duration-150 whitespace-nowrap opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-1.5">
+                                    <span>Mi Perfil ({user.name})</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </aside>
             )}
 
             {/* Main Content Area */}
             <div
-                className={`flex flex-1 flex-col transition-all duration-300 ease-in-out ${
-                    showSidebar ? (sidebarOpen ? 'lg:pl-64' : 'lg:pl-20') : ''
+                className={`flex flex-1 flex-col min-w-0 transition-all duration-200 ease-in-out ${
+                    showSidebar ? 'lg:pl-20' : ''
                 }`}
             >
                 {/* Top Navbar */}
@@ -663,8 +504,8 @@ export default function AuthenticatedLayout({
                     __html: `
                 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 10px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
             `,
                 }}
             />
@@ -673,33 +514,32 @@ export default function AuthenticatedLayout({
     );
 }
 
-function SidebarLink({ href, active, children, icon, collapsed }) {
+function SidebarLink({ href, active, children, icon, shortcut }) {
     return (
-        <Link
-            href={href}
-            title={collapsed ? children : ''}
-            className={`group relative flex h-12 items-center rounded-xl transition-all duration-200 ${
-                active
-                    ? 'translate-x-1 bg-white font-black text-brand-orange shadow-lg'
-                    : 'font-bold text-white hover:bg-white/10'
-            } ${collapsed ? 'justify-center px-0' : 'gap-4 px-4'}`}
-        >
-            <div
-                className={`flex shrink-0 items-center justify-center ${collapsed ? 'w-full' : 'w-5'}`}
+        <div className="group relative flex items-center justify-center">
+            <Link
+                href={href}
+                className={`flex h-11 w-11 items-center justify-center rounded-2xl transition-all duration-200 ${
+                    active
+                        ? 'bg-orange-50 text-brand-orange ring-1 ring-orange-200/80 shadow-xs'
+                        : 'text-gray-500 hover:bg-gray-100 hover:text-black'
+                }`}
             >
                 <i
-                    className={`${icon} ${active ? 'text-brand-orange' : 'text-white/60 group-hover:text-white'} transition-colors ${collapsed ? 'text-lg' : 'text-sm'}`}
+                    className={`${icon} text-base transition-transform duration-200 group-hover:scale-110`}
                 ></i>
+            </Link>
+
+            {/* Tooltip estilo Gemini flotante */}
+            <div className="pointer-events-none absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 z-[1100] hidden md:flex items-center gap-2 rounded-xl bg-[#1e1f20] px-3.5 py-1.5 text-xs font-medium text-white shadow-2xl transition-all duration-150 whitespace-nowrap opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-1.5">
+                <span>{children}</span>
+                {shortcut && (
+                    <span className="text-[10px] text-gray-400 font-mono tracking-tight">
+                        ({shortcut})
+                    </span>
+                )}
             </div>
-            {!collapsed && (
-                <span className="truncate text-sm tracking-tight">
-                    {children}
-                </span>
-            )}
-            {active && (
-                <div className="absolute right-0 top-1/2 h-6 w-1.5 -translate-y-1/2 rounded-l-full bg-brand-orange"></div>
-            )}
-        </Link>
+        </div>
     );
 }
 
