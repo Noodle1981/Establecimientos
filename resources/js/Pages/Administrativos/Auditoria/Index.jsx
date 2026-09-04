@@ -46,6 +46,7 @@ export default function Index({
         }
         router.get(route('administrativos.auditoria.index'), newFilters, {
             preserveState: true,
+            preserveScroll: true,
             replace: true,
         });
     };
@@ -113,7 +114,7 @@ export default function Index({
     };
 
     return (
-        <AuthenticatedLayout header={null}>
+        <>
             <Head title="Auditoría" />
 
             {/* KPIs */}
@@ -489,9 +490,11 @@ export default function Index({
                 modalidad={selectedMod}
                 getNombreEdificio={getNombreEdificio}
             />
-        </AuthenticatedLayout>
+        </>
     );
 }
+
+Index.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
 
 function KPICard({ label, value, icon, color }) {
     const colors = {

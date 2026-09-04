@@ -12,7 +12,7 @@ export default function Index({ logs, filters }) {
     };
 
     return (
-        <AuthenticatedLayout header={null}>
+        <>
             <Head title="Bitácora" />
 
             <div className="space-y-6 pt-2">
@@ -131,6 +131,8 @@ export default function Index({ logs, filters }) {
                     <Pagination links={logs.links} />
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </>
     );
 }
+
+Index.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;

@@ -1,3 +1,4 @@
+import ToastNotification from '@/Components/ToastNotification';
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import logoMinisterio from '../../images/logoMinisterio.png';
@@ -667,6 +668,7 @@ export default function AuthenticatedLayout({
             `,
                 }}
             />
+            <ToastNotification />
         </div>
     );
 }

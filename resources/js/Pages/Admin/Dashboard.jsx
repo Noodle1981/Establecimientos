@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/react';
 
 export default function Dashboard({ stats, recentActivity }) {
     return (
-        <AuthenticatedLayout header={null}>
+        <>
             <Head title="Admin Dashboard" />
 
             <div className="space-y-6 pt-2">
@@ -119,9 +119,11 @@ export default function Dashboard({ stats, recentActivity }) {
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </>
     );
 }
+
+Dashboard.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
 
 function StatCard({ title, value, icon, color, darkText = false }) {
     return (

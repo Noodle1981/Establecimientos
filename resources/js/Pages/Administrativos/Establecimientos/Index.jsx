@@ -187,7 +187,7 @@ export default function Index({
     };
 
     return (
-        <AuthenticatedLayout header={null}>
+        <>
             <Head title="Establecimientos" />
 
             <div className="grid grid-cols-1 gap-6 pt-2 lg:grid-cols-4">
@@ -551,9 +551,11 @@ export default function Index({
                 onClose={() => setShowCreateModal(false)}
                 options={options}
             />
-        </AuthenticatedLayout>
+        </>
     );
 }
+
+Index.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
 
 function FilterSelect({ label, value, options, onChange }) {
     return (

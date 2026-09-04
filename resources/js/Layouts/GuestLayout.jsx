@@ -1,3 +1,4 @@
+import ToastNotification from '@/Components/ToastNotification';
 import { Link } from '@inertiajs/react';
 
 export default function GuestLayout({ children }) {
@@ -35,6 +36,7 @@ export default function GuestLayout({ children }) {
                     © {new Date().getFullYear()} Superior - Gobierno de San Juan
                 </p>
             </div>
+            <ToastNotification />
         </div>
     );
 }

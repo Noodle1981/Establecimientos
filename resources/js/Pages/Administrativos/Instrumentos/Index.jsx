@@ -39,7 +39,7 @@ export default function Index({ modalidades, filters }) {
     };
 
     return (
-        <AuthenticatedLayout header={null}>
+        <>
             <Head title="Instrumentos Legales" />
 
             <div className="space-y-6 pt-2">
@@ -153,9 +153,11 @@ export default function Index({ modalidades, filters }) {
                 onClose={() => setShowEditModal(false)}
                 modalidad={selectedMod}
             />
-        </AuthenticatedLayout>
+        </>
     );
 }
+
+Index.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
 
 function InstrumentBadge({ value }) {
     const isMissing =

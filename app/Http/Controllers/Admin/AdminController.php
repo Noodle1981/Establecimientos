@@ -44,12 +44,12 @@ class AdminController extends Controller
             'role' => 'required|in:admin,administrativos,autoridades',
         ]);
 
-        $user = User::create([
+        $user = new User([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
         ]);
+        $user->forceFill(['role' => $validated['role']])->save();
 
         $logger->logCreate($user, "Creó un nuevo usuario: {$user->name}");
 

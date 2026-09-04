@@ -3,11 +3,6 @@
  * Heavy map component — loaded lazily via React.lazy to keep the main bundle lean.
  * All react-leaflet and leaflet imports live here so they are split into a separate chunk.
  */
-import {
-    createTileLayerComponent,
-    updateGridLayer,
-    withPane,
-} from '@react-leaflet/core';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { memo, useCallback, useEffect, useState } from 'react';
@@ -15,6 +10,7 @@ import {
     CircleMarker,
     GeoJSON,
     MapContainer,
+    TileLayer,
     useMap,
     useMapEvents,
 } from 'react-leaflet';
@@ -84,19 +80,6 @@ function MapController({ selected, sidebarOpen, filterDepto, geojsonData }) {
 
     return null;
 }
-
-// --- Custom High Priority TileLayer ---
-const HighPriorityTileLayer = createTileLayerComponent((props, context) => {
-    const layer = new L.TileLayer(props.url, withPane(props, context));
-    const originalCreateTile = layer.createTile;
-    layer.createTile = function (coords, done) {
-        const tile = originalCreateTile.call(layer, coords, done);
-        tile.setAttribute('fetchpriority', 'high');
-        tile.setAttribute('loading', 'eager');
-        return tile;
-    };
-    return { instance: layer, context };
-}, updateGridLayer);
 
 // --- School Info Card (pure HTML, no Leaflet Popup) ---
 const SchoolCard = memo(
@@ -256,7 +239,7 @@ export default function MapView({
                 style={{ height: '100%', width: '100%' }}
                 zoomControl={false}
             >
-                <HighPriorityTileLayer
+                <TileLayer
                     key={isSatellite ? 'sat' : 'street'}
                     url={isSatellite ? TILE_SAT : TILE_STREET}
                     attribution={

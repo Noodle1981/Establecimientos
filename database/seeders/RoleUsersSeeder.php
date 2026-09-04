@@ -25,7 +25,7 @@ class RoleUsersSeeder extends Seeder
         User::query()->delete();
 
         // Crear usuario Admin
-        User::create([
+        User::forceCreate([
             'email' => 'Admin@example.com',
             'name' => 'Admin',
             'role' => 'admin',
@@ -34,7 +34,7 @@ class RoleUsersSeeder extends Seeder
         ]);
 
         // Crear usuario Administrativo
-        User::create([
+        User::forceCreate([
             'email' => 'Administrativo@example.com',
             'name' => 'Administrativo',
             'role' => 'administrativos',

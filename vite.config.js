@@ -10,6 +10,9 @@ export default defineConfig({
         }),
         react(),
     ],
+    resolve: {
+        dedupe: ['react', 'react-dom', 'react-leaflet', 'leaflet'],
+    },
     build: {
         chunkSizeWarningLimit: 1600,
         rollupOptions: {

@@ -1,36 +1,38 @@
 import Pagination from '@/Components/Pagination';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function ReportesIndex({ reportes, stats }) {
     const [selectedReporte, setSelectedReporte] = useState(null);
-    const { patch, delete: destroy } = useForm();
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const updateStatus = (reporte, nuevoEstado) => {
-        patch(route('administrativos.reportes.update', reporte.id), {
-            data: { estado: nuevoEstado },
-            onSuccess: () => setSelectedReporte(null),
-        });
+        setIsUpdating(true);
+        router.patch(
+            route('administrativos.reportes.update', reporte.id),
+            { estado: nuevoEstado },
+            {
+                preserveScroll: true,
+                onSuccess: () => setSelectedReporte(null),
+                onFinish: () => setIsUpdating(false),
+            },
+        );
     };
 
     const deleteReporte = (reporte) => {
         if (
             confirm('¿Estás seguro de eliminar este reporte permanentemente?')
         ) {
-            destroy(route('administrativos.reportes.destroy', reporte.id));
+            router.delete(route('administrativos.reportes.destroy', reporte.id), {
+                preserveScroll: true,
+                onSuccess: () => setSelectedReporte(null),
+            });
         }
     };
 
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-2xl font-black leading-tight text-gray-800">
-                    Bandeja de{' '}
-                    <span className="text-brand-orange">Reportes</span>
-                </h2>
-            }
-        >
+        <>
             <Head title="Bandeja de Reportes" />
 
             <div className="space-y-6">
@@ -161,25 +163,27 @@ export default function ReportesIndex({ reportes, stats }) {
                                     </div>
                                     <div className="flex gap-2">
                                         <button
+                                            disabled={isUpdating}
                                             onClick={() =>
                                                 updateStatus(
                                                     selectedReporte,
                                                     'PROCESADO',
                                                 )
                                             }
-                                            className="rounded-xl bg-green-500 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-green-500/20 transition hover:bg-green-600"
+                                            className="rounded-xl bg-green-500 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-green-500/20 transition hover:bg-green-600 disabled:opacity-50"
                                         >
-                                            <i className="fas fa-check mr-2"></i>{' '}
+                                            <i className={`fas ${isUpdating ? 'fa-spinner fa-spin' : 'fa-check'} mr-2`}></i>{' '}
                                             Solucionado
                                         </button>
                                         <button
+                                            disabled={isUpdating}
                                             onClick={() =>
                                                 updateStatus(
                                                     selectedReporte,
                                                     'DESCARTADO',
                                                 )
                                             }
-                                            className="rounded-xl bg-gray-100 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 transition hover:bg-gray-200"
+                                            className="rounded-xl bg-gray-100 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 transition hover:bg-gray-200 disabled:opacity-50"
                                         >
                                             <i className="fas fa-ban mr-2"></i>{' '}
                                             Descartar
@@ -303,9 +307,21 @@ export default function ReportesIndex({ reportes, stats }) {
                 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
                 .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 10px; }
             `}</style>
-        </AuthenticatedLayout>
+        </>
     );
 }
+
+ReportesIndex.layout = (page) => (
+    <AuthenticatedLayout
+        header={
+            <h2 className="text-2xl font-black leading-tight text-gray-800">
+                Bandeja de <span className="text-brand-orange">Reportes</span>
+            </h2>
+        }
+    >
+        {page}
+    </AuthenticatedLayout>
+);
 
 function StatCard({ label, value, icon, color, active = false }) {
     const colors = {

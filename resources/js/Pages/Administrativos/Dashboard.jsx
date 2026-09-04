@@ -74,7 +74,7 @@ export default function Dashboard({ filters, options, chartData }) {
     };
 
     return (
-        <AuthenticatedLayout header={null}>
+        <>
             <Head title="Estadísticas" />
 
             {/* Float sync indicator if needed, but remove the static header block */}
@@ -584,9 +584,11 @@ export default function Dashboard({ filters, options, chartData }) {
                     </div>
                 )}
             </Modal>
-        </AuthenticatedLayout>
+        </>
     );
 }
+
+Dashboard.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
 
 function FilterSelect({
     label,

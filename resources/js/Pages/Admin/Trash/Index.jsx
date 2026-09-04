@@ -21,7 +21,7 @@ export default function Index({ modalidades, edificios }) {
     const empty = modalidades.length === 0 && edificios.length === 0;
 
     return (
-        <AuthenticatedLayout header={null}>
+        <>
             <Head title="Papelera" />
 
             <div className="space-y-10 pt-2">
@@ -174,6 +174,8 @@ export default function Index({ modalidades, edificios }) {
                     </section>
                 )}
             </div>
-        </AuthenticatedLayout>
+        </>
     );
 }
+
+Index.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;

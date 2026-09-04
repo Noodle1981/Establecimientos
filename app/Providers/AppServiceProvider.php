@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +23,27 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force HTTPS in production
+        if (app()->environment('production')) {
+            URL::forceScheme('https');
+        }
+
+        // Strong password policy adhering to laravel-security best practices
+        Password::defaults(function () {
+            if (app()->environment('testing')) {
+                return Password::min(8);
+            }
+
+            $rule = Password::min(10)
+                ->letters()
+                ->mixedCase()
+                ->numbers();
+
+            return app()->isProduction()
+                ? $rule->uncompromised()
+                : $rule;
+        });
+
         if (config('database.default') === 'sqlite') {
             DB::statement('PRAGMA journal_mode=WAL;');     // lecturas concurrentes con escrituras
             DB::statement('PRAGMA synchronous=NORMAL;');   // balance seguridad/velocidad

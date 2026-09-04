@@ -117,7 +117,7 @@ export default function Index({ edificios, filters, options }) {
     };
 
     return (
-        <AuthenticatedLayout header={null}>
+        <>
             <Head title="Edificios" />
 
             <div className="space-y-6">
@@ -364,9 +364,11 @@ export default function Index({ edificios, filters, options }) {
                 onClose={() => setShowCreateModal(false)}
                 options={options}
             />
-        </AuthenticatedLayout>
+        </>
     );
 }
+
+Index.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
 
 function CreateEdificioModal({ show, onClose, options = {} }) {
     const { data, setData, post, processing, errors, reset } = useForm({

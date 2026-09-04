@@ -31,7 +31,7 @@ export default function Index({ users, filters }) {
     };
 
     return (
-        <AuthenticatedLayout header={null}>
+        <>
             <Head title="Usuarios" />
 
             <div className="space-y-6 pt-2">
@@ -139,9 +139,11 @@ export default function Index({ users, filters }) {
                 show={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
             />
-        </AuthenticatedLayout>
+        </>
     );
 }
+
+Index.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
 
 function CreateUserModal({ show, onClose }) {
     const { data, setData, post, processing, errors, reset } = useForm({
