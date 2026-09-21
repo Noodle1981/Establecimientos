@@ -110,7 +110,9 @@ class AuditoriaQueryService
 
         return \Illuminate\Support\Facades\Cache::remember($cacheKey, 3600, function () use ($estado, $depto, $nivel, $ambito) {
             // Niveles available for the current filters
-            $nivelQuery = Modalidad::distinct()->whereNotNull('nivel_educativo');
+            $nivelQuery = Modalidad::distinct()
+                ->whereNotNull('nivel_educativo')
+                ->whereNotIn('direccion_area', ['ADMINISTRACIÓN', 'ADMINISTRACION']);
             if ($estado) $nivelQuery->where('estado_validacion', $estado);
             if ($ambito) $nivelQuery->where('ambito', $ambito);
             if ($depto) {

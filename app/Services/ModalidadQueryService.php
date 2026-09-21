@@ -68,7 +68,12 @@ class ModalidadQueryService
      */
     public function getFilterOptions(): array
     {
-        $niveles = Modalidad::select('nivel_educativo')->distinct()->whereNotNull('nivel_educativo')->orderBy('nivel_educativo')->pluck('nivel_educativo');
+        $niveles = Modalidad::select('nivel_educativo')
+            ->whereNotIn('direccion_area', ['ADMINISTRACIÓN', 'ADMINISTRACION'])
+            ->distinct()
+            ->whereNotNull('nivel_educativo')
+            ->orderBy('nivel_educativo')
+            ->pluck('nivel_educativo');
         $ambitos = Modalidad::select('ambito')->distinct()->whereNotNull('ambito')->pluck('ambito');
         $areas = Modalidad::select('direccion_area')->distinct()->whereNotNull('direccion_area')->orderBy('direccion_area')->pluck('direccion_area');
         $zonas = \App\Models\Edificio::select('zona_departamento')->distinct()->whereNotNull('zona_departamento')->orderBy('zona_departamento')->pluck('zona_departamento');

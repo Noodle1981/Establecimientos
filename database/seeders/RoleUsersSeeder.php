@@ -42,8 +42,18 @@ class RoleUsersSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
+        // Crear usuario Autoridades
+        User::forceCreate([
+            'email' => 'Autoridad@example.com',
+            'name' => 'Autoridad',
+            'role' => 'autoridades',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ]);
+
         $this->command->info('✅ Base de datos de usuarios reseteada:');
         $this->command->info('   - Admin@example.com (admin) - password: password');
         $this->command->info('   - Administrativo@example.com (administrativos) - password: password');
+        $this->command->info('   - Autoridad@example.com (autoridades) - password: password');
     }
 }

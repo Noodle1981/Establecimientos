@@ -236,6 +236,8 @@ export default function MapView({
             <MapContainer
                 center={[-31.5375, -68.5364]}
                 zoom={11}
+                minZoom={7}
+                maxZoom={19}
                 style={{ height: '100%', width: '100%' }}
                 zoomControl={false}
             >
@@ -248,6 +250,8 @@ export default function MapView({
                             : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     }
                     subdomains={isSatellite ? '' : 'abc'}
+                    maxNativeZoom={isSatellite ? 17 : 19}
+                    maxZoom={19}
                     keepBuffer={2}
                     updateWhenIdle={true}
                     updateWhenZooming={false}
