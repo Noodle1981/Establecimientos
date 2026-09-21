@@ -33,6 +33,17 @@ const ClearSelection = ({ onClear }) => {
     return null;
 };
 
+// Normalizer for accent-insensitive and case-insensitive department matching
+const normalizeDept = (val) =>
+    val
+        ? val
+              .toString()
+              .normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .toUpperCase()
+              .trim()
+        : '';
+
 function MapController({ selected, sidebarOpen, filterDepto, geojsonData }) {
     const map = useMap();
 
@@ -56,11 +67,14 @@ function MapController({ selected, sidebarOpen, filterDepto, geojsonData }) {
     // Fit bounds of selected department
     useEffect(() => {
         if (filterDepto && filterDepto !== 'TODOS' && geojsonData) {
-            const feature = geojsonData.features.find(
-                (f) =>
-                    f.properties?.departamento?.toUpperCase() ===
-                    filterDepto.toUpperCase(),
-            );
+            const targetNorm = normalizeDept(filterDepto);
+            const feature = geojsonData.features.find((f) => {
+                const p = f.properties || {};
+                return (
+                    normalizeDept(p.departamento) === targetNorm ||
+                    normalizeDept(p.nombre) === targetNorm
+                );
+            });
             if (feature) {
                 try {
                     const bounds = L.geoJSON(feature).getBounds();
@@ -201,7 +215,9 @@ export default function MapView({
         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
     useEffect(() => {
-        fetch('/geojson/departamentos-san_juan.json')
+        fetch('/geojson/departamentos-san_juan.json?v=ign-2026-v2', {
+            cache: 'no-store',
+        })
             .then((res) => res.json())
             .then((data) => setGeojsonData(data))
             .catch((err) => console.error('Error loading GeoJSON:', err));
@@ -214,11 +230,12 @@ export default function MapView({
     // GeoJSON style: borders always visible for all depts, orange fill only for filtered dept
     const deptStyle = useCallback(
         (feature) => {
+            const targetNorm = normalizeDept(filterDepto);
             const isHighlighted =
                 filterDepto &&
                 filterDepto !== 'TODOS' &&
-                feature.properties?.departamento?.toUpperCase() ===
-                    filterDepto.toUpperCase();
+                (normalizeDept(feature.properties?.departamento) === targetNorm ||
+                    normalizeDept(feature.properties?.nombre) === targetNorm);
 
             return {
                 color: isHighlighted ? '#FE8204' : '#94a3b8',
@@ -269,7 +286,7 @@ export default function MapView({
                 {/* Department borders layer — always shown when geojsonData is ready */}
                 {geojsonData && showDeptoBorders && (
                     <GeoJSON
-                        key={`geojson-${geojsonData.features.length}-${filterDepto}`}
+                        key={`geojson-ign-${geojsonData.name || 'v2'}-${filterDepto}`}
                         data={geojsonData}
                         style={deptStyle}
                     />

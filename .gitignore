@@ -19,6 +19,7 @@
 /storage/*.key
 /storage/pail
 /vendor
+/public/ign_sjon
 Homestead.json
 Homestead.yaml
 Thumbs.db
