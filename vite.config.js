@@ -22,6 +22,9 @@ export default defineConfig({
                         if (id.includes('leaflet')) {
                             return 'leaflet-vendor';
                         }
+                        if (id.includes('chart.js') || id.includes('react-chartjs-2')) {
+                            return 'chart-vendor';
+                        }
                         return 'vendor';
                     }
                 },

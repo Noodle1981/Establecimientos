@@ -215,9 +215,7 @@ export default function MapView({
         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
     useEffect(() => {
-        fetch('/geojson/departamentos-san_juan.json?v=ign-2026-v2', {
-            cache: 'no-store',
-        })
+        fetch('/geojson/departamentos-san_juan.json?v=ign-2026-v2')
             .then((res) => res.json())
             .then((data) => setGeojsonData(data))
             .catch((err) => console.error('Error loading GeoJSON:', err));

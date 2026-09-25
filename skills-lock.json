@@ -12,6 +12,12 @@
       "sourceType": "github",
       "skillPath": "skills/laravel-security/SKILL.md",
       "computedHash": "37312e1d7d543c7e0b926c74c4bde87cb95300d7c8549e0a3974c9c44a34a84c"
+    },
+    "lighthouse": {
+      "source": "onnokh/lighthouse",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "bf7de3a0453e975ab24833dc42d4b983f7e59b6f47660134e4e43fb94669a0fa"
     }
   }
 }

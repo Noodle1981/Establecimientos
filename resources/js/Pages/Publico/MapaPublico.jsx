@@ -373,7 +373,11 @@ export default function MapaPublico({ edificios = [] }) {
                     </Suspense>
 
                     {/* Map Buttons */}
-                    <div className="absolute right-6 top-6 z-[1001] flex flex-col gap-3">
+                    <div
+                        className={`absolute right-4 top-4 z-[1001] flex-col gap-3 sm:right-6 sm:top-6 ${
+                            sidebarOpen ? 'hidden md:flex' : 'flex'
+                        }`}
+                    >
                         <button
                             onClick={() => {
                                 setSelectedEdificio(null);

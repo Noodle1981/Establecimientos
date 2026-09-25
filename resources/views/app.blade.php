@@ -9,13 +9,15 @@
         <!-- Fonts & CDNs (Non-blocking) -->
         <!-- Fonts & CDNs (Optimized) -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link rel="preconnect" href="https://tile.openstreetmap.org">
+        <link rel="preconnect" href="https://a.tile.openstreetmap.org">
+        <link rel="preconnect" href="https://b.tile.openstreetmap.org">
+        <link rel="dns-prefetch" href="https://c.tile.openstreetmap.org">
         <link rel="dns-prefetch" href="https://server.arcgisonline.com">
         
-        <link rel="preload" href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <link rel="preload" href="https://fonts.bunny.net/css?family=ubuntu:300,400,500,700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
         
         <noscript>
-            <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
+            <link href="https://fonts.bunny.net/css?family=ubuntu:300,400,500,700&display=swap" rel="stylesheet" />
         </noscript>
 
         <!-- Scripts -->

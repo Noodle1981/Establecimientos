@@ -3,6 +3,8 @@ import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import { useForm } from '@inertiajs/react';
+import { copyToClipboard } from '@/Utils/clipboard';
+import { decimalToDMS } from '@/Utils/coordinates';
 import { useEffect, useState } from 'react';
 
 const CAMPOS_AUDITORIA = [
@@ -29,101 +31,13 @@ export default function StatusUpdateModal({ show, onClose, modalidad, getNombreE
     const [vinculados, setVinculados] = useState([]);
     const [copiedField, setCopiedField] = useState(null);
 
-    const handleCopy = (text, fieldName) => {
+    const handleCopy = async (text, fieldName) => {
         if (!text) return;
-        const stringText = String(text);
-
-        if (
-            typeof navigator !== 'undefined' &&
-            navigator.clipboard &&
-            navigator.clipboard.writeText
-        ) {
-            navigator.clipboard
-                .writeText(stringText)
-                .then(() => {
-                    setCopiedField(fieldName);
-                    setTimeout(() => setCopiedField(null), 1500);
-                })
-                .catch((err) => {
-                    console.warn(
-                        'Failed using navigator.clipboard, trying fallback:',
-                        err,
-                    );
-                    fallbackCopy(stringText, fieldName);
-                });
-        } else {
-            fallbackCopy(stringText, fieldName);
+        const ok = await copyToClipboard(text);
+        if (ok) {
+            setCopiedField(fieldName);
+            setTimeout(() => setCopiedField(null), 1500);
         }
-    };
-
-    const fallbackCopy = (text, fieldName) => {
-        try {
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            textArea.style.top = '0';
-            textArea.style.left = '0';
-            textArea.style.position = 'fixed';
-            textArea.style.opacity = '0';
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            const successful = document.execCommand('copy');
-            document.body.removeChild(textArea);
-            if (successful) {
-                setCopiedField(fieldName);
-                setTimeout(() => setCopiedField(null), 1500);
-            } else {
-                console.error('Fallback copy failed');
-            }
-        } catch (err) {
-            console.error('Fallback copy threw error:', err);
-        }
-    };
-
-    const decimalToDMS = (val, isLat) => {
-        if (val === undefined || val === null || val === '') {
-            return {
-                cardinal: '-',
-                cardinalShort: '-',
-                degrees: '-',
-                minutes: '-',
-                seconds: '-',
-            };
-        }
-        const num = parseFloat(val);
-        if (isNaN(num)) {
-            return {
-                cardinal: '-',
-                cardinalShort: '-',
-                degrees: '-',
-                minutes: '-',
-                seconds: '-',
-            };
-        }
-
-        const absolute = Math.abs(num);
-        const degrees = Math.floor(absolute);
-        const minutesNotTruncated = (absolute - degrees) * 60;
-        const minutes = Math.floor(minutesNotTruncated);
-        const seconds = ((minutesNotTruncated - minutes) * 60).toFixed(2);
-
-        let cardinal = '';
-        let cardinalShort = '';
-        if (isLat) {
-            cardinal = num >= 0 ? 'Norte (N)' : 'Sur (S)';
-            cardinalShort = num >= 0 ? 'N' : 'S';
-        } else {
-            cardinal = num >= 0 ? 'Este (E)' : 'Oeste (O)';
-            cardinalShort = num >= 0 ? 'E' : 'O';
-        }
-
-        return {
-            cardinal,
-            cardinalShort,
-            degrees: String(degrees),
-            minutes: String(minutes),
-            seconds: String(seconds).replace('.', ','),
-        };
     };
 
     // Sincronizar el formulario cuando cambia la modalidad seleccionada o se abre el modal

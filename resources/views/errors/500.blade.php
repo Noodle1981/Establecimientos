@@ -6,7 +6,7 @@
     <title>Error del Servidor - Ministerio de Educación</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -14,7 +14,7 @@
             --primary-orange: #FE8204;
         }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Ubuntu', sans-serif;
             background: #ffffff;
         }
         .glass-strong {

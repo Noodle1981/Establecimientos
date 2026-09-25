@@ -27,13 +27,13 @@ export default function Navbar({
                             <i className="fas fa-bars text-xl"></i>
                         </button>
                     )}
-                    <Link href="/">
+                    <Link href="/" className="shrink-0">
                         <img
                             src={logoMinisterio}
-                            alt="M.E."
-                            className="h-10 w-auto"
-                            width="160"
-                            height="40"
+                            alt="Ministerio de Educación de San Juan"
+                            className="h-8 sm:h-10 w-auto shrink-0 object-contain"
+                            width="501"
+                            height="76"
                         />
                     </Link>
                 </div>
