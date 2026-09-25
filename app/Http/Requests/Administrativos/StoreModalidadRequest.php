@@ -20,21 +20,21 @@ class StoreModalidadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre_establecimiento' => 'required|string',
+            'nombre_establecimiento' => ['required', 'string', 'max:255'],
             'cue' => ['required', 'regex:/^(\d{9}|PROV.*)$/'],
             'cui' => ['required', 'regex:/^(\d{7}|PROV.*)$/'],
             'establecimiento_cabecera' => ['required', 'regex:/^(\d{9}|PROV.*)$/'],
-            'nivel_educativo' => 'required',
-            'direccion_area' => 'required',
-            'ambito' => 'required',
-            'sector' => 'nullable',
-            'radio' => 'nullable',
-            'zona' => 'nullable',
-            'calle' => 'required',
-            'localidad' => 'required',
-            'zona_departamento' => 'required',
-            'latitud' => 'nullable|numeric',
-            'longitud' => 'nullable|numeric',
+            'nivel_educativo' => ['required', 'string', 'max:255'],
+            'direccion_area' => ['required', 'string', 'max:255'],
+            'ambito' => ['required', 'string', 'max:50'],
+            'sector' => ['nullable'],
+            'radio' => ['nullable', 'string', 'max:50'],
+            'zona' => ['nullable', 'string', 'max:50'],
+            'calle' => ['required', 'string', 'max:255'],
+            'localidad' => ['required', 'string', 'max:255'],
+            'zona_departamento' => ['required', 'string', 'max:255'],
+            'latitud' => ['nullable', 'numeric'],
+            'longitud' => ['nullable', 'numeric'],
         ];
     }
 

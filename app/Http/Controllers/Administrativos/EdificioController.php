@@ -10,10 +10,12 @@ use App\Actions\Administrativos\StoreEdificioAction;
 use App\Actions\Administrativos\UpdateEdificioAction;
 use App\Http\Requests\Administrativos\StoreEdificioRequest;
 use App\Http\Requests\Administrativos\UpdateEdificioRequest;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EdificioController extends Controller
 {
@@ -50,7 +52,7 @@ class EdificioController extends Controller
     /**
      * Store a newly created building in storage.
      */
-    public function store(StoreEdificioRequest $request, StoreEdificioAction $action)
+    public function store(StoreEdificioRequest $request, StoreEdificioAction $action): RedirectResponse
     {
         $action->execute($request->validated());
 
@@ -60,7 +62,7 @@ class EdificioController extends Controller
     /**
      * Update the specified building in storage.
      */
-    public function update(UpdateEdificioRequest $request, int $id, UpdateEdificioAction $action)
+    public function update(UpdateEdificioRequest $request, int $id, UpdateEdificioAction $action): RedirectResponse
     {
         $edificio = Edificio::findOrFail($id);
         
@@ -72,7 +74,7 @@ class EdificioController extends Controller
     /**
      * Remove the specified building from storage (soft delete).
      */
-    public function destroy(int $id, \App\Services\ActivityLogService $activityLogger)
+    public function destroy(int $id, \App\Services\ActivityLogService $activityLogger): RedirectResponse
     {
         $edificio = Edificio::findOrFail($id);
 
@@ -91,7 +93,7 @@ class EdificioController extends Controller
     /**
      * Export buildings to Excel.
      */
-    public function export(Request $request)
+    public function export(Request $request): StreamedResponse
     {
         $edificios = $this->queryService->getFilteredQuery($request)->get();
         
@@ -113,6 +115,6 @@ class EdificioController extends Controller
 
         $this->exportService->autoSizeColumns($sheet, count($headers));
         
-        return $this->exportService->download($spreadsheet, 'edificios_' . date('Y-m-d') . '.xlsx');
+        return $this->exportService->download($spreadsheet, 'edificios_' . now()->format('Y-m-d') . '.xlsx');
     }
 }

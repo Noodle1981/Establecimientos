@@ -7,11 +7,14 @@ use App\Models\Modalidad;
 use App\Services\AuditoriaQueryService;
 use App\Services\ExcelExportService;
 use App\Http\Requests\Administrativos\UpdateAuditoriaRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AuditoriaController extends Controller
 {
@@ -45,7 +48,7 @@ class AuditoriaController extends Controller
     /**
      * Update validation status for a modality.
      */
-    public function updateEstado(UpdateAuditoriaRequest $request, int $id)
+    public function updateEstado(UpdateAuditoriaRequest $request, int $id): RedirectResponse
     {
         try {
             \Illuminate\Support\Facades\DB::transaction(function () use ($request, $id) {
@@ -105,7 +108,7 @@ class AuditoriaController extends Controller
     /**
      * Get other establishments in the same building.
      */
-    public function vinculados(int $id)
+    public function vinculados(int $id): JsonResponse
     {
         $modalidad = Modalidad::withTrashed()->with('establecimiento')->findOrFail($id);
         
@@ -123,10 +126,10 @@ class AuditoriaController extends Controller
     /**
      * Export audit report to PDF.
      */
-    public function exportPdf(Request $request)
+    public function exportPdf(Request $request): \Illuminate\Http\Response
     {
-        ini_set('memory_limit', '-1');
-        set_time_limit(0);
+        ini_set('memory_limit', '512M');
+        set_time_limit(180);
 
         // Obtener los datos filtrados (sin paginación para el PDF)
         $modalidades = $this->queryService->getFilteredQuery($request)
@@ -143,16 +146,16 @@ class AuditoriaController extends Controller
             'filtros' => $request->all()
         ])->setPaper('a4', 'landscape');
  
-        return $pdf->download('reporte_auditoria_' . date('Y-m-d') . '.pdf');
+        return $pdf->download('reporte_auditoria_' . now()->format('Y-m-d') . '.pdf');
     }
 
     /**
      * Export audit report to Excel.
      */
-    public function exportExcel(Request $request)
+    public function exportExcel(Request $request): StreamedResponse
     {
-        ini_set('memory_limit', '-1');
-        set_time_limit(0);
+        ini_set('memory_limit', '512M');
+        set_time_limit(180);
 
         $modalidades = $this->queryService->getFilteredQuery($request)
             ->orderBy('validado_en', 'desc')
@@ -216,7 +219,7 @@ class AuditoriaController extends Controller
 
         $excelService->autoSizeColumns($sheet, count($headers));
 
-        $fileName = 'reporte_auditoria_' . date('Y-m-d') . '.xlsx';
+        $fileName = 'reporte_auditoria_' . now()->format('Y-m-d') . '.xlsx';
         return $excelService->download($spreadsheet, $fileName);
     }
 }

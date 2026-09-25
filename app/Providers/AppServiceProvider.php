@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
@@ -23,6 +24,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Eloquent strict mode in development to prevent N+1 queries, unfillable mass-assignment and missing attributes
+        Model::shouldBeStrict(! app()->isProduction());
+
         // Force HTTPS in production
         if (app()->environment('production')) {
             URL::forceScheme('https');

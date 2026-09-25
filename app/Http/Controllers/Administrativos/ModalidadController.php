@@ -13,10 +13,13 @@ use App\Actions\Administrativos\UpdateModalidadAction;
 use App\Http\Requests\Administrativos\StoreModalidadRequest;
 use App\Http\Requests\Administrativos\UpdateModalidadRequest;
 use App\Http\Requests\Administrativos\UpdateInstrumentosRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ModalidadController extends Controller
 {
@@ -55,7 +58,7 @@ class ModalidadController extends Controller
     /**
      * Store a new modality.
      */
-    public function store(StoreModalidadRequest $request, StoreModalidadAction $action, ActivityLogService $activityLogger)
+    public function store(StoreModalidadRequest $request, StoreModalidadAction $action, ActivityLogService $activityLogger): RedirectResponse
     {
         $modalidad = $action->execute($request->validated());
 
@@ -83,7 +86,7 @@ class ModalidadController extends Controller
     /**
      * Update legal instruments for a modality.
      */
-    public function instrumentosUpdate(UpdateInstrumentosRequest $request, int $id)
+    public function instrumentosUpdate(UpdateInstrumentosRequest $request, int $id): RedirectResponse
     {
         $modalidad = Modalidad::findOrFail($id);
         $modalidad->update($request->validated());
@@ -94,7 +97,7 @@ class ModalidadController extends Controller
     /**
      * Update modality and sync buildings/establishments.
      */
-    public function update(UpdateModalidadRequest $request, int $id, UpdateModalidadAction $action)
+    public function update(UpdateModalidadRequest $request, int $id, UpdateModalidadAction $action): RedirectResponse
     {
         $modalidad = Modalidad::with('establecimiento.edificio')->findOrFail($id);
         
@@ -106,7 +109,7 @@ class ModalidadController extends Controller
     /**
      * Export to Excel.
      */
-    public function export(Request $request)
+    public function export(Request $request): StreamedResponse
     {
         $data = $this->queryService->getFilteredQuery($request)->get();
         
@@ -126,13 +129,13 @@ class ModalidadController extends Controller
 
         $this->exportService->autoSizeColumns($sheet, count($headers));
 
-        return $this->exportService->download($spreadsheet, 'establecimientos.xlsx');
+        return $this->exportService->download($spreadsheet, 'establecimientos_' . now()->format('Y-m-d') . '.xlsx');
     }
 
     /**
      * Remove a modality (soft-delete).
      */
-    public function destroy(int $id, ActivityLogService $activityLogger)
+    public function destroy(int $id, ActivityLogService $activityLogger): RedirectResponse
     {
         \Illuminate\Support\Facades\DB::transaction(function () use ($id, $activityLogger) {
             $modalidad = Modalidad::findOrFail($id);
@@ -159,7 +162,7 @@ class ModalidadController extends Controller
     /**
      * API for CUI lookup.
      */
-    public function lookupEdificio(string $cui)
+    public function lookupEdificio(string $cui): JsonResponse
     {
         $edificio = Edificio::with('cabecera')->where('cui', $cui)->first();
         if (!$edificio) return response()->json(null);
@@ -177,7 +180,7 @@ class ModalidadController extends Controller
     /**
      * API for CUE lookup.
      */
-    public function lookupCue(string $cue)
+    public function lookupCue(string $cue): JsonResponse
     {
         $est = \App\Models\Establecimiento::with('edificio')->where('cue', $cue)->first();
         if (!$est) return response()->json(null);

@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Admin\ForceDeleteModalidadAction;
+use App\Actions\Admin\ResetUserPasswordAction;
+use App\Actions\Admin\RestoreTrashAction;
+use App\Actions\Admin\StoreUserAction;
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Http\Requests\Admin\StoreUserRequest;
 use App\Models\ActivityLog;
-use App\Models\Modalidad;
 use App\Models\Edificio;
-use App\Services\ActivityLogService;
+use App\Models\Modalidad;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -35,40 +38,24 @@ class AdminController extends Controller
         ]);
     }
 
-    public function storeUser(Request $request, ActivityLogService $logger)
+    /**
+     * Store a newly created institutional user.
+     */
+    public function storeUser(StoreUserRequest $request, StoreUserAction $action): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|min:3',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:admin,administrativos,autoridades',
-        ]);
-
-        $user = new User([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-        ]);
-        $user->forceFill(['role' => $validated['role']])->save();
-
-        $logger->logCreate($user, "Creó un nuevo usuario: {$user->name}");
+        $action->execute($request->validated());
 
         return back()->with('success', 'Usuario creado correctamente.');
     }
 
-    public function resetPassword(Request $request, $id, ActivityLogService $logger)
+    /**
+     * Reset user password to a temporary generated one.
+     */
+    public function resetPassword(int|string $id, ResetUserPasswordAction $action): RedirectResponse
     {
         $user = User::findOrFail($id);
 
-        // Generar contraseña aleatoria segura de 12 caracteres
-        $tempPass = Str::password(12, letters: true, numbers: true, symbols: false);
-        
-        $user->update([
-            'password'            => Hash::make($tempPass),
-            'password_changed_at' => null, // Force reset on login
-        ]);
-
-        $logger->logUpdate($user, "Blanqueó la contraseña", ['after' => ['password' => 'TEMPORAL_GENERADA']]);
+        $tempPass = $action->execute($user);
 
         return back()->with('success', "Contraseña temporal generada: {$tempPass}");
     }
@@ -83,7 +70,8 @@ class AdminController extends Controller
                 $q->where('description', 'like', "%{$search}%");
             })
             ->latest()
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
         return Inertia::render('Admin/Logs/Index', [
             'logs' => $logs
@@ -93,7 +81,7 @@ class AdminController extends Controller
     /**
      * Trash Management
      */
-    public function trash(Request $request): Response
+    public function trash(): Response
     {
         $modalidades = Modalidad::onlyTrashed()->with(['establecimiento' => fn($q) => $q->withTrashed()])->get();
         $edificios = Edificio::onlyTrashed()->get();
@@ -104,45 +92,22 @@ class AdminController extends Controller
         ]);
     }
 
-    public function restore($type, $id)
+    /**
+     * Restore record from trash.
+     */
+    public function restore(string $type, int|string $id, RestoreTrashAction $action): RedirectResponse
     {
-        \Illuminate\Support\Facades\DB::transaction(function () use ($type, $id) {
-            $model = $type === 'modalidad' ? Modalidad::onlyTrashed() : Edificio::onlyTrashed();
-            $record = $model->findOrFail($id);
-            $record->restore();
-
-            // Restauración inversa en cascada
-            if ($type === 'modalidad') {
-                $est = $record->establecimiento()->onlyTrashed()->first();
-                if ($est) {
-                    $est->restore();
-                }
-            }
-        });
+        $action->execute($type, $id);
 
         return back()->with('success', 'Registro recuperado.');
     }
 
-    public function forceDelete($id, ActivityLogService $logger)
+    /**
+     * Permanently delete establishment and associated modalities.
+     */
+    public function forceDelete(int|string $id, ForceDeleteModalidadAction $action): RedirectResponse
     {
-        $mod = Modalidad::withTrashed()->with([
-            'establecimiento' => function($q) { $q->withTrashed(); },
-            'establecimiento.modalidades' => function($q) { $q->withTrashed(); }
-        ])->findOrFail($id);
-        
-        $est = $mod->establecimiento;
-
-        $name = $est->nombre;
-        $cue = $est->cue;
-
-        // Force delete all modalities of this establishment
-        foreach ($est->modalidades()->withTrashed()->get() as $m) {
-            $m->forceDelete();
-        }
-
-        $est->forceDelete();
-
-        $logger->logDelete($mod, "BORRADO PERMANENTE: {$name} (CUE: {$cue}). CUE liberado.");
+        $action->execute($id);
 
         return back()->with('success', 'Establecimiento y datos asociados eliminados permanentemente.');
     }

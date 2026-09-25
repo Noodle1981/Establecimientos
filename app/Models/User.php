@@ -53,17 +53,15 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === \App\Enums\UserRole::ADMIN->value;
     }
-
-
 
     /**
      * Check if user is administrativo.
      */
     public function isAdministrativo(): bool
     {
-        return $this->role === 'administrativos';
+        return $this->role === \App\Enums\UserRole::ADMINISTRATIVO->value;
     }
 
     /**
@@ -71,7 +69,7 @@ class User extends Authenticatable
      */
     public function isAutoridad(): bool
     {
-        return $this->role === 'autoridades';
+        return $this->role === \App\Enums\UserRole::AUTORIDAD->value;
     }
 
     /**
@@ -79,7 +77,7 @@ class User extends Authenticatable
      */
     public function isMid(): bool
     {
-        return $this->role === 'mid';
+        return $this->role === \App\Enums\UserRole::MID->value;
     }
 
     /**
@@ -87,19 +85,25 @@ class User extends Authenticatable
      */
     public function isUser(): bool
     {
-        return $this->role === 'user';
+        return $this->role === \App\Enums\UserRole::USER->value;
     }
 
     /**
      * Check if user has any of the given roles.
      */
-    public function hasRole(string|array $roles): bool
+    public function hasRole(string|array|\App\Enums\UserRole $roles): bool
     {
+        if ($roles instanceof \App\Enums\UserRole) {
+            return $this->role === $roles->value;
+        }
+
         if (is_string($roles)) {
             return $this->role === $roles;
         }
 
-        return in_array($this->role, $roles);
+        $mapped = array_map(fn($r) => $r instanceof \App\Enums\UserRole ? $r->value : $r, $roles);
+
+        return in_array($this->role, $mapped);
     }
 
     /**

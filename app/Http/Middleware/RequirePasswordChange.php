@@ -23,8 +23,8 @@ class RequirePasswordChange
 
         $user = Auth::user();
 
-        // Skip if already on the change password page
-        if ($request->routeIs('auth.change-password')) {
+        // Skip if already on the change password page or submitting the change
+        if ($request->routeIs('auth.change-password*')) {
             return $next($request);
         }
 

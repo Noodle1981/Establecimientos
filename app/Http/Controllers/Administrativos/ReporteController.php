@@ -4,14 +4,16 @@ namespace App\Http\Controllers\Administrativos;
 use App\Http\Controllers\Controller;
 use App\Models\Reporte;
 use App\Http\Requests\Administrativos\UpdateReporteRequest;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class ReporteController extends Controller
 {
     /**
      * Display a listing of reports.
      */
-    public function index()
+    public function index(): Response
     {
         $reportes = Reporte::with('edificio:id,cui,localidad,calle,numero_puerta')
             ->orderBy('created_at', 'desc')
@@ -37,7 +39,7 @@ class ReporteController extends Controller
     /**
      * Update the status of a report.
      */
-    public function update(UpdateReporteRequest $request, Reporte $reporte)
+    public function update(UpdateReporteRequest $request, Reporte $reporte): RedirectResponse
     {
         $reporte->update($request->validated());
 
@@ -47,7 +49,7 @@ class ReporteController extends Controller
     /**
      * Remove a report.
      */
-    public function destroy(Reporte $reporte)
+    public function destroy(Reporte $reporte): RedirectResponse
     {
         $reporte->delete();
         return back()->with('success', 'El reporte ha sido eliminado.');

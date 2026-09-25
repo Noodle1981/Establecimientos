@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Administrativos;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateEdificioRequest extends FormRequest
 {
@@ -20,7 +21,7 @@ class UpdateEdificioRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cui'              => 'required|string|max:50|unique:edificios,cui,' . $this->route('id'),
+            'cui'              => ['required', 'string', 'max:50', Rule::unique('edificios', 'cui')->ignore($this->route('id'))],
             'calle'            => 'required|string|max:255',
             'numero_puerta'    => 'nullable|string|max:20',
             'codigo_postal'    => 'nullable|numeric',

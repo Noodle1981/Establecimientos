@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\DownloadGeneralPdfRequest;
 use App\Models\AuditoriaEduge;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class PDFController extends Controller
 {
-    public function downloadIndividual($id)
+    public function downloadIndividual(int $id): Response
     {
         $auditoria = AuditoriaEduge::with(['establecimiento', 'user'])->findOrFail($id);
         
@@ -20,15 +21,10 @@ class PDFController extends Controller
         return $pdf->download($filename);
     }
 
-    public function downloadGeneral(Request $request)
+    public function downloadGeneral(DownloadGeneralPdfRequest $request): Response
     {
         ini_set('memory_limit', '256M');
         set_time_limit(120);
-
-        $request->validate([
-            'date_from' => 'nullable|date',
-            'date_to'   => 'nullable|date|after_or_equal:date_from',
-        ]);
 
         $query = AuditoriaEduge::with(['establecimiento', 'user'])->latest('fecha_visita');
 
