@@ -198,4 +198,6 @@ export default function Index({
     );
 }
 
-Index.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
+Index.layout = (page) => (
+    <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>
+);

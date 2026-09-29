@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 
 export default function Dashboard({ stats, recentActivity }) {
     return (
@@ -50,9 +50,12 @@ export default function Dashboard({ stats, recentActivity }) {
                                 <i className="fas fa-history text-brand-orange"></i>
                                 Actividad Reciente
                             </h3>
-                            <button className="text-xs font-bold uppercase tracking-wider text-brand-orange hover:underline">
+                            <Link
+                                href={route('admin.logs.index')}
+                                className="text-xs font-bold uppercase tracking-wider text-brand-orange hover:underline"
+                            >
                                 Ver Todo
-                            </button>
+                            </Link>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full border-collapse text-left">
@@ -113,9 +116,14 @@ export default function Dashboard({ stats, recentActivity }) {
                                 editar o validar datos.
                             </p>
                         </div>
-                        <button className="w-full rounded-xl bg-white py-3 font-bold text-brand-orange shadow-md transition hover:bg-orange-50">
+                        <Link
+                            href={route(
+                                'administrativos.establecimientos.index',
+                            )}
+                            className="block w-full rounded-xl bg-white py-3 text-center font-bold text-brand-orange shadow-md transition hover:bg-orange-50"
+                        >
                             Ir a Establecimientos
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -123,7 +131,9 @@ export default function Dashboard({ stats, recentActivity }) {
     );
 }
 
-Dashboard.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
+Dashboard.layout = (page) => (
+    <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>
+);
 
 function StatCard({ title, value, icon, color, darkText = false }) {
     return (

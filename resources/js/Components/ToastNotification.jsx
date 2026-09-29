@@ -36,7 +36,7 @@ export default function ToastNotification() {
     const isSuccess = toast.type === 'success';
 
     return (
-        <div className="fixed bottom-5 right-5 z-[9999] max-w-sm transform animate-fade-in transition-all duration-300 ease-out">
+        <div className="animate-fade-in fixed bottom-5 right-5 z-[9999] max-w-sm transform transition-all duration-300 ease-out">
             <div
                 className={`flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md ${
                     isSuccess

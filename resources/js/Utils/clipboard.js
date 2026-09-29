@@ -15,7 +15,10 @@ export async function copyToClipboard(text) {
             await navigator.clipboard.writeText(stringText);
             return true;
         } catch (err) {
-            console.warn('navigator.clipboard failed, using fallback copy:', err);
+            console.warn(
+                'navigator.clipboard failed, using fallback copy:',
+                err,
+            );
             return fallbackCopy(stringText);
         }
     } else {

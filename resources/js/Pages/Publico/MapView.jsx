@@ -209,8 +209,7 @@ export default function MapView({
     const [geojsonData, setGeojsonData] = useState(null);
 
     // Tile layer URLs
-    const TILE_STREET =
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    const TILE_STREET = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     const TILE_SAT =
         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
@@ -232,7 +231,8 @@ export default function MapView({
             const isHighlighted =
                 filterDepto &&
                 filterDepto !== 'TODOS' &&
-                (normalizeDept(feature.properties?.departamento) === targetNorm ||
+                (normalizeDept(feature.properties?.departamento) ===
+                    targetNorm ||
                     normalizeDept(feature.properties?.nombre) === targetNorm);
 
             return {

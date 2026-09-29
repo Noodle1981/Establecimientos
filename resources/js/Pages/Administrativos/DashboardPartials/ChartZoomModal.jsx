@@ -3,11 +3,7 @@ import { Bar, Doughnut } from 'react-chartjs-2';
 
 export default function ChartZoomModal({ modalChart, onClose }) {
     return (
-        <Modal
-            show={!!modalChart}
-            onClose={onClose}
-            maxWidth="4xl"
-        >
+        <Modal show={!!modalChart} onClose={onClose} maxWidth="4xl">
             {modalChart && (
                 <div className="p-8">
                     <div className="mb-8 flex items-center justify-between border-b pb-4">

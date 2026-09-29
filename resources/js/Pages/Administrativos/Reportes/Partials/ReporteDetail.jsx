@@ -6,7 +6,7 @@ export default function ReporteDetail({
 }) {
     if (!selectedReporte) {
         return (
-            <div className="flex flex-1 flex-col items-center justify-center p-12 text-center bg-gray-50/30">
+            <div className="flex flex-1 flex-col items-center justify-center bg-gray-50/30 p-12 text-center">
                 <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-100 text-4xl text-gray-300">
                     <i className="fas fa-mouse-pointer"></i>
                 </div>
@@ -14,7 +14,8 @@ export default function ReporteDetail({
                     Selecciona un mensaje
                 </h4>
                 <p className="mt-2 max-w-xs text-xs font-bold uppercase text-gray-400">
-                    Haz clic en un reporte de la lista para ver los detalles y gestionarlo
+                    Haz clic en un reporte de la lista para ver los detalles y
+                    gestionarlo
                 </p>
             </div>
         );
@@ -30,7 +31,8 @@ export default function ReporteDetail({
                             className={`flex h-12 w-12 items-center justify-center rounded-2xl text-xl shadow-sm ${
                                 selectedReporte.tipo === 'ERROR_DATOS'
                                     ? 'bg-red-50 text-brand-red'
-                                    : selectedReporte.tipo === 'UBICACION_INCORRECTA'
+                                    : selectedReporte.tipo ===
+                                        'UBICACION_INCORRECTA'
                                       ? 'bg-blue-50 text-blue-500'
                                       : 'bg-orange-50 text-brand-orange'
                             }`}
@@ -49,19 +51,25 @@ export default function ReporteDetail({
                     <div className="flex items-center gap-2">
                         <button
                             disabled={isUpdating}
-                            onClick={() => onUpdateStatus(selectedReporte, 'PROCESADO')}
+                            onClick={() =>
+                                onUpdateStatus(selectedReporte, 'PROCESADO')
+                            }
                             className="rounded-xl bg-emerald-500 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white shadow-md shadow-emerald-500/20 transition hover:bg-emerald-600 disabled:opacity-50"
                         >
                             <i
                                 className={`fas ${
-                                    isUpdating ? 'fa-spinner fa-spin' : 'fa-check'
+                                    isUpdating
+                                        ? 'fa-spinner fa-spin'
+                                        : 'fa-check'
                                 } mr-2`}
                             ></i>{' '}
                             Solucionado
                         </button>
                         <button
                             disabled={isUpdating}
-                            onClick={() => onUpdateStatus(selectedReporte, 'DESCARTADO')}
+                            onClick={() =>
+                                onUpdateStatus(selectedReporte, 'DESCARTADO')
+                            }
                             className="rounded-xl bg-gray-100 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-600 transition hover:bg-gray-200 disabled:opacity-50"
                         >
                             <i className="fas fa-ban mr-2"></i> Descartar
@@ -114,7 +122,8 @@ export default function ReporteDetail({
                             </p>
                             <div className="space-y-2">
                                 <p className="text-sm font-black uppercase text-black">
-                                    {selectedReporte.nombre_remitente || 'Anónimo'}
+                                    {selectedReporte.nombre_remitente ||
+                                        'Anónimo'}
                                 </p>
                                 <p className="text-[11px] font-bold text-gray-600">
                                     {selectedReporte.email_remitente ||

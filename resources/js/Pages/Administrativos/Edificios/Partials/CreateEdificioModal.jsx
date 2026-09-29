@@ -5,7 +5,6 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import TextInput from '@/Components/TextInput';
 import { useForm } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
 
 export default function CreateEdificioModal({ show, onClose, options = {} }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -271,4 +270,3 @@ export default function CreateEdificioModal({ show, onClose, options = {} }) {
         </Modal>
     );
 }
-

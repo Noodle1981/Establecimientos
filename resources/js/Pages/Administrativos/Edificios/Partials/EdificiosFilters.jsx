@@ -52,9 +52,7 @@ export default function EdificiosFilters({
 
             <select
                 value={filters.localidad || ''}
-                onChange={(e) =>
-                    onParamChange('localidad', e.target.value)
-                }
+                onChange={(e) => onParamChange('localidad', e.target.value)}
                 className="min-w-[150px] rounded-xl border-gray-200 text-sm focus:border-brand-orange focus:ring-brand-orange"
             >
                 <option value="">Localidades (Todas)</option>
@@ -67,9 +65,7 @@ export default function EdificiosFilters({
 
             <select
                 value={filters.ambito || ''}
-                onChange={(e) =>
-                    onParamChange('ambito', e.target.value)
-                }
+                onChange={(e) => onParamChange('ambito', e.target.value)}
                 className="min-w-[150px] rounded-xl border-gray-200 text-sm font-black uppercase focus:border-brand-orange focus:ring-brand-orange"
             >
                 <option value="">Ámbito (Todos)</option>

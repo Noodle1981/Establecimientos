@@ -59,7 +59,9 @@ export default function AuditoriaFilters({
                         ) : (
                             <i className="fas fa-file-pdf"></i>
                         )}
-                        <span>{isExporting ? 'Generando...' : 'Exportar PDF'}</span>
+                        <span>
+                            {isExporting ? 'Generando...' : 'Exportar PDF'}
+                        </span>
                     </button>
 
                     <button
@@ -72,7 +74,11 @@ export default function AuditoriaFilters({
                         ) : (
                             <i className="fas fa-file-excel"></i>
                         )}
-                        <span>{isExportingExcel ? 'Generando...' : 'Exportar Excel'}</span>
+                        <span>
+                            {isExportingExcel
+                                ? 'Generando...'
+                                : 'Exportar Excel'}
+                        </span>
                     </button>
                 </div>
             </div>
@@ -82,9 +88,7 @@ export default function AuditoriaFilters({
                 <select
                     className="w-full rounded-xl border-gray-200 py-1.5 text-xs font-black uppercase text-gray-600"
                     value={filters.estado || ''}
-                    onChange={(e) =>
-                        onFilterChange('estado', e.target.value)
-                    }
+                    onChange={(e) => onFilterChange('estado', e.target.value)}
                 >
                     <option value="">Todos los Estados</option>
                     <option value="PENDIENTE">PENDIENTE</option>
@@ -97,9 +101,7 @@ export default function AuditoriaFilters({
                 <select
                     className="w-full rounded-xl border-gray-200 py-1.5 text-xs font-black uppercase text-gray-600"
                     value={filters.nivel || ''}
-                    onChange={(e) =>
-                        onFilterChange('nivel', e.target.value)
-                    }
+                    onChange={(e) => onFilterChange('nivel', e.target.value)}
                 >
                     <option value="">Todos los Niveles</option>
                     {options.niveles.map((n) => (
@@ -127,9 +129,7 @@ export default function AuditoriaFilters({
                 <select
                     className="w-full rounded-xl border-gray-200 py-1.5 text-xs font-black uppercase text-gray-600"
                     value={filters.ambito || ''}
-                    onChange={(e) =>
-                        onFilterChange('ambito', e.target.value)
-                    }
+                    onChange={(e) => onFilterChange('ambito', e.target.value)}
                 >
                     <option value="">Todos los Ámbitos</option>
                     {options.ambitos.map((a) => (

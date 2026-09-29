@@ -1,4 +1,9 @@
-export default function ChartWrapper({ title, children, className = '', onZoom }) {
+export default function ChartWrapper({
+    title,
+    children,
+    className = '',
+    onZoom,
+}) {
     return (
         <div
             onClick={onZoom}

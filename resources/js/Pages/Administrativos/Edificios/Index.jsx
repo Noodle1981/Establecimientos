@@ -164,4 +164,6 @@ export default function Index({ edificios, filters, options }) {
     );
 }
 
-Index.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
+Index.layout = (page) => (
+    <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>
+);

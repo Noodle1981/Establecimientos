@@ -2,9 +2,9 @@ import InputLabel from '@/Components/InputLabel';
 import Modal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
-import { useForm } from '@inertiajs/react';
 import { copyToClipboard } from '@/Utils/clipboard';
 import { decimalToDMS } from '@/Utils/coordinates';
+import { useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
 const CAMPOS_AUDITORIA = [
@@ -20,7 +20,12 @@ const CAMPOS_AUDITORIA = [
     'CATEGORÍA',
 ];
 
-export default function StatusUpdateModal({ show, onClose, modalidad, getNombreEdificio }) {
+export default function StatusUpdateModal({
+    show,
+    onClose,
+    modalidad,
+    getNombreEdificio,
+}) {
     const { data, setData, patch, processing } = useForm({
         estado: modalidad?.estado_validacion || 'PENDIENTE',
         observaciones: modalidad?.observaciones || '',

@@ -1,5 +1,4 @@
 import Pagination from '@/Components/Pagination';
-import StatusBadge from './StatusBadge';
 
 export default function AuditoriaTable({
     modalidades,
@@ -46,8 +45,8 @@ export default function AuditoriaTable({
                                                 No se encontraron resultados
                                             </p>
                                             <p className="mt-2 text-[10px] font-bold uppercase tracking-tighter text-gray-400">
-                                                Prueba ajustando los filtros
-                                                o el término de búsqueda
+                                                Prueba ajustando los filtros o
+                                                el término de búsqueda
                                             </p>
                                         </div>
                                     </td>
@@ -67,8 +66,8 @@ export default function AuditoriaTable({
                                                 </span>
                                                 <span className="text-[9px] font-bold text-gray-400">
                                                     CUE:{' '}
-                                                    {mod.establecimiento
-                                                        ?.cue || 'S/D'}
+                                                    {mod.establecimiento?.cue ||
+                                                        'S/D'}
                                                 </span>
                                             </div>
                                         </td>
@@ -79,9 +78,9 @@ export default function AuditoriaTable({
                                                         'S/D'}
                                                 </span>
                                                 <span className="text-[8px] font-bold uppercase tracking-tighter text-gray-400">
-                                                    R:{mod.radio || '-'} |
-                                                    S:{mod.sector || '-'} |
-                                                    C:{mod.categoria || '-'}
+                                                    R:{mod.radio || '-'} | S:
+                                                    {mod.sector || '-'} | C:
+                                                    {mod.categoria || '-'}
                                                 </span>
                                             </div>
                                         </td>
@@ -101,8 +100,7 @@ export default function AuditoriaTable({
                                                         </span>
                                                         <span className="text-[9px] font-bold uppercase tracking-tighter text-gray-400">
                                                             CUI:{' '}
-                                                            {mod
-                                                                .establecimiento
+                                                            {mod.establecimiento
                                                                 ?.edificio
                                                                 ?.cui ||
                                                                 mod
@@ -115,10 +113,8 @@ export default function AuditoriaTable({
                                                     <span className="text-[10px] font-black leading-tight text-brand-orange">
                                                         CUI:{' '}
                                                         {mod.establecimiento
-                                                            ?.edificio
-                                                            ?.cui ||
-                                                            mod
-                                                                .establecimiento
+                                                            ?.edificio?.cui ||
+                                                            mod.establecimiento
                                                                 ?.establecimiento_cabecera ||
                                                             'S/D'}
                                                     </span>
@@ -132,16 +128,15 @@ export default function AuditoriaTable({
                                                         ?.name || 'Sistema'}
                                                 </span>
                                                 <span className="text-[9px] font-bold text-gray-400">
-                                                    {mod.validado_en ||
-                                                        'S/D'}
+                                                    {mod.validado_en || 'S/D'}
                                                 </span>
                                             </div>
                                         </td>
                                         <td className="px-3.5 py-2.5">
                                             <div className="flex max-w-[140px] flex-wrap gap-1">
                                                 {mod.campos_auditados &&
-                                                mod.campos_auditados
-                                                    .length > 0 ? (
+                                                mod.campos_auditados.length >
+                                                    0 ? (
                                                     mod.campos_auditados.map(
                                                         (campo) => (
                                                             <span

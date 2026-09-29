@@ -1,29 +1,32 @@
 import { Head, Link } from '@inertiajs/react';
 
 export default function Error({ status = 404 }) {
-    const title = {
-        503: 'Servicio No Disponible',
-        500: 'Error Interno del Servidor',
-        404: 'Página No Encontrada',
-        403: 'Acceso No Autorizado',
-        401: 'Sesión Expirada',
-    }[status] || 'Ha Ocurrido un Error';
+    const title =
+        {
+            503: 'Servicio No Disponible',
+            500: 'Error Interno del Servidor',
+            404: 'Página No Encontrada',
+            403: 'Acceso No Autorizado',
+            401: 'Sesión Expirada',
+        }[status] || 'Ha Ocurrido un Error';
 
-    const description = {
-        503: 'Estamos realizando tareas de mantenimiento preventivo. Por favor, intente nuevamente en unos minutos.',
-        500: 'Ocurrió un error inesperado en nuestros servidores. Nuestro equipo técnico ha sido notificado.',
-        404: 'Lo sentimos, el recurso o página que está buscando no existe o ha sido reubicada.',
-        403: 'No cuenta con los permisos necesarios para acceder a este módulo o sección del sistema.',
-        401: 'Su sesión ha expirado o no ha iniciado sesión. Por favor, autentíquese nuevamente.',
-    }[status] || 'Ocurrió un problema inesperado al procesar su solicitud.';
+    const description =
+        {
+            503: 'Estamos realizando tareas de mantenimiento preventivo. Por favor, intente nuevamente en unos minutos.',
+            500: 'Ocurrió un error inesperado en nuestros servidores. Nuestro equipo técnico ha sido notificado.',
+            404: 'Lo sentimos, el recurso o página que está buscando no existe o ha sido reubicada.',
+            403: 'No cuenta con los permisos necesarios para acceder a este módulo o sección del sistema.',
+            401: 'Su sesión ha expirado o no ha iniciado sesión. Por favor, autentíquese nuevamente.',
+        }[status] || 'Ocurrió un problema inesperado al procesar su solicitud.';
 
-    const icon = {
-        503: 'fa-tools',
-        500: 'fa-exclamation-triangle',
-        404: 'fa-search-location',
-        403: 'fa-user-lock',
-        401: 'fa-key',
-    }[status] || 'fa-circle-exclamation';
+    const icon =
+        {
+            503: 'fa-tools',
+            500: 'fa-exclamation-triangle',
+            404: 'fa-search-location',
+            403: 'fa-user-lock',
+            401: 'fa-key',
+        }[status] || 'fa-circle-exclamation';
 
     return (
         <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-white p-6 font-sans antialiased">
@@ -80,7 +83,8 @@ export default function Error({ status = 404 }) {
                 </div>
 
                 <div className="mt-12 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                    Sistema de Gestión de Establecimientos M.E. &copy; {new Date().getFullYear()}
+                    Sistema de Gestión de Establecimientos M.E. &copy;{' '}
+                    {new Date().getFullYear()}
                 </div>
             </div>
         </div>

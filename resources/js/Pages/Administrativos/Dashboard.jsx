@@ -374,4 +374,6 @@ export default function Dashboard({ filters, options, chartData }) {
     );
 }
 
-Dashboard.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
+Dashboard.layout = (page) => (
+    <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>
+);

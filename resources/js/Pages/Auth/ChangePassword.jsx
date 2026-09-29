@@ -31,15 +31,17 @@ export default function ChangePassword() {
                     Cambio Obligatorio de Contraseña
                 </h2>
                 <p className="mt-2 text-sm text-gray-600">
-                    Por motivos de seguridad institucional, debes establecer una nueva contraseña personal antes de continuar.
+                    Por motivos de seguridad institucional, debes establecer una
+                    nueva contraseña personal antes de continuar.
                 </p>
             </div>
 
-            <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/60 p-4 text-xs text-amber-900 leading-relaxed">
-                <p className="font-bold mb-1">
-                    <i className="fas fa-shield-alt mr-1"></i> Requisitos de seguridad:
+            <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/60 p-4 text-xs leading-relaxed text-amber-900">
+                <p className="mb-1 font-bold">
+                    <i className="fas fa-shield-alt mr-1"></i> Requisitos de
+                    seguridad:
                 </p>
-                <ul className="list-disc list-inside space-y-0.5 text-amber-800">
+                <ul className="list-inside list-disc space-y-0.5 text-amber-800">
                     <li>Mínimo 10 caracteres</li>
                     <li>Incluir mayúsculas y minúsculas</li>
                     <li>Incluir al menos un número</li>
@@ -65,7 +67,9 @@ export default function ChangePassword() {
                             className="block w-full rounded-2xl border-gray-200 bg-gray-50 pl-11 shadow-sm transition-all focus:bg-white"
                             autoComplete="new-password"
                             isFocused={true}
-                            onChange={(e) => setData('password', e.target.value)}
+                            onChange={(e) =>
+                                setData('password', e.target.value)
+                            }
                             required
                         />
                     </div>
@@ -89,7 +93,9 @@ export default function ChangePassword() {
                             value={data.password_confirmation}
                             className="block w-full rounded-2xl border-gray-200 bg-gray-50 pl-11 shadow-sm transition-all focus:bg-white"
                             autoComplete="new-password"
-                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                            onChange={(e) =>
+                                setData('password_confirmation', e.target.value)
+                            }
                             required
                         />
                     </div>

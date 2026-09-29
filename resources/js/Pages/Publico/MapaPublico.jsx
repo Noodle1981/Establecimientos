@@ -79,8 +79,7 @@ export default function MapaPublico({ edificios = [] }) {
                         (m.ambito === 'PUBLICO' && activeFilters.publico) ||
                         (m.ambito === 'PRIVADO' && activeFilters.privado);
                     const isEducativo =
-                        m.area &&
-                        !m.area.toUpperCase().includes('ADMINISTRA');
+                        m.area && !m.area.toUpperCase().includes('ADMINISTRA');
                     if (matchesScope && m.nivel && isEducativo) {
                         set.add(m.nivel);
                     }
@@ -421,8 +420,8 @@ export default function MapaPublico({ edificios = [] }) {
                     {(() => {
                         const hasSelectedEdificio = Boolean(
                             selectedEdificio &&
-                                !selectedEdificio._isCenter &&
-                                selectedEdificio.id,
+                            !selectedEdificio._isCenter &&
+                            selectedEdificio.id,
                         );
                         const nombreEdificio =
                             selectedEdificio?.establecimientos?.[0]?.nombre ||
@@ -465,7 +464,7 @@ export default function MapaPublico({ edificios = [] }) {
                                             ? 'Edificio Seleccionado'
                                             : '¿Problemas?'}
                                     </p>
-                                    <span className="text-sm font-black text-gray-800 line-clamp-1 max-w-[170px]">
+                                    <span className="line-clamp-1 max-w-[170px] text-sm font-black text-gray-800">
                                         {hasSelectedEdificio
                                             ? 'Reportar Edificio'
                                             : 'Reportar Error'}

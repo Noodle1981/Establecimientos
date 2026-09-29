@@ -34,7 +34,9 @@ function StatCard({ label, value, icon, color, active = false }) {
     return (
         <div
             className={`flex items-center gap-6 rounded-3xl border bg-white p-6 shadow-sm transition-all ${
-                active ? 'border-brand-orange ring-4 ring-orange-50' : 'border-gray-100'
+                active
+                    ? 'border-brand-orange ring-4 ring-orange-50'
+                    : 'border-gray-100'
             }`}
         >
             <div

@@ -67,9 +67,8 @@ export default function Index({
             const contentDisposition = response.headers['content-disposition'];
             let fileName = 'reporte_auditoria.pdf';
             if (contentDisposition) {
-                const fileNameMatch = contentDisposition.match(
-                    /filename="?([^"]+)"?/,
-                );
+                const fileNameMatch =
+                    contentDisposition.match(/filename="?([^"]+)"?/);
                 if (fileNameMatch && fileNameMatch.length === 2)
                     fileName = fileNameMatch[1];
             }
@@ -105,9 +104,8 @@ export default function Index({
             const contentDisposition = response.headers['content-disposition'];
             let fileName = 'reporte_auditoria.xlsx';
             if (contentDisposition) {
-                const fileNameMatch = contentDisposition.match(
-                    /filename="?([^"]+)"?/,
-                );
+                const fileNameMatch =
+                    contentDisposition.match(/filename="?([^"]+)"?/);
                 if (fileNameMatch && fileNameMatch.length === 2)
                     fileName = fileNameMatch[1];
             }
@@ -206,4 +204,6 @@ export default function Index({
     );
 }
 
-Index.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
+Index.layout = (page) => (
+    <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>
+);

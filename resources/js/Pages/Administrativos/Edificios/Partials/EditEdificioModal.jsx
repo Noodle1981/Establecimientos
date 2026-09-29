@@ -7,7 +7,12 @@ import TextInput from '@/Components/TextInput';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
-export default function EditEdificioModal({ show, onClose, edificio, options = {} }) {
+export default function EditEdificioModal({
+    show,
+    onClose,
+    edificio,
+    options = {},
+}) {
     const { data, setData, patch, processing, errors, reset } = useForm({
         cui: edificio?.cui || '',
         calle: edificio?.calle || '',
@@ -457,4 +462,3 @@ export default function EditEdificioModal({ show, onClose, edificio, options = {
         </Modal>
     );
 }
-

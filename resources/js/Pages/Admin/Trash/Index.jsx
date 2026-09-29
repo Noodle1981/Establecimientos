@@ -66,15 +66,14 @@ export default function Index({ modalidades, edificios }) {
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col">
                                                     <span className="text-xs font-black leading-tight text-black">
-                                                        {
-                                                            mod.establecimiento?.nombre ?? 'Establecimiento no encontrado'
-                                                        }
+                                                        {mod.establecimiento
+                                                            ?.nombre ??
+                                                            'Establecimiento no encontrado'}
                                                     </span>
                                                     <span className="text-[9px] font-black uppercase text-black/40">
                                                         CUE:{' '}
-                                                        {
-                                                            mod.establecimiento?.cue ?? 'S/D'
-                                                        }
+                                                        {mod.establecimiento
+                                                            ?.cue ?? 'S/D'}
                                                     </span>
                                                 </div>
                                             </td>
@@ -178,4 +177,6 @@ export default function Index({ modalidades, edificios }) {
     );
 }
 
-Index.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
+Index.layout = (page) => (
+    <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>
+);

@@ -19,7 +19,9 @@ export default function MobileMenu({
             ></div>
             <aside className="animate-in slide-in-from-left fixed inset-y-0 left-0 flex w-72 flex-col bg-brand-orange shadow-2xl duration-300">
                 <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-6">
-                    <span className="font-black text-white">Menú Principal</span>
+                    <span className="font-black text-white">
+                        Menú Principal
+                    </span>
                     <button
                         onClick={onClose}
                         className="text-white transition hover:text-white/70"
@@ -39,7 +41,9 @@ export default function MobileMenu({
                     {isAutoridad && (
                         <MobileNavLink
                             href={route('administrativos.dashboard')}
-                            active={route().current('administrativos.dashboard')}
+                            active={route().current(
+                                'administrativos.dashboard',
+                            )}
                             icon="fas fa-tachometer-alt"
                         >
                             Estadísticas
@@ -50,35 +54,49 @@ export default function MobileMenu({
                         <>
                             <MobileNavLink
                                 href={route('administrativos.dashboard')}
-                                active={route().current('administrativos.dashboard')}
+                                active={route().current(
+                                    'administrativos.dashboard',
+                                )}
                                 icon="fas fa-tachometer-alt"
                             >
                                 Estadísticas
                             </MobileNavLink>
                             <MobileNavLink
                                 href={route('administrativos.edificios.index')}
-                                active={route().current('administrativos.edificios.index')}
+                                active={route().current(
+                                    'administrativos.edificios.index',
+                                )}
                                 icon="fas fa-building"
                             >
                                 Edificios
                             </MobileNavLink>
                             <MobileNavLink
-                                href={route('administrativos.establecimientos.index')}
-                                active={route().current('administrativos.establecimientos.index')}
+                                href={route(
+                                    'administrativos.establecimientos.index',
+                                )}
+                                active={route().current(
+                                    'administrativos.establecimientos.index',
+                                )}
                                 icon="fas fa-school"
                             >
                                 Establecimientos
                             </MobileNavLink>
                             <MobileNavLink
-                                href={route('administrativos.instrumentos.index')}
-                                active={route().current('administrativos.instrumentos.index')}
+                                href={route(
+                                    'administrativos.instrumentos.index',
+                                )}
+                                active={route().current(
+                                    'administrativos.instrumentos.index',
+                                )}
                                 icon="fas fa-file-contract"
                             >
                                 Instrumentos
                             </MobileNavLink>
                             <MobileNavLink
                                 href={route('administrativos.auditoria.index')}
-                                active={route().current('administrativos.auditoria.index')}
+                                active={route().current(
+                                    'administrativos.auditoria.index',
+                                )}
                                 icon="fas fa-clipboard-check"
                             >
                                 Auditoría
@@ -90,7 +108,7 @@ export default function MobileMenu({
                         <div className="space-y-1">
                             <button
                                 onClick={() => setGestionOpen(!gestionOpen)}
-                                className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-black text-white hover:bg-white/10 transition-colors"
+                                className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-black text-white transition-colors hover:bg-white/10"
                             >
                                 <div className="flex items-center gap-4">
                                     <i className="fas fa-tasks w-5 text-center text-white/60"></i>
@@ -104,36 +122,56 @@ export default function MobileMenu({
                             {gestionOpen && (
                                 <div className="ml-6 space-y-1 border-l border-white/10 pl-4">
                                     <MobileNavLink
-                                        href={route('administrativos.dashboard')}
-                                        active={route().current('administrativos.dashboard')}
+                                        href={route(
+                                            'administrativos.dashboard',
+                                        )}
+                                        active={route().current(
+                                            'administrativos.dashboard',
+                                        )}
                                         icon="fas fa-tachometer-alt"
                                     >
                                         Estadísticas
                                     </MobileNavLink>
                                     <MobileNavLink
-                                        href={route('administrativos.edificios.index')}
-                                        active={route().current('administrativos.edificios.index')}
+                                        href={route(
+                                            'administrativos.edificios.index',
+                                        )}
+                                        active={route().current(
+                                            'administrativos.edificios.index',
+                                        )}
                                         icon="fas fa-building"
                                     >
                                         Edificios
                                     </MobileNavLink>
                                     <MobileNavLink
-                                        href={route('administrativos.establecimientos.index')}
-                                        active={route().current('administrativos.establecimientos.index')}
+                                        href={route(
+                                            'administrativos.establecimientos.index',
+                                        )}
+                                        active={route().current(
+                                            'administrativos.establecimientos.index',
+                                        )}
                                         icon="fas fa-school"
                                     >
                                         Establecimientos
                                     </MobileNavLink>
                                     <MobileNavLink
-                                        href={route('administrativos.instrumentos.index')}
-                                        active={route().current('administrativos.instrumentos.index')}
+                                        href={route(
+                                            'administrativos.instrumentos.index',
+                                        )}
+                                        active={route().current(
+                                            'administrativos.instrumentos.index',
+                                        )}
                                         icon="fas fa-file-contract"
                                     >
                                         Instrumentos
                                     </MobileNavLink>
                                     <MobileNavLink
-                                        href={route('administrativos.auditoria.index')}
-                                        active={route().current('administrativos.auditoria.index')}
+                                        href={route(
+                                            'administrativos.auditoria.index',
+                                        )}
+                                        active={route().current(
+                                            'administrativos.auditoria.index',
+                                        )}
                                         icon="fas fa-clipboard-check"
                                     >
                                         Auditoría
@@ -154,7 +192,9 @@ export default function MobileMenu({
                             </MobileNavLink>
                             <MobileNavLink
                                 href={route('administrativos.reportes.index')}
-                                active={route().current('administrativos.reportes.*')}
+                                active={route().current(
+                                    'administrativos.reportes.*',
+                                )}
                                 icon="fas fa-inbox"
                             >
                                 Reportes

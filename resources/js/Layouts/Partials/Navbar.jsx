@@ -31,7 +31,7 @@ export default function Navbar({
                         <img
                             src={logoMinisterio}
                             alt="Ministerio de Educación de San Juan"
-                            className="h-8 sm:h-10 w-auto shrink-0 object-contain"
+                            className="h-8 w-auto shrink-0 object-contain sm:h-10"
                             width="501"
                             height="76"
                         />
@@ -54,8 +54,8 @@ export default function Navbar({
                                         }
                                         className="hidden items-center gap-2 rounded-xl border border-orange-100 bg-orange-50 px-4 py-2 text-xs font-black uppercase tracking-widest text-brand-orange shadow-sm transition hover:bg-brand-orange hover:text-white sm:inline-flex"
                                     >
-                                        <i className="fas fa-th-large"></i> Entrar
-                                        al Panel
+                                        <i className="fas fa-th-large"></i>{' '}
+                                        Entrar al Panel
                                     </Link>
                                 )}
                                 <button
@@ -110,7 +110,8 @@ export default function Navbar({
                             href={route('login')}
                             className="inline-flex items-center gap-2 rounded-xl border border-transparent bg-brand-orange px-6 py-2 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-orange-600"
                         >
-                            <i className="fas fa-sign-in-alt"></i> Iniciar Sesión
+                            <i className="fas fa-sign-in-alt"></i> Iniciar
+                            Sesión
                         </Link>
                     )}
                 </div>

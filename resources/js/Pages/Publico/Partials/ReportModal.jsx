@@ -25,12 +25,15 @@ export default function ReportModal({ isOpen, onClose, selectedEdificio }) {
                 setData('edificio_id', '');
             }
         }
-    }, [isOpen, isRealEdificio, selectedEdificio]);
+    }, [isOpen, isRealEdificio, selectedEdificio, setData]);
 
     const handleToggleAsociacion = () => {
         const nextState = !asociarEdificio;
         setAsociarEdificio(nextState);
-        setData('edificio_id', nextState && isRealEdificio ? selectedEdificio.id : '');
+        setData(
+            'edificio_id',
+            nextState && isRealEdificio ? selectedEdificio.id : '',
+        );
     };
 
     const submitReport = (e) => {
@@ -44,7 +47,10 @@ export default function ReportModal({ isOpen, onClose, selectedEdificio }) {
     };
 
     const nombreEdificio =
-        selectedEdificio?.establecimientos?.map((e) => e.nombre).filter(Boolean).join(' / ') ||
+        selectedEdificio?.establecimientos
+            ?.map((e) => e.nombre)
+            .filter(Boolean)
+            .join(' / ') ||
         (selectedEdificio?.cui ? `Edificio CUI ${selectedEdificio.cui}` : '');
 
     return (
@@ -52,13 +58,21 @@ export default function ReportModal({ isOpen, onClose, selectedEdificio }) {
             <div className="bg-white p-8">
                 <div className="mb-6 flex items-center gap-4">
                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-2xl text-red-500 shadow-inner">
-                        <i className={isRealEdificio && asociarEdificio ? 'fas fa-school' : 'fas fa-bullhorn'}></i>
+                        <i
+                            className={
+                                isRealEdificio && asociarEdificio
+                                    ? 'fas fa-school'
+                                    : 'fas fa-bullhorn'
+                            }
+                        ></i>
                     </div>
                     <div>
                         <h2 className="text-2xl font-black leading-tight text-gray-900">
                             Reportar{' '}
                             <span className="text-red-500">
-                                {isRealEdificio && asociarEdificio ? 'este Edificio' : 'un Inconveniente'}
+                                {isRealEdificio && asociarEdificio
+                                    ? 'este Edificio'
+                                    : 'un Inconveniente'}
                             </span>
                         </h2>
                         <p className="text-xs font-bold uppercase tracking-widest text-gray-400">
@@ -88,19 +102,21 @@ export default function ReportModal({ isOpen, onClose, selectedEdificio }) {
                                             CUI: {selectedEdificio.cui}
                                         </span>
                                     </div>
-                                    <p className="text-xs font-black text-gray-800 mt-0.5 line-clamp-1">
+                                    <p className="mt-0.5 line-clamp-1 text-xs font-black text-gray-800">
                                         {nombreEdificio}
                                     </p>
                                     <p className="text-[11px] text-gray-500">
-                                        {selectedEdificio.calle} {selectedEdificio.numero_puerta},{' '}
-                                        {selectedEdificio.localidad} ({selectedEdificio.zona_departamento})
+                                        {selectedEdificio.calle}{' '}
+                                        {selectedEdificio.numero_puerta},{' '}
+                                        {selectedEdificio.localidad} (
+                                        {selectedEdificio.zona_departamento})
                                     </p>
                                 </div>
                             </div>
                             <button
                                 type="button"
                                 onClick={handleToggleAsociacion}
-                                className="shrink-0 rounded-lg px-2 py-1 text-[11px] font-bold text-gray-500 hover:bg-red-100 hover:text-red-700 transition-colors"
+                                className="shrink-0 rounded-lg px-2 py-1 text-[11px] font-bold text-gray-500 transition-colors hover:bg-red-100 hover:text-red-700"
                                 title={
                                     asociarEdificio
                                         ? 'Desvincular para hacer un reporte general'
@@ -131,8 +147,8 @@ export default function ReportModal({ isOpen, onClose, selectedEdificio }) {
                                 htmlFor="tipo-reporte"
                                 className="flex cursor-pointer items-center gap-2 text-[10px] font-black uppercase tracking-wider text-gray-400"
                             >
-                                <i className="fas fa-tag text-red-400"></i> Motivo
-                                del Reporte
+                                <i className="fas fa-tag text-red-400"></i>{' '}
+                                Motivo del Reporte
                             </label>
                             <select
                                 id="tipo-reporte"

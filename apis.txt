@@ -1,0 +1,12 @@
+Próximo Paso: API / Endpoints de Consumo Externo
+El código base ha superado las 79 pruebas automatizadas (251 aserciones) y la compilación de Vite está al 100%.
+
+Cuando estés listo, podemos definir la API:
+
+Rutas protegidas con Laravel Sanctum (mediante API Tokens personales o Bearer tokens con permisos por institución/consumidor).
+Controladores y API Resources (JsonResource) para exponer:
+/api/v1/establecimientos (por CUE, nivel, ámbito, cabecera, edifico, departamento y gps).
+Rate Limiting para proteger la base de datos de sobrecargas externas.
+
+
+es decir que las otras plataforma vana  consultar por departamentos, por CUE o nombre de establecimientos, lo cual debe arrojarme el gps, direccion, departamento, nivel y ambito educativo         

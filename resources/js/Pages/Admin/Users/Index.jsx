@@ -7,17 +7,26 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import TextInput from '@/Components/TextInput';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import debounce from 'lodash/debounce';
+import { useMemo, useState } from 'react';
 
 export default function Index({ users, filters }) {
     const [showCreateModal, setShowCreateModal] = useState(false);
 
+    const debouncedSearch = useMemo(
+        () =>
+            debounce((query) => {
+                router.get(
+                    route('admin.users.index'),
+                    { search: query },
+                    { preserveState: true, replace: true },
+                );
+            }, 300),
+        [],
+    );
+
     const handleSearch = (query) => {
-        router.get(
-            route('admin.users.index'),
-            { search: query },
-            { preserveState: true, replace: true },
-        );
+        debouncedSearch(query);
     };
 
     const resetPass = (id) => {
@@ -97,9 +106,10 @@ export default function Index({ users, filters }) {
                                             className={`rounded-lg border px-2 py-1 text-[9px] font-black uppercase tracking-widest ${
                                                 user.role === 'admin'
                                                     ? 'border-purple-100 bg-purple-50 text-purple-600'
-                                                    : user.role === 'autoridades'
-                                                    ? 'border-emerald-100 bg-emerald-50 text-emerald-600'
-                                                    : 'border-blue-100 bg-blue-50 text-blue-600'
+                                                    : user.role ===
+                                                        'autoridades'
+                                                      ? 'border-emerald-100 bg-emerald-50 text-emerald-600'
+                                                      : 'border-blue-100 bg-blue-50 text-blue-600'
                                             }`}
                                         >
                                             {user.role}
@@ -143,7 +153,9 @@ export default function Index({ users, filters }) {
     );
 }
 
-Index.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
+Index.layout = (page) => (
+    <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>
+);
 
 function CreateUserModal({ show, onClose }) {
     const { data, setData, post, processing, errors, reset } = useForm({

@@ -6,21 +6,30 @@ import SecondaryButton from '@/Components/SecondaryButton';
 import TextInput from '@/Components/TextInput';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, useForm } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import debounce from 'lodash/debounce';
+import { useEffect, useMemo, useState } from 'react';
 
 export default function Index({ modalidades, filters }) {
     const [selectedMod, setSelectedMod] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
 
+    const debouncedSearch = useMemo(
+        () =>
+            debounce((query) => {
+                router.get(
+                    route('administrativos.instrumentos.index'),
+                    { ...filters, search: query },
+                    {
+                        preserveState: true,
+                        replace: true,
+                    },
+                );
+            }, 300),
+        [filters],
+    );
+
     const handleSearch = (query) => {
-        router.get(
-            route('administrativos.instrumentos.index'),
-            { ...filters, search: query },
-            {
-                preserveState: true,
-                replace: true,
-            },
-        );
+        debouncedSearch(query);
     };
 
     const toggleMissing = (checked) => {
@@ -157,7 +166,9 @@ export default function Index({ modalidades, filters }) {
     );
 }
 
-Index.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
+Index.layout = (page) => (
+    <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>
+);
 
 function InstrumentBadge({ value }) {
     const isMissing =

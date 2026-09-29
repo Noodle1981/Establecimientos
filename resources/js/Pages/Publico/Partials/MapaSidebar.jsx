@@ -192,7 +192,7 @@ export default function MapaSidebar({
                 </div>
 
                 {/* Footer Actions */}
-                <div className="border-t border-orange-100 bg-orange-50/10 p-6 space-y-4">
+                <div className="space-y-4 border-t border-orange-100 bg-orange-50/10 p-6">
                     {/* Stats Summary */}
                     <div className="flex gap-2">
                         <div className="flex flex-1 flex-col justify-center rounded-xl border border-orange-100/60 bg-white p-2.5 shadow-sm">
@@ -227,7 +227,7 @@ export default function MapaSidebar({
 
                     <button
                         onClick={clearFilters}
-                        className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-gray-100 bg-white py-3.5 text-[10px] font-black uppercase tracking-widest text-gray-400 transition-all hover:border-brand-orange hover:text-brand-orange shadow-sm"
+                        className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-gray-100 bg-white py-3.5 text-[10px] font-black uppercase tracking-widest text-gray-400 shadow-sm transition-all hover:border-brand-orange hover:text-brand-orange"
                     >
                         <i className="fas fa-sync-alt"></i> Limpiar Filtros
                     </button>

@@ -26,10 +26,13 @@ export default function ReportesIndex({ reportes, stats }) {
         if (
             confirm('¿Estás seguro de eliminar este reporte permanentemente?')
         ) {
-            router.delete(route('administrativos.reportes.destroy', reporte.id), {
-                preserveScroll: true,
-                onSuccess: () => setSelectedReporte(null),
-            });
+            router.delete(
+                route('administrativos.reportes.destroy', reporte.id),
+                {
+                    preserveScroll: true,
+                    onSuccess: () => setSelectedReporte(null),
+                },
+            );
         }
     };
 

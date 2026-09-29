@@ -1,14 +1,24 @@
 import Pagination from '@/Components/Pagination';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
+import debounce from 'lodash/debounce';
+import { useMemo } from 'react';
 
 export default function Index({ logs, filters }) {
+    const debouncedSearch = useMemo(
+        () =>
+            debounce((query) => {
+                router.get(
+                    route('bitacora.index'),
+                    { search: query },
+                    { preserveState: true, replace: true },
+                );
+            }, 300),
+        [],
+    );
+
     const handleSearch = (query) => {
-        router.get(
-            route('bitacora.index'),
-            { search: query },
-            { preserveState: true, replace: true },
-        );
+        debouncedSearch(query);
     };
 
     return (
@@ -23,13 +33,7 @@ export default function Index({ logs, filters }) {
                             placeholder="Buscar en la bitácora..."
                             className="w-full rounded-xl border-gray-200 py-2.5 pl-10 pr-4 text-sm font-medium shadow-sm transition-all focus:border-brand-orange focus:ring-brand-orange"
                             defaultValue={filters?.search}
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                clearTimeout(window.searchTimeout);
-                                window.searchTimeout = setTimeout(() => {
-                                    handleSearch(val);
-                                }, 300);
-                            }}
+                            onChange={(e) => handleSearch(e.target.value)}
                         />
                         <i className="fas fa-search absolute left-4 top-3 text-gray-300"></i>
                     </div>
@@ -135,4 +139,6 @@ export default function Index({ logs, filters }) {
     );
 }
 
-Index.layout = (page) => <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>;
+Index.layout = (page) => (
+    <AuthenticatedLayout header={null}>{page}</AuthenticatedLayout>
+);

@@ -8,12 +8,12 @@ export default function DesktopSidebar({
     isAutoridad,
 }) {
     return (
-        <aside className="fixed inset-y-0 left-0 z-[1050] hidden w-20 flex-col border-r border-gray-200/80 bg-white shadow-xs lg:flex">
+        <aside className="shadow-xs fixed inset-y-0 left-0 z-[1050] hidden w-20 flex-col border-r border-gray-200/80 bg-white lg:flex">
             {/* Header Spacer (mantiene la altura y alineación con el navbar de h-16) */}
             <div className="h-16 shrink-0 border-b border-gray-100" />
 
             {/* Navigation Links */}
-            <div className="custom-scrollbar flex-1 flex flex-col items-center space-y-2 overflow-visible py-4 px-2">
+            <div className="custom-scrollbar flex flex-1 flex-col items-center space-y-2 overflow-visible px-2 py-4">
                 <SidebarLink
                     href={route('mapa.publico')}
                     active={route().current('mapa.publico')}
@@ -24,10 +24,12 @@ export default function DesktopSidebar({
 
                 {isAutoridad && (
                     <>
-                        <div className="my-1.5 h-px w-8 bg-gray-200/80 shrink-0" />
+                        <div className="my-1.5 h-px w-8 shrink-0 bg-gray-200/80" />
                         <SidebarLink
                             href={route('administrativos.dashboard')}
-                            active={route().current('administrativos.dashboard')}
+                            active={route().current(
+                                'administrativos.dashboard',
+                            )}
                             icon="fas fa-tachometer-alt"
                         >
                             Estadísticas
@@ -37,44 +39,56 @@ export default function DesktopSidebar({
 
                 {(isAdministrativo || isAdmin) && (
                     <>
-                        <div className="my-1.5 h-px w-8 bg-gray-200/80 shrink-0" />
+                        <div className="my-1.5 h-px w-8 shrink-0 bg-gray-200/80" />
                         <SidebarLink
                             href={route('administrativos.dashboard')}
-                            active={route().current('administrativos.dashboard')}
+                            active={route().current(
+                                'administrativos.dashboard',
+                            )}
                             icon="fas fa-tachometer-alt"
                         >
                             Estadísticas
                         </SidebarLink>
                         <SidebarLink
                             href={route('administrativos.edificios.index')}
-                            active={route().current('administrativos.edificios.index')}
+                            active={route().current(
+                                'administrativos.edificios.index',
+                            )}
                             icon="fas fa-building"
                         >
                             Edificios
                         </SidebarLink>
                         <SidebarLink
-                            href={route('administrativos.establecimientos.index')}
-                            active={route().current('administrativos.establecimientos.index')}
+                            href={route(
+                                'administrativos.establecimientos.index',
+                            )}
+                            active={route().current(
+                                'administrativos.establecimientos.index',
+                            )}
                             icon="fas fa-school"
                         >
                             Establecimientos
                         </SidebarLink>
                         <SidebarLink
                             href={route('administrativos.instrumentos.index')}
-                            active={route().current('administrativos.instrumentos.index')}
+                            active={route().current(
+                                'administrativos.instrumentos.index',
+                            )}
                             icon="fas fa-file-contract"
                         >
                             Instrumentos
                         </SidebarLink>
                         <SidebarLink
                             href={route('administrativos.auditoria.index')}
-                            active={route().current('administrativos.auditoria.index')}
+                            active={route().current(
+                                'administrativos.auditoria.index',
+                            )}
                             icon="fas fa-clipboard-check"
                         >
                             Auditoría
                         </SidebarLink>
 
-                        <div className="my-1.5 h-px w-8 bg-gray-200/80 shrink-0" />
+                        <div className="my-1.5 h-px w-8 shrink-0 bg-gray-200/80" />
                         <SidebarLink
                             href={route('bitacora.index')}
                             active={route().current('bitacora.index')}
@@ -84,7 +98,9 @@ export default function DesktopSidebar({
                         </SidebarLink>
                         <SidebarLink
                             href={route('administrativos.reportes.index')}
-                            active={route().current('administrativos.reportes.*')}
+                            active={route().current(
+                                'administrativos.reportes.*',
+                            )}
                             icon="fas fa-inbox"
                         >
                             Reportes
@@ -94,7 +110,7 @@ export default function DesktopSidebar({
 
                 {isAdmin && (
                     <>
-                        <div className="my-1.5 h-px w-8 bg-gray-200/80 shrink-0" />
+                        <div className="my-1.5 h-px w-8 shrink-0 bg-gray-200/80" />
                         <SidebarLink
                             href={route('admin.dashboard')}
                             active={route().current('admin.dashboard')}
@@ -123,14 +139,14 @@ export default function DesktopSidebar({
             {/* Sidebar Footer */}
             {user && (
                 <div className="flex shrink-0 flex-col items-center border-t border-gray-100 py-3">
-                    <div className="relative group flex items-center justify-center">
+                    <div className="group relative flex items-center justify-center">
                         <Link
                             href={route('profile.edit')}
-                            className="flex h-11 w-11 items-center justify-center rounded-2xl text-gray-500 hover:bg-gray-100 hover:text-black transition-colors"
+                            className="flex h-11 w-11 items-center justify-center rounded-2xl text-gray-500 transition-colors hover:bg-gray-100 hover:text-black"
                         >
                             <i className="fas fa-user-circle text-lg"></i>
                         </Link>
-                        <div className="pointer-events-none absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 z-[1100] hidden md:flex items-center rounded-xl bg-[#1e1f20] px-3.5 py-1.5 text-xs font-medium text-white shadow-2xl transition-all duration-150 whitespace-nowrap opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-1.5">
+                        <div className="pointer-events-none absolute left-[calc(100%+12px)] top-1/2 z-[1100] hidden -translate-x-1.5 -translate-y-1/2 items-center whitespace-nowrap rounded-xl bg-[#1e1f20] px-3.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-2xl transition-all duration-150 group-hover:translate-x-0 group-hover:opacity-100 md:flex">
                             <span>Mi Perfil ({user.name})</span>
                         </div>
                     </div>

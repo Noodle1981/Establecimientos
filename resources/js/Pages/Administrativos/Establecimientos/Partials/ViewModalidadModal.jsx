@@ -1,7 +1,7 @@
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
-import DetailItem from './DetailItem';
 import { getNombreEdificio } from '../constants/areasNiveles';
+import DetailItem from './DetailItem';
 
 export default function ViewModalidadModal({
     show,
