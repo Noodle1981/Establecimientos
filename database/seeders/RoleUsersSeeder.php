@@ -26,11 +26,12 @@ class RoleUsersSeeder extends Seeder
 
         // Crear usuario Admin
         User::forceCreate([
-            'email' => 'Admin@example.com',
-            'name' => 'Admin',
+            'email' => 'oolivera@sanjuan.edu.ar',
+            'name' => 'Omar Olivera',
             'role' => 'admin',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('pass@5000'),
             'email_verified_at' => now(),
+            'password_changed_at' => now(),
         ]);
 
         // Crear usuario Administrativo
@@ -38,8 +39,9 @@ class RoleUsersSeeder extends Seeder
             'email' => 'Administrativo@example.com',
             'name' => 'Administrativo',
             'role' => 'administrativos',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('pass@5000'),
             'email_verified_at' => now(),
+            'password_changed_at' => now(),
         ]);
 
         // Crear usuario Autoridades
@@ -47,13 +49,14 @@ class RoleUsersSeeder extends Seeder
             'email' => 'Autoridad@example.com',
             'name' => 'Autoridad',
             'role' => 'autoridades',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('pass@5000'),
             'email_verified_at' => now(),
+            'password_changed_at' => now(),
         ]);
 
         $this->command->info('✅ Base de datos de usuarios reseteada:');
-        $this->command->info('   - Admin@example.com (admin) - password: password');
-        $this->command->info('   - Administrativo@example.com (administrativos) - password: password');
-        $this->command->info('   - Autoridad@example.com (autoridades) - password: password');
+        $this->command->info('   - oolivera@sanjuan.edu.ar (admin) - password: pass@5000');
+        $this->command->info('   - Administrativo@example.com (administrativos) - password: pass@5000');
+        $this->command->info('   - Autoridad@example.com (autoridades) - password: pass@5000');
     }
 }
