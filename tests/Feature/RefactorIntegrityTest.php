@@ -60,9 +60,17 @@ class RefactorIntegrityTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_administrativo_can_access_auditoria(): void
+    public function test_administrativo_cannot_access_auditoria(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
+        
+        $response = $this->actingAs($user)->get('/administrativos/auditoria');
+        $response->assertStatus(403);
+    }
+
+    public function test_admin_can_access_auditoria(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
         
         $response = $this->actingAs($user)->get('/administrativos/auditoria');
         $response->assertStatus(200);

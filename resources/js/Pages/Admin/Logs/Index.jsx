@@ -9,7 +9,7 @@ export default function Index({ logs, filters }) {
         () =>
             debounce((query) => {
                 router.get(
-                    route('bitacora.index'),
+                    route('admin.logs.index'),
                     { search: query },
                     { preserveState: true, replace: true },
                 );

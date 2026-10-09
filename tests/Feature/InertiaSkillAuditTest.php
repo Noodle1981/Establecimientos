@@ -56,7 +56,7 @@ test('administrativo can update reporte status via patch', function () {
 
 test('auditoria index supports partial reload of specific props', function () {
     $user = User::factory()->create([
-        'role' => 'administrativos',
+        'role' => 'admin',
     ]);
 
     $version = hash_file('xxh128', public_path('build/manifest.json'));

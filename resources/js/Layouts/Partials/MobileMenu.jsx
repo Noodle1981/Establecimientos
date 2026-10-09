@@ -81,26 +81,6 @@ export default function MobileMenu({
                             >
                                 Establecimientos
                             </MobileNavLink>
-                            <MobileNavLink
-                                href={route(
-                                    'administrativos.instrumentos.index',
-                                )}
-                                active={route().current(
-                                    'administrativos.instrumentos.index',
-                                )}
-                                icon="fas fa-file-contract"
-                            >
-                                Instrumentos
-                            </MobileNavLink>
-                            <MobileNavLink
-                                href={route('administrativos.auditoria.index')}
-                                active={route().current(
-                                    'administrativos.auditoria.index',
-                                )}
-                                icon="fas fa-clipboard-check"
-                            >
-                                Auditoría
-                            </MobileNavLink>
                         </>
                     )}
 
@@ -184,13 +164,6 @@ export default function MobileMenu({
                     {(isAdmin || isAdministrativo) && (
                         <>
                             <MobileNavLink
-                                href={route('bitacora.index')}
-                                active={route().current('bitacora.index')}
-                                icon="fas fa-history"
-                            >
-                                Bitácora
-                            </MobileNavLink>
-                            <MobileNavLink
                                 href={route('administrativos.reportes.index')}
                                 active={route().current(
                                     'administrativos.reportes.*',
@@ -216,6 +189,13 @@ export default function MobileMenu({
                                 icon="fas fa-users-cog"
                             >
                                 Usuarios
+                            </MobileNavLink>
+                            <MobileNavLink
+                                href={route('admin.logs.index')}
+                                active={route().current('admin.logs.*')}
+                                icon="fas fa-history"
+                            >
+                                Bitácora
                             </MobileNavLink>
                             <MobileNavLink
                                 href={route('admin.trash.index')}

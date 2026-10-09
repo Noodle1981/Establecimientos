@@ -23,7 +23,7 @@ class AuditoriaReconciliationTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::factory()->create(['role' => 'administrativos']);
+        $this->user = User::factory()->create(['role' => 'admin']);
         
         $this->edificio = Edificio::create([
             'cui' => 12345,

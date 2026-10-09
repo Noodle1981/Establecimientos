@@ -20,7 +20,7 @@ class AuditoriaExcelExportTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::factory()->create(['role' => 'administrativos']);
+        $this->user = User::factory()->create(['role' => 'admin']);
 
         $edificio = Edificio::create([
             'cui' => 99999,

@@ -70,6 +70,21 @@ export default function DesktopSidebar({
                             Establecimientos
                         </SidebarLink>
                         <SidebarLink
+                            href={route('administrativos.reportes.index')}
+                            active={route().current(
+                                'administrativos.reportes.*',
+                            )}
+                            icon="fas fa-inbox"
+                        >
+                            Reportes
+                        </SidebarLink>
+                    </>
+                )}
+
+                {isAdmin && (
+                    <>
+                        <div className="my-1.5 h-px w-8 shrink-0 bg-gray-200/80" />
+                        <SidebarLink
                             href={route('administrativos.instrumentos.index')}
                             active={route().current(
                                 'administrativos.instrumentos.index',
@@ -87,29 +102,6 @@ export default function DesktopSidebar({
                         >
                             Auditoría
                         </SidebarLink>
-
-                        <div className="my-1.5 h-px w-8 shrink-0 bg-gray-200/80" />
-                        <SidebarLink
-                            href={route('bitacora.index')}
-                            active={route().current('bitacora.index')}
-                            icon="fas fa-history"
-                        >
-                            Bitácora
-                        </SidebarLink>
-                        <SidebarLink
-                            href={route('administrativos.reportes.index')}
-                            active={route().current(
-                                'administrativos.reportes.*',
-                            )}
-                            icon="fas fa-inbox"
-                        >
-                            Reportes
-                        </SidebarLink>
-                    </>
-                )}
-
-                {isAdmin && (
-                    <>
                         <div className="my-1.5 h-px w-8 shrink-0 bg-gray-200/80" />
                         <SidebarLink
                             href={route('admin.dashboard')}
@@ -124,6 +116,13 @@ export default function DesktopSidebar({
                             icon="fas fa-users-cog"
                         >
                             Usuarios
+                        </SidebarLink>
+                        <SidebarLink
+                            href={route('admin.logs.index')}
+                            active={route().current('admin.logs.*')}
+                            icon="fas fa-history"
+                        >
+                            Bitácora
                         </SidebarLink>
                         <SidebarLink
                             href={route('admin.trash.index')}

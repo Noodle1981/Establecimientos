@@ -85,6 +85,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/api/lookup-cue/{cue}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'lookupCue'])->name('api.lookup-cue');
 
 
+        // Reportes (Bandeja de Entrada)
+        Route::get('/reportes', [App\Http\Controllers\Administrativos\ReporteController::class, 'index'])->name('administrativos.reportes.index');
+        Route::patch('/reportes/{reporte}', [App\Http\Controllers\Administrativos\ReporteController::class, 'update'])->name('administrativos.reportes.update');
+        Route::delete('/reportes/{reporte}', [App\Http\Controllers\Administrativos\ReporteController::class, 'destroy'])->name('administrativos.reportes.destroy');
+    });
+
+    /**
+     * Rutas de Auditoría e Instrumentos (Solo Administradores / Super Admin)
+     */
+    Route::middleware(['role:admin'])->prefix('administrativos')->group(function () {
         // Instrumentos Legales
         Route::get('/instrumentos', [App\Http\Controllers\Administrativos\ModalidadController::class, 'instrumentosIndex'])->name('administrativos.instrumentos.index');
         Route::patch('/instrumentos/{id}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'instrumentosUpdate'])->name('administrativos.instrumentos.update');
@@ -97,14 +107,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/auditoria/export-excel', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'exportExcel'])->name('administrativos.auditoria.exportExcel');
         Route::get('/auditoria/{id}/pdf', [App\Http\Controllers\Admin\PDFController::class, 'downloadIndividual'])->name('administrativos.auditoria.pdf.individual');
         Route::get('/auditoria/pdf/general', [App\Http\Controllers\Admin\PDFController::class, 'downloadGeneral'])->name('administrativos.auditoria.pdf.general');
-
-        // Reportes (Bandeja de Entrada)
-        Route::get('/reportes', [App\Http\Controllers\Administrativos\ReporteController::class, 'index'])->name('administrativos.reportes.index');
-        Route::patch('/reportes/{reporte}', [App\Http\Controllers\Administrativos\ReporteController::class, 'update'])->name('administrativos.reportes.update');
-        Route::delete('/reportes/{reporte}', [App\Http\Controllers\Administrativos\ReporteController::class, 'destroy'])->name('administrativos.reportes.destroy');
-
-        // Bitácora (Compartida)
-        Route::get('/bitacora', [App\Http\Controllers\Admin\AdminController::class, 'logs'])->name('bitacora.index');
     });
 
     // --- CONSOLA ADMIN (Solo Administradores) ---
@@ -119,6 +121,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/trash/{type}/{id}/restore', [App\Http\Controllers\Admin\AdminController::class, 'restore'])->name('admin.trash.restore');
         Route::delete('/trash/modalidad/{id}/force', [App\Http\Controllers\Admin\AdminController::class, 'forceDelete'])->name('admin.trash.forceDelete');
     });
+
+    // Redirección de compatibilidad para la antigua ruta de bitácora (Solo Administradores)
+    Route::middleware(['role:admin'])->get('/administrativos/bitacora', function () {
+        return redirect()->route('admin.logs.index');
+    })->name('bitacora.index');
 
 
 });

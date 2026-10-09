@@ -107,6 +107,32 @@ class RoleAuthorizationTest extends TestCase
     }
 
     /**
+     * Test que un administrativo NO puede acceder a auditoría ni a instrumentos
+     */
+    public function test_administrativo_cannot_access_auditoria_or_instrumentos(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'administrativos',
+        ]);
+
+        $this->actingAs($user)->get(route('administrativos.auditoria.index'))->assertStatus(403);
+        $this->actingAs($user)->get(route('administrativos.instrumentos.index'))->assertStatus(403);
+    }
+
+    /**
+     * Test que un admin puede acceder a auditoría e instrumentos
+     */
+    public function test_admin_can_access_auditoria_and_instrumentos(): void
+    {
+        $user = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $this->actingAs($user)->get(route('administrativos.auditoria.index'))->assertStatus(200);
+        $this->actingAs($user)->get(route('administrativos.instrumentos.index'))->assertStatus(200);
+    }
+
+    /**
      * Test que un usuario con rol 'admin' puede acceder a consola admin
      */
     public function test_admin_can_access_admin_dashboard(): void
@@ -180,8 +206,11 @@ class RoleAuthorizationTest extends TestCase
      */
     public function test_unauthenticated_cannot_access_bitacora(): void
     {
-        $response = $this->get(route('bitacora.index'));
+        $response = $this->get(route('admin.logs.index'));
         $response->assertRedirect('/login');
+
+        $responseLegacy = $this->get('/administrativos/bitacora');
+        $responseLegacy->assertRedirect('/login');
     }
 
     /**
@@ -191,19 +220,25 @@ class RoleAuthorizationTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'user']);
 
-        $response = $this->actingAs($user)->get(route('bitacora.index'));
+        $response = $this->actingAs($user)->get(route('admin.logs.index'));
         $response->assertStatus(403);
+
+        $responseLegacy = $this->actingAs($user)->get('/administrativos/bitacora');
+        $responseLegacy->assertStatus(403);
     }
 
     /**
-     * Test que un usuario con rol 'administrativos' puede acceder a la bitácora
+     * Test que un usuario con rol 'administrativos' NO puede acceder a la bitácora
      */
-    public function test_administrativo_can_access_bitacora(): void
+    public function test_administrativo_cannot_access_bitacora(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
 
-        $response = $this->actingAs($user)->get(route('bitacora.index'));
-        $response->assertStatus(200);
+        $response = $this->actingAs($user)->get(route('admin.logs.index'));
+        $response->assertStatus(403);
+
+        $responseLegacy = $this->actingAs($user)->get('/administrativos/bitacora');
+        $responseLegacy->assertStatus(403);
     }
 
     /**
@@ -213,8 +248,11 @@ class RoleAuthorizationTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'admin']);
 
-        $response = $this->actingAs($user)->get(route('bitacora.index'));
+        $response = $this->actingAs($user)->get(route('admin.logs.index'));
         $response->assertStatus(200);
+
+        $responseLegacy = $this->actingAs($user)->get('/administrativos/bitacora');
+        $responseLegacy->assertRedirect(route('admin.logs.index'));
     }
 
     /**
