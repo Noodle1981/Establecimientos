@@ -3,15 +3,17 @@
 namespace App\Http\Controllers\Administrativos;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Administrativos\UpdateAuditoriaRequest;
 use App\Models\Modalidad;
 use App\Services\AuditoriaQueryService;
 use App\Services\ExcelExportService;
-use App\Http\Requests\Administrativos\UpdateAuditoriaRequest;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -41,7 +43,7 @@ class AuditoriaController extends Controller
             'filters' => $request->all(),
             'nombresEdificios' => $this->queryService->getBuildingNamesMap(),
             'stats' => $this->queryService->getStats($request),
-            'options' => $this->queryService->getFilterOptions($request)
+            'options' => $this->queryService->getFilterOptions($request),
         ]);
     }
 
@@ -51,15 +53,17 @@ class AuditoriaController extends Controller
     public function updateEstado(UpdateAuditoriaRequest $request, int $id): RedirectResponse
     {
         try {
-            \Illuminate\Support\Facades\DB::transaction(function () use ($request, $id) {
+            DB::transaction(function () use ($request, $id) {
                 $modalidad = Modalidad::withTrashed()
-                    ->with(['establecimiento' => function($q) { $q->withTrashed(); }])
+                    ->with(['establecimiento' => function ($q) {
+                        $q->withTrashed();
+                    }])
                     ->findOrFail($id);
 
                 // Actualizar la modalidad principal
                 $modalidad->cambiarEstado(
-                    $request->estado, 
-                    $request->observaciones, 
+                    $request->estado,
+                    $request->observaciones,
                     Auth::id(),
                     $request->campos_auditados
                 );
@@ -67,7 +71,7 @@ class AuditoriaController extends Controller
                 // Propagar al edificio si se solicita de forma consciente
                 if ($request->propagar_al_edificio && $modalidad->establecimiento) {
                     $camposCompartidos = ['Dirección', 'Edificio', 'CUI', 'GPS', 'RADIO'];
-                    
+
                     // Extraer solo los campos compartidos que se marcaron en esta validación
                     $auditoriaCompartida = array_intersect($request->campos_auditados ?? [], $camposCompartidos);
 
@@ -80,10 +84,10 @@ class AuditoriaController extends Controller
 
                     foreach ($vinculados as $v) {
                         /** @var Modalidad $v */
-                        // Para los vinculados, mantenemos sus campos específicos actuales 
+                        // Para los vinculados, mantenemos sus campos específicos actuales
                         // y solo actualizamos/sincronizamos los campos de edificio (compartidos)
                         $camposActuales = $v->campos_auditados ?? [];
-                        
+
                         // Quitamos los compartidos viejos y ponemos los nuevos
                         $camposLimpios = array_diff($camposActuales, $camposCompartidos);
                         $nuevosCampos = array_unique(array_merge($camposLimpios, $auditoriaCompartida));
@@ -101,6 +105,7 @@ class AuditoriaController extends Controller
             return back()->with('success', 'Estado de auditoría actualizado correctamente.');
         } catch (\Throwable $e) {
             report($e);
+
             return back()->with('error', 'Error al actualizar el estado de auditoría. Intente nuevamente.');
         }
     }
@@ -111,7 +116,7 @@ class AuditoriaController extends Controller
     public function vinculados(int $id): JsonResponse
     {
         $modalidad = Modalidad::withTrashed()->with('establecimiento')->findOrFail($id);
-        
+
         $vinculados = Modalidad::withTrashed()
             ->whereHas('establecimiento', function ($q) use ($modalidad) {
                 $q->where('edificio_id', $modalidad->establecimiento->edificio_id);
@@ -119,7 +124,7 @@ class AuditoriaController extends Controller
             ->where('id', '!=', $id)
             ->with(['establecimiento', 'usuarioValidacion'])
             ->get();
-            
+
         return response()->json($vinculados);
     }
 
@@ -135,18 +140,18 @@ class AuditoriaController extends Controller
         $modalidades = $this->queryService->getFilteredQuery($request)
             ->orderBy('validado_en', 'desc')
             ->get();
- 
+
         $nombresEdificios = $this->queryService->getBuildingNamesMap();
         $stats = $this->queryService->getStats($request);
- 
+
         $pdf = Pdf::loadView('pdf.auditoria_reporte', [
             'modalidades' => $modalidades,
             'nombresEdificios' => $nombresEdificios,
             'stats' => $stats,
-            'filtros' => $request->all()
+            'filtros' => $request->all(),
         ])->setPaper('a4', 'landscape');
- 
-        return $pdf->download('reporte_auditoria_' . now()->format('Y-m-d') . '.pdf');
+
+        return $pdf->download('reporte_auditoria_'.now()->format('Y-m-d').'.pdf');
     }
 
     /**
@@ -191,7 +196,7 @@ class AuditoriaController extends Controller
                 ? ($nombresEdificios[$m->establecimiento->edificio_id] ?? 'S/D')
                 : 'S/D';
 
-            $direccion = trim(($m->establecimiento?->edificio?->calle ?? '') . ' ' . ($m->establecimiento?->edificio?->numero_puerta ?? ''));
+            $direccion = trim(($m->establecimiento?->edificio?->calle ?? '').' '.($m->establecimiento?->edificio?->numero_puerta ?? ''));
 
             $camposAuditadosStr = is_array($m->campos_auditados)
                 ? implode(', ', $m->campos_auditados)
@@ -211,7 +216,7 @@ class AuditoriaController extends Controller
             $sheet->setCellValue("L{$row}", $m->estado_validacion ?? 'PENDIENTE');
             $sheet->setCellValue("M{$row}", $camposAuditadosStr ?: '-');
             $sheet->setCellValue("N{$row}", $m->observaciones ?? '-');
-            $sheet->setCellValue("O{$row}", $m->validado_en ? \Carbon\Carbon::parse($m->validado_en)->format('d/m/Y H:i') : '-');
+            $sheet->setCellValue("O{$row}", $m->validado_en ? Carbon::parse($m->validado_en)->format('d/m/Y H:i') : '-');
             $sheet->setCellValue("P{$row}", $m->usuarioValidacion?->name ?? ($m->validado_en ? 'Sistema' : '-'));
 
             $row++;
@@ -219,7 +224,8 @@ class AuditoriaController extends Controller
 
         $excelService->autoSizeColumns($sheet, count($headers));
 
-        $fileName = 'reporte_auditoria_' . now()->format('Y-m-d') . '.xlsx';
+        $fileName = 'reporte_auditoria_'.now()->format('Y-m-d').'.xlsx';
+
         return $excelService->download($spreadsheet, $fileName);
     }
 }

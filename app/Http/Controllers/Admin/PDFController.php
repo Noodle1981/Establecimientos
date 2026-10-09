@@ -13,11 +13,11 @@ class PDFController extends Controller
     public function downloadIndividual(int $id): Response
     {
         $auditoria = AuditoriaEduge::with(['establecimiento', 'user'])->findOrFail($id);
-        
+
         $pdf = Pdf::loadView('pdf.auditoria-individual', compact('auditoria'));
-        
-        $filename = 'auditoria_' . ($auditoria->establecimiento?->cue ?? 'S-CUE') . '_' . $auditoria->fecha_visita . '.pdf';
-        
+
+        $filename = 'auditoria_'.($auditoria->establecimiento?->cue ?? 'S-CUE').'_'.$auditoria->fecha_visita.'.pdf';
+
         return $pdf->download($filename);
     }
 
@@ -41,7 +41,7 @@ class PDFController extends Controller
         $dateTo = $request->date_to;
 
         $pdf = Pdf::loadView('pdf.auditoria-general', compact('auditorias', 'dateFrom', 'dateTo'));
-        
+
         return $pdf->download('informe_general_auditorias.pdf');
     }
 }

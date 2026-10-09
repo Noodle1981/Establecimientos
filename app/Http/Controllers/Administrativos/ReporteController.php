@@ -1,9 +1,10 @@
 <?php
+
 namespace App\Http\Controllers\Administrativos;
 
 use App\Http\Controllers\Controller;
-use App\Models\Reporte;
 use App\Http\Requests\Administrativos\UpdateReporteRequest;
+use App\Models\Reporte;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -52,6 +53,7 @@ class ReporteController extends Controller
     public function destroy(Reporte $reporte): RedirectResponse
     {
         $reporte->delete();
+
         return back()->with('success', 'El reporte ha sido eliminado.');
     }
 }

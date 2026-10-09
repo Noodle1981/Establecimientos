@@ -3,7 +3,9 @@
 namespace App\Actions\Administrativos;
 
 use App\Models\Edificio;
+use App\Models\Establecimiento;
 use App\Models\Modalidad;
+use App\Services\ActivityLogService;
 use Illuminate\Support\Facades\DB;
 
 class UpdateModalidadAction
@@ -33,8 +35,8 @@ class UpdateModalidadAction
 
             // Sync Establecimiento
             $currentEstablecimiento = $modalidad->establecimiento;
-            if ((string)$currentEstablecimiento->cue !== (string)$data['cue']) {
-                $targetEstablecimiento = \App\Models\Establecimiento::where('cue', $data['cue'])->first();
+            if ((string) $currentEstablecimiento->cue !== (string) $data['cue']) {
+                $targetEstablecimiento = Establecimiento::where('cue', $data['cue'])->first();
                 if ($targetEstablecimiento) {
                     $targetEstablecimiento->update([
                         'edificio_id' => $edificio->id,
@@ -45,7 +47,7 @@ class UpdateModalidadAction
                 } else {
                     $otherCount = $currentEstablecimiento->modalidades()->where('id', '!=', $modalidad->id)->count();
                     if ($otherCount > 0) {
-                        $newEstablecimiento = \App\Models\Establecimiento::create([
+                        $newEstablecimiento = Establecimiento::create([
                             'cue' => $data['cue'],
                             'nombre' => $data['nombre_establecimiento'],
                             'edificio_id' => $edificio->id,
@@ -82,9 +84,9 @@ class UpdateModalidadAction
                 'categoria' => $data['categoria'] ?? null,
             ]);
 
-            app(\App\Services\ActivityLogService::class)->logUpdate(
-                $modalidad, 
-                "Actualizó modalidad", 
+            app(ActivityLogService::class)->logUpdate(
+                $modalidad,
+                'Actualizó modalidad',
                 ['after' => $data]
             );
         });

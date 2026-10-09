@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::table('modalidades', function (Blueprint $table) {
             $table->enum('estado_validacion', [
                 'PENDIENTE',
-                'CORRECTO', 
+                'CORRECTO',
                 'CORREGIDO',
                 'REVISAR',
                 'FALTANTE_EDUGE',
                 'BAJA',
-                'ELIMINADO'
+                'ELIMINADO',
             ])->default('PENDIENTE')->change();
         });
     }
@@ -32,10 +32,10 @@ return new class extends Migration
         Schema::table('modalidades', function (Blueprint $table) {
             $table->enum('estado_validacion', [
                 'PENDIENTE',
-                'CORRECTO', 
+                'CORRECTO',
                 'CORREGIDO',
                 'BAJA',
-                'ELIMINADO'
+                'ELIMINADO',
             ])->default('PENDIENTE')->change();
         });
     }

@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Edificio;
 use App\Models\Establecimiento;
 use App\Models\Modalidad;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -14,9 +14,13 @@ class AuditoriaReconciliationTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $edificio;
+
     protected $mod1;
+
     protected $mod2;
+
     protected $modOther;
 
     protected function setUp(): void
@@ -24,7 +28,7 @@ class AuditoriaReconciliationTest extends TestCase
         parent::setUp();
 
         $this->user = User::factory()->create(['role' => 'admin']);
-        
+
         $this->edificio = Edificio::create([
             'cui' => 12345,
             'calle' => 'Calle Falsa',
@@ -32,57 +36,57 @@ class AuditoriaReconciliationTest extends TestCase
             'localidad' => 'SANTA LUCIA',
             'latitud' => -31.0,
             'longitud' => -68.0,
-            'zona_departamento' => 'SANTA LUCIA'
+            'zona_departamento' => 'SANTA LUCIA',
         ]);
-        
+
         $est1 = Establecimiento::create([
             'edificio_id' => $this->edificio->id,
             'cue' => 700000000,
             'cue_edificio_principal' => 700000000,
-            'nombre' => 'Escuela 1'
+            'nombre' => 'Escuela 1',
         ]);
         $this->mod1 = Modalidad::create([
-            'establecimiento_id' => $est1->id, 
+            'establecimiento_id' => $est1->id,
             'estado_validacion' => 'PENDIENTE',
             'direccion_area' => 'PRIMARIA',
             'nivel_educativo' => 'PRIMARIA',
-            'ambito' => 'PUBLICO'
+            'ambito' => 'PUBLICO',
         ]);
-        
+
         $est2 = Establecimiento::create([
             'edificio_id' => $this->edificio->id,
             'cue' => 700000100,
             'cue_edificio_principal' => 700000000,
-            'nombre' => 'Escuela 2'
+            'nombre' => 'Escuela 2',
         ]);
         $this->mod2 = Modalidad::create([
-            'establecimiento_id' => $est2->id, 
+            'establecimiento_id' => $est2->id,
             'estado_validacion' => 'PENDIENTE',
             'direccion_area' => 'SECUNDARIA',
             'nivel_educativo' => 'SECUNDARIA',
-            'ambito' => 'PUBLICO'
+            'ambito' => 'PUBLICO',
         ]);
-        
+
         $edificioOther = Edificio::create([
             'cui' => 54321,
             'calle' => 'Otra Calle',
             'localidad' => 'CAPITAL',
             'latitud' => -31.1,
             'longitud' => -68.1,
-            'zona_departamento' => 'CAPITAL'
+            'zona_departamento' => 'CAPITAL',
         ]);
         $estOther = Establecimiento::create([
             'edificio_id' => $edificioOther->id,
             'cue' => 800000000,
             'cue_edificio_principal' => 800000000,
-            'nombre' => 'Escuela Otras'
+            'nombre' => 'Escuela Otras',
         ]);
         $this->modOther = Modalidad::create([
-            'establecimiento_id' => $estOther->id, 
+            'establecimiento_id' => $estOther->id,
             'estado_validacion' => 'PENDIENTE',
             'direccion_area' => 'INICIAL',
             'nivel_educativo' => 'INICIAL',
-            'ambito' => 'PUBLICO'
+            'ambito' => 'PUBLICO',
         ]);
     }
 
@@ -102,14 +106,14 @@ class AuditoriaReconciliationTest extends TestCase
             'estado' => 'CORRECTO',
             'observaciones' => 'Test propagation',
             'campos_auditados' => ['CUI', 'GPS'],
-            'propagar_al_edificio' => true
+            'propagar_al_edificio' => true,
         ];
 
         $response = $this->actingAs($this->user)
             ->patch(route('administrativos.auditoria.updateEstado', $this->mod1->id), $payload);
 
         $response->assertRedirect();
-        
+
         $this->mod1->refresh();
         $this->assertEquals('CORRECTO', $this->mod1->estado_validacion);
 
@@ -128,7 +132,7 @@ class AuditoriaReconciliationTest extends TestCase
             'estado' => 'CORRECTO',
             'observaciones' => 'No propagation',
             'campos_auditados' => ['CUI'],
-            'propagar_al_edificio' => false
+            'propagar_al_edificio' => false,
         ];
 
         $response = $this->actingAs($this->user)
@@ -151,7 +155,7 @@ class AuditoriaReconciliationTest extends TestCase
             'estado' => 'CORRECTO',
             'observaciones' => 'Propagación granular',
             'campos_auditados' => ['Nombre', 'CUI', 'GPS', 'RADIO'], // Nombre es específico, CUI/GPS/RADIO son compartidos
-            'propagar_al_edificio' => true
+            'propagar_al_edificio' => true,
         ];
 
         $this->actingAs($this->user)
@@ -180,7 +184,7 @@ class AuditoriaReconciliationTest extends TestCase
             'estado' => 'CORRECTO',
             'observaciones' => 'Actualización global del edificio',
             'campos_auditados' => ['CUI'],
-            'propagar_al_edificio' => true
+            'propagar_al_edificio' => true,
         ];
 
         $this->actingAs($this->user)

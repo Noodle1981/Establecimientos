@@ -16,49 +16,52 @@ class EstablecimientosSeeder extends Seeder
      */
     private function parseCoordinate($value): float
     {
-        if (empty($value)) return 0.0;
-        
+        if (empty($value)) {
+            return 0.0;
+        }
+
         // Reemplazar coma por punto
         $value = str_replace(',', '.', $value);
-        
+
         // Limpiar caracteres no numéricos excepto punto y menos
         $value = preg_replace('/[^0-9.-]/', '', $value);
-        
-        return is_numeric($value) ? (float)$value : 0.0;
+
+        return is_numeric($value) ? (float) $value : 0.0;
     }
 
     public function run(): void
     {
         $this->command->info('🗑️  Limpiando tablas existentes...');
-        
+
         // Truncar tablas en orden correcto (respetando foreign keys)
         DB::statement('PRAGMA foreign_keys = OFF;');
         Modalidad::truncate();
         Establecimiento::truncate();
         Edificio::truncate();
         DB::statement('PRAGMA foreign_keys = ON;');
-        
+
         $this->command->info('📂 Cargando archivo Excel...');
-        
+
         $filePath = database_path('../Establecimientos_Publicos.xlsx');
-        
-        if (!file_exists($filePath)) {
+
+        if (! file_exists($filePath)) {
             $this->command->error("❌ Archivo no encontrado: {$filePath}");
+
             return;
         }
-        
+
         $spreadsheet = IOFactory::load($filePath);
         $worksheet = $spreadsheet->getActiveSheet();
         $rows = $worksheet->toArray();
-        
+
         // Remover encabezados
         $headers = array_shift($rows);
-        
-        $this->command->info('📊 Importando ' . count($rows) . ' registros...');
-        
+
+        $this->command->info('📊 Importando '.count($rows).' registros...');
+
         $edificiosCache = [];
         $establecimientosCache = [];
-        
+
         foreach ($rows as $index => $row) {
             try {
                 // Mapeo de columnas según el análisis
@@ -88,21 +91,22 @@ class EstablecimientosSeeder extends Seeder
                 $teVoip = $row[22] ?? null;
                 $ambito = $row[23] ?? null;
                 $validado = $row[24] ?? null;
-                
+
                 // Validaciones básicas
                 if (empty($cue) || empty($cui)) {
-                    $this->command->warn("⚠️  Fila " . ($index + 2) . ": CUE o CUI vacío, omitiendo...");
+                    $this->command->warn('⚠️  Fila '.($index + 2).': CUE o CUI vacío, omitiendo...');
+
                     continue;
                 }
-                
+
                 // 1. Crear o recuperar Edificio
-                if (!isset($edificiosCache[$cui])) {
+                if (! isset($edificiosCache[$cui])) {
                     $edificio = Edificio::create([
                         'cui' => $cui,
                         'calle' => $calle ?? 'Sin datos',
                         'numero_puerta' => $numeroPuerta,
                         'orientacion' => $orientacion,
-                        'codigo_postal' => $codigoPostal ? (int)$codigoPostal : null,
+                        'codigo_postal' => $codigoPostal ? (int) $codigoPostal : null,
                         'localidad' => $localidad ?? 'Sin datos',
                         'latitud' => $latitud,
                         'longitud' => $longitud,
@@ -114,9 +118,9 @@ class EstablecimientosSeeder extends Seeder
                 } else {
                     $edificio = Edificio::find($edificiosCache[$cui]);
                 }
-                
+
                 // 2. Crear o recuperar Establecimiento
-                if (!isset($establecimientosCache[$cue])) {
+                if (! isset($establecimientosCache[$cue])) {
                     $establecimiento = Establecimiento::create([
                         'edificio_id' => $edificiosCache[$cui],
                         'cue' => $cue,
@@ -126,7 +130,7 @@ class EstablecimientosSeeder extends Seeder
                     ]);
                     $establecimientosCache[$cue] = $establecimiento->id;
                 }
-                
+
                 // 3. Crear Modalidad
                 Modalidad::create([
                     'establecimiento_id' => $establecimientosCache[$cue],
@@ -143,13 +147,13 @@ class EstablecimientosSeeder extends Seeder
                     'validado' => $validado === 'SI' || $validado === 'si' || $validado === true,
                     'estado_validacion' => 'PENDIENTE',
                 ]);
-                
+
                 if (($index + 1) % 100 === 0) {
-                    $this->command->info("✅ Procesadas " . ($index + 1) . " filas...");
+                    $this->command->info('✅ Procesadas '.($index + 1).' filas...');
                 }
-                
+
             } catch (\Exception $e) {
-                $this->command->error("❌ Error en fila " . ($index + 2) . ": " . $e->getMessage());
+                $this->command->error('❌ Error en fila '.($index + 2).': '.$e->getMessage());
             }
         }
 
@@ -193,10 +197,10 @@ class EstablecimientosSeeder extends Seeder
                    OR establecimiento_cabecera NOT IN (SELECT cue FROM establecimientos);
             ");
         });
-        
+
         $this->command->info('✨ Importación completada!');
-        $this->command->info('📊 Edificios: ' . Edificio::count());
-        $this->command->info('📊 Establecimientos: ' . Establecimiento::count());
-        $this->command->info('📊 Modalidades: ' . Modalidad::count());
+        $this->command->info('📊 Edificios: '.Edificio::count());
+        $this->command->info('📊 Establecimientos: '.Establecimiento::count());
+        $this->command->info('📊 Modalidades: '.Modalidad::count());
     }
 }

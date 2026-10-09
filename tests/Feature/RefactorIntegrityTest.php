@@ -2,12 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Edificio;
-use App\Models\Modalidad;
 use App\Models\Establecimiento;
+use App\Models\Modalidad;
 use App\Models\Reporte;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
 class RefactorIntegrityTest extends TestCase
@@ -31,13 +32,13 @@ class RefactorIntegrityTest extends TestCase
         $response = $this->post('/reportes', [
             'tipo' => 'ERROR_DATOS',
             'descripcion' => 'Descripción de prueba para reporte',
-            'email_remitente' => 'test@example.com'
+            'email_remitente' => 'test@example.com',
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('reportes', [
             'tipo' => 'ERROR_DATOS',
-            'email_remitente' => 'test@example.com'
+            'email_remitente' => 'test@example.com',
         ]);
     }
 
@@ -47,7 +48,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_administrativo_can_access_modalidades(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
-        
+
         $response = $this->actingAs($user)->get('/administrativos/establecimientos');
         $response->assertStatus(200);
     }
@@ -55,7 +56,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_administrativo_can_access_edificios(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
-        
+
         $response = $this->actingAs($user)->get('/administrativos/edificios');
         $response->assertStatus(200);
     }
@@ -63,7 +64,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_administrativo_cannot_access_auditoria(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
-        
+
         $response = $this->actingAs($user)->get('/administrativos/auditoria');
         $response->assertStatus(403);
     }
@@ -71,7 +72,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_admin_can_access_auditoria(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
-        
+
         $response = $this->actingAs($user)->get('/administrativos/auditoria');
         $response->assertStatus(200);
     }
@@ -79,7 +80,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_administrativo_can_access_reportes_inbox(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
-        
+
         $response = $this->actingAs($user)->get('/administrativos/reportes');
         $response->assertStatus(200);
     }
@@ -90,7 +91,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_can_create_modalidad_structure(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
-        
+
         $response = $this->actingAs($user)->post('/administrativos/establecimientos', [
             'cui' => '1234567',
             'cue' => '123456789',
@@ -118,7 +119,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_administrativo_can_delete_modalidad_and_trigger_cascade(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
-        
+
         $edificio = Edificio::create([
             'cui' => '1234567',
             'calle' => 'Calle Falsa 123',
@@ -126,7 +127,7 @@ class RefactorIntegrityTest extends TestCase
             'localidad' => 'SAN JUAN',
             'latitud' => -31.5375,
             'longitud' => -68.5364,
-            'zona_departamento' => 'CAPITAL'
+            'zona_departamento' => 'CAPITAL',
         ]);
 
         $est = Establecimiento::create([
@@ -134,7 +135,7 @@ class RefactorIntegrityTest extends TestCase
             'cue' => '123456789',
             'cue_edificio_principal' => '123456789',
             'nombre' => 'Escuela de Prueba',
-            'establecimiento_cabecera' => '123456789'
+            'establecimiento_cabecera' => '123456789',
         ]);
 
         $mod = Modalidad::create([
@@ -143,7 +144,7 @@ class RefactorIntegrityTest extends TestCase
             'nivel_educativo' => 'PRIMARIA',
             'ambito' => 'URBANO',
             'validado' => false,
-            'estado_validacion' => 'PENDIENTE'
+            'estado_validacion' => 'PENDIENTE',
         ]);
 
         $response = $this->actingAs($user)->delete(route('administrativos.establecimientos.destroy', $mod->id));
@@ -159,7 +160,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_administrativo_can_delete_modalidad_without_cascade_if_not_last(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
-        
+
         $edificio = Edificio::create([
             'cui' => '1234567',
             'calle' => 'Calle Falsa 123',
@@ -167,7 +168,7 @@ class RefactorIntegrityTest extends TestCase
             'localidad' => 'SAN JUAN',
             'latitud' => -31.5375,
             'longitud' => -68.5364,
-            'zona_departamento' => 'CAPITAL'
+            'zona_departamento' => 'CAPITAL',
         ]);
 
         $est = Establecimiento::create([
@@ -175,7 +176,7 @@ class RefactorIntegrityTest extends TestCase
             'cue' => '123456789',
             'cue_edificio_principal' => '123456789',
             'nombre' => 'Escuela de Prueba',
-            'establecimiento_cabecera' => '123456789'
+            'establecimiento_cabecera' => '123456789',
         ]);
 
         $mod1 = Modalidad::create([
@@ -184,7 +185,7 @@ class RefactorIntegrityTest extends TestCase
             'nivel_educativo' => 'PRIMARIA',
             'ambito' => 'URBANO',
             'validado' => false,
-            'estado_validacion' => 'PENDIENTE'
+            'estado_validacion' => 'PENDIENTE',
         ]);
 
         $mod2 = Modalidad::create([
@@ -193,7 +194,7 @@ class RefactorIntegrityTest extends TestCase
             'nivel_educativo' => 'SECUNDARIA',
             'ambito' => 'URBANO',
             'validado' => false,
-            'estado_validacion' => 'PENDIENTE'
+            'estado_validacion' => 'PENDIENTE',
         ]);
 
         $response = $this->actingAs($user)->delete(route('administrativos.establecimientos.destroy', $mod1->id));
@@ -210,7 +211,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_cannot_delete_edificio_with_active_establishments(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
-        
+
         $edificio = Edificio::create([
             'cui' => '1234567',
             'calle' => 'Calle Falsa 123',
@@ -218,7 +219,7 @@ class RefactorIntegrityTest extends TestCase
             'localidad' => 'SAN JUAN',
             'latitud' => -31.5375,
             'longitud' => -68.5364,
-            'zona_departamento' => 'CAPITAL'
+            'zona_departamento' => 'CAPITAL',
         ]);
 
         $est = Establecimiento::create([
@@ -226,7 +227,7 @@ class RefactorIntegrityTest extends TestCase
             'cue' => '123456789',
             'cue_edificio_principal' => '123456789',
             'nombre' => 'Escuela de Prueba',
-            'establecimiento_cabecera' => '123456789'
+            'establecimiento_cabecera' => '123456789',
         ]);
 
         $response = $this->actingAs($user)->delete(route('administrativos.edificios.destroy', $edificio->id));
@@ -240,7 +241,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_can_delete_empty_edificio(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
-        
+
         $edificio = Edificio::create([
             'cui' => '1234567',
             'calle' => 'Calle Falsa 123',
@@ -248,7 +249,7 @@ class RefactorIntegrityTest extends TestCase
             'localidad' => 'SAN JUAN',
             'latitud' => -31.5375,
             'longitud' => -68.5364,
-            'zona_departamento' => 'CAPITAL'
+            'zona_departamento' => 'CAPITAL',
         ]);
 
         $response = $this->actingAs($user)->delete(route('administrativos.edificios.destroy', $edificio->id));
@@ -263,7 +264,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_regular_user_cannot_delete_modalidad_or_edificio(): void
     {
         $user = User::factory()->create(['role' => 'user']);
-        
+
         $edificio = Edificio::create([
             'cui' => '1234567',
             'calle' => 'Calle Falsa 123',
@@ -271,7 +272,7 @@ class RefactorIntegrityTest extends TestCase
             'localidad' => 'SAN JUAN',
             'latitud' => -31.5375,
             'longitud' => -68.5364,
-            'zona_departamento' => 'CAPITAL'
+            'zona_departamento' => 'CAPITAL',
         ]);
 
         $est = Establecimiento::create([
@@ -279,7 +280,7 @@ class RefactorIntegrityTest extends TestCase
             'cue' => '123456789',
             'cue_edificio_principal' => '123456789',
             'nombre' => 'Escuela de Prueba',
-            'establecimiento_cabecera' => '123456789'
+            'establecimiento_cabecera' => '123456789',
         ]);
 
         $mod = Modalidad::create([
@@ -288,7 +289,7 @@ class RefactorIntegrityTest extends TestCase
             'nivel_educativo' => 'PRIMARIA',
             'ambito' => 'URBANO',
             'validado' => false,
-            'estado_validacion' => 'PENDIENTE'
+            'estado_validacion' => 'PENDIENTE',
         ]);
 
         $response = $this->actingAs($user)->delete(route('administrativos.establecimientos.destroy', $mod->id));
@@ -304,7 +305,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_admin_can_restore_modalidad_and_reverse_cascade(): void
     {
         $user = User::factory()->create(['role' => 'admin']);
-        
+
         $edificio = Edificio::create([
             'cui' => '1234567',
             'calle' => 'Calle Falsa 123',
@@ -312,7 +313,7 @@ class RefactorIntegrityTest extends TestCase
             'localidad' => 'SAN JUAN',
             'latitud' => -31.5375,
             'longitud' => -68.5364,
-            'zona_departamento' => 'CAPITAL'
+            'zona_departamento' => 'CAPITAL',
         ]);
 
         $est = Establecimiento::create([
@@ -320,7 +321,7 @@ class RefactorIntegrityTest extends TestCase
             'cue' => '123456789',
             'cue_edificio_principal' => '123456789',
             'nombre' => 'Escuela de Prueba',
-            'establecimiento_cabecera' => '123456789'
+            'establecimiento_cabecera' => '123456789',
         ]);
 
         $mod = Modalidad::create([
@@ -329,7 +330,7 @@ class RefactorIntegrityTest extends TestCase
             'nivel_educativo' => 'PRIMARIA',
             'ambito' => 'URBANO',
             'validado' => false,
-            'estado_validacion' => 'PENDIENTE'
+            'estado_validacion' => 'PENDIENTE',
         ]);
 
         // Soft delete both
@@ -352,7 +353,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_administrativo_can_update_establecimiento_observaciones(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
-        
+
         $edificio = Edificio::create([
             'cui' => '1234567',
             'calle' => 'Calle Falsa 123',
@@ -360,7 +361,7 @@ class RefactorIntegrityTest extends TestCase
             'localidad' => 'SAN JUAN',
             'latitud' => -31.5375,
             'longitud' => -68.5364,
-            'zona_departamento' => 'CAPITAL'
+            'zona_departamento' => 'CAPITAL',
         ]);
 
         $est = Establecimiento::create([
@@ -369,7 +370,7 @@ class RefactorIntegrityTest extends TestCase
             'cue_edificio_principal' => '123456789',
             'nombre' => 'Escuela de Prueba',
             'establecimiento_cabecera' => '123456789',
-            'observaciones' => null
+            'observaciones' => null,
         ]);
 
         $mod = Modalidad::create([
@@ -378,7 +379,7 @@ class RefactorIntegrityTest extends TestCase
             'nivel_educativo' => 'PRIMARIA',
             'ambito' => 'URBANO',
             'validado' => false,
-            'estado_validacion' => 'PENDIENTE'
+            'estado_validacion' => 'PENDIENTE',
         ]);
 
         $response = $this->actingAs($user)->patch(route('administrativos.establecimientos.update', $mod->id), [
@@ -391,16 +392,16 @@ class RefactorIntegrityTest extends TestCase
             'validado' => false,
             'radio' => '1',
             'sector' => 'PUBLICO',
-            'observaciones' => 'Esta es una observación propia del CUE.'
+            'observaciones' => 'Esta es una observación propia del CUE.',
         ]);
 
         $response->assertSessionHasNoErrors();
         $response->assertRedirect();
-        
+
         // Assert that the establecimiento table now has the observations
         $this->assertDatabaseHas('establecimientos', [
             'id' => $est->id,
-            'observaciones' => 'Esta es una observación propia del CUE.'
+            'observaciones' => 'Esta es una observación propia del CUE.',
         ]);
     }
 
@@ -410,7 +411,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_cannot_update_modalidad_with_duplicate_cue(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
-        
+
         $edificio = Edificio::create([
             'cui' => '1234567',
             'calle' => 'Calle Falsa 123',
@@ -418,7 +419,7 @@ class RefactorIntegrityTest extends TestCase
             'localidad' => 'SAN JUAN',
             'latitud' => -31.5375,
             'longitud' => -68.5364,
-            'zona_departamento' => 'CAPITAL'
+            'zona_departamento' => 'CAPITAL',
         ]);
 
         $est1 = Establecimiento::create([
@@ -426,7 +427,7 @@ class RefactorIntegrityTest extends TestCase
             'cue' => '123456789',
             'cue_edificio_principal' => '123456789',
             'nombre' => 'Escuela de Prueba 1',
-            'establecimiento_cabecera' => '123456789'
+            'establecimiento_cabecera' => '123456789',
         ]);
 
         $est2 = Establecimiento::create([
@@ -434,7 +435,7 @@ class RefactorIntegrityTest extends TestCase
             'cue' => '987654321',
             'cue_edificio_principal' => '987654321',
             'nombre' => 'Escuela de Prueba 2',
-            'establecimiento_cabecera' => '987654321'
+            'establecimiento_cabecera' => '987654321',
         ]);
 
         $mod = Modalidad::create([
@@ -443,7 +444,7 @@ class RefactorIntegrityTest extends TestCase
             'nivel_educativo' => 'PRIMARIA',
             'ambito' => 'URBANO',
             'validado' => false,
-            'estado_validacion' => 'PENDIENTE'
+            'estado_validacion' => 'PENDIENTE',
         ]);
 
         // Attempt to update $mod (representing $est1) to use CUE of $est2 ('987654321')
@@ -456,16 +457,16 @@ class RefactorIntegrityTest extends TestCase
             'ambito' => 'URBANO',
             'validado' => false,
             'radio' => '1',
-            'letra_zona' => 'P'
+            'letra_zona' => 'P',
         ]);
 
         // Assert validation fails and CUE error exists
         $response->assertSessionHasErrors(['cue']);
-        
+
         // Assert database is not modified
         $this->assertDatabaseHas('establecimientos', [
             'id' => $est1->id,
-            'cue' => '123456789'
+            'cue' => '123456789',
         ]);
     }
 
@@ -475,7 +476,7 @@ class RefactorIntegrityTest extends TestCase
     public function test_administrativo_can_filter_modalidades_by_categoria(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
-        
+
         $edificio = Edificio::create([
             'cui' => '1234567',
             'calle' => 'Calle Falsa 123',
@@ -483,7 +484,7 @@ class RefactorIntegrityTest extends TestCase
             'localidad' => 'SAN JUAN',
             'latitud' => -31.5375,
             'longitud' => -68.5364,
-            'zona_departamento' => 'CAPITAL'
+            'zona_departamento' => 'CAPITAL',
         ]);
 
         $est1 = Establecimiento::create([
@@ -491,7 +492,7 @@ class RefactorIntegrityTest extends TestCase
             'cue' => '123456781',
             'cue_edificio_principal' => '123456781',
             'nombre' => 'Escuela de Prueba 1',
-            'establecimiento_cabecera' => '123456781'
+            'establecimiento_cabecera' => '123456781',
         ]);
 
         $est2 = Establecimiento::create([
@@ -499,7 +500,7 @@ class RefactorIntegrityTest extends TestCase
             'cue' => '123456782',
             'cue_edificio_principal' => '123456782',
             'nombre' => 'Escuela de Prueba 2',
-            'establecimiento_cabecera' => '123456782'
+            'establecimiento_cabecera' => '123456782',
         ]);
 
         $mod1 = Modalidad::create([
@@ -509,7 +510,7 @@ class RefactorIntegrityTest extends TestCase
             'ambito' => 'URBANO',
             'categoria' => 'PRIMERA',
             'validado' => false,
-            'estado_validacion' => 'PENDIENTE'
+            'estado_validacion' => 'PENDIENTE',
         ]);
 
         $mod2 = Modalidad::create([
@@ -519,13 +520,13 @@ class RefactorIntegrityTest extends TestCase
             'ambito' => 'URBANO',
             'categoria' => 'SEGUNDA',
             'validado' => false,
-            'estado_validacion' => 'PENDIENTE'
+            'estado_validacion' => 'PENDIENTE',
         ]);
 
         $response = $this->actingAs($user)->get('/administrativos/establecimientos?categoria=PRIMERA');
-        
+
         $response->assertStatus(200);
-        $response->assertInertia(fn (\Inertia\Testing\AssertableInertia $page) => $page
+        $response->assertInertia(fn (AssertableInertia $page) => $page
             ->component('Administrativos/Establecimientos/Index')
             ->has('modalidades.data', 1)
             ->where('modalidades.data.0.id', $mod1->id)
@@ -538,24 +539,24 @@ class RefactorIntegrityTest extends TestCase
     public function test_administrativo_can_update_reporte_status(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
-        
+
         $reporte = Reporte::create([
             'tipo' => 'ERROR_DATOS',
             'descripcion' => 'Descripción de prueba para reporte',
             'email_remitente' => 'test@example.com',
-            'estado' => 'PENDIENTE'
+            'estado' => 'PENDIENTE',
         ]);
 
         $response = $this->actingAs($user)->patch(route('administrativos.reportes.update', $reporte->id), [
-            'estado' => 'PROCESADO'
+            'estado' => 'PROCESADO',
         ]);
 
         $response->assertSessionHasNoErrors();
         $response->assertRedirect();
-        
+
         $this->assertDatabaseHas('reportes', [
             'id' => $reporte->id,
-            'estado' => 'PROCESADO'
+            'estado' => 'PROCESADO',
         ]);
     }
 
@@ -565,21 +566,21 @@ class RefactorIntegrityTest extends TestCase
     public function test_administrativo_can_delete_reporte(): void
     {
         $user = User::factory()->create(['role' => 'administrativos']);
-        
+
         $reporte = Reporte::create([
             'tipo' => 'ERROR_DATOS',
             'descripcion' => 'Descripción de prueba para reporte',
             'email_remitente' => 'test@example.com',
-            'estado' => 'PENDIENTE'
+            'estado' => 'PENDIENTE',
         ]);
 
         $response = $this->actingAs($user)->delete(route('administrativos.reportes.destroy', $reporte->id));
 
         $response->assertSessionHasNoErrors();
         $response->assertRedirect();
-        
+
         $this->assertDatabaseMissing('reportes', [
-            'id' => $reporte->id
+            'id' => $reporte->id,
         ]);
     }
 
@@ -589,17 +590,17 @@ class RefactorIntegrityTest extends TestCase
     public function test_regular_user_cannot_update_or_delete_reporte(): void
     {
         $user = User::factory()->create(['role' => 'user']);
-        
+
         $reporte = Reporte::create([
             'tipo' => 'ERROR_DATOS',
             'descripcion' => 'Descripción de prueba para reporte',
             'email_remitente' => 'test@example.com',
-            'estado' => 'PENDIENTE'
+            'estado' => 'PENDIENTE',
         ]);
 
         // Attempt update
         $response = $this->actingAs($user)->patch(route('administrativos.reportes.update', $reporte->id), [
-            'estado' => 'PROCESADO'
+            'estado' => 'PROCESADO',
         ]);
         $response->assertStatus(403);
 
@@ -608,4 +609,3 @@ class RefactorIntegrityTest extends TestCase
         $response->assertStatus(403);
     }
 }
-

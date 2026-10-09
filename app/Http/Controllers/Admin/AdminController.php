@@ -34,7 +34,7 @@ class AdminController extends Controller
 
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
-            'filters' => $request->only('search')
+            'filters' => $request->only('search'),
         ]);
     }
 
@@ -74,7 +74,7 @@ class AdminController extends Controller
             ->withQueryString();
 
         return Inertia::render('Admin/Logs/Index', [
-            'logs' => $logs
+            'logs' => $logs,
         ]);
     }
 
@@ -83,12 +83,12 @@ class AdminController extends Controller
      */
     public function trash(): Response
     {
-        $modalidades = Modalidad::onlyTrashed()->with(['establecimiento' => fn($q) => $q->withTrashed()])->get();
+        $modalidades = Modalidad::onlyTrashed()->with(['establecimiento' => fn ($q) => $q->withTrashed()])->get();
         $edificios = Edificio::onlyTrashed()->get();
 
         return Inertia::render('Admin/Trash/Index', [
             'modalidades' => $modalidades,
-            'edificios' => $edificios
+            'edificios' => $edificios,
         ]);
     }
 

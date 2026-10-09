@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Reporte;
 use App\Models\Edificio;
+use App\Models\Reporte;
+use Illuminate\Database\Seeder;
 
 class ReporteSeeder extends Seeder
 {

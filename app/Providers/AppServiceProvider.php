@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Edificio;
+use App\Models\Establecimiento;
+use App\Models\Modalidad;
+use App\Observers\MapaCacheObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
@@ -58,8 +62,8 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
 
         // Register Observers for Cache Invalidation
-        \App\Models\Edificio::observe(\App\Observers\MapaCacheObserver::class);
-        \App\Models\Establecimiento::observe(\App\Observers\MapaCacheObserver::class);
-        \App\Models\Modalidad::observe(\App\Observers\MapaCacheObserver::class);
+        Edificio::observe(MapaCacheObserver::class);
+        Establecimiento::observe(MapaCacheObserver::class);
+        Modalidad::observe(MapaCacheObserver::class);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
@@ -46,7 +47,7 @@ class Modalidad extends Model
         return $this->belongsTo(Establecimiento::class);
     }
 
-    public function edificio(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
+    public function edificio(): HasOneThrough
     {
         return $this->hasOneThrough(Edificio::class, Establecimiento::class, 'id', 'id', 'establecimiento_id', 'edificio_id');
     }
@@ -104,7 +105,7 @@ class Modalidad extends Model
     public function cambiarEstado(string $nuevoEstado, ?string $observaciones = null, ?int $userId = null, ?array $camposAuditados = null)
     {
         $estadoAnterior = $this->estado_validacion;
-        
+
         // Actualizar estado
         $this->estado_validacion = $nuevoEstado;
         $this->validado = true; // Asegurar que pase a ser considerado validado
@@ -113,7 +114,7 @@ class Modalidad extends Model
         $this->observaciones = $observaciones; // Persistir observaciones en la modalidad
         $this->campos_auditados = $camposAuditados;
         $this->save();
-        
+
         // Registrar en historial
         $this->historialEstados()->create([
             'user_id' => $userId ?? Auth::id(),
@@ -122,7 +123,7 @@ class Modalidad extends Model
             'observaciones' => $observaciones,
             'campos_auditados' => $camposAuditados,
         ]);
-        
+
         return $this;
     }
 }

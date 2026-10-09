@@ -1,9 +1,10 @@
 <?php
+
 namespace App\Http\Controllers\Publico;
 
 use App\Http\Controllers\Controller;
-use App\Models\Reporte;
 use App\Http\Requests\Publico\StoreReporteRequest;
+use App\Models\Reporte;
 use Illuminate\Http\RedirectResponse;
 
 class ReporteController extends Controller

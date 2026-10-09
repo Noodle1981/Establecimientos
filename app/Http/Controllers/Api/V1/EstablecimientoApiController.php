@@ -13,9 +13,6 @@ class EstablecimientoApiController extends Controller
 {
     /**
      * List establishments with extensive search and filtering capabilities.
-     *
-     * @param  Request  $request
-     * @return AnonymousResourceCollection
      */
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -38,10 +35,10 @@ class EstablecimientoApiController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('nombre', 'like', "%{$search}%")
-                  ->orWhere('cue', 'like', "%{$search}%")
-                  ->orWhereHas('edificio', function ($qEdificio) use ($search) {
-                      $qEdificio->where('cui', 'like', "%{$search}%");
-                  });
+                    ->orWhere('cue', 'like', "%{$search}%")
+                    ->orWhereHas('edificio', function ($qEdificio) use ($search) {
+                        $qEdificio->where('cui', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -107,7 +104,7 @@ class EstablecimientoApiController extends Controller
         // 12. Filtrar solo cabeceras
         if ($request->has('solo_cabeceras') && $request->boolean('solo_cabeceras')) {
             $query->whereColumn('establecimiento_cabecera', 'cue')
-                  ->orWhereNull('establecimiento_cabecera');
+                ->orWhereNull('establecimiento_cabecera');
         }
 
         // Paginación con límite de seguridad (mínimo 1, por defecto 20, máximo 100)
@@ -122,9 +119,6 @@ class EstablecimientoApiController extends Controller
 
     /**
      * Show details for a specific establishment by its CUE (or ID).
-     *
-     * @param  string  $identifier
-     * @return EstablecimientoResource|JsonResponse
      */
     public function show(string $identifier): EstablecimientoResource|JsonResponse
     {

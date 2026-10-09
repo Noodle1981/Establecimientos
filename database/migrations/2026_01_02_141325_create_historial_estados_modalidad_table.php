@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('estado_nuevo');
             $table->text('observaciones')->nullable();
             $table->timestamps();
-            
+
             $table->index(['modalidad_id', 'created_at']);
         });
     }

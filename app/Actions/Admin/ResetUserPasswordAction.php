@@ -24,7 +24,7 @@ class ResetUserPasswordAction
         $tempPass = Str::password(12, letters: true, numbers: true, symbols: false);
 
         $user->update([
-            'password'            => Hash::make($tempPass),
+            'password' => Hash::make($tempPass),
             'password_changed_at' => null, // Fuerza cambio obligatorio en el siguiente login
         ]);
 

@@ -14,18 +14,18 @@ return new class extends Migration
         Schema::table('modalidades', function (Blueprint $table) {
             $table->enum('estado_validacion', [
                 'PENDIENTE',
-                'CORRECTO', 
+                'CORRECTO',
                 'CORREGIDO',
                 'BAJA',
-                'ELIMINADO'
+                'ELIMINADO',
             ])->default('PENDIENTE')->after('validado');
-            
+
             $table->foreignId('validado_por_user_id')
                 ->nullable()
                 ->constrained('users')
                 ->nullOnDelete()
                 ->after('estado_validacion');
-            
+
             $table->timestamp('validado_en')
                 ->nullable()
                 ->after('validado_por_user_id');

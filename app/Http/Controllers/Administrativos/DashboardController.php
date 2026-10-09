@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Administrativos;
 
 use App\Http\Controllers\Controller;
-use App\Models\Modalidad;
 use App\Models\Edificio;
 use App\Models\Establecimiento;
+use App\Models\Modalidad;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -49,7 +49,8 @@ class DashboardController extends Controller
 
     private function getDireccionesArea($ambito)
     {
-        $cacheKey = 'dashboard-direcciones-' . md5($ambito);
+        $cacheKey = 'dashboard-direcciones-'.md5($ambito);
+
         return Cache::remember($cacheKey, 3600, function () use ($ambito) {
             $query = Modalidad::select('direccion_area')->distinct()
                 ->whereNotNull('direccion_area')
@@ -65,15 +66,18 @@ class DashboardController extends Controller
 
     private function getNivelesEducativos($direccion_area, $ambito)
     {
-        if (empty($direccion_area)) return [];
+        if (empty($direccion_area)) {
+            return [];
+        }
 
-        $cacheKey = 'dashboard-niveles-' . md5($direccion_area . '_' . $ambito);
+        $cacheKey = 'dashboard-niveles-'.md5($direccion_area.'_'.$ambito);
+
         return Cache::remember($cacheKey, 3600, function () use ($direccion_area, $ambito) {
             $query = Modalidad::select('nivel_educativo')->distinct()
                 ->where('direccion_area', $direccion_area)
                 ->whereNotNull('nivel_educativo')
                 ->where('nivel_educativo', '!=', '');
-            
+
             if ($ambito !== 'TODOS') {
                 $query->where('ambito', $ambito);
             }
@@ -84,7 +88,7 @@ class DashboardController extends Controller
 
     private function getChartData($filters)
     {
-        $cacheKey = 'dashboard_data_react_' . md5(json_encode($filters));
+        $cacheKey = 'dashboard_data_react_'.md5(json_encode($filters));
 
         return Cache::remember($cacheKey, 300, function () use ($filters) {
             return [
@@ -101,28 +105,45 @@ class DashboardController extends Controller
     private function applyFilters($query, $filters, $context = 'modalidad')
     {
         if ($filters['ambito'] !== 'TODOS') {
-            if ($context === 'modalidad') $query->where('ambito', $filters['ambito']);
-            elseif ($context === 'edificio') $query->whereHas('establecimientos.modalidades', fn($q) => $q->where('ambito', $filters['ambito']));
-            elseif ($context === 'establecimiento') $query->whereHas('modalidades', fn($q) => $q->where('ambito', $filters['ambito']));
-            elseif ($context === 'join_edificio') $query->where('modalidades.ambito', $filters['ambito']);
+            if ($context === 'modalidad') {
+                $query->where('ambito', $filters['ambito']);
+            } elseif ($context === 'edificio') {
+                $query->whereHas('establecimientos.modalidades', fn ($q) => $q->where('ambito', $filters['ambito']));
+            } elseif ($context === 'establecimiento') {
+                $query->whereHas('modalidades', fn ($q) => $q->where('ambito', $filters['ambito']));
+            } elseif ($context === 'join_edificio') {
+                $query->where('modalidades.ambito', $filters['ambito']);
+            }
         }
 
-        if (!empty($filters['departamento'])) {
-            if ($context === 'modalidad') $query->whereHas('establecimiento.edificio', fn($q) => $q->where('zona_departamento', $filters['departamento']));
-            elseif ($context === 'edificio' || $context === 'join_edificio') $query->where('edificios.zona_departamento', $filters['departamento']);
-            elseif ($context === 'establecimiento') $query->whereHas('edificio', fn($q) => $q->where('zona_departamento', $filters['departamento']));
+        if (! empty($filters['departamento'])) {
+            if ($context === 'modalidad') {
+                $query->whereHas('establecimiento.edificio', fn ($q) => $q->where('zona_departamento', $filters['departamento']));
+            } elseif ($context === 'edificio' || $context === 'join_edificio') {
+                $query->where('edificios.zona_departamento', $filters['departamento']);
+            } elseif ($context === 'establecimiento') {
+                $query->whereHas('edificio', fn ($q) => $q->where('zona_departamento', $filters['departamento']));
+            }
         }
 
-        if (!empty($filters['direccion_area'])) {
-            if ($context === 'modalidad' || $context === 'join_edificio') $query->where('direccion_area', $filters['direccion_area']);
-            elseif ($context === 'edificio') $query->whereHas('establecimientos.modalidades', fn($q) => $q->where('direccion_area', $filters['direccion_area']));
-            elseif ($context === 'establecimiento') $query->whereHas('modalidades', fn($q) => $q->where('direccion_area', $filters['direccion_area']));
+        if (! empty($filters['direccion_area'])) {
+            if ($context === 'modalidad' || $context === 'join_edificio') {
+                $query->where('direccion_area', $filters['direccion_area']);
+            } elseif ($context === 'edificio') {
+                $query->whereHas('establecimientos.modalidades', fn ($q) => $q->where('direccion_area', $filters['direccion_area']));
+            } elseif ($context === 'establecimiento') {
+                $query->whereHas('modalidades', fn ($q) => $q->where('direccion_area', $filters['direccion_area']));
+            }
         }
 
-        if (!empty($filters['nivel_educativo'])) {
-            if ($context === 'modalidad' || $context === 'join_edificio') $query->where('nivel_educativo', $filters['nivel_educativo']);
-            elseif ($context === 'edificio') $query->whereHas('establecimientos.modalidades', fn($q) => $q->where('nivel_educativo', $filters['nivel_educativo']));
-            elseif ($context === 'establecimiento') $query->whereHas('modalidades', fn($q) => $q->where('nivel_educativo', $filters['nivel_educativo']));
+        if (! empty($filters['nivel_educativo'])) {
+            if ($context === 'modalidad' || $context === 'join_edificio') {
+                $query->where('nivel_educativo', $filters['nivel_educativo']);
+            } elseif ($context === 'edificio') {
+                $query->whereHas('establecimientos.modalidades', fn ($q) => $q->where('nivel_educativo', $filters['nivel_educativo']));
+            } elseif ($context === 'establecimiento') {
+                $query->whereHas('modalidades', fn ($q) => $q->where('nivel_educativo', $filters['nivel_educativo']));
+            }
         }
 
         return $query;
@@ -152,6 +173,7 @@ class DashboardController extends Controller
         $query = Modalidad::select($column, DB::raw('count(*) as total'))->whereNotNull($column);
         $this->applyFilters($query, $filters, 'modalidad');
         $data = $query->groupBy($column)->orderBy('total', 'desc')->get();
+
         return ['labels' => $data->pluck($column), 'values' => $data->pluck('total')];
     }
 
@@ -160,6 +182,7 @@ class DashboardController extends Controller
         $query = Modalidad::select('categoria', DB::raw('count(*) as total'))->whereNotNull('categoria')->where('categoria', '!=', '');
         $this->applyFilters($query, $filters, 'modalidad');
         $data = $query->groupBy('categoria')->orderBy('total', 'desc')->limit(10)->get();
+
         return ['labels' => $data->pluck('categoria'), 'values' => $data->pluck('total')];
     }
 
@@ -175,6 +198,7 @@ class DashboardController extends Controller
 
         $this->applyFilters($query, $filters, 'join_edificio');
         $data = $query->groupBy('zona_departamento')->orderBy('total', 'desc')->get();
+
         return ['labels' => $data->pluck('zona_departamento'), 'values' => $data->pluck('total')];
     }
 
@@ -183,6 +207,7 @@ class DashboardController extends Controller
         $query = Modalidad::select('radio', DB::raw('count(*) as total'))->whereNotNull('radio')->where('radio', '!=', '');
         $this->applyFilters($query, $filters, 'modalidad');
         $data = $query->groupBy('radio')->orderBy('radio')->get();
+
         return ['labels' => $data->pluck('radio'), 'values' => $data->pluck('total')];
     }
 
@@ -191,6 +216,7 @@ class DashboardController extends Controller
         $query = Modalidad::select('ambito', DB::raw('count(*) as total'))->whereNotNull('ambito');
         $this->applyFilters($query, $filters, 'modalidad');
         $data = $query->groupBy('ambito')->orderBy('total', 'desc')->get();
+
         return ['labels' => $data->pluck('ambito'), 'values' => $data->pluck('total')];
     }
 }

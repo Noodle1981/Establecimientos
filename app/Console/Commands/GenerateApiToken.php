@@ -37,6 +37,7 @@ class GenerateApiToken extends Command
 
         if (! $user) {
             $this->error("❌ No se encontró ningún usuario con el identificador: {$userIdentifier}");
+
             return self::FAILURE;
         }
 
@@ -49,7 +50,7 @@ class GenerateApiToken extends Command
         $this->line("<comment>Consumidor / Nombre:</comment> {$tokenName}");
         $this->line("<comment>Token ID:</comment> {$token->accessToken->id}");
         $this->newLine();
-        $this->line("<fg=yellow;options=bold>Bearer Token (Copiar ahora, no se volverá a mostrar):</>");
+        $this->line('<fg=yellow;options=bold>Bearer Token (Copiar ahora, no se volverá a mostrar):</>');
         $this->line("<fg=green;options=bold>{$token->plainTextToken}</>");
         $this->newLine();
         $this->info('Ejemplo de uso en cURL / Postman:');

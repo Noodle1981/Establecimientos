@@ -11,7 +11,7 @@ class SecurityHeaders
     /**
      * Handle an incoming request and apply essential HTTP security headers.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -32,21 +32,21 @@ class SecurityHeaders
         // Content Security Policy
         if (app()->isProduction()) {
             // Strict policy for production
-            $csp = "default-src 'self'; " .
-                   "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " .
-                   "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com; " .
-                   "font-src 'self' data: https://fonts.bunny.net https://fonts.gstatic.com; " .
-                   "img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://unpkg.com; " .
-                   "connect-src 'self' https://*.tile.openstreetmap.org https://server.arcgisonline.com ws: wss:; " .
+            $csp = "default-src 'self'; ".
+                   "script-src 'self' 'unsafe-inline' 'unsafe-eval'; ".
+                   "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com; ".
+                   "font-src 'self' data: https://fonts.bunny.net https://fonts.gstatic.com; ".
+                   "img-src 'self' data: blob: https://*.tile.openstreetmap.org https://server.arcgisonline.com https://unpkg.com; ".
+                   "connect-src 'self' https://*.tile.openstreetmap.org https://server.arcgisonline.com ws: wss:; ".
                    "frame-ancestors 'self';";
         } else {
             // Development policy: allows Vite HMR, dev servers (127.0.0.1, localhost, IPv6) and tooling
-            $csp = "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval'; " .
-                   "script-src 'self' 'unsafe-inline' 'unsafe-eval' http: https:; " .
-                   "style-src 'self' 'unsafe-inline' http: https:; " .
-                   "font-src 'self' data: http: https:; " .
-                   "img-src 'self' data: blob: http: https:; " .
-                   "connect-src 'self' http: https: ws: wss:; " .
+            $csp = "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval'; ".
+                   "script-src 'self' 'unsafe-inline' 'unsafe-eval' http: https:; ".
+                   "style-src 'self' 'unsafe-inline' http: https:; ".
+                   "font-src 'self' data: http: https:; ".
+                   "img-src 'self' data: blob: http: https:; ".
+                   "connect-src 'self' http: https: ws: wss:; ".
                    "frame-ancestors 'self';";
         }
         $response->headers->set('Content-Security-Policy', $csp);

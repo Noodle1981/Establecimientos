@@ -56,7 +56,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // En reversa no es posible reconstruir los nombres originales exactos del Excel 
+        // En reversa no es posible reconstruir los nombres originales exactos del Excel
         // a menos que se re-ejecute el seeder. Dejamos vacío o restauramos autorreferenciados.
     }
 };

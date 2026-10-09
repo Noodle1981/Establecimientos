@@ -15,8 +15,8 @@ class StoreUserAction
     public function execute(array $data): User
     {
         $user = new User([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
+            'name' => $data['name'],
+            'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
 

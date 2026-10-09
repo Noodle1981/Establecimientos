@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
@@ -44,9 +43,11 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        // Evitar que se borren a sí mismos (aunque sea soft delete si aplica, 
+        // Evitar que se borren a sí mismos (aunque sea soft delete si aplica,
         // pero User usualmente no tiene SoftDeletes por defecto en Laravel base a menos que se agregue)
-        if ($user->id === $model->id) return false;
+        if ($user->id === $model->id) {
+            return false;
+        }
 
         return $user->hasRole(['admin', 'administrativos']);
     }

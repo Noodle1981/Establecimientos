@@ -2,9 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Establecimiento;
-use App\Models\Modalidad;
+use Illuminate\Console\Command;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ImportZonas extends Command
@@ -29,9 +28,10 @@ class ImportZonas extends Command
     public function handle()
     {
         $file = $this->argument('file');
-        
-        if (!file_exists($file)) {
+
+        if (! file_exists($file)) {
             $this->error("El archivo {$file} no existe.");
+
             return 1;
         }
 
@@ -44,7 +44,7 @@ class ImportZonas extends Command
 
             // Asumimos encabezados en la fila 1: [0] => cue, [1] => letra_zona
             // Datos empiezan en fila 2
-            
+
             $countUpdated = 0;
             $countSkipped = 0;
             $countNotFound = 0;
@@ -55,21 +55,22 @@ class ImportZonas extends Command
                 $cue = $row[0] ?? null;
                 $zona = $row[1] ?? null;
 
-                if (!$cue || !$zona) {
+                if (! $cue || ! $zona) {
                     $countSkipped++;
+
                     continue;
                 }
 
                 // Limpiar zona (solo 1 caracter)
                 $zona = strtoupper(substr(trim($zona), 0, 1));
-                
+
                 // Buscar establecimiento por CUE
                 $establecimiento = Establecimiento::where('cue', $cue)->first();
 
                 if ($establecimiento) {
                     // Buscar modalidades asociadas
                     $modalidades = $establecimiento->modalidades;
-                    
+
                     if ($modalidades->isNotEmpty()) {
                         foreach ($modalidades as $modalidad) {
                             $modalidad->zona = $zona;
@@ -86,13 +87,14 @@ class ImportZonas extends Command
                 }
             }
 
-            $this->info("Importación completada.");
+            $this->info('Importación completada.');
             $this->info("Establecimientos actualizados: {$countUpdated}");
             $this->info("CUEs no encontrados: {$countNotFound}");
             $this->info("Filas saltadas (datos incompletos): {$countSkipped}");
 
         } catch (\Exception $e) {
-            $this->error("Error al procesar el archivo: " . $e->getMessage());
+            $this->error('Error al procesar el archivo: '.$e->getMessage());
+
             return 1;
         }
 

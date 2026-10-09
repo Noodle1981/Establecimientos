@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserRole;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,7 +12,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
@@ -54,7 +56,7 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->role === \App\Enums\UserRole::ADMIN->value;
+        return $this->role === UserRole::ADMIN->value;
     }
 
     /**
@@ -62,7 +64,7 @@ class User extends Authenticatable
      */
     public function isAdministrativo(): bool
     {
-        return $this->role === \App\Enums\UserRole::ADMINISTRATIVO->value;
+        return $this->role === UserRole::ADMINISTRATIVO->value;
     }
 
     /**
@@ -70,7 +72,7 @@ class User extends Authenticatable
      */
     public function isAutoridad(): bool
     {
-        return $this->role === \App\Enums\UserRole::AUTORIDAD->value;
+        return $this->role === UserRole::AUTORIDAD->value;
     }
 
     /**
@@ -78,7 +80,7 @@ class User extends Authenticatable
      */
     public function isMid(): bool
     {
-        return $this->role === \App\Enums\UserRole::MID->value;
+        return $this->role === UserRole::MID->value;
     }
 
     /**
@@ -86,15 +88,15 @@ class User extends Authenticatable
      */
     public function isUser(): bool
     {
-        return $this->role === \App\Enums\UserRole::USER->value;
+        return $this->role === UserRole::USER->value;
     }
 
     /**
      * Check if user has any of the given roles.
      */
-    public function hasRole(string|array|\App\Enums\UserRole $roles): bool
+    public function hasRole(string|array|UserRole $roles): bool
     {
-        if ($roles instanceof \App\Enums\UserRole) {
+        if ($roles instanceof UserRole) {
             return $this->role === $roles->value;
         }
 
@@ -102,7 +104,7 @@ class User extends Authenticatable
             return $this->role === $roles;
         }
 
-        $mapped = array_map(fn($r) => $r instanceof \App\Enums\UserRole ? $r->value : $r, $roles);
+        $mapped = array_map(fn ($r) => $r instanceof UserRole ? $r->value : $r, $roles);
 
         return in_array($this->role, $mapped);
     }

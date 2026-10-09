@@ -16,8 +16,8 @@ class ForceDeleteModalidadAction
     {
         DB::transaction(function () use ($id) {
             $mod = Modalidad::withTrashed()->with([
-                'establecimiento' => fn($q) => $q->withTrashed(),
-                'establecimiento.modalidades' => fn($q) => $q->withTrashed()
+                'establecimiento' => fn ($q) => $q->withTrashed(),
+                'establecimiento.modalidades' => fn ($q) => $q->withTrashed(),
             ])->findOrFail($id);
 
             $est = $mod->establecimiento;

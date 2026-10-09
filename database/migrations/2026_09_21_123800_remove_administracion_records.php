@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
-use App\Models\Modalidad;
-use App\Models\Establecimiento;
 use App\Models\Edificio;
+use App\Models\Establecimiento;
+use App\Models\Modalidad;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {

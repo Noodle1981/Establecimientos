@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\User;
 use App\Models\Reporte;
+use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('inertia request to non-existent route renders Error component with 404', function () {

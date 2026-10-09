@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -11,12 +10,12 @@ class RoleUsersSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * 
+     *
      * Este seeder crea usuarios de prueba para cada rol:
      * - admin@example.com (admin)
      * - mid@example.com (mid)
      * - user@example.com (user)
-     * 
+     *
      * Todos con contraseña: password
      */
     public function run(): void

@@ -1,4 +1,5 @@
 <?php
+
 use App\Models\Modalidad;
 use Illuminate\Support\Facades\DB;
 
@@ -7,9 +8,9 @@ $crashStart = '2026-04-07 14:20:00';
 $crashEnd = '2026-04-07 14:35:00';
 
 $mods = Modalidad::where('updated_at', '>=', $crashStart)
-                ->where('updated_at', '<=', $crashEnd)
-                ->where('observaciones', $crashObservation)
-                ->get();
+    ->where('updated_at', '<=', $crashEnd)
+    ->where('observaciones', $crashObservation)
+    ->get();
 
 $restoredCount = 0;
 $skippedCount = 0;
@@ -42,7 +43,7 @@ try {
             $m->validado_en = null;
             $m->validado_por_user_id = null;
         }
-        
+
         $m->save();
 
         // Borrar historiales "envenenados" de hoy
@@ -54,12 +55,12 @@ try {
 
         $restoredCount++;
     }
-    
+
     DB::commit();
     echo "Restauración exitosa.\n";
-    echo "Registros procesados: " . $restoredCount . "\n";
+    echo 'Registros procesados: '.$restoredCount."\n";
 
-} catch (\Exception $e) {
+} catch (Exception $e) {
     DB::rollBack();
-    echo "ERROR en la restauración: " . $e->getMessage() . "\n";
+    echo 'ERROR en la restauración: '.$e->getMessage()."\n";
 }

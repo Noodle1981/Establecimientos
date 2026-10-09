@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -17,7 +17,7 @@ return new class extends Migration
         // PASO 2: Poblar desde datos existentes
         // Para cada edificio, buscar el establecimiento cuyo cue == establecimiento_cabecera
         // y cuyo establecimiento_cabecera apunta a sí mismo (es decir, ES la cabecera)
-        DB::statement("
+        DB::statement('
             UPDATE edificios
             SET cabecera_cue = (
                 SELECT e.cue
@@ -32,11 +32,11 @@ return new class extends Migration
                 WHERE e.edificio_id = edificios.id
                   AND e.deleted_at IS NULL
             )
-        ");
+        ');
 
         // PASO 3: Para edificios que quedaron sin cabecera_cue
         // (ej: todos los establecimientos son anexos), tomar el de menor CUE
-        DB::statement("
+        DB::statement('
             UPDATE edificios
             SET cabecera_cue = (
                 SELECT e.cue
@@ -47,7 +47,7 @@ return new class extends Migration
                 LIMIT 1
             )
             WHERE cabecera_cue IS NULL
-        ");
+        ');
 
         // NOTA: No agregar FK constraint en SQLite porque no lo soporta post-creación.
         // En MySQL/PostgreSQL se puede agregar aquí:

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -15,7 +16,7 @@ class DashboardController extends Controller
      */
     public function index(): Response
     {
-        $stats = \Illuminate\Support\Facades\Cache::remember('admin_dashboard_stats', 300, function () {
+        $stats = Cache::remember('admin_dashboard_stats', 300, function () {
             return [
                 'users_total' => User::count(),
                 'users_admin' => User::where('role', 'admin')->count(),
@@ -25,7 +26,7 @@ class DashboardController extends Controller
             ];
         });
 
-        $recentActivity = \Illuminate\Support\Facades\Cache::remember('admin_dashboard_recent_activity', 60, function () {
+        $recentActivity = Cache::remember('admin_dashboard_recent_activity', 60, function () {
             return ActivityLog::with('user')
                 ->latest()
                 ->take(5)

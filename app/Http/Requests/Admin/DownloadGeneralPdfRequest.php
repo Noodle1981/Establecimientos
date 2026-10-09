@@ -21,7 +21,7 @@ class DownloadGeneralPdfRequest extends FormRequest
     {
         return [
             'date_from' => ['nullable', 'date'],
-            'date_to'   => ['nullable', 'date', 'after_or_equal:date_from'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
         ];
     }
 }

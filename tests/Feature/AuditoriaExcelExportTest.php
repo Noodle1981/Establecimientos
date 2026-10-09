@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Edificio;
 use App\Models\Establecimiento;
 use App\Models\Modalidad;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -14,6 +14,7 @@ class AuditoriaExcelExportTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $mod;
 
     protected function setUp(): void
@@ -29,14 +30,14 @@ class AuditoriaExcelExportTest extends TestCase
             'localidad' => 'CAPITAL',
             'latitud' => -31.53,
             'longitud' => -68.52,
-            'zona_departamento' => 'CAPITAL'
+            'zona_departamento' => 'CAPITAL',
         ]);
 
         $est = Establecimiento::create([
             'edificio_id' => $edificio->id,
             'cue' => 700099999,
             'cue_edificio_principal' => 700099999,
-            'nombre' => 'Escuela de Prueba Excel'
+            'nombre' => 'Escuela de Prueba Excel',
         ]);
 
         $this->mod = Modalidad::create([
@@ -44,7 +45,7 @@ class AuditoriaExcelExportTest extends TestCase
             'estado_validacion' => 'PENDIENTE',
             'direccion_area' => 'PRIMARIA',
             'nivel_educativo' => 'PRIMARIA',
-            'ambito' => 'PUBLICO'
+            'ambito' => 'PUBLICO',
         ]);
     }
 

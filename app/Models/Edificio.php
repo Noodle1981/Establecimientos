@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class Edificio extends Model
 {
     use SoftDeletes;
+
     protected $fillable = [
         'cui',
         'cabecera_cue',
@@ -62,12 +65,12 @@ class Edificio extends Model
     /**
      * Obtener mapa de nombres de edificios indexados por ID.
      */
-    public static function getNamesMap(): \Illuminate\Support\Collection
+    public static function getNamesMap(): Collection
     {
-        return \Illuminate\Support\Facades\Cache::remember('edificios_names_map', 3600, function () {
+        return Cache::remember('edificios_names_map', 3600, function () {
             return self::with('cabecera')
                 ->get()
-                ->mapWithKeys(fn($e) => [
+                ->mapWithKeys(fn ($e) => [
                     $e->id => $e->cabecera?->nombre ?? 'Sin Nombre',
                 ]);
         });

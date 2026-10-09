@@ -1,9 +1,17 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\PDFController;
+use App\Http\Controllers\Administrativos\AuditoriaController;
+use App\Http\Controllers\Administrativos\EdificioController;
+use App\Http\Controllers\Administrativos\ModalidadController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Publico\MapaController;
+use App\Http\Controllers\Publico\ReporteController;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 /**
@@ -11,8 +19,8 @@ use Inertia\Inertia;
  */
 Route::redirect('/', '/mapa')->name('home');
 
-Route::get('/mapa', [App\Http\Controllers\Publico\MapaController::class, 'index'])->name('mapa.publico');
-Route::post('/reportes', [App\Http\Controllers\Publico\ReporteController::class, 'store'])
+Route::get('/mapa', [MapaController::class, 'index'])->name('mapa.publico');
+Route::post('/reportes', [ReporteController::class, 'store'])
     ->middleware('throttle:5,1')
     ->name('publico.reportes.store');
 
@@ -25,20 +33,20 @@ require __DIR__.'/auth.php';
  * Protected Routes (Require Authentication)
  */
 Route::middleware(['auth'])->group(function () {
-    
+
     /**
      * Dashboard - Redirige según rol
      */
     Route::get('/dashboard', function () {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
-        
+
         if ($user?->isAdmin()) {
             return redirect()->route('admin.dashboard');
         } elseif ($user?->isAdministrativo() || $user?->isAutoridad()) {
             return redirect()->route('administrativos.dashboard');
         }
-        
+
         return redirect()->route('mapa.publico');
     })->name('dashboard');
 
@@ -53,7 +61,7 @@ Route::middleware(['auth'])->group(function () {
      * Rutas de Administración (Inertia)
      */
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
-        Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
+        Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
     });
 
     /**
@@ -67,23 +75,22 @@ Route::middleware(['auth'])->group(function () {
      * Rutas Operativas de Gestión Administrativa (Admin y Administrativos)
      */
     Route::middleware(['role:admin,administrativos'])->prefix('administrativos')->group(function () {
-        
+
         // Gestión de Edificios
-        Route::get('/edificios', [App\Http\Controllers\Administrativos\EdificioController::class, 'index'])->name('administrativos.edificios.index');
-        Route::post('/edificios', [App\Http\Controllers\Administrativos\EdificioController::class, 'store'])->name('administrativos.edificios.store');
-        Route::patch('/edificios/{id}', [App\Http\Controllers\Administrativos\EdificioController::class, 'update'])->name('administrativos.edificios.update');
-        Route::delete('/edificios/{id}', [App\Http\Controllers\Administrativos\EdificioController::class, 'destroy'])->name('administrativos.edificios.destroy');
-        Route::get('/edificios/export', [App\Http\Controllers\Administrativos\EdificioController::class, 'export'])->name('administrativos.edificios.export');
+        Route::get('/edificios', [EdificioController::class, 'index'])->name('administrativos.edificios.index');
+        Route::post('/edificios', [EdificioController::class, 'store'])->name('administrativos.edificios.store');
+        Route::patch('/edificios/{id}', [EdificioController::class, 'update'])->name('administrativos.edificios.update');
+        Route::delete('/edificios/{id}', [EdificioController::class, 'destroy'])->name('administrativos.edificios.destroy');
+        Route::get('/edificios/export', [EdificioController::class, 'export'])->name('administrativos.edificios.export');
 
         // Gestión de Establecimientos (Modalidades)
-        Route::get('/establecimientos', [App\Http\Controllers\Administrativos\ModalidadController::class, 'index'])->name('administrativos.establecimientos.index');
-        Route::post('/establecimientos', [App\Http\Controllers\Administrativos\ModalidadController::class, 'store'])->name('administrativos.establecimientos.store');
-        Route::patch('/establecimientos/{id}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'update'])->name('administrativos.establecimientos.update');
-        Route::delete('/establecimientos/{id}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'destroy'])->name('administrativos.establecimientos.destroy');
-        Route::get('/establecimientos/export', [App\Http\Controllers\Administrativos\ModalidadController::class, 'export'])->name('administrativos.establecimientos.export');
-        Route::get('/api/lookup-edificio/{cui}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'lookupEdificio'])->name('api.lookup-edificio');
-        Route::get('/api/lookup-cue/{cue}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'lookupCue'])->name('api.lookup-cue');
-
+        Route::get('/establecimientos', [ModalidadController::class, 'index'])->name('administrativos.establecimientos.index');
+        Route::post('/establecimientos', [ModalidadController::class, 'store'])->name('administrativos.establecimientos.store');
+        Route::patch('/establecimientos/{id}', [ModalidadController::class, 'update'])->name('administrativos.establecimientos.update');
+        Route::delete('/establecimientos/{id}', [ModalidadController::class, 'destroy'])->name('administrativos.establecimientos.destroy');
+        Route::get('/establecimientos/export', [ModalidadController::class, 'export'])->name('administrativos.establecimientos.export');
+        Route::get('/api/lookup-edificio/{cui}', [ModalidadController::class, 'lookupEdificio'])->name('api.lookup-edificio');
+        Route::get('/api/lookup-cue/{cue}', [ModalidadController::class, 'lookupCue'])->name('api.lookup-cue');
 
         // Reportes (Bandeja de Entrada)
         Route::get('/reportes', [App\Http\Controllers\Administrativos\ReporteController::class, 'index'])->name('administrativos.reportes.index');
@@ -96,30 +103,30 @@ Route::middleware(['auth'])->group(function () {
      */
     Route::middleware(['role:admin'])->prefix('administrativos')->group(function () {
         // Instrumentos Legales
-        Route::get('/instrumentos', [App\Http\Controllers\Administrativos\ModalidadController::class, 'instrumentosIndex'])->name('administrativos.instrumentos.index');
-        Route::patch('/instrumentos/{id}', [App\Http\Controllers\Administrativos\ModalidadController::class, 'instrumentosUpdate'])->name('administrativos.instrumentos.update');
+        Route::get('/instrumentos', [ModalidadController::class, 'instrumentosIndex'])->name('administrativos.instrumentos.index');
+        Route::patch('/instrumentos/{id}', [ModalidadController::class, 'instrumentosUpdate'])->name('administrativos.instrumentos.update');
 
         // Auditoría
-        Route::get('/auditoria', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'index'])->name('administrativos.auditoria.index');
-        Route::patch('/auditoria/{id}/estado', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'updateEstado'])->name('administrativos.auditoria.updateEstado');
-        Route::get('/auditoria/{id}/vinculados', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'vinculados'])->name('administrativos.auditoria.vinculados');
-        Route::get('/auditoria/export-pdf', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'exportPdf'])->name('administrativos.auditoria.exportPdf');
-        Route::get('/auditoria/export-excel', [App\Http\Controllers\Administrativos\AuditoriaController::class, 'exportExcel'])->name('administrativos.auditoria.exportExcel');
-        Route::get('/auditoria/{id}/pdf', [App\Http\Controllers\Admin\PDFController::class, 'downloadIndividual'])->name('administrativos.auditoria.pdf.individual');
-        Route::get('/auditoria/pdf/general', [App\Http\Controllers\Admin\PDFController::class, 'downloadGeneral'])->name('administrativos.auditoria.pdf.general');
+        Route::get('/auditoria', [AuditoriaController::class, 'index'])->name('administrativos.auditoria.index');
+        Route::patch('/auditoria/{id}/estado', [AuditoriaController::class, 'updateEstado'])->name('administrativos.auditoria.updateEstado');
+        Route::get('/auditoria/{id}/vinculados', [AuditoriaController::class, 'vinculados'])->name('administrativos.auditoria.vinculados');
+        Route::get('/auditoria/export-pdf', [AuditoriaController::class, 'exportPdf'])->name('administrativos.auditoria.exportPdf');
+        Route::get('/auditoria/export-excel', [AuditoriaController::class, 'exportExcel'])->name('administrativos.auditoria.exportExcel');
+        Route::get('/auditoria/{id}/pdf', [PDFController::class, 'downloadIndividual'])->name('administrativos.auditoria.pdf.individual');
+        Route::get('/auditoria/pdf/general', [PDFController::class, 'downloadGeneral'])->name('administrativos.auditoria.pdf.general');
     });
 
     // --- CONSOLA ADMIN (Solo Administradores) ---
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
-        Route::get('/users', [App\Http\Controllers\Admin\AdminController::class, 'users'])->name('admin.users.index');
-        Route::post('/users', [App\Http\Controllers\Admin\AdminController::class, 'storeUser'])->name('admin.users.store');
-        Route::post('/users/{id}/reset', [App\Http\Controllers\Admin\AdminController::class, 'resetPassword'])->name('admin.users.reset');
-        
-        Route::get('/logs', [App\Http\Controllers\Admin\AdminController::class, 'logs'])->name('admin.logs.index');
-        
-        Route::get('/trash', [App\Http\Controllers\Admin\AdminController::class, 'trash'])->name('admin.trash.index');
-        Route::post('/trash/{type}/{id}/restore', [App\Http\Controllers\Admin\AdminController::class, 'restore'])->name('admin.trash.restore');
-        Route::delete('/trash/modalidad/{id}/force', [App\Http\Controllers\Admin\AdminController::class, 'forceDelete'])->name('admin.trash.forceDelete');
+        Route::get('/users', [AdminController::class, 'users'])->name('admin.users.index');
+        Route::post('/users', [AdminController::class, 'storeUser'])->name('admin.users.store');
+        Route::post('/users/{id}/reset', [AdminController::class, 'resetPassword'])->name('admin.users.reset');
+
+        Route::get('/logs', [AdminController::class, 'logs'])->name('admin.logs.index');
+
+        Route::get('/trash', [AdminController::class, 'trash'])->name('admin.trash.index');
+        Route::post('/trash/{type}/{id}/restore', [AdminController::class, 'restore'])->name('admin.trash.restore');
+        Route::delete('/trash/modalidad/{id}/force', [AdminController::class, 'forceDelete'])->name('admin.trash.forceDelete');
     });
 
     // Redirección de compatibilidad para la antigua ruta de bitácora (Solo Administradores)
@@ -127,6 +134,4 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->route('admin.logs.index');
     })->name('bitacora.index');
 
-
 });
-

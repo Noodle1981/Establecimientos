@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 class AnalyzeNiveles extends Command
 {
     protected $signature = 'analyze:niveles';
+
     protected $description = 'Analyze educational levels and area directions mapping';
 
     public function handle()
@@ -26,9 +27,9 @@ class AnalyzeNiveles extends Command
         $grouped = $results->groupBy('nivel_educativo');
 
         foreach ($grouped as $nivel => $items) {
-            $this->line("<fg=yellow>Nivel: " . ($nivel ?: '(vacío)') . "</>");
+            $this->line('<fg=yellow>Nivel: '.($nivel ?: '(vacío)').'</>');
             foreach ($items as $item) {
-                $this->line("  → " . ($item->direccion_area ?: '(vacío)') . " ({$item->total} registros)");
+                $this->line('  → '.($item->direccion_area ?: '(vacío)')." ({$item->total} registros)");
             }
             $this->newLine();
         }
