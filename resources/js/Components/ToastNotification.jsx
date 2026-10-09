@@ -40,16 +40,16 @@ export default function ToastNotification() {
             <div
                 className={`flex items-center gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-md ${
                     isSuccess
-                        ? 'border-emerald-200 bg-emerald-50/95 text-emerald-900'
-                        : 'border-red-200 bg-red-50/95 text-red-900'
+                        ? 'border-brand-orange/30 bg-white text-black ring-1 ring-brand-orange/20'
+                        : 'border-brand-red/30 bg-white text-black ring-1 ring-brand-red/20'
                 }`}
                 role="alert"
             >
                 <div
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-inner ${
                         isSuccess
-                            ? 'bg-emerald-500 text-white'
-                            : 'bg-red-500 text-white'
+                            ? 'bg-brand-orange text-white'
+                            : 'bg-brand-red text-white'
                     }`}
                 >
                     <i
@@ -60,10 +60,14 @@ export default function ToastNotification() {
                 </div>
 
                 <div className="flex-1 pr-2">
-                    <p className="text-xs font-black uppercase tracking-wider">
+                    <p
+                        className={`text-xs font-black uppercase tracking-wider ${
+                            isSuccess ? 'text-brand-orange' : 'text-brand-red'
+                        }`}
+                    >
                         {isSuccess ? 'Operación Exitosa' : 'Atención'}
                     </p>
-                    <p className="text-sm font-medium leading-snug">
+                    <p className="text-sm font-bold leading-snug text-black">
                         {toast.message}
                     </p>
                 </div>
