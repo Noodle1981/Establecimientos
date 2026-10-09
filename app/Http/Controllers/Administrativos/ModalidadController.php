@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Administrativos;
 
+use App\Actions\Administrativos\DeleteModalidadAction;
 use App\Actions\Administrativos\StoreModalidadAction;
 use App\Actions\Administrativos\UpdateModalidadAction;
 use App\Http\Controllers\Controller;
@@ -18,7 +19,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -138,26 +138,11 @@ class ModalidadController extends Controller
     /**
      * Remove a modality (soft-delete).
      */
-    public function destroy(int $id, ActivityLogService $activityLogger): RedirectResponse
+    public function destroy(int $id, DeleteModalidadAction $action): RedirectResponse
     {
-        DB::transaction(function () use ($id, $activityLogger) {
-            $modalidad = Modalidad::findOrFail($id);
-            $establecimiento = $modalidad->establecimiento;
+        $modalidad = Modalidad::findOrFail($id);
 
-            // 1. Cambiar estado a ELIMINADO para la bitácora
-            $modalidad->cambiarEstado('ELIMINADO', 'Baja por administrativo', auth()->id());
-
-            // 2. Soft-delete de la modalidad
-            $modalidad->delete();
-
-            // 3. Cascada automática si es la última modalidad activa del establecimiento
-            if ($establecimiento && $establecimiento->modalidades()->count() === 0) {
-                $establecimiento->delete();
-                $activityLogger->logDelete($establecimiento, 'Baja atómica de establecimiento por quedarse sin modalidades: CUE '.$establecimiento->cue);
-            } else {
-                $activityLogger->logDelete($modalidad, 'Baja de modalidad individual: CUE '.($establecimiento->cue ?? 'S/D'));
-            }
-        });
+        $action->execute($modalidad);
 
         return back()->with('success', 'Establecimiento/Modalidad enviado a la papelera correctamente.');
     }

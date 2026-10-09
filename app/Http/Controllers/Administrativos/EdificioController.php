@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Administrativos;
 
+use App\Actions\Administrativos\DeleteEdificioAction;
 use App\Actions\Administrativos\StoreEdificioAction;
 use App\Actions\Administrativos\UpdateEdificioAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administrativos\StoreEdificioRequest;
 use App\Http\Requests\Administrativos\UpdateEdificioRequest;
 use App\Models\Edificio;
-use App\Services\ActivityLogService;
 use App\Services\EdificioQueryService;
 use App\Services\ExcelExportService;
 use Illuminate\Http\RedirectResponse;
@@ -76,7 +76,7 @@ class EdificioController extends Controller
     /**
      * Remove the specified building from storage (soft delete).
      */
-    public function destroy(int $id, ActivityLogService $activityLogger): RedirectResponse
+    public function destroy(int $id, DeleteEdificioAction $action): RedirectResponse
     {
         $edificio = Edificio::findOrFail($id);
 
@@ -85,9 +85,7 @@ class EdificioController extends Controller
             return back()->withErrors(['error' => 'No se puede eliminar un edificio que alberga establecimientos activos. Relocalice o elimine las escuelas primero.']);
         }
 
-        $edificio->delete();
-
-        $activityLogger->logDelete($edificio, 'Baja del edificio/inmueble CUI: '.$edificio->cui);
+        $action->execute($edificio);
 
         return back()->with('success', 'Edificio enviado a la papelera correctamente.');
     }

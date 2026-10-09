@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Administrativos;
 
+use App\Actions\Administrativos\UpdateAuditoriaEstadoAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administrativos\UpdateAuditoriaRequest;
 use App\Models\Modalidad;
@@ -12,8 +13,6 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -50,57 +49,19 @@ class AuditoriaController extends Controller
     /**
      * Update validation status for a modality.
      */
-    public function updateEstado(UpdateAuditoriaRequest $request, int $id): RedirectResponse
-    {
+    public function updateEstado(
+        UpdateAuditoriaRequest $request,
+        int $id,
+        UpdateAuditoriaEstadoAction $action
+    ): RedirectResponse {
         try {
-            DB::transaction(function () use ($request, $id) {
-                $modalidad = Modalidad::withTrashed()
-                    ->with(['establecimiento' => function ($q) {
-                        $q->withTrashed();
-                    }])
-                    ->findOrFail($id);
+            $modalidad = Modalidad::withTrashed()
+                ->with(['establecimiento' => function ($q) {
+                    $q->withTrashed();
+                }])
+                ->findOrFail($id);
 
-                // Actualizar la modalidad principal
-                $modalidad->cambiarEstado(
-                    $request->estado,
-                    $request->observaciones,
-                    Auth::id(),
-                    $request->campos_auditados
-                );
-
-                // Propagar al edificio si se solicita de forma consciente
-                if ($request->propagar_al_edificio && $modalidad->establecimiento) {
-                    $camposCompartidos = ['Dirección', 'Edificio', 'CUI', 'GPS', 'RADIO'];
-
-                    // Extraer solo los campos compartidos que se marcaron en esta validación
-                    $auditoriaCompartida = array_intersect($request->campos_auditados ?? [], $camposCompartidos);
-
-                    $vinculados = Modalidad::withTrashed()
-                        ->whereHas('establecimiento', function ($q) use ($modalidad) {
-                            $q->where('edificio_id', $modalidad->establecimiento->edificio_id);
-                        })
-                        ->where('id', '!=', $id)
-                        ->get();
-
-                    foreach ($vinculados as $v) {
-                        /** @var Modalidad $v */
-                        // Para los vinculados, mantenemos sus campos específicos actuales
-                        // y solo actualizamos/sincronizamos los campos de edificio (compartidos)
-                        $camposActuales = $v->campos_auditados ?? [];
-
-                        // Quitamos los compartidos viejos y ponemos los nuevos
-                        $camposLimpios = array_diff($camposActuales, $camposCompartidos);
-                        $nuevosCampos = array_unique(array_merge($camposLimpios, $auditoriaCompartida));
-
-                        $v->cambiarEstado(
-                            $request->estado,
-                            $v->observaciones, // Mantener la observación individual de cada escuela
-                            Auth::id(),
-                            $nuevosCampos
-                        );
-                    }
-                }
-            });
+            $action->execute($modalidad, $request->validated());
 
             return back()->with('success', 'Estado de auditoría actualizado correctamente.');
         } catch (\Throwable $e) {
