@@ -17,10 +17,11 @@ export default function Pagination({ links, preserveScroll = true }) {
                         key={key}
                         href={link.url}
                         preserveScroll={preserveScroll}
+                        prefetch="hover"
                         className={`rounded-lg border px-3 py-1.5 text-[10px] font-black uppercase tracking-tighter transition-colors ${
                             link.active
-                                ? 'border-brand-orange bg-brand-orange text-white'
-                                : 'bg-white text-gray-700 hover:border-brand-orange hover:bg-orange-50'
+                                ? 'border-brand-orange bg-brand-orange text-white shadow-sm'
+                                : 'bg-white text-black hover:border-brand-orange hover:bg-orange-50'
                         }`}
                         dangerouslySetInnerHTML={{ __html: link.label }}
                     />
