@@ -28,7 +28,7 @@ export default function MapaPublico({ edificios = [] }) {
     const [hoveredEdificioId, setHoveredEdificioId] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-    const [showDeptoBorders, setShowDeptoBorders] = useState(true);
+    const [showDeptoBorders, setShowDeptoBorders] = useState(false);
     const [isSatellite, setIsSatellite] = useState(false);
     const [isLoading, setIsLoading] = useState(edificios.length === 0);
 

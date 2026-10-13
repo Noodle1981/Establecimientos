@@ -202,7 +202,7 @@ export default function MapView({
     hoveredEdificioId,
     setHoveredEdificioId,
     sidebarOpen,
-    showDeptoBorders = true,
+    showDeptoBorders = false,
     filterDepto = 'TODOS',
     isSatellite = false,
 }) {

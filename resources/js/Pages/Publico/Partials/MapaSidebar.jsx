@@ -161,7 +161,7 @@ export default function MapaSidebar({
                         </div>
                     </section>
 
-                    {/* Department Borders Toggle */}
+                    {/* Department Borders Toggle — temporalmente oculto hasta tener la delimitación final
                     <section>
                         <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 p-4">
                             <div className="flex items-center gap-3">
@@ -189,6 +189,7 @@ export default function MapaSidebar({
                             </label>
                         </div>
                     </section>
+                    */}
                 </div>
 
                 {/* Footer Actions */}
