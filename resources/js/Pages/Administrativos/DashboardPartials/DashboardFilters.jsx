@@ -84,7 +84,7 @@ export default function DashboardFilters({
                             />
                         </div>
 
-                        {/* Nivel (solo si hay dirección) */}
+                        {/* Nivel / Modalidad */}
                         <div className="space-y-1.5">
                             <FilterSelect
                                 label="Modalidad"
@@ -95,8 +95,11 @@ export default function DashboardFilters({
                                     onFilterChange('nivel_educativo', v)
                                 }
                                 icon="fas fa-graduation-cap"
-                                highlight={!!localFilters.direccion_area}
-                                disabled={!localFilters.direccion_area}
+                                highlight={!!localFilters.nivel_educativo}
+                                disabled={
+                                    !options.niveles_educativos ||
+                                    options.niveles_educativos.length === 0
+                                }
                                 compact={true}
                             />
                         </div>

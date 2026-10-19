@@ -20,19 +20,13 @@ class DashboardMetricsService
         if (empty($ambito)) {
             $ambito = 'TODOS';
         }
-        $direccionArea = isset($filters['direccion_area']) ? (string) $filters['direccion_area'] : null;
+        $departamento = ! empty($filters['departamento']) ? (string) $filters['departamento'] : null;
+        $direccionArea = ! empty($filters['direccion_area']) ? (string) $filters['direccion_area'] : null;
 
         return [
-            'departamentos' => Cache::remember('dashboard-departamentos', 3600, function () {
-                return Edificio::select('zona_departamento')
-                    ->distinct()
-                    ->whereNotNull('zona_departamento')
-                    ->where('zona_departamento', '!=', '')
-                    ->orderBy('zona_departamento')
-                    ->pluck('zona_departamento');
-            }),
-            'direcciones_area' => $this->getDireccionesArea($ambito),
-            'niveles_educativos' => $this->getNivelesEducativos($direccionArea, $ambito),
+            'departamentos' => $this->getDepartamentos($ambito),
+            'direcciones_area' => $this->getDireccionesArea($ambito, $departamento),
+            'niveles_educativos' => $this->getNivelesEducativos($direccionArea, $ambito, $departamento),
         ];
     }
 
@@ -55,12 +49,33 @@ class DashboardMetricsService
         });
     }
 
-    private function getDireccionesArea(?string $ambito = 'TODOS'): Collection
+    private function getDepartamentos(string $ambito): Collection
     {
-        $ambito = (! empty($ambito)) ? $ambito : 'TODOS';
-        $cacheKey = 'dashboard-direcciones-'.md5($ambito);
+        $cacheKey = 'dashboard-departamentos-'.md5($ambito);
 
         return Cache::remember($cacheKey, 3600, function () use ($ambito) {
+            $query = Edificio::select('zona_departamento')
+                ->distinct()
+                ->whereNotNull('zona_departamento')
+                ->where('zona_departamento', '!=', '');
+
+            if ($ambito !== 'TODOS') {
+                $query->whereHas('establecimientos.modalidades', function ($q) use ($ambito) {
+                    $q->whereNull('modalidades.deleted_at')
+                        ->where('ambito', $ambito);
+                });
+            }
+
+            return $query->orderBy('zona_departamento')->pluck('zona_departamento');
+        });
+    }
+
+    private function getDireccionesArea(?string $ambito = 'TODOS', ?string $departamento = null): Collection
+    {
+        $ambito = (! empty($ambito)) ? $ambito : 'TODOS';
+        $cacheKey = 'dashboard-direcciones-'.md5($ambito.'_'.($departamento ?? ''));
+
+        return Cache::remember($cacheKey, 3600, function () use ($ambito, $departamento) {
             $query = Modalidad::select('direccion_area')->distinct()
                 ->whereNotNull('direccion_area')
                 ->where('direccion_area', '!=', '');
@@ -69,27 +84,38 @@ class DashboardMetricsService
                 $query->where('ambito', $ambito);
             }
 
+            if (! empty($departamento)) {
+                $query->whereHas('establecimiento.edificio', function ($q) use ($departamento) {
+                    $q->where('zona_departamento', $departamento);
+                });
+            }
+
             return $query->orderBy('direccion_area')->pluck('direccion_area');
         });
     }
 
-    private function getNivelesEducativos(?string $direccion_area = null, ?string $ambito = 'TODOS'): Collection|array
+    private function getNivelesEducativos(?string $direccion_area = null, ?string $ambito = 'TODOS', ?string $departamento = null): Collection
     {
-        if (empty($direccion_area)) {
-            return [];
-        }
-
         $ambito = (! empty($ambito)) ? $ambito : 'TODOS';
-        $cacheKey = 'dashboard-niveles-'.md5($direccion_area.'_'.$ambito);
+        $cacheKey = 'dashboard-niveles-'.md5(($direccion_area ?? '').'_'.$ambito.'_'.($departamento ?? ''));
 
-        return Cache::remember($cacheKey, 3600, function () use ($direccion_area, $ambito) {
+        return Cache::remember($cacheKey, 3600, function () use ($direccion_area, $ambito, $departamento) {
             $query = Modalidad::select('nivel_educativo')->distinct()
-                ->where('direccion_area', $direccion_area)
                 ->whereNotNull('nivel_educativo')
                 ->where('nivel_educativo', '!=', '');
 
+            if (! empty($direccion_area)) {
+                $query->where('direccion_area', $direccion_area);
+            }
+
             if ($ambito !== 'TODOS') {
                 $query->where('ambito', $ambito);
+            }
+
+            if (! empty($departamento)) {
+                $query->whereHas('establecimiento.edificio', function ($q) use ($departamento) {
+                    $q->where('zona_departamento', $departamento);
+                });
             }
 
             return $query->orderBy('nivel_educativo')->pluck('nivel_educativo');

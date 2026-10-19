@@ -145,8 +145,14 @@ export default function Dashboard({ filters, options, chartData }) {
 
     const handleFilterChange = (key, value) => {
         const nextFilters = { ...localFilters, [key]: value };
-        if (key === 'ambito') nextFilters.direccion_area = '';
-        if (key === 'direccion_area') nextFilters.nivel_educativo = '';
+        if (key === 'ambito') {
+            nextFilters.departamento = '';
+            nextFilters.direccion_area = '';
+            nextFilters.nivel_educativo = '';
+        }
+        if (key === 'direccion_area') {
+            nextFilters.nivel_educativo = '';
+        }
 
         setLocalFilters(nextFilters);
         applyFilters(nextFilters);
