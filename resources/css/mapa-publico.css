@@ -10,6 +10,16 @@
     cursor: grabbing !important;
 }
 
+/* ── Bicolor Marker for Shared / Mixed Schools ──────── */
+.custom-bicolor-marker {
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* ── Scrollbars ─────────────────────────────────────── */
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #FE820430; border-radius: 10px; }
@@ -69,6 +79,11 @@ path.leaflet-interactive:focus {
 }
 .school-card__icon--orange { background: #FFF7ED; color: #FE8204; }
 .school-card__icon--blue   { background: #EFF6FF; color: #3B82F6; }
+.school-card__icon--mixto  { 
+    background: linear-gradient(135deg, #FFF7ED 50%, #EFF6FF 50%); 
+    color: #1F2937;
+    border: 1px solid #E5E7EB;
+}
 
 .school-card__depto {
     font-size: 10px; font-weight: 900;

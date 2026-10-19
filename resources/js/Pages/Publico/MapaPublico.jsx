@@ -126,6 +126,7 @@ export default function MapaPublico({ edificios = [] }) {
             // 1. Filter establishments and modalities in one pass
             const filteredEsts = [];
             let hasPrivate = false;
+            let hasPublic = false;
 
             for (const est of edificio.establecimientos) {
                 const filteredMods = [];
@@ -140,6 +141,9 @@ export default function MapaPublico({ edificios = [] }) {
                         if (m.ambito === 'PRIVADO') {
                             hasPrivate = true;
                         }
+                        if (m.ambito === 'PUBLICO') {
+                            hasPublic = true;
+                        }
                     }
                 }
 
@@ -153,7 +157,12 @@ export default function MapaPublico({ edificios = [] }) {
 
             if (filteredEsts.length === 0) continue;
 
-            const dynamicAmbito = hasPrivate ? 'PRIVADO' : 'PUBLICO';
+            const dynamicAmbito =
+                hasPublic && hasPrivate
+                    ? 'MIXTO'
+                    : hasPrivate
+                      ? 'PRIVADO'
+                      : 'PUBLICO';
 
             // 2. Filter by search query if active
             if (query.length >= 2) {

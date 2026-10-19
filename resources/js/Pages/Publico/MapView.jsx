@@ -10,6 +10,7 @@ import {
     CircleMarker,
     GeoJSON,
     MapContainer,
+    Marker,
     TileLayer,
     useMap,
     useMapEvents,
@@ -111,7 +112,13 @@ const SchoolCard = memo(
                 <div className="school-card__header">
                     <div className="school-card__header-left">
                         <div
-                            className={`school-card__icon ${edificio.ambito === 'PUBLICO' ? 'school-card__icon--orange' : 'school-card__icon--blue'}`}
+                            className={`school-card__icon ${
+                                edificio.ambito === 'MIXTO'
+                                    ? 'school-card__icon--mixto'
+                                    : edificio.ambito === 'PUBLICO'
+                                      ? 'school-card__icon--orange'
+                                      : 'school-card__icon--blue'
+                            }`}
                         >
                             <i className="fas fa-school"></i>
                         </div>
@@ -207,6 +214,39 @@ const SchoolCard = memo(
         prev.edificio?.ambito === next.edificio?.ambito,
 );
 
+// Cached divIcons for MIXTO markers (normal & active) to prevent recreation
+const mixtoNormalIcon = L.divIcon({
+    className: 'custom-bicolor-marker',
+    html: `
+        <svg width="22" height="22" viewBox="0 0 24 24" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25)); transition: transform 0.15s ease;">
+            <!-- Left Half: Public (Orange) -->
+            <path d="M12 2 A10 10 0 0 0 12 22 Z" fill="#FE8204" />
+            <!-- Right Half: Private (Blue) -->
+            <path d="M12 2 A10 10 0 0 1 12 22 Z" fill="#3B82F6" />
+            <!-- White Outer Ring -->
+            <circle cx="12" cy="12" r="10" fill="none" stroke="#FFFFFF" stroke-width="2" />
+        </svg>
+    `,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+});
+
+const mixtoActiveIcon = L.divIcon({
+    className: 'custom-bicolor-marker custom-bicolor-marker--active',
+    html: `
+        <svg width="32" height="32" viewBox="0 0 24 24" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35)); transform: scale(1.15); transition: transform 0.15s ease;">
+            <!-- Left Half: Public (Orange) -->
+            <path d="M12 2 A10 10 0 0 0 12 22 Z" fill="#FE8204" />
+            <!-- Right Half: Private (Blue) -->
+            <path d="M12 2 A10 10 0 0 1 12 22 Z" fill="#3B82F6" />
+            <!-- White Outer Ring Highlighted -->
+            <circle cx="12" cy="12" r="10" fill="none" stroke="#FFFFFF" stroke-width="3" />
+        </svg>
+    `,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+});
+
 // --- School Marker (memoized to isolate re-renders) ---
 const SchoolMarker = memo(
     function SchoolMarker({
@@ -218,6 +258,26 @@ const SchoolMarker = memo(
         onLeave,
     }) {
         const isActive = isHovered || isSelected;
+
+        // If building has BOTH public and private schools, render split bicolor marker
+        if (edificio.ambito === 'MIXTO') {
+            return (
+                <Marker
+                    pane="markerPane"
+                    position={[edificio.latitud, edificio.longitud]}
+                    icon={isActive ? mixtoActiveIcon : mixtoNormalIcon}
+                    eventHandlers={{
+                        click: (e) => {
+                            L.DomEvent.stopPropagation(e);
+                            onClick(edificio);
+                        },
+                        mouseover: () => onHover(edificio.id),
+                        mouseout: onLeave,
+                    }}
+                />
+            );
+        }
+
         return (
             <CircleMarker
                 pane="markerPane"
