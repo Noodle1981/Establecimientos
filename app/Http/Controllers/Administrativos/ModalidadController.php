@@ -19,6 +19,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -52,7 +53,7 @@ class ModalidadController extends Controller
 
         return Inertia::render('Administrativos/Establecimientos/Index', [
             'modalidades' => $modalidades,
-            'filters' => $request->all(),
+            'filters' => $request->only(['search', 'nivel_educativo', 'ambito', 'direccion_area', 'radio', 'sector', 'categoria', 'zona_departamento', 'estado', 'missing']),
             'options' => $options,
             'nombresEdificios' => $this->queryService->getBuildingNamesMap(),
         ]);
@@ -141,6 +142,8 @@ class ModalidadController extends Controller
     public function destroy(int $id, DeleteModalidadAction $action): RedirectResponse
     {
         $modalidad = Modalidad::findOrFail($id);
+
+        Gate::authorize('delete', $modalidad);
 
         $action->execute($modalidad);
 

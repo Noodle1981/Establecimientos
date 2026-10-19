@@ -1,3 +1,4 @@
+import KPICard from '@/Components/KPICard';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import {
@@ -16,9 +17,8 @@ import { Bar, Doughnut } from 'react-chartjs-2';
 import ChartWrapper from './DashboardPartials/ChartWrapper';
 import ChartZoomModal from './DashboardPartials/ChartZoomModal';
 import DashboardFilters from './DashboardPartials/DashboardFilters';
-import KPICard from './DashboardPartials/KPICard';
 
-// Register ChartJS components
+// Register ChartJS components once at module level
 ChartJS.register(
     ArcElement,
     Tooltip,
@@ -29,28 +29,87 @@ ChartJS.register(
     Title,
 );
 
+// Hoisted static color palette (rendering-hoist-jsx)
+const COLORS = {
+    primary: '#FE8204',
+    blue: '#3B82F6',
+    green: '#10B981',
+    multi: [
+        '#FE8204',
+        '#3B82F6',
+        '#10B981',
+        '#F59E0B',
+        '#EF4444',
+        '#8B5CF6',
+        '#EC4899',
+        '#14B8A6',
+    ],
+};
+
+// Hoisted static ChartJS options (rendering-hoist-jsx)
+const DOUGHNUT_NO_LEGEND_OPTIONS = {
+    plugins: { legend: { display: false } },
+    maintainAspectRatio: false,
+};
+
+const CATEGORIAS_BAR_OPTIONS = {
+    indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: {
+        x: { display: false },
+        y: {
+            grid: { display: false },
+            ticks: { font: { size: 9 } },
+        },
+    },
+    maintainAspectRatio: false,
+};
+
+const ZONAS_BAR_OPTIONS = {
+    plugins: { legend: { display: false } },
+    scales: {
+        x: {
+            grid: { display: false },
+            ticks: { font: { size: 9 } },
+        },
+        y: { display: false },
+    },
+    maintainAspectRatio: false,
+};
+
+const AMBITO_DOUGHNUT_OPTIONS = {
+    plugins: {
+        legend: {
+            position: 'bottom',
+            labels: {
+                boxWidth: 8,
+                font: { size: 9 },
+            },
+        },
+    },
+    maintainAspectRatio: false,
+};
+
+const RADIOS_BAR_OPTIONS = {
+    plugins: { legend: { display: false } },
+    scales: {
+        x: {
+            grid: { display: false },
+            ticks: { font: { size: 8 } },
+        },
+        y: {
+            grid: { display: false },
+            ticks: { font: { size: 8 } },
+        },
+    },
+    maintainAspectRatio: false,
+};
+
 export default function Dashboard({ filters, options, chartData }) {
     const [showFilters, setShowFilters] = useState(true);
     const [modalChart, setModalChart] = useState(null);
     const [localFilters, setLocalFilters] = useState(filters);
     const [isUpdating, setIsUpdating] = useState(false);
-
-    // Color Palette
-    const colors = {
-        primary: '#FE8204',
-        blue: '#3B82F6',
-        green: '#10B981',
-        multi: [
-            '#FE8204',
-            '#3B82F6',
-            '#10B981',
-            '#F59E0B',
-            '#EF4444',
-            '#8B5CF6',
-            '#EC4899',
-            '#14B8A6',
-        ],
-    };
 
     // Debounced Filter Update
     const applyFilters = useMemo(
@@ -68,13 +127,88 @@ export default function Dashboard({ filters, options, chartData }) {
 
     const handleFilterChange = (key, value) => {
         const nextFilters = { ...localFilters, [key]: value };
-        // Reset sub-filters if needed
         if (key === 'ambito') nextFilters.direccion_area = '';
         if (key === 'direccion_area') nextFilters.nivel_educativo = '';
 
         setLocalFilters(nextFilters);
         applyFilters(nextFilters);
     };
+
+    // Memoize chart data payloads to prevent canvas re-renders on local state changes
+    const modalidadesData = useMemo(
+        () => ({
+            labels: chartData.modalidades.labels,
+            datasets: [
+                {
+                    data: chartData.modalidades.values,
+                    backgroundColor: COLORS.multi,
+                    borderWidth: 0,
+                    cutout: '75%',
+                },
+            ],
+        }),
+        [chartData.modalidades],
+    );
+
+    const categoriasData = useMemo(
+        () => ({
+            labels: chartData.categorias.labels,
+            datasets: [
+                {
+                    label: 'Total',
+                    data: chartData.categorias.values,
+                    backgroundColor: COLORS.primary,
+                    borderRadius: 4,
+                },
+            ],
+        }),
+        [chartData.categorias],
+    );
+
+    const zonasData = useMemo(
+        () => ({
+            labels: chartData.zonas.labels,
+            datasets: [
+                {
+                    label: 'Cant.',
+                    data: chartData.zonas.values,
+                    backgroundColor: COLORS.blue,
+                    borderRadius: 4,
+                },
+            ],
+        }),
+        [chartData.zonas],
+    );
+
+    const ambitoData = useMemo(
+        () => ({
+            labels: chartData.ambito.labels,
+            datasets: [
+                {
+                    data: chartData.ambito.values,
+                    backgroundColor: [COLORS.primary, COLORS.blue],
+                    borderWidth: 0,
+                    cutout: '75%',
+                },
+            ],
+        }),
+        [chartData.ambito],
+    );
+
+    const radiosData = useMemo(
+        () => ({
+            labels: chartData.radios.labels,
+            datasets: [
+                {
+                    label: 'Modalidades',
+                    data: chartData.radios.values,
+                    backgroundColor: COLORS.multi,
+                    borderRadius: 3,
+                },
+            ],
+        }),
+        [chartData.radios],
+    );
 
     return (
         <>
@@ -133,7 +267,7 @@ export default function Dashboard({ filters, options, chartData }) {
                                     datasets: [
                                         {
                                             data: chartData.modalidades.values,
-                                            backgroundColor: colors.multi,
+                                            backgroundColor: COLORS.multi,
                                             borderWidth: 2,
                                         },
                                     ],
@@ -142,21 +276,8 @@ export default function Dashboard({ filters, options, chartData }) {
                         }
                     >
                         <Doughnut
-                            data={{
-                                labels: chartData.modalidades.labels,
-                                datasets: [
-                                    {
-                                        data: chartData.modalidades.values,
-                                        backgroundColor: colors.multi,
-                                        borderWidth: 0,
-                                        cutout: '75%',
-                                    },
-                                ],
-                            }}
-                            options={{
-                                plugins: { legend: { display: false } },
-                                maintainAspectRatio: false,
-                            }}
+                            data={modalidadesData}
+                            options={DOUGHNUT_NO_LEGEND_OPTIONS}
                         />
                     </ChartWrapper>
 
@@ -173,7 +294,7 @@ export default function Dashboard({ filters, options, chartData }) {
                                         {
                                             label: 'Total de Establecimientos',
                                             data: chartData.categorias.values,
-                                            backgroundColor: colors.primary,
+                                            backgroundColor: COLORS.primary,
                                             borderRadius: 8,
                                         },
                                     ],
@@ -182,29 +303,8 @@ export default function Dashboard({ filters, options, chartData }) {
                         }
                     >
                         <Bar
-                            data={{
-                                labels: chartData.categorias.labels,
-                                datasets: [
-                                    {
-                                        label: 'Total',
-                                        data: chartData.categorias.values,
-                                        backgroundColor: colors.primary,
-                                        borderRadius: 4,
-                                    },
-                                ],
-                            }}
-                            options={{
-                                indexAxis: 'y',
-                                plugins: { legend: { display: false } },
-                                scales: {
-                                    x: { display: false },
-                                    y: {
-                                        grid: { display: false },
-                                        ticks: { font: { size: 9 } },
-                                    },
-                                },
-                                maintainAspectRatio: false,
-                            }}
+                            data={categoriasData}
+                            options={CATEGORIAS_BAR_OPTIONS}
                         />
                     </ChartWrapper>
 
@@ -225,7 +325,7 @@ export default function Dashboard({ filters, options, chartData }) {
                                         {
                                             label: 'Cantidad',
                                             data: chartData.zonas.values,
-                                            backgroundColor: colors.blue,
+                                            backgroundColor: COLORS.blue,
                                             borderRadius: 8,
                                         },
                                     ],
@@ -234,28 +334,8 @@ export default function Dashboard({ filters, options, chartData }) {
                         }
                     >
                         <Bar
-                            data={{
-                                labels: chartData.zonas.labels,
-                                datasets: [
-                                    {
-                                        label: 'Cant.',
-                                        data: chartData.zonas.values,
-                                        backgroundColor: colors.blue,
-                                        borderRadius: 4,
-                                    },
-                                ],
-                            }}
-                            options={{
-                                plugins: { legend: { display: false } },
-                                scales: {
-                                    x: {
-                                        grid: { display: false },
-                                        ticks: { font: { size: 9 } },
-                                    },
-                                    y: { display: false },
-                                },
-                                maintainAspectRatio: false,
-                            }}
+                            data={zonasData}
+                            options={ZONAS_BAR_OPTIONS}
                         />
                     </ChartWrapper>
 
@@ -272,8 +352,8 @@ export default function Dashboard({ filters, options, chartData }) {
                                             {
                                                 data: chartData.ambito.values,
                                                 backgroundColor: [
-                                                    colors.primary,
-                                                    colors.blue,
+                                                    COLORS.primary,
+                                                    COLORS.blue,
                                                 ],
                                                 borderWidth: 2,
                                             },
@@ -283,32 +363,8 @@ export default function Dashboard({ filters, options, chartData }) {
                             }
                         >
                             <Doughnut
-                                data={{
-                                    labels: chartData.ambito.labels,
-                                    datasets: [
-                                        {
-                                            data: chartData.ambito.values,
-                                            backgroundColor: [
-                                                colors.primary,
-                                                colors.blue,
-                                            ],
-                                            borderWidth: 0,
-                                            cutout: '75%',
-                                        },
-                                    ],
-                                }}
-                                options={{
-                                    plugins: {
-                                        legend: {
-                                            position: 'bottom',
-                                            labels: {
-                                                boxWidth: 8,
-                                                font: { size: 9 },
-                                            },
-                                        },
-                                    },
-                                    maintainAspectRatio: false,
-                                }}
+                                data={ambitoData}
+                                options={AMBITO_DOUGHNUT_OPTIONS}
                             />
                         </ChartWrapper>
                     )}
@@ -326,7 +382,7 @@ export default function Dashboard({ filters, options, chartData }) {
                                         {
                                             label: 'Total Modalidades',
                                             data: chartData.radios.values,
-                                            backgroundColor: colors.multi,
+                                            backgroundColor: COLORS.multi,
                                             borderRadius: 5,
                                         },
                                     ],
@@ -335,31 +391,8 @@ export default function Dashboard({ filters, options, chartData }) {
                         }
                     >
                         <Bar
-                            data={{
-                                labels: chartData.radios.labels,
-                                datasets: [
-                                    {
-                                        label: 'Modalidades',
-                                        data: chartData.radios.values,
-                                        backgroundColor: colors.multi,
-                                        borderRadius: 3,
-                                    },
-                                ],
-                            }}
-                            options={{
-                                plugins: { legend: { display: false } },
-                                scales: {
-                                    x: {
-                                        grid: { display: false },
-                                        ticks: { font: { size: 8 } },
-                                    },
-                                    y: {
-                                        grid: { display: false },
-                                        ticks: { font: { size: 8 } },
-                                    },
-                                },
-                                maintainAspectRatio: false,
-                            }}
+                            data={radiosData}
+                            options={RADIOS_BAR_OPTIONS}
                         />
                     </ChartWrapper>
                 </div>

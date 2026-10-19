@@ -193,6 +193,47 @@ const SchoolCard = memo(
     (prev, next) => prev.edificio?.id === next.edificio?.id,
 );
 
+// --- School Marker (memoized to isolate re-renders) ---
+const SchoolMarker = memo(
+    function SchoolMarker({
+        edificio,
+        isHovered,
+        isSelected,
+        onClick,
+        onHover,
+        onLeave,
+    }) {
+        const isActive = isHovered || isSelected;
+        return (
+            <CircleMarker
+                pane="markerPane"
+                center={[edificio.latitud, edificio.longitud]}
+                radius={isActive ? 14 : 9}
+                pathOptions={{
+                    fillColor:
+                        edificio.ambito === 'PUBLICO' ? '#FE8204' : '#3B82F6',
+                    color: 'white',
+                    weight: isActive ? 4 : 2,
+                    fillOpacity: isActive ? 1 : 0.8,
+                }}
+                eventHandlers={{
+                    click: (e) => {
+                        L.DomEvent.stopPropagation(e);
+                        onClick(edificio);
+                    },
+                    mouseover: () => onHover(edificio.id),
+                    mouseout: onLeave,
+                }}
+            />
+        );
+    },
+    (prev, next) =>
+        prev.isHovered === next.isHovered &&
+        prev.isSelected === next.isSelected &&
+        prev.edificio?.id === next.edificio?.id &&
+        prev.edificio?.ambito === next.edificio?.ambito,
+);
+
 // --- Main Export ---
 export default function MapView({
     filteredEdificios,
@@ -207,6 +248,34 @@ export default function MapView({
     isSatellite = false,
 }) {
     const [geojsonData, setGeojsonData] = useState(null);
+
+    // Memoize index Map for O(1) building resolution
+    const edificiosById = useMemo(() => {
+        const map = new Map();
+        for (const e of edificios) {
+            map.set(e.id, e);
+        }
+        return map;
+    }, [edificios]);
+
+    const handleMarkerClick = useCallback(
+        (edificio) => {
+            const fullEdificio = edificiosById.get(edificio.id) || edificio;
+            setSelectedEdificio(fullEdificio);
+        },
+        [edificiosById, setSelectedEdificio],
+    );
+
+    const handleMarkerHover = useCallback(
+        (id) => {
+            setHoveredEdificioId(id);
+        },
+        [setHoveredEdificioId],
+    );
+
+    const handleMarkerLeave = useCallback(() => {
+        setHoveredEdificioId(null);
+    }, [setHoveredEdificioId]);
 
     // Tile layer URLs
     const TILE_STREET = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -292,44 +361,14 @@ export default function MapView({
 
                 {/* School markers */}
                 {filteredEdificios.map((edificio) => (
-                    <CircleMarker
+                    <SchoolMarker
                         key={edificio.id}
-                        pane="markerPane"
-                        center={[edificio.latitud, edificio.longitud]}
-                        radius={
-                            hoveredEdificioId === edificio.id ||
-                            selectedEdificio?.id === edificio.id
-                                ? 14
-                                : 9
-                        }
-                        pathOptions={{
-                            fillColor:
-                                edificio.ambito === 'PUBLICO'
-                                    ? '#FE8204'
-                                    : '#3B82F6',
-                            color: 'white',
-                            weight:
-                                hoveredEdificioId === edificio.id ||
-                                selectedEdificio?.id === edificio.id
-                                    ? 4
-                                    : 2,
-                            fillOpacity:
-                                hoveredEdificioId === edificio.id ||
-                                selectedEdificio?.id === edificio.id
-                                    ? 1
-                                    : 0.8,
-                        }}
-                        eventHandlers={{
-                            click: (e) => {
-                                L.DomEvent.stopPropagation(e);
-                                const fullEdificio = edificios.find(
-                                    (e) => e.id === edificio.id,
-                                );
-                                setSelectedEdificio(fullEdificio || edificio);
-                            },
-                            mouseover: () => setHoveredEdificioId(edificio.id),
-                            mouseout: () => setHoveredEdificioId(null),
-                        }}
+                        edificio={edificio}
+                        isHovered={hoveredEdificioId === edificio.id}
+                        isSelected={selectedEdificio?.id === edificio.id}
+                        onClick={handleMarkerClick}
+                        onHover={handleMarkerHover}
+                        onLeave={handleMarkerLeave}
                     />
                 ))}
             </MapContainer>

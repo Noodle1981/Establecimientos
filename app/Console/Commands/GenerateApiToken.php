@@ -41,7 +41,7 @@ class GenerateApiToken extends Command
             return self::FAILURE;
         }
 
-        $token = $user->createToken($tokenName);
+        $token = $user->createToken($tokenName, ['establecimientos:read']);
 
         $this->info('====================================================================');
         $this->info('🔑 TOKEN DE ACCESO API GENERADO CON ÉXITO');

@@ -89,111 +89,104 @@ export default function MapaPublico({ edificios = [] }) {
         return Array.from(set).sort();
     }, [edificios, activeFilters, filterDepto]);
 
+    // Sets for O(1) membership lookups (js-set-map-lookups)
+    const deptosSet = useMemo(
+        () => new Set(deptosDisponibles),
+        [deptosDisponibles],
+    );
+    const nivelesSet = useMemo(
+        () => new Set(nivelesDisponibles),
+        [nivelesDisponibles],
+    );
+
     // Auto-reset filters if selected option is no longer available
     useEffect(() => {
-        if (
-            filterDepto !== 'TODOS' &&
-            !deptosDisponibles.includes(filterDepto)
-        ) {
+        if (filterDepto !== 'TODOS' && !deptosSet.has(filterDepto)) {
             setFilterDepto('TODOS');
         }
-    }, [deptosDisponibles, filterDepto]);
+    }, [deptosSet, filterDepto]);
 
     useEffect(() => {
-        if (
-            filterNivel !== 'TODOS' &&
-            !nivelesDisponibles.includes(filterNivel)
-        ) {
+        if (filterNivel !== 'TODOS' && !nivelesSet.has(filterNivel)) {
             setFilterNivel('TODOS');
         }
-    }, [nivelesDisponibles, filterNivel]);
+    }, [nivelesSet, filterNivel]);
 
-    // Filter Logic
+    // Filter Logic: Single-pass iteration without redundant intermediate arrays (js-combine-iterations)
     const filteredEdificios = useMemo(() => {
         const query = searchQuery.trim().toLowerCase();
+        const results = [];
 
-        return edificios
-            .map((edificio) => {
-                // 1. Filter establishments and their modalities by Scope and Nivel
-                const filteredEsts = edificio.establecimientos
-                    .map((est) => {
-                        const filteredMods = est.modalidades.filter((m) => {
-                            const matchesScope =
-                                (m.ambito === 'PUBLICO' &&
-                                    activeFilters.publico) ||
-                                (m.ambito === 'PRIVADO' &&
-                                    activeFilters.privado);
-                            const matchesNivel =
-                                filterNivel === 'TODOS' ||
-                                m.nivel === filterNivel;
-                            return matchesScope && matchesNivel;
-                        });
+        for (const edificio of edificios) {
+            // Check department match early if not in search mode (js-early-exit)
+            if (query.length < 2 && filterDepto !== 'TODOS' && edificio.zona_departamento !== filterDepto) {
+                continue;
+            }
 
-                        if (filteredMods.length === 0) return null;
+            // 1. Filter establishments and modalities in one pass
+            const filteredEsts = [];
+            let hasPrivate = false;
 
-                        return {
-                            ...est,
-                            modalidades: filteredMods,
-                        };
-                    })
-                    .filter(Boolean);
-
-                if (filteredEsts.length === 0) return null;
-
-                // 2. Determine dynamic building scope (ambito) based on filtered establishments
-                const hasPrivate = filteredEsts.some((est) =>
-                    est.modalidades.some((m) => m.ambito === 'PRIVADO'),
-                );
-                const dynamicAmbito = hasPrivate ? 'PRIVADO' : 'PUBLICO';
-
-                // 3. Filter by search query if active (search query length >= 2)
-                if (query.length >= 2) {
-                    const matchesBuilding =
-                        (edificio.cui?.toString().toLowerCase() || '').includes(
-                            query,
-                        ) ||
-                        (
-                            edificio.localidad?.toString().toLowerCase() || ''
-                        ).includes(query) ||
-                        (
-                            edificio.calle?.toString().toLowerCase() || ''
-                        ).includes(query);
-
-                    const finalEsts = filteredEsts.filter((est) => {
-                        if (matchesBuilding) return true;
-
-                        const matchesEst =
-                            (
-                                est.nombre?.toString().toLowerCase() || ''
-                            ).includes(query) ||
-                            (est.cue?.toString().toLowerCase() || '').includes(
-                                query,
-                            );
-                        return matchesEst;
-                    });
-
-                    if (finalEsts.length === 0) return null;
-
-                    return {
-                        ...edificio,
-                        ambito: dynamicAmbito,
-                        establecimientos: finalEsts,
-                    };
+            for (const est of edificio.establecimientos) {
+                const filteredMods = [];
+                for (const m of est.modalidades) {
+                    const matchesScope =
+                        (m.ambito === 'PUBLICO' && activeFilters.publico) ||
+                        (m.ambito === 'PRIVADO' && activeFilters.privado);
+                    const matchesNivel =
+                        filterNivel === 'TODOS' || m.nivel === filterNivel;
+                    if (matchesScope && matchesNivel) {
+                        filteredMods.push(m);
+                        if (m.ambito === 'PRIVADO') {
+                            hasPrivate = true;
+                        }
+                    }
                 }
 
-                // 4. Filter by department if not searching
-                const matchesDepto =
-                    filterDepto === 'TODOS' ||
-                    edificio.zona_departamento === filterDepto;
-                if (!matchesDepto) return null;
+                if (filteredMods.length > 0) {
+                    filteredEsts.push({
+                        ...est,
+                        modalidades: filteredMods,
+                    });
+                }
+            }
 
-                return {
+            if (filteredEsts.length === 0) continue;
+
+            const dynamicAmbito = hasPrivate ? 'PRIVADO' : 'PUBLICO';
+
+            // 2. Filter by search query if active
+            if (query.length >= 2) {
+                const matchesBuilding =
+                    (edificio.cui?.toString().toLowerCase() || '').includes(query) ||
+                    (edificio.localidad?.toString().toLowerCase() || '').includes(query) ||
+                    (edificio.calle?.toString().toLowerCase() || '').includes(query);
+
+                const finalEsts = filteredEsts.filter((est) => {
+                    if (matchesBuilding) return true;
+                    return (
+                        (est.nombre?.toString().toLowerCase() || '').includes(query) ||
+                        (est.cue?.toString().toLowerCase() || '').includes(query)
+                    );
+                });
+
+                if (finalEsts.length === 0) continue;
+
+                results.push({
+                    ...edificio,
+                    ambito: dynamicAmbito,
+                    establecimientos: finalEsts,
+                });
+            } else {
+                results.push({
                     ...edificio,
                     ambito: dynamicAmbito,
                     establecimientos: filteredEsts,
-                };
-            })
-            .filter(Boolean);
+                });
+            }
+        }
+
+        return results;
     }, [edificios, searchQuery, activeFilters, filterNivel, filterDepto]);
 
     // Statistics for the sidebar

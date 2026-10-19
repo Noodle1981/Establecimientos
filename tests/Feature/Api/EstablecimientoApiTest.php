@@ -59,7 +59,7 @@ test('establecimientos index endpoint requires authentication', function () {
 });
 
 test('authenticated client can list establecimientos with pagination and expected structure', function () {
-    Sanctum::actingAs($this->user);
+    Sanctum::actingAs($this->user, ['establecimientos:read']);
 
     $response = $this->getJson('/api/v1/establecimientos');
 
@@ -105,7 +105,7 @@ test('authenticated client can list establecimientos with pagination and expecte
 });
 
 test('can filter establecimientos by departamento', function () {
-    Sanctum::actingAs($this->user);
+    Sanctum::actingAs($this->user, ['establecimientos:read']);
 
     $response = $this->getJson('/api/v1/establecimientos?departamento=Capital');
 
@@ -117,7 +117,7 @@ test('can filter establecimientos by departamento', function () {
 });
 
 test('can filter establecimientos by cue', function () {
-    Sanctum::actingAs($this->user);
+    Sanctum::actingAs($this->user, ['establecimientos:read']);
 
     $response = $this->getJson('/api/v1/establecimientos?cue=700045600');
 
@@ -129,7 +129,7 @@ test('can filter establecimientos by cue', function () {
 });
 
 test('can filter establecimientos by nivel educativo', function () {
-    Sanctum::actingAs($this->user);
+    Sanctum::actingAs($this->user, ['establecimientos:read']);
 
     $response = $this->getJson('/api/v1/establecimientos?nivel=PRIMARIO');
 
@@ -141,7 +141,7 @@ test('can filter establecimientos by nivel educativo', function () {
 });
 
 test('can filter establecimientos by ambito', function () {
-    Sanctum::actingAs($this->user);
+    Sanctum::actingAs($this->user, ['establecimientos:read']);
 
     $response = $this->getJson('/api/v1/establecimientos?ambito=PUBLICO');
 
@@ -153,7 +153,7 @@ test('can filter establecimientos by ambito', function () {
 });
 
 test('can retrieve single establecimiento by cue', function () {
-    Sanctum::actingAs($this->user);
+    Sanctum::actingAs($this->user, ['establecimientos:read']);
 
     $response = $this->getJson('/api/v1/establecimientos/700045600');
 
@@ -174,9 +174,31 @@ test('can retrieve single establecimiento by cue', function () {
 });
 
 test('returns 404 when establecimiento cue does not exist', function () {
-    Sanctum::actingAs($this->user);
+    Sanctum::actingAs($this->user, ['establecimientos:read']);
 
     $response = $this->getJson('/api/v1/establecimientos/99999999999');
 
     $response->assertNotFound();
+});
+
+test('sanctum token without establecimientos:read ability is forbidden', function () {
+    Sanctum::actingAs($this->user, ['other:ability']);
+
+    $response = $this->getJson('/api/v1/establecimientos');
+
+    $response->assertForbidden();
+});
+
+test('solo_cabeceras filter maintains boolean precedence with other filters', function () {
+    Sanctum::actingAs($this->user, ['establecimientos:read']);
+
+    // Matching department and solo_cabeceras
+    $response = $this->getJson('/api/v1/establecimientos?departamento=Capital&solo_cabeceras=1');
+    $response->assertOk();
+    expect($response->json('data'))->toHaveCount(1);
+
+    // Non-matching department with solo_cabeceras should return empty (not all cabeceras)
+    $responseNonMatching = $this->getJson('/api/v1/establecimientos?departamento=Jachal&solo_cabeceras=1');
+    $responseNonMatching->assertOk();
+    expect($responseNonMatching->json('data'))->toHaveCount(0);
 });

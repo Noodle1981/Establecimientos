@@ -25,8 +25,8 @@ Route::prefix('v1')->group(function () {
         ]);
     });
 
-    // Rutas protegidas bajo Bearer Token (Sanctum) con Rate Limiting (60 peticiones/min)
-    Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
+    // Rutas protegidas bajo Bearer Token (Sanctum) con Rate Limiting (60 peticiones/min) y scopes de habilidad
+    Route::middleware(['auth:sanctum', 'throttle:60,1', 'abilities:establecimientos:read'])->group(function () {
         Route::get('/establecimientos', [EstablecimientoApiController::class, 'index'])
             ->name('api.v1.establecimientos.index');
 

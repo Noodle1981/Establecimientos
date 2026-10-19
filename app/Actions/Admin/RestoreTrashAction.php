@@ -10,6 +10,8 @@ class RestoreTrashAction
 {
     public function execute(string $type, int|string $id): void
     {
+        abort_unless(in_array($type, ['modalidad', 'edificio'], true), 400, 'Tipo de registro inválido.');
+
         DB::transaction(function () use ($type, $id) {
             $model = $type === 'modalidad' ? Modalidad::onlyTrashed() : Edificio::onlyTrashed();
             $record = $model->findOrFail($id);

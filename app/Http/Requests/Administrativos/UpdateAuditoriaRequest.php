@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Administrativos;
 
+use App\Enums\EstadoValidacion;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateAuditoriaRequest extends FormRequest
 {
@@ -11,7 +13,7 @@ class UpdateAuditoriaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->isAdministrativo() || $this->user()->isAdmin();
+        return $this->user()?->isAdmin() ?? false;
     }
 
     /**
@@ -20,7 +22,7 @@ class UpdateAuditoriaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'estado' => 'required|in:PENDIENTE,CORRECTO,CORREGIDO,REVISAR,BAJA',
+            'estado' => ['required', Rule::in(EstadoValidacion::values())],
             'observaciones' => 'nullable|string',
             'campos_auditados' => 'nullable|array',
             'campos_auditados.*' => 'string|in:Nombre,Dirección,Edificio,CUI,CUE,GPS,RADIO,SECTOR,MODALIDAD,CATEGORÍA',

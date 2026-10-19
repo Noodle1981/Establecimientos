@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Reporte extends Model
 {
@@ -18,7 +19,7 @@ class Reporte extends Model
     /**
      * Get the edificio associated with the report.
      */
-    public function edificio()
+    public function edificio(): BelongsTo
     {
         return $this->belongsTo(Edificio::class);
     }

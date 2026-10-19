@@ -1,6 +1,6 @@
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
-import DetailItem from './DetailItem';
+import DetailItem from '@/Components/DetailItem';
 
 export default function ViewEdificioModal({ show, onClose, edificio }) {
     if (!edificio) return null;
@@ -32,21 +32,25 @@ export default function ViewEdificioModal({ show, onClose, edificio }) {
 
                 <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
                     <DetailItem
+                        variant="inline"
                         icon="fas fa-map-marker-alt"
                         label="Ubicación"
                         value={`${edificio.calle} ${edificio.numero_puerta || 'S/N'}`}
                     />
                     <DetailItem
+                        variant="inline"
                         icon="fas fa-city"
                         label="Localidad / Depto"
                         value={`${edificio.localidad} - ${edificio.zona_departamento}`}
                     />
                     <DetailItem
+                        variant="inline"
                         icon="fas fa-mail-bulk"
                         label="Código Postal"
                         value={edificio.codigo_postal || 'N/A'}
                     />
                     <DetailItem
+                        variant="inline"
                         icon="fas fa-compass"
                         label="Coordenadas"
                         value={`${edificio.latitud || '?'}, ${edificio.longitud || '?'}`}

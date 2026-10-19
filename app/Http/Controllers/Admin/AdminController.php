@@ -14,6 +14,7 @@ use App\Models\Modalidad;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -97,6 +98,11 @@ class AdminController extends Controller
      */
     public function restore(string $type, int|string $id, RestoreTrashAction $action): RedirectResponse
     {
+        if ($type === 'modalidad') {
+            $modalidad = Modalidad::onlyTrashed()->findOrFail($id);
+            Gate::authorize('restore', $modalidad);
+        }
+
         $action->execute($type, $id);
 
         return back()->with('success', 'Registro recuperado.');
@@ -107,6 +113,9 @@ class AdminController extends Controller
      */
     public function forceDelete(int|string $id, ForceDeleteModalidadAction $action): RedirectResponse
     {
+        $modalidad = Modalidad::withTrashed()->findOrFail($id);
+        Gate::authorize('forceDelete', $modalidad);
+
         $action->execute($id);
 
         return back()->with('success', 'Establecimiento y datos asociados eliminados permanentemente.');

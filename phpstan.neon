@@ -1,0 +1,16 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/
+
+    level: 2
+
+    treatPhpDocTypesAsCertain: false
+
+    ignoreErrors:
+        - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::#'
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\BelongsTo::withTrashed\(\)#'
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\BelongsTo::onlyTrashed\(\)#'
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Model::modalidades\(\)#'

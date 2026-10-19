@@ -2,9 +2,13 @@
 
 namespace App\Http\Resources\Api\V1;
 
+use App\Models\Establecimiento;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin Establecimiento
+ */
 class EstablecimientoResource extends JsonResource
 {
     /**

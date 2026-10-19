@@ -39,7 +39,7 @@ class AuditoriaController extends Controller
 
         return Inertia::render('Administrativos/Auditoria/Index', [
             'modalidades' => $modalidades,
-            'filters' => $request->all(),
+            'filters' => $request->only(['search', 'cui', 'departamento', 'nivel', 'ambito', 'estado']),
             'nombresEdificios' => $this->queryService->getBuildingNamesMap(),
             'stats' => $this->queryService->getStats($request),
             'options' => $this->queryService->getFilterOptions($request),

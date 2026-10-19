@@ -103,8 +103,10 @@ class EstablecimientoApiController extends Controller
 
         // 12. Filtrar solo cabeceras
         if ($request->has('solo_cabeceras') && $request->boolean('solo_cabeceras')) {
-            $query->whereColumn('establecimiento_cabecera', 'cue')
-                ->orWhereNull('establecimiento_cabecera');
+            $query->where(function ($q) {
+                $q->whereColumn('establecimiento_cabecera', 'cue')
+                    ->orWhereNull('establecimiento_cabecera');
+            });
         }
 
         // Paginación con límite de seguridad (mínimo 1, por defecto 20, máximo 100)

@@ -7,13 +7,33 @@ use Illuminate\Support\Facades\Cache;
 class MapaCacheObserver
 {
     /**
-     * Clear the public map cache whenever data changes.
+     * Claves estáticas y directas de caché que deben limpiarse cuando
+     * cambia la estructura de edificios, establecimientos o modalidades.
+     *
+     * Se evita deliberadamente usar Cache::flush() para preservar
+     * contadores de rate limiting, sesiones y cachés independientes del sistema.
+     */
+    protected array $targetedCacheKeys = [
+        'public-mapa-edificios-react',
+        'edificios_names_map',
+        'edificios_options_react',
+        'modalidades_options_react_v2',
+        'dashboard-departamentos',
+        'admin_dashboard_stats',
+        'admin_dashboard_recent_activity',
+    ];
+
+    /**
+     * Clear targeted application caches without flushing the whole store.
      */
     private function clearCache(): void
     {
-        // Limpiamos todo el caché para asegurar consistencia instantánea
-        // de estadísticas, dashboards y mapas ante cualquier cambio.
-        Cache::flush();
+        foreach ($this->targetedCacheKeys as $key) {
+            Cache::forget($key);
+        }
+
+        // Si el driver soporta tags, se pueden etiquetar; si no, borramos selectivamente
+        // las llaves conocidas y permitimos que las claves dinámicas con TTL de 300s expiren de forma natural.
     }
 
     public function saved(): void

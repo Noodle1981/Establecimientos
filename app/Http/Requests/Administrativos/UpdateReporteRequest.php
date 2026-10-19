@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Administrativos;
 
+use App\Enums\EstadoReporte;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateReporteRequest extends FormRequest
 {
@@ -20,7 +22,7 @@ class UpdateReporteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'estado' => 'required|in:PENDIENTE,PROCESADO,DESCARTADO',
+            'estado' => ['required', Rule::in(EstadoReporte::values())],
         ];
     }
 }

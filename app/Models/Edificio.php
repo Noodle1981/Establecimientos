@@ -67,11 +67,11 @@ class Edificio extends Model
      */
     public static function getNamesMap(): Collection
     {
-        return Cache::remember('edificios_names_map', 3600, function () {
+        return Cache::remember('edificios_names_map', 3600, function (): Collection {
             return self::with('cabecera')
                 ->get()
-                ->mapWithKeys(fn ($e) => [
-                    $e->id => $e->cabecera?->nombre ?? 'Sin Nombre',
+                ->mapWithKeys(fn (self $e) => [
+                    $e->id => $e->cabecera instanceof Establecimiento ? $e->cabecera->nombre : 'Sin Nombre',
                 ]);
         });
     }
