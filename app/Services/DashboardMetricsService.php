@@ -182,7 +182,12 @@ class DashboardMetricsService
 
     private function getZonasData(array $filters): array
     {
-        $query = Edificio::select('zona_departamento', DB::raw('count(DISTINCT establecimientos.id) as total'))
+        $query = Edificio::select(
+            'zona_departamento',
+            DB::raw("count(DISTINCT CASE WHEN modalidades.ambito = 'PUBLICO' THEN establecimientos.id END) as publicos"),
+            DB::raw("count(DISTINCT CASE WHEN modalidades.ambito = 'PRIVADO' THEN establecimientos.id END) as privados"),
+            DB::raw('count(DISTINCT establecimientos.id) as total')
+        )
             ->join('establecimientos', 'edificios.id', '=', 'establecimientos.edificio_id')
             ->join('modalidades', 'establecimientos.id', '=', 'modalidades.establecimiento_id')
             ->whereNull('modalidades.deleted_at')
@@ -193,7 +198,12 @@ class DashboardMetricsService
         $this->applyFilters($query, $filters, 'join_edificio');
         $data = $query->groupBy('zona_departamento')->orderBy('total', 'desc')->get();
 
-        return ['labels' => $data->pluck('zona_departamento'), 'values' => $data->pluck('total')];
+        return [
+            'labels' => $data->pluck('zona_departamento'),
+            'values' => $data->pluck('total'),
+            'publicos' => $data->pluck('publicos'),
+            'privados' => $data->pluck('privados'),
+        ];
     }
 
     private function getRadiosData(array $filters): array

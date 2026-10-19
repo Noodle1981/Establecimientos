@@ -66,7 +66,21 @@ const CATEGORIAS_BAR_OPTIONS = {
 };
 
 const ZONAS_BAR_OPTIONS = {
-    plugins: { legend: { display: false } },
+    plugins: {
+        legend: {
+            display: true,
+            position: 'top',
+            align: 'end',
+            labels: {
+                boxWidth: 8,
+                boxHeight: 8,
+                usePointStyle: true,
+                pointStyle: 'circle',
+                font: { size: 10, weight: 'bold' },
+                padding: 12,
+            },
+        },
+    },
     scales: {
         x: {
             grid: { display: false },
@@ -169,20 +183,61 @@ export default function Dashboard({ filters, options, chartData }) {
         [chartData.categorias],
     );
 
-    const zonasData = useMemo(
-        () => ({
-            labels: chartData.zonas.labels,
+    const zonasData = useMemo(() => {
+        const labels = chartData.zonas.labels;
+
+        if (localFilters.ambito === 'PUBLICO') {
+            return {
+                labels,
+                datasets: [
+                    {
+                        label: 'Público',
+                        data: chartData.zonas.publicos || chartData.zonas.values,
+                        backgroundColor: COLORS.primary,
+                        borderRadius: 4,
+                        barPercentage: 0.6,
+                    },
+                ],
+            };
+        }
+
+        if (localFilters.ambito === 'PRIVADO') {
+            return {
+                labels,
+                datasets: [
+                    {
+                        label: 'Privado',
+                        data: chartData.zonas.privados || chartData.zonas.values,
+                        backgroundColor: COLORS.blue,
+                        borderRadius: 4,
+                        barPercentage: 0.6,
+                    },
+                ],
+            };
+        }
+
+        return {
+            labels,
             datasets: [
                 {
-                    label: 'Cant.',
-                    data: chartData.zonas.values,
+                    label: 'Público',
+                    data: chartData.zonas.publicos || [],
+                    backgroundColor: COLORS.primary,
+                    borderRadius: 4,
+                    barPercentage: 0.8,
+                    categoryPercentage: 0.7,
+                },
+                {
+                    label: 'Privado',
+                    data: chartData.zonas.privados || [],
                     backgroundColor: COLORS.blue,
                     borderRadius: 4,
+                    barPercentage: 0.8,
+                    categoryPercentage: 0.7,
                 },
             ],
-        }),
-        [chartData.zonas],
-    );
+        };
+    }, [chartData.zonas, localFilters.ambito]);
 
     const ambitoData = useMemo(
         () => ({
@@ -378,19 +433,9 @@ export default function Dashboard({ filters, options, chartData }) {
                         className="lg:col-span-4"
                         onZoom={() =>
                             setModalChart({
-                                title: 'Estadísticas por Zona / Departamento',
+                                title: 'Estadísticas por Zona / Departamento (Público vs Privado)',
                                 type: 'bar',
-                                data: {
-                                    labels: chartData.zonas.labels,
-                                    datasets: [
-                                        {
-                                            label: 'Cantidad',
-                                            data: chartData.zonas.values,
-                                            backgroundColor: COLORS.blue,
-                                            borderRadius: 8,
-                                        },
-                                    ],
-                                },
+                                data: zonasData,
                             })
                         }
                     >
