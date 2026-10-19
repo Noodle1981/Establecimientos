@@ -164,33 +164,47 @@ const SchoolCard = memo(
 
                 {/* Body */}
                 <div className="school-card__body custom-scrollbar">
-                    {edificio.establecimientos.map((est, i) => (
-                        <div key={i} className="school-card__est">
-                            <p className="school-card__est-name">
-                                {est.nombre}
-                            </p>
-                            <div className="school-card__modalidades">
-                                {est.modalidades?.map((mod, j) => (
-                                    <div
-                                        key={j}
-                                        className="school-card__modalidad"
+                    {edificio.establecimientos.map((est, i) => {
+                        const isPrivado = est.modalidades?.some(
+                            (m) => m.ambito === 'PRIVADO',
+                        );
+
+                        return (
+                            <div key={i} className="school-card__est">
+                                <div className="mb-1 flex items-start justify-between gap-2">
+                                    <p className="school-card__est-name">
+                                        {est.nombre}
+                                    </p>
+                                    <span
+                                        className={`school-card__tag ${isPrivado ? 'school-card__tag--privado' : 'school-card__tag--publico'}`}
                                     >
-                                        <span className="school-card__tag school-card__tag--nivel">
-                                            {mod.nivel}
-                                        </span>
-                                        <span className="school-card__tag school-card__tag--area">
-                                            {mod.area}
-                                        </span>
-                                    </div>
-                                ))}
+                                        {isPrivado ? 'Privado' : 'Público'}
+                                    </span>
+                                </div>
+                                <div className="school-card__modalidades">
+                                    {est.modalidades?.map((mod, j) => (
+                                        <div
+                                            key={j}
+                                            className="school-card__modalidad"
+                                        >
+                                            <span className="school-card__tag school-card__tag--nivel">
+                                                {mod.nivel}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         );
     },
-    (prev, next) => prev.edificio?.id === next.edificio?.id,
+    (prev, next) =>
+        prev.edificio?.id === next.edificio?.id &&
+        prev.edificio?.establecimientos?.length ===
+            next.edificio?.establecimientos?.length &&
+        prev.edificio?.ambito === next.edificio?.ambito,
 );
 
 // --- School Marker (memoized to isolate re-renders) ---
@@ -249,14 +263,14 @@ export default function MapView({
 }) {
     const [geojsonData, setGeojsonData] = useState(null);
 
-    // Memoize index Map for O(1) building resolution
+    // Memoize index Map from filteredEdificios for O(1) building resolution with applied filters
     const edificiosById = useMemo(() => {
         const map = new Map();
-        for (const e of edificios) {
+        for (const e of filteredEdificios) {
             map.set(e.id, e);
         }
         return map;
-    }, [edificios]);
+    }, [filteredEdificios]);
 
     const handleMarkerClick = useCallback(
         (edificio) => {
@@ -288,6 +302,18 @@ export default function MapView({
             .then((data) => setGeojsonData(data))
             .catch((err) => console.error('Error loading GeoJSON:', err));
     }, []);
+
+    // Keep selected building synchronized with active filters (scope, level, etc.)
+    useEffect(() => {
+        if (selectedEdificio && !selectedEdificio._isCenter) {
+            const matching = filteredEdificios.find((e) => e.id === selectedEdificio.id);
+            if (!matching) {
+                setSelectedEdificio(null);
+            } else if (matching !== selectedEdificio) {
+                setSelectedEdificio(matching);
+            }
+        }
+    }, [filteredEdificios, selectedEdificio, setSelectedEdificio]);
 
     const handleClearSelection = useCallback(() => {
         setSelectedEdificio(null);

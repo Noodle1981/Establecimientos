@@ -221,12 +221,12 @@ export default function MapaPublico({ edificios = [] }) {
 
     const handleSelectSchool = useCallback(
         (edificio) => {
-            const fullEdificio = edificios.find((e) => e.id === edificio.id);
-            setSelectedEdificio(fullEdificio || edificio);
+            const matchingFiltered = filteredEdificios.find((e) => e.id === edificio.id);
+            setSelectedEdificio(matchingFiltered || edificio);
             setIsSearching(false);
             setSearchQuery('');
         },
-        [edificios],
+        [filteredEdificios],
     );
 
     const searchResults = useMemo(() => {
@@ -286,7 +286,7 @@ export default function MapaPublico({ edificios = [] }) {
             padding={false}
         >
             <Head>
-                <title>Mapa de Escuelas - San Juan</title>
+                <title>Mapa de Escuelas de San Juan</title>
                 <meta
                     name="description"
                     content="Explora el Mapa Escolar de San Juan. Encuentra establecimientos educativos públicos y privados, consulta niveles, modalidades y ubicaciones exactas de todas las escuelas de la provincia."

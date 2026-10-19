@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/react';
 export default function Dashboard({ stats, recentActivity }) {
     return (
         <>
-            <Head title="Admin Dashboard" />
+            <Head title="Panel de Administración" />
 
             <div className="space-y-6 pt-2">
                 {/* Stats Grid */}

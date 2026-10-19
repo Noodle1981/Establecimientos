@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propuesta de Implementación y Gobernanza - Catastro Escolar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #1f2937;
+            background-color: #f3f4f6;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .brand-orange { color: #FE8204; }
+        .bg-brand-orange { background-color: #FE8204; }
+        .border-brand-orange { border-color: #FE8204; }
+
+        @page {
+            size: A4 portrait;
+            margin: 12mm 15mm 15mm 15mm;
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+            }
+            .page-sheet {
+                box-shadow: none !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                border-radius: 0 !important;
+                border: none !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            .avoid-break {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="py-8">
+
+    <!-- Barra Superior Flotante (Acción Imprimir) -->
+    <div class="no-print fixed top-4 right-4 z-50 flex items-center gap-3 bg-white/90 backdrop-blur-md p-3 px-5 rounded-2xl shadow-xl border border-gray-200">
+        <span class="text-xs font-bold text-gray-600">Documento Oficial listo para imprimir</span>
+        <button onclick="window.print()" class="flex items-center gap-2 bg-[#FE8204] hover:bg-orange-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95">
+            <i class="fas fa-print"></i>
+            Imprimir o Guardar como PDF
+        </button>
+    </div>
+
+    <!-- Contenedor Principal (Hoja Estilo Ministerial) -->
+    <div class="page-sheet max-w-4xl mx-auto bg-white p-12 sm:p-16 rounded-3xl shadow-sm border border-gray-200 space-y-10">
+
+        <!-- Portada / Cabecera Ministerial Oficial -->
+        <div class="border-b-2 border-gray-100 pb-8 space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-xs font-black tracking-widest text-[#FE8204] uppercase">Gobierno de San Juan</h4>
+                    <p class="text-sm font-semibold text-gray-600">Ministerio de Educación • Secretaría de Educación</p>
+                    <p class="text-xs text-gray-400">Dirección de Sistemas e Informática</p>
+                </div>
+                <div class="text-right">
+                    <span class="inline-block bg-orange-50 text-[#FE8204] border border-orange-200 text-[10px] font-black uppercase px-3 py-1 rounded-full">
+                        PROP-CATASTRO-EDU-2026-V1
+                    </span>
+                    <p class="text-[11px] text-gray-400 font-medium mt-1">Octubre 2026 • Estado: VIGENTE / EVALUACIÓN</p>
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <span class="text-xs font-black tracking-wider uppercase bg-gray-100 text-gray-700 px-3 py-1 rounded-lg">
+                    Propuesta de Implementación y Marco de Gobernanza
+                </span>
+                <h1 class="text-3xl font-black text-gray-900 tracking-tight mt-3 leading-tight">
+                    Plataforma de Catastro Geo-Administrativo Escolar y Mapa Interactivo Provincial
+                </h1>
+                <p class="text-sm text-gray-500 mt-2 font-medium leading-relaxed">
+                    Estrategia institucional para la consolidación de la Fuente Única de la Verdad, circuito de gobernanza interministerial e interoperabilidad mediante API para Movilidades y Depósito Central.
+                </p>
+            </div>
+        </div>
+
+        <!-- 1. Resumen Ejecutivo -->
+        <section class="space-y-4">
+            <div class="flex items-center gap-2">
+                <span class="flex items-center justify-center w-7 h-7 rounded-xl bg-orange-100 text-[#FE8204] font-black text-xs">1</span>
+                <h2 class="text-lg font-black text-gray-900 uppercase tracking-tight">Resumen Ejecutivo</h2>
+            </div>
+            <p class="text-xs leading-relaxed text-gray-600">
+                La Dirección de Sistemas e Informática pone a disposición la plataforma de <strong>Catastro Geo-Administrativo Escolar</strong>, desarrollada sobre tecnologías de alto rendimiento (Laravel 12, React 18, Inertia.js y Leaflet) concebida para:
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100 space-y-1">
+                    <div class="flex items-center gap-2 text-[#FE8204] font-bold text-xs">
+                        <i class="fas fa-database"></i>
+                        <span>Fuente Única de la Verdad (SSOT)</span>
+                    </div>
+                    <p class="text-[11px] text-gray-500">Identificar con precisión matemática dónde está cada escuela, cómo se llama, qué códigos oficiales posee (CUE/CUI) y qué ámbito territorial cubre.</p>
+                </div>
+                <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100 space-y-1">
+                    <div class="flex items-center gap-2 text-[#FE8204] font-bold text-xs">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <span>Mapa y Panel de Control (Dashboard)</span>
+                    </div>
+                    <p class="text-[11px] text-gray-500">Dotar a las autoridades ministeriales y Direcciones de Área de un visor cartográfico georreferenciado e indicadores analíticos en tiempo real.</p>
+                </div>
+                <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100 space-y-1">
+                    <div class="flex items-center gap-2 text-[#FE8204] font-bold text-xs">
+                        <i class="fas fa-check-double"></i>
+                        <span>Calidad y Auditoría de Datos</span>
+                    </div>
+                    <p class="text-[11px] text-gray-500">Auditar y depurar la base de datos local contra padrones oficiales de la Red Federal, eliminando duplicaciones y coordenadas erróneas.</p>
+                </div>
+                <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100 space-y-1">
+                    <div class="flex items-center gap-2 text-[#FE8204] font-bold text-xs">
+                        <i class="fas fa-network-wired"></i>
+                        <span>Interoperabilidad Oficial (API)</span>
+                    </div>
+                    <p class="text-[11px] text-gray-500">Servir datos geográficos certificados a sistemas críticos del Estado: Gestión de Movilidades Escolares y Depósito Central de Suministros.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Alcance y Delimitación -->
+        <section class="space-y-4 avoid-break">
+            <div class="flex items-center gap-2">
+                <span class="flex items-center justify-center w-7 h-7 rounded-xl bg-orange-100 text-[#FE8204] font-black text-xs">2</span>
+                <h2 class="text-lg font-black text-gray-900 uppercase tracking-tight">Alcance y Delimitación de los Datos</h2>
+            </div>
+            <p class="text-xs leading-relaxed text-gray-600">
+                Para garantizar la consistencia y escalabilidad, el sistema modela de forma estricta la realidad territorial en 3 niveles relacionales normalizados:
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4 rounded-2xl border border-gray-200 bg-white">
+                    <span class="text-[10px] font-black uppercase text-[#FE8204] tracking-wider">Nivel 1 • Inmueble Físico</span>
+                    <h3 class="text-sm font-black text-gray-900 mt-1">EDIFICIO (CUI)</h3>
+                    <ul class="text-[11px] text-gray-500 mt-2 space-y-1.5 list-disc list-inside">
+                        <li><strong>CUI:</strong> Código de Infraestructura.</li>
+                        <li><strong>GPS:</strong> Latitud / Longitud WGS84.</li>
+                        <li><strong>Ubicación:</strong> Calle, N°, Depto y Localidad.</li>
+                    </ul>
+                </div>
+                <div class="p-4 rounded-2xl border border-gray-200 bg-white">
+                    <span class="text-[10px] font-black uppercase text-[#FE8204] tracking-wider">Nivel 2 • Institución</span>
+                    <h3 class="text-sm font-black text-gray-900 mt-1">ESTABLECIMIENTO (CUE)</h3>
+                    <ul class="text-[11px] text-gray-500 mt-2 space-y-1.5 list-disc list-inside">
+                        <li><strong>CUE:</strong> Identificador Nacional oficial.</li>
+                        <li><strong>Denominación:</strong> Nombre oficial escolar.</li>
+                        <li><strong>Ámbito:</strong> Estatal (Público) o Privado.</li>
+                    </ul>
+                </div>
+                <div class="p-4 rounded-2xl border border-gray-200 bg-white">
+                    <span class="text-[10px] font-black uppercase text-[#FE8204] tracking-wider">Nivel 3 • Oferta Educativa</span>
+                    <h3 class="text-sm font-black text-gray-900 mt-1">MODALIDAD</h3>
+                    <ul class="text-[11px] text-gray-500 mt-2 space-y-1.5 list-disc list-inside">
+                        <li><strong>Dirección de Área:</strong> Nivel dependiente.</li>
+                        <li><strong>Nivel:</strong> Inicial, Primario, Sec., etc.</li>
+                        <li><strong>Radio y Zona:</strong> Categoría geográfica.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-orange-50/60 border border-orange-100 flex items-start gap-3">
+                <i class="fas fa-info-circle text-[#FE8204] mt-0.5 text-xs"></i>
+                <p class="text-[11px] text-gray-600 leading-snug">
+                    <strong>Delimitación del Alcance:</strong> El sistema se enfoca con precisión en los atributos geo-administrativos y físicos. No gestiona matrículas nominales, legajos de alumnos, divisiones ni plantas docentes, los cuales corresponden a las plataformas específicas de gestión académica (EDUGE) y RRHH.
+                </p>
+            </div>
+        </section>
+
+        <!-- Salto de página para impresión limpia -->
+        <div class="page-break"></div>
+
+        <!-- 3. Gobernanza y Matriz de Roles (RBAC) -->
+        <section class="space-y-4 avoid-break">
+            <div class="flex items-center gap-2">
+                <span class="flex items-center justify-center w-7 h-7 rounded-xl bg-orange-100 text-[#FE8204] font-black text-xs">3</span>
+                <h2 class="text-lg font-black text-gray-900 uppercase tracking-tight">Modelo de Gobernanza y Matriz de Roles (RBAC)</h2>
+            </div>
+            <p class="text-xs leading-relaxed text-gray-600">
+                Para prevenir la duplicación de escuelas y coordenadas contradictorias, se establece una clara separación de responsabilidades institucionales:
+            </p>
+
+            <div class="overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 text-[10px] font-black uppercase">
+                        <tr>
+                            <th class="py-3 px-4">Área / Actor</th>
+                            <th class="py-3 px-4">Rol en el Sistema</th>
+                            <th class="py-3 px-4">Acciones Habilitadas</th>
+                            <th class="py-3 px-4">Restricciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 text-[11px]">
+                        <tr class="hover:bg-gray-50/50">
+                            <td class="py-3 px-4 font-bold text-gray-900">
+                                Estadística y Planeamiento
+                            </td>
+                            <td class="py-3 px-4">
+                                <span class="bg-orange-100 text-[#FE8204] font-black text-[9px] uppercase px-2 py-0.5 rounded-md">Custodio del Dato</span>
+                            </td>
+                            <td class="py-3 px-4 text-gray-600">
+                                Alta, edición y mantenimiento de Edificios, Establecimientos y Modalidades. Asignación de CUEs. Resolución de reportes territoriales.
+                            </td>
+                            <td class="py-3 px-4 text-gray-500">
+                                Responsable primario de la integridad del catálogo oficial.
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50/50">
+                            <td class="py-3 px-4 font-bold text-gray-900">
+                                Necesidades Edilicias <br><span class="text-[9px] font-normal text-gray-400">(Min. Infraestructura)</span>
+                            </td>
+                            <td class="py-3 px-4">
+                                <span class="bg-blue-100 text-blue-700 font-black text-[9px] uppercase px-2 py-0.5 rounded-md">Validador Edilicio</span>
+                            </td>
+                            <td class="py-3 px-4 text-gray-600">
+                                Consulta de inmuebles, carga y validación de <strong>CUI</strong>, rectificación de coordenadas de ingreso y delimitación de predios.
+                            </td>
+                            <td class="py-3 px-4 text-gray-500">
+                                Sin acceso a modificar CUEs, nombres escolares ni ofertas.
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50/50">
+                            <td class="py-3 px-4 font-bold text-gray-900">
+                                Direcciones de Área y Supervisores
+                            </td>
+                            <td class="py-3 px-4">
+                                <span class="bg-gray-100 text-gray-700 font-black text-[9px] uppercase px-2 py-0.5 rounded-md">Visor + Reportante</span>
+                            </td>
+                            <td class="py-3 px-4 text-gray-600">
+                                Consulta y filtrado de su padrón en el Mapa Interactivo y Panel de Estadísticas. Emisión de <strong>Reportes de Inconsistencia</strong>.
+                            </td>
+                            <td class="py-3 px-4 text-red-600 font-medium">
+                                <strong>No crean escuelas ni edificios</strong> (evita duplicar edificios compartidos).
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50/50">
+                            <td class="py-3 px-4 font-bold text-gray-900">
+                                Dirección de Sistemas
+                            </td>
+                            <td class="py-3 px-4">
+                                <span class="bg-purple-100 text-purple-700 font-black text-[9px] uppercase px-2 py-0.5 rounded-md">Sysadmin</span>
+                            </td>
+                            <td class="py-3 px-4 text-gray-600">
+                                Soporte tecnológico, seguridad, gestión de usuarios/roles, backups y monitoreo de la API.
+                            </td>
+                            <td class="py-3 px-4 text-gray-500">
+                                No altera datos sustantivos sin solicitud formal.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 4. Circuito de Calidad y Reportes -->
+        <section class="space-y-4 avoid-break">
+            <div class="flex items-center gap-2">
+                <span class="flex items-center justify-center w-7 h-7 rounded-xl bg-orange-100 text-[#FE8204] font-black text-xs">4</span>
+                <h2 class="text-lg font-black text-gray-900 uppercase tracking-tight">Circuito de Calidad: Sistema de Reportes e Incidencias</h2>
+            </div>
+            <p class="text-xs leading-relaxed text-gray-600">
+                El sistema sustituye las notas en papel por un circuito ágil de corrección territorial:
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-center">
+                <div class="p-3.5 rounded-xl bg-gray-50 border border-gray-200 flex flex-col items-center">
+                    <span class="w-6 h-6 rounded-full bg-white border border-gray-200 text-[#FE8204] font-black text-xs flex items-center justify-center mb-2 shadow-xs">1</span>
+                    <h4 class="text-[11px] font-black text-gray-900">Detección</h4>
+                    <p class="text-[10px] text-gray-500 mt-1">El área o supervisor detecta un error en el mapa (calle o GPS).</p>
+                </div>
+                <div class="p-3.5 rounded-xl bg-gray-50 border border-gray-200 flex flex-col items-center">
+                    <span class="w-6 h-6 rounded-full bg-white border border-gray-200 text-[#FE8204] font-black text-xs flex items-center justify-center mb-2 shadow-xs">2</span>
+                    <h4 class="text-[11px] font-black text-gray-900">Reporte Digital</h4>
+                    <p class="text-[10px] text-gray-500 mt-1">Presiona "Reportar" en la ficha escolar detallando la anomalía.</p>
+                </div>
+                <div class="p-3.5 rounded-xl bg-gray-50 border border-gray-200 flex flex-col items-center">
+                    <span class="w-6 h-6 rounded-full bg-white border border-gray-200 text-[#FE8204] font-black text-xs flex items-center justify-center mb-2 shadow-xs">3</span>
+                    <h4 class="text-[11px] font-black text-gray-900">Validación</h4>
+                    <p class="text-[10px] text-gray-500 mt-1">Planeamiento coteja con resoluciones oficiales o consulta el CUI.</p>
+                </div>
+                <div class="p-3.5 rounded-xl bg-gray-50 border border-gray-200 flex flex-col items-center">
+                    <span class="w-6 h-6 rounded-full bg-white border border-gray-200 text-[#FE8204] font-black text-xs flex items-center justify-center mb-2 shadow-xs">4</span>
+                    <h4 class="text-[11px] font-black text-gray-900">Resolución</h4>
+                    <p class="text-[10px] text-gray-500 mt-1">Se corrige el registro y la API actualiza a los demás sistemas.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Salto de página para impresión limpia -->
+        <div class="page-break"></div>
+
+        <!-- 5. Interoperabilidad (API) y EDUGE -->
+        <section class="space-y-4 avoid-break">
+            <div class="flex items-center gap-2">
+                <span class="flex items-center justify-center w-7 h-7 rounded-xl bg-orange-100 text-[#FE8204] font-black text-xs">5</span>
+                <h2 class="text-lg font-black text-gray-900 uppercase tracking-tight">Interoperabilidad (API) y Proyecciones</h2>
+            </div>
+
+            <div class="space-y-3">
+                <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200">
+                    <h3 class="text-xs font-black text-gray-900 uppercase flex items-center gap-2">
+                        <i class="fas fa-bus text-[#FE8204]"></i>
+                        5.1. Integración con el Sistema de Movilidades Escolares
+                    </h3>
+                    <p class="text-[11px] text-gray-600 mt-1">
+                        Provee coordenadas geográficas validadas de la puerta de acceso de cada escuela, radios escolares y departamentos, optimizando rutas de transporte escolar, combis y traslados de supervisión.
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200">
+                    <h3 class="text-xs font-black text-gray-900 uppercase flex items-center gap-2">
+                        <i class="fas fa-warehouse text-[#FE8204]"></i>
+                        5.2. Integración con el Sistema Depósito Central (DEPO)
+                    </h3>
+                    <p class="text-[11px] text-gray-600 mt-1">
+                        Vincula cada despacho de insumos pedagógicos, copa de leche y mobiliario al CUI/CUE oficial con dirección normalizada, asegurando que los camiones descarguen en el inmueble físico exacto.
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-2xl border-2 border-orange-200 bg-orange-50/30">
+                    <h3 class="text-xs font-black text-[#FE8204] uppercase flex items-center gap-2">
+                        <i class="fas fa-sync-alt"></i>
+                        5.3. Auditoría Cruzada con EDUGE (Propuesta para Futura Implementación)
+                    </h3>
+                    <div class="mt-2 space-y-2 text-[11px] text-gray-700">
+                        <p>
+                            <strong>• Situación Actual (Cotejo Manual / "A Ojo"):</strong> Actualmente la fiscalización se realiza mediante cotejo visual en el módulo <code class="bg-white px-1.5 py-0.5 rounded border border-gray-200 text-gray-800 text-[10px]">/administrativos/auditoria</code>, verificando pantalla contra pantalla la coincidencia de cada CUE y asentando el estado manualmente.
+                        </p>
+                        <p>
+                            <strong>• Evolución Propuesta (Automatización Algorítmica vía API):</strong> Se propone a las autoridades la futura incorporación de un conector seguro directo que cruce ambas bases en segundos, alertando de forma automática discrepancias (CUEs sin GPS, nombres desfasados o escuelas inexistentes).
+                        </p>
+                        <p class="text-[10px] text-gray-500 italic">
+                            * Módulo optativo y modular sujeto a la decisión y oportunidad de las autoridades ministeriales.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. Próximos Pasos -->
+        <section class="space-y-4 avoid-break">
+            <div class="flex items-center gap-2">
+                <span class="flex items-center justify-center w-7 h-7 rounded-xl bg-orange-100 text-[#FE8204] font-black text-xs">6</span>
+                <h2 class="text-lg font-black text-gray-900 uppercase tracking-tight">Próximos Pasos Recomendados</h2>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div class="p-3.5 rounded-xl border border-gray-200 bg-white">
+                    <span class="font-bold text-gray-900">1. Aprobación Ministerial:</span>
+                    <p class="text-gray-500 text-[11px] mt-0.5">Validación de la propuesta por la Secretaría de Educación y Secretaría Administrativa.</p>
+                </div>
+                <div class="p-3.5 rounded-xl border border-gray-200 bg-white">
+                    <span class="font-bold text-gray-900">2. Designación de Referentes:</span>
+                    <p class="text-gray-500 text-[11px] mt-0.5">Asignar 2 agentes de Estadística/Planeamiento y 1 de Necesidades Edilicias.</p>
+                </div>
+                <div class="p-3.5 rounded-xl border border-gray-200 bg-white">
+                    <span class="font-bold text-gray-900">3. Inducción y Capacitación:</span>
+                    <p class="text-gray-500 text-[11px] mt-0.5">Taller práctico sobre la consola administrativa y gestión de reportes.</p>
+                </div>
+                <div class="p-3.5 rounded-xl border border-gray-200 bg-white">
+                    <span class="font-bold text-gray-900">4. Activación de API Oficial:</span>
+                    <p class="text-gray-500 text-[11px] mt-0.5">Emisión de credenciales seguras para Movilidades y Depósito Central.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pie de Documento Formal -->
+        <div class="border-t border-gray-200 pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-gray-400">
+            <div>
+                <p class="font-bold text-gray-600">Dirección de Sistemas e Informática</p>
+                <p>Ministerio de Educación • Gobierno de San Juan</p>
+            </div>
+            <div class="text-right mt-2 sm:mt-0">
+                <p>Código: PROP-CATASTRO-EDU-2026-V1</p>
+                <p>Documento de carácter institucional</p>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

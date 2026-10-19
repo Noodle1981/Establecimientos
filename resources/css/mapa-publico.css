@@ -140,6 +140,12 @@ path.leaflet-interactive:focus {
 .school-card__tag--nivel {
     background: #FFF7ED; color: #FE8204; border: 1px solid #FFEDD5;
 }
+.school-card__tag--publico {
+    background: #FFF7ED; color: #FE8204; border: 1px solid #FED7AA;
+}
+.school-card__tag--privado {
+    background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE;
+}
 .school-card__tag--area {
     background: #F9FAFB; color: #6B7280; border: 1px solid #F3F4F6;
     max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
