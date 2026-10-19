@@ -70,9 +70,16 @@ const ZONAS_BAR_OPTIONS = {
     scales: {
         x: {
             grid: { display: false },
+            ticks: {
+                font: { size: 9, weight: 'bold' },
+                maxRotation: 45,
+                minRotation: 0,
+            },
+        },
+        y: {
+            grid: { color: 'rgba(0, 0, 0, 0.05)' },
             ticks: { font: { size: 9 } },
         },
-        y: { display: false },
     },
     maintainAspectRatio: false,
 };
@@ -95,12 +102,9 @@ const RADIOS_BAR_OPTIONS = {
     scales: {
         x: {
             grid: { display: false },
-            ticks: { font: { size: 8 } },
+            ticks: { font: { size: 9 } },
         },
-        y: {
-            grid: { display: false },
-            ticks: { font: { size: 8 } },
-        },
+        y: { display: false },
     },
     maintainAspectRatio: false,
 };
@@ -309,7 +313,7 @@ export default function Dashboard({ filters, options, chartData }) {
                     </ChartWrapper>
 
                     <ChartWrapper
-                        title="Zonas"
+                        title="Distribución por Radio"
                         className={
                             localFilters.ambito !== 'TODOS'
                                 ? 'lg:col-span-2'
@@ -317,16 +321,16 @@ export default function Dashboard({ filters, options, chartData }) {
                         }
                         onZoom={() =>
                             setModalChart({
-                                title: 'Estadísticas por Zona Administrativa',
+                                title: 'Modalidades por Radio de Ubicación',
                                 type: 'bar',
                                 data: {
-                                    labels: chartData.zonas.labels,
+                                    labels: chartData.radios.labels,
                                     datasets: [
                                         {
-                                            label: 'Cantidad',
-                                            data: chartData.zonas.values,
-                                            backgroundColor: COLORS.blue,
-                                            borderRadius: 8,
+                                            label: 'Total Modalidades',
+                                            data: chartData.radios.values,
+                                            backgroundColor: COLORS.multi,
+                                            borderRadius: 5,
                                         },
                                     ],
                                 },
@@ -334,8 +338,8 @@ export default function Dashboard({ filters, options, chartData }) {
                         }
                     >
                         <Bar
-                            data={zonasData}
-                            options={ZONAS_BAR_OPTIONS}
+                            data={radiosData}
+                            options={RADIOS_BAR_OPTIONS}
                         />
                     </ChartWrapper>
 
@@ -370,20 +374,20 @@ export default function Dashboard({ filters, options, chartData }) {
                     )}
 
                     <ChartWrapper
-                        title="Distribución por Radio"
+                        title="Estadísticas por Departamento / Zona"
                         className="lg:col-span-4"
                         onZoom={() =>
                             setModalChart({
-                                title: 'Modalidades por Radio de Ubicación',
+                                title: 'Estadísticas por Zona / Departamento',
                                 type: 'bar',
                                 data: {
-                                    labels: chartData.radios.labels,
+                                    labels: chartData.zonas.labels,
                                     datasets: [
                                         {
-                                            label: 'Total Modalidades',
-                                            data: chartData.radios.values,
-                                            backgroundColor: COLORS.multi,
-                                            borderRadius: 5,
+                                            label: 'Cantidad',
+                                            data: chartData.zonas.values,
+                                            backgroundColor: COLORS.blue,
+                                            borderRadius: 8,
                                         },
                                     ],
                                 },
@@ -391,8 +395,8 @@ export default function Dashboard({ filters, options, chartData }) {
                         }
                     >
                         <Bar
-                            data={radiosData}
-                            options={RADIOS_BAR_OPTIONS}
+                            data={zonasData}
+                            options={ZONAS_BAR_OPTIONS}
                         />
                     </ChartWrapper>
                 </div>
