@@ -5,7 +5,7 @@
  */
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import {
     CircleMarker,
     GeoJSON,
