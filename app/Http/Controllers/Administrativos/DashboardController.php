@@ -17,10 +17,10 @@ class DashboardController extends Controller
     public function index(Request $request): Response
     {
         $filters = [
-            'ambito' => $request->input('ambito', 'TODOS'),
-            'departamento' => $request->input('departamento', ''),
-            'direccion_area' => $request->input('direccion_area', ''),
-            'nivel_educativo' => $request->input('nivel_educativo', ''),
+            'ambito' => $request->filled('ambito') ? (string) $request->input('ambito') : 'TODOS',
+            'departamento' => (string) ($request->input('departamento') ?? ''),
+            'direccion_area' => (string) ($request->input('direccion_area') ?? ''),
+            'nivel_educativo' => (string) ($request->input('nivel_educativo') ?? ''),
         ];
 
         return Inertia::render('Administrativos/Dashboard', [

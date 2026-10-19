@@ -16,6 +16,12 @@ class DashboardMetricsService
      */
     public function getFilterOptions(array $filters): array
     {
+        $ambito = (string) ($filters['ambito'] ?? 'TODOS');
+        if (empty($ambito)) {
+            $ambito = 'TODOS';
+        }
+        $direccionArea = isset($filters['direccion_area']) ? (string) $filters['direccion_area'] : null;
+
         return [
             'departamentos' => Cache::remember('dashboard-departamentos', 3600, function () {
                 return Edificio::select('zona_departamento')
@@ -25,8 +31,8 @@ class DashboardMetricsService
                     ->orderBy('zona_departamento')
                     ->pluck('zona_departamento');
             }),
-            'direcciones_area' => $this->getDireccionesArea($filters['ambito']),
-            'niveles_educativos' => $this->getNivelesEducativos($filters['direccion_area'], $filters['ambito']),
+            'direcciones_area' => $this->getDireccionesArea($ambito),
+            'niveles_educativos' => $this->getNivelesEducativos($direccionArea, $ambito),
         ];
     }
 
@@ -49,8 +55,9 @@ class DashboardMetricsService
         });
     }
 
-    private function getDireccionesArea(string $ambito): Collection
+    private function getDireccionesArea(?string $ambito = 'TODOS'): Collection
     {
+        $ambito = (! empty($ambito)) ? $ambito : 'TODOS';
         $cacheKey = 'dashboard-direcciones-'.md5($ambito);
 
         return Cache::remember($cacheKey, 3600, function () use ($ambito) {
@@ -66,12 +73,13 @@ class DashboardMetricsService
         });
     }
 
-    private function getNivelesEducativos(string $direccion_area, string $ambito): Collection|array
+    private function getNivelesEducativos(?string $direccion_area = null, ?string $ambito = 'TODOS'): Collection|array
     {
         if (empty($direccion_area)) {
             return [];
         }
 
+        $ambito = (! empty($ambito)) ? $ambito : 'TODOS';
         $cacheKey = 'dashboard-niveles-'.md5($direccion_area.'_'.$ambito);
 
         return Cache::remember($cacheKey, 3600, function () use ($direccion_area, $ambito) {
