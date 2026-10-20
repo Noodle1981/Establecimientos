@@ -16,7 +16,12 @@ import ReportModal from './Partials/ReportModal';
 const MapView = lazy(() => import('./MapView'));
 
 export default function MapaPublico({ edificios = [] }) {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return window.innerWidth >= 1024;
+        }
+        return false;
+    });
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilters, setActiveFilters] = useState({
         publico: true,
@@ -28,7 +33,7 @@ export default function MapaPublico({ edificios = [] }) {
     const [hoveredEdificioId, setHoveredEdificioId] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-    const [showDeptoBorders, setShowDeptoBorders] = useState(false);
+    const [showDeptoBorders] = useState(false);
     const [isSatellite, setIsSatellite] = useState(false);
     const [isLoading, setIsLoading] = useState(edificios.length === 0);
 
@@ -119,7 +124,11 @@ export default function MapaPublico({ edificios = [] }) {
 
         for (const edificio of edificios) {
             // Check department match early if not in search mode (js-early-exit)
-            if (query.length < 2 && filterDepto !== 'TODOS' && edificio.zona_departamento !== filterDepto) {
+            if (
+                query.length < 2 &&
+                filterDepto !== 'TODOS' &&
+                edificio.zona_departamento !== filterDepto
+            ) {
                 continue;
             }
 
@@ -167,15 +176,25 @@ export default function MapaPublico({ edificios = [] }) {
             // 2. Filter by search query if active
             if (query.length >= 2) {
                 const matchesBuilding =
-                    (edificio.cui?.toString().toLowerCase() || '').includes(query) ||
-                    (edificio.localidad?.toString().toLowerCase() || '').includes(query) ||
-                    (edificio.calle?.toString().toLowerCase() || '').includes(query);
+                    (edificio.cui?.toString().toLowerCase() || '').includes(
+                        query,
+                    ) ||
+                    (
+                        edificio.localidad?.toString().toLowerCase() || ''
+                    ).includes(query) ||
+                    (edificio.calle?.toString().toLowerCase() || '').includes(
+                        query,
+                    );
 
                 const finalEsts = filteredEsts.filter((est) => {
                     if (matchesBuilding) return true;
                     return (
-                        (est.nombre?.toString().toLowerCase() || '').includes(query) ||
-                        (est.cue?.toString().toLowerCase() || '').includes(query)
+                        (est.nombre?.toString().toLowerCase() || '').includes(
+                            query,
+                        ) ||
+                        (est.cue?.toString().toLowerCase() || '').includes(
+                            query,
+                        )
                     );
                 });
 
@@ -230,10 +249,15 @@ export default function MapaPublico({ edificios = [] }) {
 
     const handleSelectSchool = useCallback(
         (edificio) => {
-            const matchingFiltered = filteredEdificios.find((e) => e.id === edificio.id);
+            const matchingFiltered = filteredEdificios.find(
+                (e) => e.id === edificio.id,
+            );
             setSelectedEdificio(matchingFiltered || edificio);
             setIsSearching(false);
             setSearchQuery('');
+            if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+                setSidebarOpen(false);
+            }
         },
         [filteredEdificios],
     );
@@ -287,6 +311,16 @@ export default function MapaPublico({ edificios = [] }) {
         setSelectedEdificio(null);
     }, []);
 
+    const hasActiveFilters = useMemo(() => {
+        return (
+            !activeFilters.publico ||
+            !activeFilters.privado ||
+            filterDepto !== 'TODOS' ||
+            filterNivel !== 'TODOS' ||
+            searchQuery.trim().length > 0
+        );
+    }, [activeFilters, filterDepto, filterNivel, searchQuery]);
+
     return (
         <AuthenticatedLayout
             header={false}
@@ -303,9 +337,19 @@ export default function MapaPublico({ edificios = [] }) {
             </Head>
 
             <div className="relative flex h-[calc(100vh-64px)] w-full overflow-hidden bg-white">
+                {/* Mobile Backdrop Overlay */}
+                {sidebarOpen && (
+                    <div
+                        onClick={() => setSidebarOpen(false)}
+                        className="backdrop-blur-xs fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 lg:hidden"
+                        aria-hidden="true"
+                    />
+                )}
+
                 {/* Sidebar Drawer */}
                 <MapaSidebar
                     sidebarOpen={sidebarOpen}
+                    onClose={() => setSidebarOpen(false)}
                     searchQuery={searchQuery}
                     handleSearch={handleSearch}
                     isSearching={isSearching}
@@ -320,14 +364,12 @@ export default function MapaPublico({ edificios = [] }) {
                     filterNivel={filterNivel}
                     setFilterNivel={setFilterNivel}
                     nivelesDisponibles={nivelesDisponibles}
-                    showDeptoBorders={showDeptoBorders}
-                    setShowDeptoBorders={setShowDeptoBorders}
                     isLoading={isLoading}
                     stats={stats}
                     clearFilters={clearFilters}
                 />
 
-                {/* Map Toggle Button */}
+                {/* Desktop Map Toggle Button */}
                 <button
                     onClick={() => setSidebarOpen(!sidebarOpen)}
                     aria-label={
@@ -335,7 +377,7 @@ export default function MapaPublico({ edificios = [] }) {
                             ? 'Cerrar panel lateral'
                             : 'Abrir panel lateral'
                     }
-                    className={`absolute top-6 z-[1002] flex items-center justify-center rounded-r-xl border bg-white p-3 text-brand-orange shadow-xl transition-all duration-300 hover:bg-orange-50 ${
+                    className={`absolute top-6 z-[1002] hidden items-center justify-center rounded-r-xl border bg-white p-3 text-brand-orange shadow-xl transition-all duration-300 hover:bg-orange-50 lg:flex ${
                         sidebarOpen ? 'left-80' : 'left-0'
                     }`}
                 >
@@ -346,6 +388,21 @@ export default function MapaPublico({ edificios = [] }) {
 
                 {/* Map Area */}
                 <div className="relative z-0 flex-1">
+                    {/* Floating Filter Button (Visible whenever sidebar is closed) */}
+                    {!sidebarOpen && (
+                        <button
+                            onClick={() => setSidebarOpen(true)}
+                            aria-label="Abrir filtros del mapa"
+                            className="absolute left-3 top-3 z-[1002] flex items-center gap-2 rounded-2xl border border-orange-200 bg-white/95 px-3.5 py-2.5 text-xs font-black uppercase tracking-wider text-black shadow-xl backdrop-blur-md transition-all hover:bg-orange-50 hover:text-brand-orange sm:left-4 sm:top-4"
+                        >
+                            <i className="fas fa-sliders-h text-brand-orange"></i>
+                            <span>Filtros</span>
+                            {hasActiveFilters && (
+                                <span className="flex h-2 w-2 animate-pulse rounded-full bg-brand-orange"></span>
+                            )}
+                        </button>
+                    )}
+
                     {/* Map Loading Skeleton */}
                     <Suspense
                         fallback={
@@ -361,7 +418,6 @@ export default function MapaPublico({ edificios = [] }) {
                     >
                         <MapView
                             filteredEdificios={filteredEdificios}
-                            edificios={edificios}
                             selectedEdificio={selectedEdificio}
                             setSelectedEdificio={setSelectedEdificio}
                             hoveredEdificioId={hoveredEdificioId}
@@ -373,10 +429,10 @@ export default function MapaPublico({ edificios = [] }) {
                         />
                     </Suspense>
 
-                    {/* Map Buttons */}
+                    {/* Map Action Buttons (Satellite & Recenter) */}
                     <div
-                        className={`absolute right-4 top-4 z-[1001] flex-col gap-3 sm:right-6 sm:top-6 ${
-                            sidebarOpen ? 'hidden md:flex' : 'flex'
+                        className={`absolute right-3 top-3 z-[1002] flex flex-col gap-2.5 sm:right-6 sm:top-6 sm:gap-3 ${
+                            sidebarOpen ? 'hidden lg:flex' : 'flex'
                         }`}
                     >
                         <button
@@ -390,10 +446,10 @@ export default function MapaPublico({ edificios = [] }) {
                                 });
                             }}
                             aria-label="Recentrar mapa en San Juan"
-                            className="group flex h-12 w-12 items-center justify-center rounded-2xl border border-orange-50 bg-white text-gray-500 shadow-xl transition-all hover:text-brand-orange"
+                            className="group flex h-10 w-10 items-center justify-center rounded-2xl border border-orange-50 bg-white text-gray-600 shadow-xl transition-all hover:text-brand-orange sm:h-12 sm:w-12"
                             title="Recentrar Mapa"
                         >
-                            <i className="fas fa-expand-arrows-alt transition-transform group-hover:scale-110"></i>
+                            <i className="fas fa-expand-arrows-alt text-sm transition-transform group-hover:scale-110 sm:text-base"></i>
                         </button>
 
                         <button
@@ -406,19 +462,19 @@ export default function MapaPublico({ edificios = [] }) {
                             title={
                                 isSatellite ? 'Vista Normal' : 'Vista Satélite'
                             }
-                            className={`group flex h-12 w-12 items-center justify-center rounded-2xl border shadow-xl transition-all ${
+                            className={`group flex h-10 w-10 items-center justify-center rounded-2xl border shadow-xl transition-all sm:h-12 sm:w-12 ${
                                 isSatellite
                                     ? 'border-orange-300 bg-brand-orange text-white'
-                                    : 'border-orange-50 bg-white text-gray-500 hover:text-brand-orange'
+                                    : 'border-orange-50 bg-white text-gray-600 hover:text-brand-orange'
                             }`}
                         >
                             <i
-                                className={`fas fa-satellite transition-transform group-hover:scale-110 ${isSatellite ? 'text-white' : ''}`}
+                                className={`fas fa-satellite text-sm transition-transform group-hover:scale-110 sm:text-base ${isSatellite ? 'text-white' : ''}`}
                             ></i>
                         </button>
                     </div>
 
-                    {/* Report Bug Btn */}
+                    {/* Report Bug / School Btn */}
                     {(() => {
                         const hasSelectedEdificio = Boolean(
                             selectedEdificio &&
@@ -434,7 +490,11 @@ export default function MapaPublico({ edificios = [] }) {
                         return (
                             <button
                                 onClick={() => setIsReportModalOpen(true)}
-                                className={`group absolute bottom-6 right-6 z-[1001] flex items-center gap-3 rounded-2xl border px-5 py-3 text-black shadow-2xl backdrop-blur-md transition-all hover:scale-105 ${
+                                className={`group absolute ${
+                                    hasSelectedEdificio
+                                        ? 'bottom-28 sm:bottom-6'
+                                        : 'bottom-4 sm:bottom-6'
+                                } right-3 z-[1002] flex items-center gap-2 rounded-2xl border p-2.5 text-black shadow-xl backdrop-blur-md transition-all hover:scale-105 sm:right-6 sm:gap-3 sm:px-5 sm:py-3 sm:shadow-2xl ${
                                     hasSelectedEdificio
                                         ? 'border-red-300 bg-red-50/95 ring-2 ring-red-500/20'
                                         : 'border-red-100 bg-white/90'
@@ -446,21 +506,21 @@ export default function MapaPublico({ edificios = [] }) {
                                 }
                             >
                                 <div
-                                    className={`flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
+                                    className={`flex h-8 w-8 items-center justify-center rounded-xl transition-colors sm:h-10 sm:w-10 ${
                                         hasSelectedEdificio
                                             ? 'bg-red-500 text-white'
                                             : 'bg-red-50 text-red-500 group-hover:bg-red-500 group-hover:text-white'
                                     }`}
                                 >
                                     <i
-                                        className={
+                                        className={`text-xs sm:text-sm ${
                                             hasSelectedEdificio
                                                 ? 'fas fa-school'
                                                 : 'fas fa-bug'
-                                        }
+                                        }`}
                                     ></i>
                                 </div>
-                                <div className="text-left">
+                                <div className="hidden text-left sm:block">
                                     <p className="mb-1 text-[10px] font-black uppercase leading-none text-red-500">
                                         {hasSelectedEdificio
                                             ? 'Edificio Seleccionado'

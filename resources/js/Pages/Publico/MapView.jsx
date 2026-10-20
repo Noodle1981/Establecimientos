@@ -261,11 +261,17 @@ const SchoolMarker = memo(
 
         // If building has BOTH public and private schools, render split bicolor marker
         if (edificio.ambito === 'MIXTO') {
+            const markerTitle =
+                edificio.establecimientos?.[0]?.nombre ||
+                (edificio.cui ? `CUI ${edificio.cui}` : 'Establecimiento');
+
             return (
                 <Marker
                     pane="markerPane"
                     position={[edificio.latitud, edificio.longitud]}
                     icon={isActive ? mixtoActiveIcon : mixtoNormalIcon}
+                    title={markerTitle}
+                    alt={markerTitle}
                     eventHandlers={{
                         click: (e) => {
                             L.DomEvent.stopPropagation(e);
@@ -311,7 +317,6 @@ const SchoolMarker = memo(
 // --- Main Export ---
 export default function MapView({
     filteredEdificios,
-    edificios = [],
     selectedEdificio,
     setSelectedEdificio,
     hoveredEdificioId,
@@ -366,7 +371,9 @@ export default function MapView({
     // Keep selected building synchronized with active filters (scope, level, etc.)
     useEffect(() => {
         if (selectedEdificio && !selectedEdificio._isCenter) {
-            const matching = filteredEdificios.find((e) => e.id === selectedEdificio.id);
+            const matching = filteredEdificios.find(
+                (e) => e.id === selectedEdificio.id,
+            );
             if (!matching) {
                 setSelectedEdificio(null);
             } else if (matching !== selectedEdificio) {

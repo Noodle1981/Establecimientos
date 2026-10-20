@@ -198,7 +198,8 @@ export default function Dashboard({ filters, options, chartData }) {
                 datasets: [
                     {
                         label: 'Público',
-                        data: chartData.zonas.publicos || chartData.zonas.values,
+                        data:
+                            chartData.zonas.publicos || chartData.zonas.values,
                         backgroundColor: COLORS.primary,
                         borderRadius: 4,
                         barPercentage: 0.6,
@@ -213,7 +214,8 @@ export default function Dashboard({ filters, options, chartData }) {
                 datasets: [
                     {
                         label: 'Privado',
-                        data: chartData.zonas.privados || chartData.zonas.values,
+                        data:
+                            chartData.zonas.privados || chartData.zonas.values,
                         backgroundColor: COLORS.blue,
                         borderRadius: 4,
                         barPercentage: 0.6,
@@ -398,10 +400,7 @@ export default function Dashboard({ filters, options, chartData }) {
                             })
                         }
                     >
-                        <Bar
-                            data={radiosData}
-                            options={RADIOS_BAR_OPTIONS}
-                        />
+                        <Bar data={radiosData} options={RADIOS_BAR_OPTIONS} />
                     </ChartWrapper>
 
                     {localFilters.ambito === 'TODOS' && (
@@ -445,10 +444,7 @@ export default function Dashboard({ filters, options, chartData }) {
                             })
                         }
                     >
-                        <Bar
-                            data={zonasData}
-                            options={ZONAS_BAR_OPTIONS}
-                        />
+                        <Bar data={zonasData} options={ZONAS_BAR_OPTIONS} />
                     </ChartWrapper>
                 </div>
             </div>

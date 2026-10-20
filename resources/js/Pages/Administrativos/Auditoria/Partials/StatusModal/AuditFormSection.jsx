@@ -1,7 +1,6 @@
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
-import React from 'react';
 
 const ESTADOS = ['PENDIENTE', 'CORRECTO', 'CORREGIDO', 'REVISAR'];
 
@@ -51,7 +50,9 @@ export default function AuditFormSection({
                         <button
                             type="button"
                             onClick={() =>
-                                setData('campos_auditados', [...camposAuditoria])
+                                setData('campos_auditados', [
+                                    ...camposAuditoria,
+                                ])
                             }
                             className="text-[9px] font-black uppercase text-brand-orange hover:underline"
                         >
@@ -60,7 +61,8 @@ export default function AuditFormSection({
                     </div>
                     <div className="grid grid-cols-3 gap-2">
                         {camposAuditoria.map((campo) => {
-                            const isChecked = data.campos_auditados?.includes(campo);
+                            const isChecked =
+                                data.campos_auditados?.includes(campo);
                             return (
                                 <button
                                     key={campo}

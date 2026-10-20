@@ -33,7 +33,8 @@ export default function ResetPassword({ token, email }) {
                     Restablecer Contraseña
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                    Ingresa tu correo electrónico y tu nueva contraseña para actualizar tu cuenta.
+                    Ingresa tu correo electrónico y tu nueva contraseña para
+                    actualizar tu cuenta.
                 </p>
             </div>
 
@@ -80,10 +81,15 @@ export default function ResetPassword({ token, email }) {
                             autoComplete="new-password"
                             isFocused={true}
                             placeholder="••••••••"
-                            onChange={(e) => setData('password', e.target.value)}
+                            onChange={(e) =>
+                                setData('password', e.target.value)
+                            }
                         />
                     </div>
-                    <InputError message={errors.password} className="ml-1 mt-2" />
+                    <InputError
+                        message={errors.password}
+                        className="ml-1 mt-2"
+                    />
                 </div>
 
                 <div>
@@ -129,7 +135,7 @@ export default function ResetPassword({ token, email }) {
                     </PrimaryButton>
                 </div>
 
-                <div className="text-center pt-2">
+                <div className="pt-2 text-center">
                     <Link
                         href={route('login')}
                         className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 transition-colors hover:text-brand-orange"

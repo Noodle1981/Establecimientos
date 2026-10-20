@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 // Decodes common HTML entities from Laravel pagination labels safely
 function formatLabel(label) {
@@ -14,7 +14,11 @@ function Pagination({ links = [], preserveScroll = true }) {
     if (!links || links.length <= 3) return null;
 
     return (
-        <div className="flex flex-wrap gap-1" role="navigation" aria-label="Paginación">
+        <div
+            className="flex flex-wrap gap-1"
+            role="navigation"
+            aria-label="Paginación"
+        >
             {links.map((link, index) => {
                 const uniqueKey = `${link.label}-${index}`;
                 const labelText = formatLabel(link.label);

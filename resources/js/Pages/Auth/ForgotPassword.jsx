@@ -28,7 +28,9 @@ export default function ForgotPassword({ status }) {
                     ¿Olvidaste tu contraseña?
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                    No te preocupes. Ingresa tu correo electrónico y te enviaremos un enlace para que puedas restablecerla y elegir una nueva.
+                    No te preocupes. Ingresa tu correo electrónico y te
+                    enviaremos un enlace para que puedas restablecerla y elegir
+                    una nueva.
                 </p>
             </div>
 
@@ -78,7 +80,7 @@ export default function ForgotPassword({ status }) {
                     </PrimaryButton>
                 </div>
 
-                <div className="text-center pt-2">
+                <div className="pt-2 text-center">
                     <Link
                         href={route('login')}
                         className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 transition-colors hover:text-brand-orange"

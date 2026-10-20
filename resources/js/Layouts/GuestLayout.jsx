@@ -33,7 +33,8 @@ export default function GuestLayout({ children }) {
 
             <div className="mt-8 text-center">
                 <p className="text-xs font-medium tracking-wide text-gray-400">
-                    © {new Date().getFullYear()} Superior - Ministerio de Educación de la Provincia de San Juan · Versión 1.0
+                    © {new Date().getFullYear()} Superior - Ministerio de
+                    Educación de la Provincia de San Juan · Versión 1.0
                 </p>
             </div>
             <ToastNotification />

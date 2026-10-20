@@ -48,7 +48,9 @@ export default function StatusUpdateModal({
             fetch(route('administrativos.auditoria.vinculados', modalidad.id))
                 .then((res) => res.json())
                 .then((resData) => setVinculados(resData))
-                .catch((err) => console.error('Error cargando vinculados:', err));
+                .catch((err) =>
+                    console.error('Error cargando vinculados:', err),
+                );
         }
     }, [modalidad, show, setData]);
 
@@ -75,7 +77,9 @@ export default function StatusUpdateModal({
     };
 
     const nombreEdificio = useMemo(() => {
-        return modalidad && getNombreEdificio ? getNombreEdificio(modalidad) : null;
+        return modalidad && getNombreEdificio
+            ? getNombreEdificio(modalidad)
+            : null;
     }, [modalidad, getNombreEdificio]);
 
     if (!modalidad) return null;

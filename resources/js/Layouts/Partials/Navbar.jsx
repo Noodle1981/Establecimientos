@@ -12,9 +12,9 @@ export default function Navbar({
 }) {
     return (
         <header className="sticky top-0 z-40 h-16 shrink-0 border-b border-gray-100 bg-white shadow-sm">
-            <div className="flex h-full items-center justify-between px-6">
+            <div className="flex h-full items-center justify-between px-3 sm:px-6">
                 {/* Left: Mobile Toggle & Logo */}
-                <div className="flex items-center gap-4">
+                <div className="flex min-w-0 items-center gap-2 sm:gap-4">
                     {showSidebar && (
                         <button
                             onClick={() =>
@@ -27,11 +27,11 @@ export default function Navbar({
                             <i className="fas fa-bars text-xl"></i>
                         </button>
                     )}
-                    <Link href="/" className="shrink-0">
+                    <Link href="/" className="flex min-w-0 shrink items-center">
                         <img
                             src={logoMinisterio}
                             alt="Ministerio de Educación de San Juan"
-                            className="h-8 w-auto shrink-0 object-contain sm:h-10"
+                            className="xs:max-w-[210px] h-7 w-auto max-w-[170px] object-contain sm:h-9 sm:max-w-none"
                             width="501"
                             height="76"
                         />
@@ -39,10 +39,10 @@ export default function Navbar({
                 </div>
 
                 {/* Right: User Menu */}
-                <div className="flex items-center">
+                <div className="flex shrink-0 items-center">
                     {user ? (
                         <div className="relative">
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
                                 {!showSidebar && (
                                     <Link
                                         href={
@@ -60,9 +60,9 @@ export default function Navbar({
                                 )}
                                 <button
                                     onClick={() => setUserOpen(!userOpen)}
-                                    className="flex items-center space-x-3 rounded-xl p-1 transition hover:bg-gray-50"
+                                    className="flex items-center space-x-2 rounded-xl p-1 transition hover:bg-gray-50 sm:space-x-3"
                                 >
-                                    <div className="flex hidden flex-col text-right sm:flex">
+                                    <div className="hidden flex-col text-right sm:flex">
                                         <span className="text-xs font-black leading-none text-black">
                                             {user.name}
                                         </span>
@@ -70,7 +70,7 @@ export default function Navbar({
                                             {user.role}
                                         </span>
                                     </div>
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-orange font-black text-white shadow-md">
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-orange text-sm font-black text-white shadow-md sm:h-10 sm:w-10 sm:text-base">
                                         {user.name.charAt(0)}
                                     </div>
                                 </button>
@@ -108,10 +108,10 @@ export default function Navbar({
                     ) : (
                         <Link
                             href={route('login')}
-                            className="inline-flex items-center gap-2 rounded-xl border border-transparent bg-brand-orange px-6 py-2 text-xs font-black uppercase tracking-widest text-white shadow-lg transition hover:bg-orange-600"
+                            className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl border border-transparent bg-brand-orange px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-white shadow-md transition hover:bg-orange-600 sm:gap-2 sm:px-5 sm:py-2 sm:text-xs sm:tracking-widest sm:shadow-lg"
                         >
-                            <i className="fas fa-sign-in-alt"></i> Iniciar
-                            Sesión
+                            <i className="fas fa-sign-in-alt text-xs"></i>
+                            <span>Iniciar Sesión</span>
                         </Link>
                     )}
                 </div>

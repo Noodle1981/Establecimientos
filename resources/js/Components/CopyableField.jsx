@@ -13,7 +13,8 @@ export default function CopyableField({
     const [copied, setCopied] = useState(false);
     const displayValue = value ?? fallback;
     const valueToCopy = copyValue ?? value;
-    const canCopy = allowCopy && Boolean(valueToCopy && valueToCopy !== fallback);
+    const canCopy =
+        allowCopy && Boolean(valueToCopy && valueToCopy !== fallback);
 
     const handleCopy = async () => {
         if (!canCopy) return;
@@ -34,7 +35,10 @@ export default function CopyableField({
                 </p>
                 <p
                     className="truncate text-xs font-black leading-tight text-gray-800"
-                    title={title || (typeof displayValue === 'string' ? displayValue : '')}
+                    title={
+                        title ||
+                        (typeof displayValue === 'string' ? displayValue : '')
+                    }
                 >
                     {displayValue}
                 </p>
@@ -43,7 +47,7 @@ export default function CopyableField({
                 <button
                     type="button"
                     onClick={handleCopy}
-                    className="ml-2 shrink-0 rounded-lg border border-gray-100 bg-white p-1 text-gray-400 shadow-sm transition-all hover:text-brand-orange hover:border-orange-200"
+                    className="ml-2 shrink-0 rounded-lg border border-gray-100 bg-white p-1 text-gray-400 shadow-sm transition-all hover:border-orange-200 hover:text-brand-orange"
                     title={`Copiar ${label}`}
                     aria-label={`Copiar ${label}`}
                 >

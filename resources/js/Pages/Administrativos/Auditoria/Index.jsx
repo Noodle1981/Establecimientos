@@ -1,9 +1,9 @@
+import KPICard from '@/Components/KPICard';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 import AuditoriaFilters from './Partials/AuditoriaFilters';
 import AuditoriaTable from './Partials/AuditoriaTable';
-import KPICard from '@/Components/KPICard';
 import StatusUpdateModal from './Partials/StatusUpdateModal';
 
 export default function Index({

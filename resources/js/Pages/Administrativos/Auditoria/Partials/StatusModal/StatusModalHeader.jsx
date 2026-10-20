@@ -1,6 +1,9 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 
-const StatusModalHeader = memo(function StatusModalHeader({ establecimientoNombre, onClose }) {
+const StatusModalHeader = memo(function StatusModalHeader({
+    establecimientoNombre,
+    onClose,
+}) {
     return (
         <div className="mb-6 flex items-center gap-4 border-b pb-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-orange-100 bg-orange-50 text-xl text-brand-orange shadow-sm">

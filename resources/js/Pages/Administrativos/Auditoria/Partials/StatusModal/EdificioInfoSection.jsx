@@ -1,6 +1,6 @@
 import CopyableField from '@/Components/CopyableField';
 import InputLabel from '@/Components/InputLabel';
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 const EdificioInfoSection = memo(function EdificioInfoSection({
     modalidad,
@@ -28,10 +28,7 @@ const EdificioInfoSection = memo(function EdificioInfoSection({
                         value={nombreEdificio}
                     />
                 )}
-                <CopyableField
-                    label="Dirección Física"
-                    value={direccion}
-                />
+                <CopyableField label="Dirección Física" value={direccion} />
                 <div className="grid grid-cols-3 gap-1.5">
                     <div className="rounded-xl border border-gray-100 bg-gray-50 p-1.5 text-center">
                         <p className="mb-0.5 text-[7px] font-black uppercase text-gray-400">
@@ -58,12 +55,7 @@ const EdificioInfoSection = memo(function EdificioInfoSection({
                         </p>
                     </div>
                 </div>
-                {gps && (
-                    <CopyableField
-                        label="GPS"
-                        value={gps}
-                    />
-                )}
+                {gps && <CopyableField label="GPS" value={gps} />}
                 <div className="grid grid-cols-3 gap-2">
                     <CopyableField
                         label="Departamento"

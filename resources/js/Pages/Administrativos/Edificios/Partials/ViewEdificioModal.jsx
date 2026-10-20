@@ -1,6 +1,6 @@
+import DetailItem from '@/Components/DetailItem';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
-import DetailItem from '@/Components/DetailItem';
 
 export default function ViewEdificioModal({ show, onClose, edificio }) {
     if (!edificio) return null;
