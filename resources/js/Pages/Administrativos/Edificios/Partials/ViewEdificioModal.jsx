@@ -63,6 +63,7 @@ export default function ViewEdificioModal({ show, onClose, edificio }) {
                     </h4>
                     <div className="space-y-3">
                         {edificio.establecimientos &&
+                        edificio.establecimientos.length > 0 ? (
                             edificio.establecimientos.map((est) => (
                                 <div
                                     key={est.id}
@@ -78,7 +79,12 @@ export default function ViewEdificioModal({ show, onClose, edificio }) {
                                     </div>
                                     <i className="fas fa-chevron-right text-gray-200 transition-colors group-hover:text-brand-orange"></i>
                                 </div>
-                            ))}
+                            ))
+                        ) : (
+                            <p className="py-2 text-xs font-medium italic text-black/40">
+                                No hay establecimientos asociados a este edificio.
+                            </p>
+                        )}
                     </div>
                 </div>
 

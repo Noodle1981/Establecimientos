@@ -87,6 +87,21 @@ export default function Index({ edificios, filters, options }) {
         );
     };
 
+    const handleResetFilters = () => {
+        setSearch('');
+        setSearchCui('');
+        searchRef.current = '';
+        searchCuiRef.current = '';
+        router.get(
+            route('administrativos.edificios.index'),
+            {},
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
+    };
+
     // Modal Handlers
     const openEdit = (edificio) => {
         setSelectedEdificio(edificio);
@@ -130,6 +145,7 @@ export default function Index({ edificios, filters, options }) {
                     onParamChange={handleParamChange}
                     totalCount={edificios.total}
                     onOpenCreateModal={() => setShowCreateModal(true)}
+                    onResetFilters={handleResetFilters}
                 />
 
                 {/* Table */}
@@ -140,6 +156,7 @@ export default function Index({ edificios, filters, options }) {
                     onView={openView}
                     onEdit={openEdit}
                     onDelete={handleDelete}
+                    onResetFilters={handleResetFilters}
                 />
             </div>
 
